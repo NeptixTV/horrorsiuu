@@ -1,0 +1,29 @@
+.dlg { padding: 12px 14px; display: flex; flex-direction: column; gap: 14px; }
+.dlg h3 { margin: 0 0 8px; font-size: 11px; text-transform: uppercase; letter-spacing: .08em; color: var(--dim); }
+.dlg-themes { display: grid; grid-template-columns: repeat(5, 1fr); gap: 6px; }
+.dlg-swatches { display: flex; gap: 5px; align-items: center; flex-wrap: wrap; }
+.dlg-swatch { width: 22px; height: 22px; border-radius: 50%; border: 2px solid transparent; cursor: pointer; }
+.dlg-swatch.active { border-color: #fff; box-shadow: 0 0 8px rgba(255,255,255,.4); }
+.dlg-swatch.reset { background: var(--panel3); color: var(--text); font-size: 10px; font-weight: 700; }
+.dlg input[type=color] { width: 30px; height: 24px; border: 1px solid var(--border); background: none; padding: 0; cursor: pointer; border-radius: 4px; }
+.dlg-colors { display: grid; grid-template-columns: 1fr 1fr; gap: 6px; }
+.dlg-colors label { display: flex; align-items: center; gap: 8px; }
+.dlg-stats { display: grid; grid-template-columns: auto 1fr; gap: 4px 14px; margin-bottom: 10px; }
+.dlg-stats span { color: var(--dim); }
+.dlg-stats b { font-family: var(--mono); color: var(--accent2); }
+.dlg-check { display: flex; align-items: center; gap: 8px; margin-bottom: 8px; }
+.dlg-row { display: flex; gap: 6px; }
+.dlg-list { display: flex; flex-direction: column; gap: 3px; max-height: 360px; overflow-y: auto; }
+.dlg-item { display: flex; align-items: center; gap: 10px; padding: 7px 8px; border-radius: 4px; background: var(--bg); border: 1px solid var(--border); }
+.dlg-item.active { border-color: var(--accent); }
+.dlg-item:hover { background: var(--panel3); }
+.dlg-item-main { flex: 1; min-width: 0; }
+.dlg-item-name { font-weight: 600; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.dlg-item-sub { font-size: 10px; color: var(--dim); }
+.dlg-shortcuts { display: flex; flex-direction: column; gap: 5px; max-height: 60vh; overflow-y: auto; }
+.dlg-sc { display: flex; justify-content: space-between; gap: 10px; align-items: center; }
+.about { align-items: center; text-align: center; }
+.about img { width: 90px; filter: drop-shadow(0 0 16px color-mix(in srgb, var(--accent) 50%, transparent)); }
+.about h2 { margin: 4px 0 0; }
+.about p { margin: 0; line-height: 1.5; }
+.crumb { color: var(--dim); font-weight: 400; }

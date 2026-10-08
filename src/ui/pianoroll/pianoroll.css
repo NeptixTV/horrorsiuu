@@ -1,0 +1,15 @@
+.piano { display: flex; flex-direction: column; height: 100%; min-height: 0; background: var(--panel); }
+.piano-head { display: flex; align-items: center; gap: 6px; padding: 4px 8px; border-bottom: 1px solid var(--border); background: var(--panel2); flex-shrink: 0; flex-wrap: wrap; }
+.piano-head select.input { height: 22px; }
+.zoom-range.short { width: 50px; }
+.piano-body { flex: 1; display: flex; flex-direction: column; min-height: 0; }
+.piano-ruler-row { display: flex; height: 20px; flex-shrink: 0; }
+.piano-ruler { flex: 1; display: block; min-width: 0; height: 20px; }
+.piano-main { flex: 1; display: flex; min-height: 0; }
+.piano-keys { width: 56px; flex-shrink: 0; display: block; cursor: pointer; border-right: 1px solid var(--border); touch-action: none; }
+.piano-grid-wrap { flex: 1; position: relative; min-width: 0; }
+.piano-vel-row { display: flex; height: 70px; flex-shrink: 0; border-top: 1px solid var(--border); }
+.piano-vel-label { display: flex; align-items: center; justify-content: center; color: var(--dim); font-size: 9px; letter-spacing: .1em; background: var(--panel2); border-right: 1px solid var(--border); flex-shrink: 0; }
+.piano-vel { flex: 1; display: block; min-width: 0; height: 70px; cursor: ns-resize; touch-action: none; }
+.piano-empty { position: absolute; top: 10px; left: 50%; transform: translateX(-50%); z-index: 3; background: rgba(0,0,0,.6); border: 1px solid var(--panel3); padding: 6px 12px; border-radius: 6px; color: var(--text); display: flex; gap: 6px; align-items: center; white-space: nowrap; pointer-events: auto; }
+.piano-empty span { display: inline-flex; gap: 4px; align-items: center; color: var(--dim); }

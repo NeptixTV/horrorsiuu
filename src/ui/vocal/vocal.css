@@ -1,0 +1,21 @@
+.vc { display: flex; height: 100%; min-height: 0; gap: 0; }
+.vc-input { width: 340px; flex-shrink: 0; padding: 10px; border-right: 1px solid var(--border); display: flex; flex-direction: column; gap: 10px; overflow-y: auto; background: var(--panel2); }
+.vc-tune { flex: 1; min-width: 0; padding: 10px; overflow-y: auto; }
+.vc-title { display: flex; align-items: center; gap: 6px; font-weight: 700; flex-wrap: wrap; }
+.vc-title svg { color: var(--accent); }
+.vc-field { display: flex; flex-direction: column; gap: 3px; }
+.vc-field select { width: 100%; }
+.vc-row { display: flex; align-items: center; gap: 6px; }
+.vc-row select.input { flex: 1; min-width: 0; }
+.vc-col { display: flex; flex-direction: column; gap: 6px; flex: 1; min-width: 0; }
+.vc-meter-row { align-items: flex-start; }
+.vc-rec {
+  height: 40px; border-radius: 6px; border: 1px solid #000; cursor: pointer; display: flex; align-items: center; justify-content: center; gap: 10px;
+  font-weight: 700; font-size: 13px; color: #fff; background: linear-gradient(180deg, #5a2626, #3a1616);
+}
+.vc-rec:hover { background: linear-gradient(180deg, #6a2c2c, #461a1a); }
+.vc-rec.on { background: linear-gradient(180deg, var(--rec), #b01f1f); animation: recPulse 1s infinite; }
+.vc-rec-dot { width: 12px; height: 12px; border-radius: 50%; background: var(--rec); box-shadow: 0 0 10px var(--rec); }
+.vc-rec.on .vc-rec-dot { background: #fff; }
+.vc-timer { font-family: var(--mono); font-weight: 400; }
+.vc-hint { color: var(--dim); font-size: 10.5px; line-height: 1.5; margin: 0; }

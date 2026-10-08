@@ -1,0 +1,14 @@
+{
+  "name": "Goofy Studio",
+  "short_name": "Goofy Studio",
+  "description": "A complete digital audio workstation in your browser.",
+  "start_url": "./",
+  "scope": "./",
+  "display": "standalone",
+  "background_color": "#030304",
+  "theme_color": "#121417",
+  "icons": [
+    { "src": "icons/icon-192.png", "sizes": "192x192", "type": "image/png" },
+    { "src": "icons/icon-512.png", "sizes": "512x512", "type": "image/png" }
+  ]
+}

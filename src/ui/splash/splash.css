@@ -1,0 +1,53 @@
+.splash {
+  position: fixed; inset: 0; z-index: 20000; background: #030304; display: flex; align-items: center; justify-content: center;
+  overflow: hidden; transition: opacity .7s ease, filter .7s ease;
+}
+.splash.out { opacity: 0; filter: blur(6px); pointer-events: none; }
+.splash-center { position: relative; display: flex; flex-direction: column; align-items: center; }
+.splash-logo-wrap {
+  position: relative; width: 150px; height: 214px;
+  animation: logoRise 1.6s cubic-bezier(.22,.9,.25,1) both, logoFloat 4.5s ease-in-out 1.6s infinite;
+}
+.splash-logo { width: 100%; height: 100%; object-fit: contain; filter: drop-shadow(0 0 22px rgba(242,140,40,.55)) drop-shadow(0 10px 30px rgba(0,0,0,.8)); }
+.splash-shine {
+  position: absolute; inset: 0; pointer-events: none; mix-blend-mode: screen;
+  background: linear-gradient(115deg, transparent 35%, rgba(255,255,255,.55) 50%, transparent 65%);
+  background-size: 250% 100%; animation: shine 2.6s ease-in-out .9s infinite;
+  -webkit-mask-size: contain; mask-size: contain; -webkit-mask-repeat: no-repeat; mask-repeat: no-repeat;
+  -webkit-mask-position: center; mask-position: center;
+  opacity: .45;
+}
+@keyframes logoRise {
+  0% { opacity: 0; transform: translateY(70px) scale(.86); filter: blur(8px); }
+  55% { opacity: 1; transform: translateY(-14px) scale(1.03); filter: blur(0); }
+  100% { opacity: 1; transform: translateY(0) scale(1); }
+}
+@keyframes logoFloat { 0%, 100% { transform: translateY(0); } 50% { transform: translateY(-8px); } }
+@keyframes shine { 0% { background-position: 150% 0; } 60%, 100% { background-position: -100% 0; } }
+
+.splash-glow { position: absolute; border-radius: 50%; filter: blur(70px); opacity: 0; animation: glowIn 1.8s ease .2s forwards, glowPulse 5s ease-in-out 2s infinite; }
+.splash-glow.g1 { width: 520px; height: 520px; background: radial-gradient(circle, rgba(242,140,40,.55), transparent 65%); }
+.splash-glow.g2 { width: 380px; height: 380px; background: radial-gradient(circle, rgba(130,200,70,.28), transparent 70%); transform: translate(90px, -80px); animation-delay: .5s, 2.4s; }
+@keyframes glowIn { to { opacity: .9; } }
+@keyframes glowPulse { 0%, 100% { scale: 1; } 50% { scale: 1.12; } }
+.splash-rays {
+  position: absolute; width: 1200px; height: 1200px; opacity: .07;
+  background: repeating-conic-gradient(from 0deg, rgba(255,170,80,.9) 0deg 2deg, transparent 2deg 15deg);
+  -webkit-mask: radial-gradient(circle, #000 0%, transparent 60%); mask: radial-gradient(circle, #000 0%, transparent 60%);
+  animation: spin 60s linear infinite;
+}
+@keyframes spin { to { transform: rotate(360deg); } }
+
+.splash-title {
+  margin-top: 22px; font-size: 30px; font-weight: 800; letter-spacing: .32em; color: #fff;
+  animation: fadeUp .9s ease .7s both; text-shadow: 0 0 18px rgba(242,140,40,.45);
+}
+.splash-title span { color: #f28c28; margin-left: .3em; }
+.splash-sub { margin-top: 6px; font-size: 11px; letter-spacing: .5em; color: #7a7f86; text-transform: uppercase; animation: fadeUp .9s ease .9s both; }
+@keyframes fadeUp { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: none; } }
+
+.splash-progress { margin-top: 34px; width: 260px; height: 3px; background: rgba(255,255,255,.07); border-radius: 2px; overflow: hidden; opacity: 0; transition: opacity .4s; }
+.splash.loading .splash-progress, .splash.out .splash-progress { opacity: 1; }
+.splash-bar { height: 100%; width: 100%; transform-origin: left; background: linear-gradient(90deg, #f28c28, #ffd27a); box-shadow: 0 0 12px #f28c28; transition: transform .35s ease; }
+.splash-label { margin-top: 10px; height: 14px; font-size: 10.5px; color: #8b9097; font-family: var(--mono); letter-spacing: .03em; }
+.splash-footer { position: absolute; bottom: 18px; font-size: 10px; color: #3d4248; letter-spacing: .2em; }
