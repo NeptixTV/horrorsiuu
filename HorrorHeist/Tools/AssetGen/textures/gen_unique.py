@@ -606,11 +606,230 @@ def icons():
     finish(img, 'Door')
 
 
+# =======================================================================================
+# Chain-link, clock face
+
+def chainlink():
+    S = 256
+    yy, xx = np.mgrid[0:S, 0:S] / S * 4
+    a = np.abs(((xx + yy) % 1) - 0.5)
+    b = np.abs(((xx - yy) % 1) - 0.5)
+    wire = np.maximum(1 - T.smoothstep(0.03, 0.06, 0.5 - a), 1 - T.smoothstep(0.03, 0.06, 0.5 - b))
+    shade = 0.55 + 0.25 * np.sin((xx + yy) * np.pi * 2) ** 2
+    rgba = np.stack([shade * 0.62, shade * 0.63, shade * 0.62, wire], -1)
+    T.save_rgba(os.path.join(OUT, 'T_ChainLink.png'), rgba)
+
+
+def clockface():
+    S = 512
+    img = aged_paper(S, S, (0.88, 0.86, 0.78), seed=90, stains=0.2)
+    d = ImageDraw.Draw(img)
+    c = S / 2
+    d.ellipse([8, 8, S - 8, S - 8], outline=(30, 30, 30), width=10)
+    for i in range(60):
+        ang = i / 60 * 2 * math.pi
+        r0 = 0.42 * S if i % 5 else 0.38 * S
+        d.line([(c + math.sin(ang) * r0, c - math.cos(ang) * r0),
+                (c + math.sin(ang) * 0.45 * S, c - math.cos(ang) * 0.45 * S)], fill=(30, 30, 30), width=3 if i % 5 else 7)
+    for h in range(1, 13):
+        ang = h / 12 * 2 * math.pi
+        d.text((c + math.sin(ang) * 0.31 * S, c - math.cos(ang) * 0.31 * S), str(h), font=DISPLAY_M(44),
+               fill=(30, 30, 30), anchor='mm')
+    d.text((c, c + 70), 'HOLLOWMERE SAVINGS', font=COND(22), fill=(110, 40, 30), anchor='mm')
+    # Stopped at 3:17.
+    for frac, length, width in ((3 / 12 + 17 / 720, 0.22, 12), (17 / 60, 0.36, 7)):
+        ang = frac * 2 * math.pi
+        d.line([(c, c), (c + math.sin(ang) * length * S, c - math.cos(ang) * length * S)], fill=(20, 20, 20), width=width)
+    d.ellipse([c - 12, c - 12, c + 12, c + 12], fill=(20, 20, 20))
+    img.save(os.path.join(OUT, 'T_ClockFace.jpg'), quality=90)
+
+
+# =======================================================================================
+# Night photographs (mission dossiers + polaroids on the job board)
+
+def _poly(draw, pts, fill):
+    draw.polygon([(float(x), float(y)) for x, y in pts], fill=fill)
+
+
+def night_photo(kind, w=1024, h=768, seed=0):
+    T.seed(300 + seed)
+    rnd = np.random.default_rng(300 + seed)
+    size = max(w, h)
+    yy = np.linspace(0, 1, h)[:, None]
+    horizon = 0.62
+    sky = T.lerp(np.array([0.035, 0.04, 0.06]), np.array([0.16, 0.17, 0.19]), np.clip(yy / horizon, 0, 1) ** 2)[..., :] * np.ones((h, w, 1))
+    clouds = T.fbm(size, 3, 6)[:h, :w]
+    sky = sky * (0.8 + 0.4 * clouds[..., None])
+    img = np.array(sky)
+    ground = np.clip((yy - horizon) / (1 - horizon), 0, 1)
+    grass = T.fbm(size, 64, 4)[:h, :w]
+    flash = np.clip((yy - horizon) / (1 - horizon), 0, 1) ** 1.6
+    ground_col = np.array([0.03, 0.035, 0.03]) + flash[..., None] * np.array([0.18, 0.2, 0.17]) * (0.6 + 0.8 * grass[..., None])
+    img = np.where((yy > horizon)[..., None] * np.ones((1, w, 1)) > 0, ground_col * np.ones((h, w, 1)), img)
+
+    # Tree line.
+    tree_n = T.fbm(size, 24, 5)[0, :w]
+    tree_top = (horizon - 0.06 - 0.12 * tree_n)[None, :]
+    trees = (yy > tree_top) & (yy < horizon + 0.01)
+    img[trees] = np.array([0.015, 0.018, 0.02])
+
+    layer = Image.new('L', (w, h), 0)          # house silhouette mask
+    lights = Image.new('RGB', (w, h), (0, 0, 0))
+    d = ImageDraw.Draw(layer)
+    dl = ImageDraw.Draw(lights)
+    hy = int(horizon * h)
+    warm = (255, 170, 90)
+
+    def window(x0, y0, x1, y1, lit, colour=warm):
+        if lit:
+            dl.rectangle([x0, y0, x1, y1], fill=colour)
+        else:
+            dl.rectangle([x0, y0, x1, y1], fill=(10, 10, 14))
+        dl.line([(x0 + x1) / 2, y0, (x0 + x1) / 2, y1], fill=(0, 0, 0), width=3)
+        dl.line([x0, (y0 + y1) / 2, x1, (y0 + y1) / 2], fill=(0, 0, 0), width=3)
+
+    if kind == 'vance':
+        _poly(d, [(300, hy + 40), (300, hy - 170), (520, hy - 300), (740, hy - 170), (740, hy + 40)], 255)
+        d.rectangle([740, hy - 90, 900, hy + 40], fill=255)
+        _poly(d, [(735, hy - 90), (820, hy - 150), (905, hy - 90)], 255)
+        d.rectangle([640, hy - 270, 670, hy - 200], fill=255)
+        window(350, hy - 130, 420, hy - 60, False)
+        window(470, hy - 130, 540, hy - 60, True)
+        window(600, hy - 130, 670, hy - 60, False)
+        window(490, hy - 240, 550, hy - 190, False)
+        dl.rectangle([560, hy - 40, 610, hy + 40], fill=(16, 14, 12))
+        d.rectangle([170, hy + 20, 178, hy + 110], fill=255)
+        d.rectangle([150, hy + 6, 200, hy + 30], fill=255)
+    elif kind == 'marrow':
+        _poly(d, [(260, hy + 40), (260, hy - 220), (420, hy - 360), (580, hy - 220), (580, hy + 40)], 255)
+        d.rectangle([580, hy - 160, 820, hy + 40], fill=255)
+        _poly(d, [(570, hy - 160), (700, hy - 250), (830, hy - 160)], 255)
+        d.rectangle([180, hy - 300, 270, hy + 40], fill=255)
+        _poly(d, [(170, hy - 300), (225, hy - 420), (280, hy - 300)], 255)
+        for x in (300, 380, 460, 610, 700):
+            window(x, hy - 120, x + 50, hy - 40, False)
+        window(395, hy - 290, 445, hy - 240, True, (255, 200, 140))
+        window(205, hy - 250, 245, hy - 200, False)
+        # Dead tree.
+        dt = [(900, hy + 40), (905, hy - 260)]
+        d.line(dt, fill=255, width=16)
+        for k in range(9):
+            y0 = hy - 120 - k * 16
+            d.line([(905, y0), (905 + (-1) ** k * rnd.integers(50, 120), y0 - rnd.integers(30, 80))], fill=255, width=6)
+    elif kind == 'rectory':
+        d.rectangle([180, hy - 200, 640, hy + 40], fill=255)
+        _poly(d, [(170, hy - 200), (410, hy - 320), (650, hy - 200)], 255)
+        d.rectangle([700, hy - 380, 800, hy + 40], fill=255)
+        _poly(d, [(690, hy - 380), (750, hy - 560), (810, hy - 380)], 255)
+        d.line([(750, hy - 560), (750, hy - 610)], fill=255, width=6)
+        d.line([(730, hy - 590), (770, hy - 590)], fill=255, width=6)
+        for x in (230, 330, 430, 530):
+            dl.rectangle([x, hy - 140, x + 46, hy - 50], fill=(12, 12, 16))
+            dl.ellipse([x, hy - 163, x + 46, hy - 117], fill=(12, 12, 16))
+        dl.ellipse([735, hy - 330, 765, hy - 300], fill=(60, 40, 20))
+        for x in range(0, w, 26):
+            d.line([(x, hy + 30), (x, hy + 130)], fill=255, width=4)
+            _poly(d, [(x - 6, hy + 34), (x, hy + 18), (x + 6, hy + 34)], 255)
+        d.line([(0, hy + 50), (w, hy + 50)], fill=255, width=4)
+        d.line([(0, hy + 110), (w, hy + 110)], fill=255, width=4)
+    elif kind == 'whitlock':
+        _poly(d, [(120, hy + 20), (120, hy - 120), (250, hy - 220), (380, hy - 120), (380, hy + 20)], 255)
+        _poly(d, [(560, hy + 20), (560, hy - 170), (640, hy - 260), (800, hy - 260), (880, hy - 170), (880, hy + 20)], 255)
+        d.line([(980, hy + 20), (980, hy - 260)], fill=255, width=8)
+        for k in range(4):
+            ang = k * math.pi / 2 + 0.3
+            d.line([(980, hy - 260), (980 + math.cos(ang) * 90, hy - 260 + math.sin(ang) * 90)], fill=255, width=10)
+        window(170, hy - 90, 220, hy - 40, False)
+        window(280, hy - 90, 330, hy - 40, False)
+        dl.rectangle([690, hy - 80, 750, hy + 20], fill=(150, 12, 8))
+    elif kind == 'van':
+        _poly(d, [(200, hy + 120), (200, hy - 140), (260, hy - 200), (760, hy - 200), (800, hy - 120), (840, hy - 40), (840, hy + 120)], 255)
+        dl.rectangle([270, hy - 180, 360, hy - 110], fill=(12, 12, 16))
+        d.ellipse([280, hy + 80, 380, hy + 180], fill=255)
+        d.ellipse([660, hy + 80, 760, hy + 180], fill=255)
+    elif kind == 'hallway':
+        img[:] = np.array([0.02, 0.02, 0.022])
+        d.rectangle([0, 0, w, h], fill=255)
+        dl.rectangle([440, 200, 600, 640], fill=(22, 18, 14))
+        dl.rectangle([470, 230, 570, 640], fill=(4, 4, 5))
+        dl.line([(470, 640), (570, 640)], fill=(80, 60, 40), width=4)
+    elif kind == 'window':
+        d.rectangle([0, 0, w, h], fill=255)
+        dl.rectangle([360, 180, 680, 600], fill=(30, 34, 40))
+        dl.ellipse([480, 300, 560, 400], fill=(110, 112, 110))
+        dl.rectangle([470, 390, 570, 600], fill=(80, 82, 80))
+        dl.line([(520, 180), (520, 600)], fill=(10, 10, 10), width=10)
+        dl.line([(360, 390), (680, 390)], fill=(10, 10, 10), width=10)
+    elif kind == 'painting':
+        img[:] = np.array([0.06, 0.05, 0.04])
+        d.rectangle([0, 0, w, h], fill=0)
+        dl.rectangle([300, 120, 724, 660], fill=(90, 70, 40))
+        dl.rectangle([330, 150, 694, 630], fill=(14, 14, 16))
+        dl.ellipse([495, 380, 535, 420], fill=(255, 210, 140))
+        dl.polygon([(485, 430), (545, 430), (565, 620), (465, 620)], fill=(6, 6, 7))
+        dl.ellipse([490, 320, 540, 370], fill=(6, 6, 7))
+
+    mask = np.array(layer.filter(ImageFilter.GaussianBlur(1.2))).astype(float)[..., None] / 255
+    house_col = np.array([0.03, 0.03, 0.035])
+    img = T.lerp(img, house_col * (0.85 + 0.3 * T.fbm(size, 32, 3)[:h, :w, None]), mask)
+    lit = np.array(lights).astype(float) / 255
+    lit_mask = (lit.sum(-1, keepdims=True) > 0.001).astype(float)
+    img = T.lerp(img, lit, lit_mask)
+    glow = np.array(lights.filter(ImageFilter.GaussianBlur(28))).astype(float) / 255
+    img = img + glow * 0.9
+
+    if kind in ('vance', 'marrow', 'rectory'):
+        lx = {'vance': 90, 'marrow': 980, 'rectory': 60}[kind]
+        yv, xv = np.mgrid[0:h, 0:w]
+        r = np.sqrt((xv - lx) ** 2 + (yv - (hy - 260)) ** 2)
+        img += np.exp(-r / 140)[..., None] * np.array([1.0, 0.55, 0.2]) * 0.55
+        img[(np.abs(xv - lx) < 4) & (yv > hy - 260) & (yv < hy + 60)] = 0.02
+
+    # Film: fog, grade, vignette, grain, leak.
+    fog = np.exp(-((yy - horizon) / 0.08) ** 2)[..., None] * np.array([0.10, 0.11, 0.12])
+    img = img + fog * 0.5
+    img = img * np.array([0.95, 1.0, 1.05]) + np.array([0.035, 0.04, 0.045])
+    yv, xv = np.mgrid[0:h, 0:w]
+    vig = 1 - 0.75 * (((xv / w - 0.5) * 1.1) ** 2 + ((yv / h - 0.5) * 1.2) ** 2) * 1.6
+    img = img * np.clip(vig, 0.2, 1)[..., None]
+    img = img + rnd.normal(0, 0.035, (h, w, 1)) + rnd.normal(0, 0.012, (h, w, 3))
+    leak = np.clip(1 - xv / (w * 0.35), 0, 1) ** 3 * (0.5 + 0.5 * np.sin(yv / h * 3))
+    img = img + leak[..., None] * np.array([0.35, 0.12, 0.03]) * (0.5 if seed % 2 else 0.0)
+    out_ = Image.fromarray((np.clip(img, 0, 1) ** (1 / 1.15) * 255).astype(np.uint8))
+    return out_.filter(ImageFilter.GaussianBlur(0.7))
+
+
+MISSION_PHOTOS = [('vance', 'T_Mission_Vance', '14 Ashgrove'), ('marrow', 'T_Mission_Marrow', 'Marrow St.'),
+                  ('rectory', 'T_Mission_Rectory', 'St. Agnes'), ('whitlock', 'T_Mission_Whitlock', 'Whitlock')]
+EXTRA_PHOTOS = [('van', 'the van'), ('hallway', 'basement??'), ('window', 'who is that'), ('painting', 'the Lantern Bearer')]
+
+
+def mission_photos():
+    for i, (kind, name, _) in enumerate(MISSION_PHOTOS):
+        night_photo(kind, seed=i).save(os.path.join(OUT, name + '.jpg'), quality=90)
+
+
+def polaroids():
+    atlas = Image.new('RGB', (2048, 1024), (0, 0, 0))
+    entries = [(k, cap) for k, _, cap in MISSION_PHOTOS] + EXTRA_PHOTOS
+    for i, (kind, caption) in enumerate(entries):
+        tile = aged_paper(512, 512, (0.90, 0.89, 0.85), seed=200 + i, stains=0.12)
+        photo = night_photo(kind, seed=10 + i).crop((92, 0, 932, 768)).resize((440, 400), Image.LANCZOS)
+        tile.paste(photo, (36, 30))
+        d = ImageDraw.Draw(tile)
+        d.text((256, 448), caption, font=SCRAWL(52), fill=(30, 30, 40), anchor='mm')
+        atlas.paste(tile, ((i % 4) * 512, (i // 4) * 512))
+    atlas.save(os.path.join(OUT, 'T_Polaroids.jpg'), quality=90)
+
+
 if __name__ == '__main__':
     os.chdir(os.path.join(os.path.dirname(__file__), '..', '..', '..'))
     for folder in (OUT, DECALS, UI):
         os.makedirs(folder, exist_ok=True)
+    only = set(sys.argv[1:])
     for fn in (decals, town_map, notes_atlas, missing_poster, museum_poster, calendar, newspaper, signs,
-               screens_and_rain, ui_images, icons):
+               screens_and_rain, ui_images, icons, chainlink, clockface, mission_photos, polaroids):
+        if only and fn.__name__ not in only:
+            continue
         print('->', fn.__name__, flush=True)
         fn()

@@ -161,12 +161,14 @@ def wood_raw():
 def metal_painted():
     seed(106)
     base = fbm(S, 4, 5)
-    chips = smoothstep(0.66, 0.72, warp(fbm(S, 12, 5), 0.03, 6))
+    # Small chips, clustered in a few worn patches (most of the paint is intact).
+    patches = smoothstep(0.55, 0.7, fbm(S, 3, 4))
+    chips = smoothstep(0.7, 0.74, warp(fbm(S, 24, 5), 0.02, 8)) * patches
     chip_edge = np.clip(blur(chips, 2) - chips * 0.6, 0, 1)
     rust = chips * smoothstep(0.4, 0.7, fbm(S, 16, 4))
     scratches = np.zeros((S, S))
     r = rng()
-    for _ in range(120):
+    for _ in range(60):
         y = r.integers(0, S)
         x = r.integers(0, S)
         length = r.integers(20, 160)
@@ -175,7 +177,7 @@ def metal_painted():
             sy = int(y + np.sin(angle) * t) % S
             sx = int(x + np.cos(angle) * t) % S
             scratches[sy, sx] = 1
-    scratches = blur(scratches, 1) * 3
+    scratches = blur(scratches, 1) * 1.6
     grime = fbm(S, 3, 5)
     # Paint is near white so material instances tint it (green, grey, blue...).
     paint = color([0.78, 0.78, 0.76]) * (0.92 + 0.12 * base[..., None])
@@ -371,9 +373,27 @@ def gravel():
     save_pbr(OUT, 'T_Asphalt_Wet', bc, stones * 0.5, 0.45 - 0.3 * wet, normal_strength=5.0)
 
 
+def pegboard():
+    # 0.4 m tile, holes on a 25 mm grid: brown hardboard with a slightly glossy face.
+    seed(121)
+    holes = 16
+    yy, xx = np.mgrid[0:S, 0:S] / S * holes
+    d = np.sqrt((xx % 1 - 0.5) ** 2 + (yy % 1 - 0.5) ** 2)
+    hole = 1 - smoothstep(0.11, 0.14, d)
+    rim = smoothstep(0.11, 0.14, d) * (1 - smoothstep(0.14, 0.2, d))
+    fibre = fbm(S, 64, 3)
+    grime = fbm(S, 2, 5)
+    bc = color([0.40, 0.28, 0.18]) * (0.9 + 0.12 * fibre[..., None]) * (0.75 + 0.3 * grime[..., None])
+    bc = lerp(bc, color([0.02, 0.015, 0.01]), hole)
+    bc = lerp(bc, bc * 0.8, rim)
+    height = 1 - hole - rim * 0.3 + fibre * 0.03
+    rough = 0.62 + 0.15 * grime + 0.3 * hole
+    save_pbr(OUT, 'T_Pegboard', bc, height, rough, normal_strength=5.0)
+
+
 ALL = [concrete_floor, cinderblock_painted, brick_old, wood_planks, wood_raw, metal_painted, metal_rust,
        metal_steel, fabric_couch, leather_worn, cardboard, cork, rubber, knit, denim, cotton, nylon, skin,
-       plaster, gravel]
+       plaster, gravel, pegboard]
 
 if __name__ == '__main__':
     os.chdir(os.path.join(os.path.dirname(__file__), '..', '..', '..'))

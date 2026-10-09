@@ -1,0 +1,7081 @@
+{
+ "level": "L_Hideout",
+ "units": "cm",
+ "actors": [
+  {
+   "name": "SM_HO_Floor_1",
+   "cls": "StaticMeshActor",
+   "folder": "Architecture",
+   "mesh": "SM_HO_Floor",
+   "location": [
+    0.0,
+    -0.0,
+    0.0
+   ],
+   "quat": [
+    0.0,
+    0.0,
+    0.0,
+    1.0
+   ],
+   "scale": [
+    1.0,
+    1.0,
+    1.0
+   ]
+  },
+  {
+   "name": "SM_HO_Walls_1",
+   "cls": "StaticMeshActor",
+   "folder": "Architecture",
+   "mesh": "SM_HO_Walls",
+   "location": [
+    0.0,
+    -0.0,
+    0.0
+   ],
+   "quat": [
+    0.0,
+    0.0,
+    0.0,
+    1.0
+   ],
+   "scale": [
+    1.0,
+    1.0,
+    1.0
+   ]
+  },
+  {
+   "name": "SM_HO_BoilerRoom_1",
+   "cls": "StaticMeshActor",
+   "folder": "Architecture",
+   "mesh": "SM_HO_BoilerRoom",
+   "location": [
+    0.0,
+    -0.0,
+    0.0
+   ],
+   "quat": [
+    0.0,
+    0.0,
+    0.0,
+    1.0
+   ],
+   "scale": [
+    1.0,
+    1.0,
+    1.0
+   ]
+  },
+  {
+   "name": "SM_HO_Ceiling_1",
+   "cls": "StaticMeshActor",
+   "folder": "Architecture",
+   "mesh": "SM_HO_Ceiling",
+   "location": [
+    0.0,
+    -0.0,
+    0.0
+   ],
+   "quat": [
+    0.0,
+    0.0,
+    0.0,
+    1.0
+   ],
+   "scale": [
+    1.0,
+    1.0,
+    1.0
+   ]
+  },
+  {
+   "name": "SM_HO_Stairs_1",
+   "cls": "StaticMeshActor",
+   "folder": "Architecture",
+   "mesh": "SM_HO_Stairs",
+   "location": [
+    0.0,
+    -0.0,
+    0.0
+   ],
+   "quat": [
+    0.0,
+    0.0,
+    0.0,
+    1.0
+   ],
+   "scale": [
+    1.0,
+    1.0,
+    1.0
+   ]
+  },
+  {
+   "name": "SM_HO_Railing_1",
+   "cls": "StaticMeshActor",
+   "folder": "Architecture",
+   "mesh": "SM_HO_Railing",
+   "location": [
+    0.0,
+    -0.0,
+    0.0
+   ],
+   "quat": [
+    0.0,
+    0.0,
+    0.0,
+    1.0
+   ],
+   "scale": [
+    1.0,
+    1.0,
+    1.0
+   ]
+  },
+  {
+   "name": "SM_HO_Outside_1",
+   "cls": "StaticMeshActor",
+   "folder": "Architecture",
+   "mesh": "SM_HO_Outside",
+   "location": [
+    0.0,
+    -0.0,
+    0.0
+   ],
+   "quat": [
+    0.0,
+    0.0,
+    0.0,
+    1.0
+   ],
+   "scale": [
+    1.0,
+    1.0,
+    1.0
+   ]
+  },
+  {
+   "name": "SM_IBeam_1",
+   "cls": "StaticMeshActor",
+   "folder": "Architecture",
+   "mesh": "SM_IBeam",
+   "location": [
+    0.0,
+    250.0,
+    340.0
+   ],
+   "quat": [
+    0.0,
+    0.0,
+    0.0,
+    1.0
+   ],
+   "scale": [
+    1.0,
+    1.0,
+    1.0
+   ]
+  },
+  {
+   "name": "SM_IBeam_2",
+   "cls": "StaticMeshActor",
+   "folder": "Architecture",
+   "mesh": "SM_IBeam",
+   "location": [
+    0.0,
+    -0.0,
+    340.0
+   ],
+   "quat": [
+    0.0,
+    0.0,
+    0.0,
+    1.0
+   ],
+   "scale": [
+    1.0,
+    1.0,
+    1.0
+   ]
+  },
+  {
+   "name": "SM_IBeam_3",
+   "cls": "StaticMeshActor",
+   "folder": "Architecture",
+   "mesh": "SM_IBeam",
+   "location": [
+    0.0,
+    -250.0,
+    340.0
+   ],
+   "quat": [
+    0.0,
+    0.0,
+    0.0,
+    1.0
+   ],
+   "scale": [
+    1.0,
+    1.0,
+    1.0
+   ]
+  },
+  {
+   "name": "SM_Column_Steel_1",
+   "cls": "StaticMeshActor",
+   "folder": "Architecture",
+   "mesh": "SM_Column_Steel",
+   "location": [
+    -120.0,
+    -0.0,
+    0.0
+   ],
+   "quat": [
+    0.0,
+    0.0,
+    0.0,
+    1.0
+   ],
+   "scale": [
+    1.0,
+    1.0,
+    1.0
+   ]
+  },
+  {
+   "name": "SM_Column_Steel_2",
+   "cls": "StaticMeshActor",
+   "folder": "Architecture",
+   "mesh": "SM_Column_Steel",
+   "location": [
+    260.0,
+    -0.0,
+    0.0
+   ],
+   "quat": [
+    0.0,
+    0.0,
+    0.0,
+    1.0
+   ],
+   "scale": [
+    1.0,
+    1.0,
+    1.0
+   ]
+  },
+  {
+   "name": "SM_Duct_1",
+   "cls": "StaticMeshActor",
+   "folder": "Architecture",
+   "mesh": "SM_Duct",
+   "location": [
+    -300.0,
+    -375.0,
+    340.0
+   ],
+   "quat": [
+    0.0,
+    0.0,
+    0.0,
+    1.0
+   ],
+   "scale": [
+    1.0,
+    1.0,
+    1.0
+   ]
+  },
+  {
+   "name": "SM_Duct_2",
+   "cls": "StaticMeshActor",
+   "folder": "Architecture",
+   "mesh": "SM_Duct",
+   "location": [
+    100.0,
+    -375.0,
+    340.0
+   ],
+   "quat": [
+    0.0,
+    0.0,
+    0.0,
+    1.0
+   ],
+   "scale": [
+    1.0,
+    1.0,
+    1.0
+   ]
+  },
+  {
+   "name": "SM_FloorDrain_1",
+   "cls": "StaticMeshActor",
+   "folder": "Architecture",
+   "mesh": "SM_FloorDrain",
+   "location": [
+    -60.0,
+    -140.0,
+    0.0
+   ],
+   "quat": [
+    0.0,
+    0.0,
+    0.0,
+    1.0
+   ],
+   "scale": [
+    1.0,
+    1.0,
+    1.0
+   ]
+  },
+  {
+   "name": "SM_HO_Pipes_1",
+   "cls": "StaticMeshActor",
+   "folder": "Architecture",
+   "mesh": "SM_HO_Pipes",
+   "location": [
+    0.0,
+    -0.0,
+    0.0
+   ],
+   "quat": [
+    0.0,
+    0.0,
+    0.0,
+    1.0
+   ],
+   "scale": [
+    1.0,
+    1.0,
+    1.0
+   ]
+  },
+  {
+   "name": "SM_RollUpDoor_1",
+   "cls": "StaticMeshActor",
+   "folder": "Architecture",
+   "mesh": "SM_RollUpDoor",
+   "location": [
+    -360.0,
+    -500.0,
+    0.0
+   ],
+   "quat": [
+    0.0,
+    0.0,
+    0.0,
+    1.0
+   ],
+   "scale": [
+    1.0,
+    1.0,
+    1.0
+   ]
+  },
+  {
+   "name": "SM_Window_Basement_1",
+   "cls": "StaticMeshActor",
+   "folder": "Architecture",
+   "mesh": "SM_Window_Basement",
+   "location": [
+    150.0,
+    -512.5,
+    280.0
+   ],
+   "quat": [
+    0.0,
+    0.0,
+    0.0,
+    1.0
+   ],
+   "scale": [
+    1.0,
+    1.0,
+    1.0
+   ]
+  },
+  {
+   "name": "SM_Window_Basement_2",
+   "cls": "StaticMeshActor",
+   "folder": "Architecture",
+   "mesh": "SM_Window_Basement",
+   "location": [
+    -712.5,
+    -300.0,
+    280.0
+   ],
+   "quat": [
+    0.0,
+    0.0,
+    -0.707107,
+    0.707107
+   ],
+   "scale": [
+    1.0,
+    1.0,
+    1.0
+   ]
+  },
+  {
+   "name": "SM_DoorFrame_1",
+   "cls": "StaticMeshActor",
+   "folder": "Architecture",
+   "mesh": "SM_DoorFrame",
+   "location": [
+    640.0,
+    -512.5,
+    220.0
+   ],
+   "quat": [
+    0.0,
+    0.0,
+    0.0,
+    1.0
+   ],
+   "scale": [
+    1.0,
+    1.0,
+    1.0
+   ]
+  },
+  {
+   "name": "SM_DoorFrame_2",
+   "cls": "StaticMeshActor",
+   "folder": "Architecture",
+   "mesh": "SM_DoorFrame",
+   "location": [
+    -615.0,
+    512.5,
+    0.0
+   ],
+   "quat": [
+    0.0,
+    0.0,
+    0.0,
+    1.0
+   ],
+   "scale": [
+    1.0,
+    1.0,
+    1.0
+   ]
+  },
+  {
+   "name": "SM_Door_Steel_1",
+   "cls": "StaticMeshActor",
+   "folder": "Architecture",
+   "mesh": "SM_Door_Steel",
+   "location": [
+    595.0,
+    -510.0,
+    220.0
+   ],
+   "quat": [
+    0.0,
+    0.0,
+    0.0,
+    1.0
+   ],
+   "scale": [
+    1.0,
+    1.0,
+    1.0
+   ]
+  },
+  {
+   "name": "HH_StairDoor_1",
+   "cls": "TargetPoint",
+   "folder": "Gameplay",
+   "location": [
+    640.0,
+    -490.0,
+    320.0
+   ],
+   "quat": [
+    0.0,
+    0.0,
+    0.0,
+    1.0
+   ],
+   "scale": [
+    1.0,
+    1.0,
+    1.0
+   ],
+   "tags": [
+    "HH_StairDoor"
+   ]
+  },
+  {
+   "name": "BoilerRoomDoor",
+   "cls": "HHDoorActor",
+   "folder": "Gameplay",
+   "location": [
+    -660.0,
+    512.5,
+    0.0
+   ],
+   "quat": [
+    0.0,
+    0.0,
+    0.0,
+    1.0
+   ],
+   "scale": [
+    1.0,
+    1.0,
+    1.0
+   ],
+   "properties": {
+    "OpenSound": {
+     "asset": "S_Door_Wood_Open"
+    },
+    "CloseSound": {
+     "asset": "S_Door_Wood_Close"
+    },
+    "CreakSound": {
+     "asset": "S_Door_Creak_Slow"
+    },
+    "OpenAngle": 100.0
+   },
+   "components": {
+    "DoorMesh": {
+     "StaticMesh": {
+      "asset": "SM_Door_Wood"
+     }
+    }
+   },
+   "tags": [
+    "HH_CreepyDoor"
+   ]
+  },
+  {
+   "name": "SM_Van_Body_1",
+   "cls": "StaticMeshActor",
+   "folder": "Van",
+   "mesh": "SM_Van_Body",
+   "location": [
+    -360.0,
+    -160.0,
+    0.0
+   ],
+   "quat": [
+    0.0,
+    0.0,
+    0.0,
+    1.0
+   ],
+   "scale": [
+    1.0,
+    1.0,
+    1.0
+   ]
+  },
+  {
+   "name": "SM_Van_Wheel_1",
+   "cls": "StaticMeshActor",
+   "folder": "Van",
+   "mesh": "SM_Van_Wheel",
+   "location": [
+    -272.0,
+    -5.0,
+    37.5
+   ],
+   "quat": [
+    0.0,
+    0.0,
+    0.0,
+    1.0
+   ],
+   "scale": [
+    1.0,
+    1.0,
+    1.0
+   ]
+  },
+  {
+   "name": "SM_Van_Wheel_2",
+   "cls": "StaticMeshActor",
+   "folder": "Van",
+   "mesh": "SM_Van_Wheel",
+   "location": [
+    -448.0,
+    -5.0,
+    37.5
+   ],
+   "quat": [
+    0.0,
+    0.0,
+    1.0,
+    0.0
+   ],
+   "scale": [
+    1.0,
+    1.0,
+    1.0
+   ]
+  },
+  {
+   "name": "SM_Van_Wheel_3",
+   "cls": "StaticMeshActor",
+   "folder": "Van",
+   "mesh": "SM_Van_Wheel",
+   "location": [
+    -272.0,
+    -305.0,
+    37.5
+   ],
+   "quat": [
+    0.0,
+    0.0,
+    0.0,
+    1.0
+   ],
+   "scale": [
+    1.0,
+    1.0,
+    1.0
+   ]
+  },
+  {
+   "name": "SM_Van_Wheel_4",
+   "cls": "StaticMeshActor",
+   "folder": "Van",
+   "mesh": "SM_Van_Wheel",
+   "location": [
+    -448.0,
+    -305.0,
+    37.5
+   ],
+   "quat": [
+    0.0,
+    0.0,
+    1.0,
+    0.0
+   ],
+   "scale": [
+    1.0,
+    1.0,
+    1.0
+   ]
+  },
+  {
+   "name": "SM_Van_Livery_1",
+   "cls": "StaticMeshActor",
+   "folder": "Van",
+   "mesh": "SM_Van_Livery",
+   "location": [
+    -258.8,
+    -22.0,
+    145.0
+   ],
+   "quat": [
+    0.0,
+    0.0,
+    -0.707107,
+    0.707107
+   ],
+   "scale": [
+    1.0,
+    1.0,
+    1.0
+   ],
+   "cast_shadow": false
+  },
+  {
+   "name": "SM_Van_Livery_2",
+   "cls": "StaticMeshActor",
+   "folder": "Van",
+   "mesh": "SM_Van_Livery",
+   "location": [
+    -461.2,
+    -140.0,
+    145.0
+   ],
+   "quat": [
+    0.0,
+    0.0,
+    0.707107,
+    0.707107
+   ],
+   "scale": [
+    1.0,
+    1.0,
+    1.0
+   ],
+   "cast_shadow": false
+  },
+  {
+   "name": "VanDoor_Ready",
+   "cls": "HHReadyStation",
+   "folder": "Gameplay",
+   "location": [
+    -261.0,
+    -180.0,
+    120.0
+   ],
+   "quat": [
+    0.0,
+    0.0,
+    0.0,
+    1.0
+   ],
+   "scale": [
+    1.0,
+    1.0,
+    1.0
+   ],
+   "properties": {
+    "InteractSound": {
+     "asset": "S_Van_Door_Slide"
+    }
+   },
+   "components": {
+    "Mesh": {
+     "StaticMesh": {
+      "asset": "SM_Van_SlidingDoor"
+     }
+    }
+   }
+  },
+  {
+   "name": "OilStain_1",
+   "cls": "DecalActor",
+   "folder": "Decals",
+   "location": [
+    -350.0,
+    -200.0,
+    0.0
+   ],
+   "quat": [
+    0.5,
+    0.5,
+    -0.5,
+    0.5
+   ],
+   "scale": [
+    1.0,
+    1.0,
+    1.0
+   ],
+   "properties": {
+    "DecalMaterial": {
+     "asset": "MI_Decal_Oil"
+    }
+   },
+   "components": {
+    "Decal": {
+     "DecalSize": [
+      15.0,
+      110.00000000000001,
+      110.00000000000001
+     ]
+    }
+   }
+  },
+  {
+   "name": "OilStain_2",
+   "cls": "DecalActor",
+   "folder": "Decals",
+   "location": [
+    -390.0,
+    20.0,
+    0.0
+   ],
+   "quat": [
+    0.640856,
+    0.298836,
+    -0.640856,
+    0.298836
+   ],
+   "scale": [
+    1.0,
+    1.0,
+    1.0
+   ],
+   "properties": {
+    "DecalMaterial": {
+     "asset": "MI_Decal_Oil"
+    }
+   },
+   "components": {
+    "Decal": {
+     "DecalSize": [
+      15.0,
+      50.0,
+      50.0
+     ]
+    }
+   }
+  },
+  {
+   "name": "WaterStain_1",
+   "cls": "DecalActor",
+   "folder": "Decals",
+   "location": [
+    -160.0,
+    -430.0,
+    0.0
+   ],
+   "quat": [
+    0.5,
+    0.5,
+    -0.5,
+    0.5
+   ],
+   "scale": [
+    1.0,
+    1.0,
+    1.0
+   ],
+   "properties": {
+    "DecalMaterial": {
+     "asset": "MI_Decal_Water"
+    }
+   },
+   "components": {
+    "Decal": {
+     "DecalSize": [
+      15.0,
+      90.0,
+      90.0
+     ]
+    }
+   }
+  },
+  {
+   "name": "Footprints_1",
+   "cls": "DecalActor",
+   "folder": "Decals",
+   "location": [
+    -100.0,
+    -320.0,
+    0.0
+   ],
+   "quat": [
+    0.183013,
+    0.683013,
+    -0.183013,
+    0.683013
+   ],
+   "scale": [
+    1.0,
+    1.0,
+    1.0
+   ],
+   "properties": {
+    "DecalMaterial": {
+     "asset": "MI_Decal_Footprints"
+    }
+   },
+   "components": {
+    "Decal": {
+     "DecalSize": [
+      15.0,
+      130.0,
+      32.5
+     ]
+    }
+   }
+  },
+  {
+   "name": "Footprints_2",
+   "cls": "DecalActor",
+   "folder": "Decals",
+   "location": [
+    20.0,
+    -120.0,
+    0.0
+   ],
+   "quat": [
+    0.298836,
+    0.640856,
+    -0.298836,
+    0.640856
+   ],
+   "scale": [
+    1.0,
+    1.0,
+    1.0
+   ],
+   "properties": {
+    "DecalMaterial": {
+     "asset": "MI_Decal_Footprints"
+    }
+   },
+   "components": {
+    "Decal": {
+     "DecalSize": [
+      15.0,
+      130.0,
+      32.5
+     ]
+    }
+   }
+  },
+  {
+   "name": "SM_Barrel_1",
+   "cls": "StaticMeshActor",
+   "folder": "Props",
+   "mesh": "SM_Barrel",
+   "location": [
+    -645.0,
+    -445.0,
+    0.0
+   ],
+   "quat": [
+    0.0,
+    0.0,
+    -0.173648,
+    0.984808
+   ],
+   "scale": [
+    1.0,
+    1.0,
+    1.0
+   ]
+  },
+  {
+   "name": "SM_Barrel_2",
+   "cls": "StaticMeshActor",
+   "folder": "Props",
+   "mesh": "SM_Barrel",
+   "location": [
+    -640.0,
+    -375.0,
+    0.0
+   ],
+   "quat": [
+    0.0,
+    0.0,
+    0.300706,
+    0.953717
+   ],
+   "scale": [
+    1.0,
+    1.0,
+    1.0
+   ]
+  },
+  {
+   "name": "SM_Tire_1",
+   "cls": "StaticMeshActor",
+   "folder": "Props",
+   "mesh": "SM_Tire",
+   "location": [
+    -140.0,
+    -450.0,
+    0.0
+   ],
+   "quat": [
+    0.0,
+    0.0,
+    0.0,
+    1.0
+   ],
+   "scale": [
+    1.0,
+    1.0,
+    1.0
+   ]
+  },
+  {
+   "name": "SM_Tire_2",
+   "cls": "StaticMeshActor",
+   "folder": "Props",
+   "mesh": "SM_Tire",
+   "location": [
+    -138.0,
+    -452.0,
+    20.0
+   ],
+   "quat": [
+    0.0,
+    0.0,
+    -0.258819,
+    0.965926
+   ],
+   "scale": [
+    1.0,
+    1.0,
+    1.0
+   ]
+  },
+  {
+   "name": "SM_Tire_3",
+   "cls": "StaticMeshActor",
+   "folder": "Props",
+   "mesh": "SM_Tire",
+   "location": [
+    -142.0,
+    -448.0,
+    40.0
+   ],
+   "quat": [
+    0.0,
+    0.0,
+    -0.5373,
+    0.843391
+   ],
+   "scale": [
+    1.0,
+    1.0,
+    1.0
+   ]
+  },
+  {
+   "name": "SM_Sawhorse_1",
+   "cls": "StaticMeshActor",
+   "folder": "Props",
+   "mesh": "SM_Sawhorse",
+   "location": [
+    -520.0,
+    160.0,
+    0.0
+   ],
+   "quat": [
+    0.0,
+    0.0,
+    -0.087156,
+    0.996195
+   ],
+   "scale": [
+    1.0,
+    1.0,
+    1.0
+   ]
+  },
+  {
+   "name": "SM_Box_Open_1",
+   "cls": "StaticMeshActor",
+   "folder": "Props",
+   "mesh": "SM_Box_Open",
+   "location": [
+    -130.0,
+    -350.0,
+    0.0
+   ],
+   "quat": [
+    0.0,
+    0.0,
+    -0.104528,
+    0.994522
+   ],
+   "scale": [
+    1.0,
+    1.0,
+    1.0
+   ]
+  },
+  {
+   "name": "SM_Shelf_Metal_1",
+   "cls": "StaticMeshActor",
+   "folder": "Props",
+   "mesh": "SM_Shelf_Metal",
+   "location": [
+    -673.0,
+    -20.0,
+    0.0
+   ],
+   "quat": [
+    0.0,
+    0.0,
+    -0.707107,
+    0.707107
+   ],
+   "scale": [
+    1.0,
+    1.0,
+    1.0
+   ]
+  },
+  {
+   "name": "SM_Box_A_1",
+   "cls": "StaticMeshActor",
+   "folder": "Props",
+   "mesh": "SM_Box_A",
+   "location": [
+    -673.0,
+    25.0,
+    13.5
+   ],
+   "quat": [
+    0.0,
+    0.0,
+    -0.707107,
+    0.707107
+   ],
+   "scale": [
+    1.0,
+    1.0,
+    1.0
+   ]
+  },
+  {
+   "name": "SM_Box_B_1",
+   "cls": "StaticMeshActor",
+   "folder": "Props",
+   "mesh": "SM_Box_B",
+   "location": [
+    -673.0,
+    -15.0,
+    13.5
+   ],
+   "quat": [
+    -0.0,
+    -0.0,
+    -0.782608,
+    0.622515
+   ],
+   "scale": [
+    1.0,
+    1.0,
+    1.0
+   ]
+  },
+  {
+   "name": "SM_PaintCan_1",
+   "cls": "StaticMeshActor",
+   "folder": "Props",
+   "mesh": "SM_PaintCan",
+   "location": [
+    -673.0,
+    25.0,
+    61.5
+   ],
+   "quat": [
+    0.0,
+    0.0,
+    -0.707107,
+    0.707107
+   ],
+   "scale": [
+    1.0,
+    1.0,
+    1.0
+   ]
+  },
+  {
+   "name": "SM_PaintCan_2",
+   "cls": "StaticMeshActor",
+   "folder": "Props",
+   "mesh": "SM_PaintCan",
+   "location": [
+    -673.0,
+    -15.0,
+    61.5
+   ],
+   "quat": [
+    -0.0,
+    -0.0,
+    -0.782608,
+    0.622515
+   ],
+   "scale": [
+    1.0,
+    1.0,
+    1.0
+   ]
+  },
+  {
+   "name": "SM_Bucket_1",
+   "cls": "StaticMeshActor",
+   "folder": "Props",
+   "mesh": "SM_Bucket",
+   "location": [
+    -673.0,
+    -55.0,
+    61.5
+   ],
+   "quat": [
+    -0.0,
+    -0.0,
+    -0.848048,
+    0.529919
+   ],
+   "scale": [
+    1.0,
+    1.0,
+    1.0
+   ]
+  },
+  {
+   "name": "SM_Box_B_2",
+   "cls": "StaticMeshActor",
+   "folder": "Props",
+   "mesh": "SM_Box_B",
+   "location": [
+    -673.0,
+    25.0,
+    111.5
+   ],
+   "quat": [
+    0.0,
+    0.0,
+    -0.707107,
+    0.707107
+   ],
+   "scale": [
+    1.0,
+    1.0,
+    1.0
+   ]
+  },
+  {
+   "name": "SM_Shoebox_1",
+   "cls": "StaticMeshActor",
+   "folder": "Props",
+   "mesh": "SM_Shoebox",
+   "location": [
+    -673.0,
+    -15.0,
+    111.5
+   ],
+   "quat": [
+    -0.0,
+    -0.0,
+    -0.782608,
+    0.622515
+   ],
+   "scale": [
+    1.0,
+    1.0,
+    1.0
+   ]
+  },
+  {
+   "name": "SM_Box_A_2",
+   "cls": "StaticMeshActor",
+   "folder": "Props",
+   "mesh": "SM_Box_A",
+   "location": [
+    -673.0,
+    25.0,
+    161.5
+   ],
+   "quat": [
+    0.0,
+    0.0,
+    -0.707107,
+    0.707107
+   ],
+   "scale": [
+    1.0,
+    1.0,
+    1.0
+   ]
+  },
+  {
+   "name": "SM_FireExtinguisher_1",
+   "cls": "StaticMeshActor",
+   "folder": "Props",
+   "mesh": "SM_FireExtinguisher",
+   "location": [
+    -685.0,
+    -120.0,
+    0.0
+   ],
+   "quat": [
+    0.0,
+    0.0,
+    -0.707107,
+    0.707107
+   ],
+   "scale": [
+    1.0,
+    1.0,
+    1.0
+   ]
+  },
+  {
+   "name": "Rain_GarageDoor_1",
+   "cls": "HHAmbientEmitter",
+   "folder": "Audio",
+   "location": [
+    -360.0,
+    -490.0,
+    220.0
+   ],
+   "quat": [
+    0.0,
+    0.0,
+    0.0,
+    1.0
+   ],
+   "scale": [
+    1.0,
+    1.0,
+    1.0
+   ],
+   "properties": {
+    "MinInterval": 4.0,
+    "MaxInterval": 14.0,
+    "ScatterRadius": 150.0,
+    "VolumeRange": [
+     0.5,
+     1.0
+    ]
+   },
+   "components": {
+    "Loop": {
+     "Sound": {
+      "asset": "A_Rain_Window_Loop"
+     }
+    }
+   }
+  },
+  {
+   "name": "Wind_1",
+   "cls": "HHAmbientEmitter",
+   "folder": "Audio",
+   "location": [
+    -360.0,
+    -480.0,
+    150.0
+   ],
+   "quat": [
+    0.0,
+    0.0,
+    0.0,
+    1.0
+   ],
+   "scale": [
+    1.0,
+    1.0,
+    1.0
+   ],
+   "properties": {
+    "MinInterval": 25,
+    "MaxInterval": 60,
+    "ScatterRadius": 100.0,
+    "VolumeRange": [
+     0.5,
+     1.0
+    ],
+    "OneShots": [
+     {
+      "asset": "A_Wind_Gust_01"
+     },
+     {
+      "asset": "A_Wind_Gust_02"
+     },
+     {
+      "asset": "A_Wind_Gust_03"
+     }
+    ],
+    "Caption": {
+     "text": "[Wind rattles the garage door]"
+    }
+   }
+  },
+  {
+   "name": "Station_Play",
+   "cls": "HHStationActor",
+   "folder": "Stations",
+   "location": [
+    -700.0,
+    250.0,
+    100.0
+   ],
+   "quat": [
+    0.0,
+    0.0,
+    -0.707107,
+    0.707107
+   ],
+   "scale": [
+    1.0,
+    1.0,
+    1.0
+   ],
+   "properties": {
+    "Screen": {
+     "enum": "EHHLobbyScreen",
+     "value": "Play"
+    },
+    "CameraDrift": 0.35,
+    "Prompt": {
+     "text": "Look at the jobs"
+    }
+   },
+   "components": {
+    "ViewCamera": {
+     "world": {
+      "location": [
+       -470.0,
+       155.0,
+       172.0
+      ],
+      "quat": [
+       -0.03246,
+       0.007363,
+       0.974686,
+       0.221085
+      ]
+     },
+     "FieldOfView": 56
+    },
+    "Mesh": {
+     "StaticMesh": {
+      "asset": "SM_Corkboard"
+     }
+    }
+   }
+  },
+  {
+   "name": "SM_Board_Map_1",
+   "cls": "StaticMeshActor",
+   "folder": "Board",
+   "mesh": "SM_Board_Map",
+   "location": [
+    -697.54,
+    262.0,
+    162.0
+   ],
+   "quat": [
+    0.0,
+    0.0,
+    -0.707107,
+    0.707107
+   ],
+   "scale": [
+    1.0,
+    1.0,
+    1.0
+   ],
+   "cast_shadow": false
+  },
+  {
+   "name": "SM_Pushpin_1",
+   "cls": "StaticMeshActor",
+   "folder": "Board",
+   "mesh": "SM_Pushpin",
+   "location": [
+    -697.3,
+    302.0,
+    192.0
+   ],
+   "quat": [
+    0.0,
+    0.0,
+    -0.707107,
+    0.707107
+   ],
+   "scale": [
+    1.0,
+    1.0,
+    1.0
+   ],
+   "cast_shadow": false
+  },
+  {
+   "name": "SM_Pushpin_2",
+   "cls": "StaticMeshActor",
+   "folder": "Board",
+   "mesh": "SM_Pushpin",
+   "location": [
+    -697.3,
+    222.0,
+    192.0
+   ],
+   "quat": [
+    0.0,
+    0.0,
+    -0.707107,
+    0.707107
+   ],
+   "scale": [
+    1.0,
+    1.0,
+    1.0
+   ],
+   "cast_shadow": false
+  },
+  {
+   "name": "SM_Pushpin_3",
+   "cls": "StaticMeshActor",
+   "folder": "Board",
+   "mesh": "SM_Pushpin",
+   "location": [
+    -697.3,
+    302.0,
+    132.0
+   ],
+   "quat": [
+    0.0,
+    0.0,
+    -0.707107,
+    0.707107
+   ],
+   "scale": [
+    1.0,
+    1.0,
+    1.0
+   ],
+   "cast_shadow": false
+  },
+  {
+   "name": "SM_Pushpin_4",
+   "cls": "StaticMeshActor",
+   "folder": "Board",
+   "mesh": "SM_Pushpin",
+   "location": [
+    -697.3,
+    222.0,
+    132.0
+   ],
+   "quat": [
+    0.0,
+    0.0,
+    -0.707107,
+    0.707107
+   ],
+   "scale": [
+    1.0,
+    1.0,
+    1.0
+   ],
+   "cast_shadow": false
+  },
+  {
+   "name": "SM_Poster_Missing_1",
+   "cls": "StaticMeshActor",
+   "folder": "Board",
+   "mesh": "SM_Poster_Missing",
+   "location": [
+    -697.48,
+    175.0,
+    168.0
+   ],
+   "quat": [
+    0.012341,
+    0.012341,
+    -0.706999,
+    0.706999
+   ],
+   "scale": [
+    1.0,
+    1.0,
+    1.0
+   ],
+   "cast_shadow": false
+  },
+  {
+   "name": "SM_Pushpin_5",
+   "cls": "StaticMeshActor",
+   "folder": "Board",
+   "mesh": "SM_Pushpin",
+   "location": [
+    -697.4,
+    175.0,
+    171.0
+   ],
+   "quat": [
+    0.0,
+    0.0,
+    -0.707107,
+    0.707107
+   ],
+   "scale": [
+    1.0,
+    1.0,
+    1.0
+   ],
+   "cast_shadow": false
+  },
+  {
+   "name": "SM_Poster_Museum_1",
+   "cls": "StaticMeshActor",
+   "folder": "Board",
+   "mesh": "SM_Poster_Museum",
+   "location": [
+    -697.42,
+    342.0,
+    162.0
+   ],
+   "quat": [
+    -0.009256,
+    -0.009256,
+    -0.707046,
+    0.707046
+   ],
+   "scale": [
+    1.0,
+    1.0,
+    1.0
+   ],
+   "cast_shadow": false
+  },
+  {
+   "name": "SM_Pushpin_6",
+   "cls": "StaticMeshActor",
+   "folder": "Board",
+   "mesh": "SM_Pushpin",
+   "location": [
+    -697.4,
+    342.0,
+    165.0
+   ],
+   "quat": [
+    0.0,
+    0.0,
+    -0.707107,
+    0.707107
+   ],
+   "scale": [
+    1.0,
+    1.0,
+    1.0
+   ],
+   "cast_shadow": false
+  },
+  {
+   "name": "SM_Polaroid_0_1",
+   "cls": "StaticMeshActor",
+   "folder": "Board",
+   "mesh": "SM_Polaroid_0",
+   "location": [
+    -697.36,
+    345.0,
+    213.0
+   ],
+   "quat": [
+    -0.01851,
+    -0.01851,
+    -0.706864,
+    0.706864
+   ],
+   "scale": [
+    1.0,
+    1.0,
+    1.0
+   ],
+   "cast_shadow": false
+  },
+  {
+   "name": "SM_Pushpin_7",
+   "cls": "StaticMeshActor",
+   "folder": "Board",
+   "mesh": "SM_Pushpin",
+   "location": [
+    -697.4,
+    345.0,
+    216.5
+   ],
+   "quat": [
+    0.0,
+    0.0,
+    -0.707107,
+    0.707107
+   ],
+   "scale": [
+    1.0,
+    1.0,
+    1.0
+   ],
+   "cast_shadow": false
+  },
+  {
+   "name": "SM_Polaroid_1_1",
+   "cls": "StaticMeshActor",
+   "folder": "Board",
+   "mesh": "SM_Polaroid_1",
+   "location": [
+    -697.3,
+    300.0,
+    214.0
+   ],
+   "quat": [
+    0.024678,
+    0.024678,
+    -0.706676,
+    0.706676
+   ],
+   "scale": [
+    1.0,
+    1.0,
+    1.0
+   ],
+   "cast_shadow": false
+  },
+  {
+   "name": "SM_Pushpin_8",
+   "cls": "StaticMeshActor",
+   "folder": "Board",
+   "mesh": "SM_Pushpin",
+   "location": [
+    -697.4,
+    300.0,
+    217.5
+   ],
+   "quat": [
+    0.0,
+    0.0,
+    -0.707107,
+    0.707107
+   ],
+   "scale": [
+    1.0,
+    1.0,
+    1.0
+   ],
+   "cast_shadow": false
+  },
+  {
+   "name": "SM_Polaroid_2_1",
+   "cls": "StaticMeshActor",
+   "folder": "Board",
+   "mesh": "SM_Polaroid_2",
+   "location": [
+    -697.24,
+    255.0,
+    212.0
+   ],
+   "quat": [
+    -0.012341,
+    -0.012341,
+    -0.706999,
+    0.706999
+   ],
+   "scale": [
+    1.0,
+    1.0,
+    1.0
+   ],
+   "cast_shadow": false
+  },
+  {
+   "name": "SM_Pushpin_9",
+   "cls": "StaticMeshActor",
+   "folder": "Board",
+   "mesh": "SM_Pushpin",
+   "location": [
+    -697.4,
+    255.0,
+    215.5
+   ],
+   "quat": [
+    0.0,
+    0.0,
+    -0.707107,
+    0.707107
+   ],
+   "scale": [
+    1.0,
+    1.0,
+    1.0
+   ],
+   "cast_shadow": false
+  },
+  {
+   "name": "SM_Polaroid_3_1",
+   "cls": "StaticMeshActor",
+   "folder": "Board",
+   "mesh": "SM_Polaroid_3",
+   "location": [
+    -697.18,
+    210.0,
+    213.0
+   ],
+   "quat": [
+    0.01851,
+    0.01851,
+    -0.706864,
+    0.706864
+   ],
+   "scale": [
+    1.0,
+    1.0,
+    1.0
+   ],
+   "cast_shadow": false
+  },
+  {
+   "name": "SM_Pushpin_10",
+   "cls": "StaticMeshActor",
+   "folder": "Board",
+   "mesh": "SM_Pushpin",
+   "location": [
+    -697.4,
+    210.0,
+    216.5
+   ],
+   "quat": [
+    0.0,
+    0.0,
+    -0.707107,
+    0.707107
+   ],
+   "scale": [
+    1.0,
+    1.0,
+    1.0
+   ],
+   "cast_shadow": false
+  },
+  {
+   "name": "SM_Polaroid_4_1",
+   "cls": "StaticMeshActor",
+   "folder": "Board",
+   "mesh": "SM_Polaroid_4",
+   "location": [
+    -697.12,
+    145.0,
+    212.0
+   ],
+   "quat": [
+    -0.037007,
+    -0.037007,
+    -0.706138,
+    0.706138
+   ],
+   "scale": [
+    1.0,
+    1.0,
+    1.0
+   ],
+   "cast_shadow": false
+  },
+  {
+   "name": "SM_Pushpin_11",
+   "cls": "StaticMeshActor",
+   "folder": "Board",
+   "mesh": "SM_Pushpin",
+   "location": [
+    -697.4,
+    145.0,
+    215.5
+   ],
+   "quat": [
+    0.0,
+    0.0,
+    -0.707107,
+    0.707107
+   ],
+   "scale": [
+    1.0,
+    1.0,
+    1.0
+   ],
+   "cast_shadow": false
+  },
+  {
+   "name": "SM_Polaroid_5_1",
+   "cls": "StaticMeshActor",
+   "folder": "Board",
+   "mesh": "SM_Polaroid_5",
+   "location": [
+    -697.06,
+    195.0,
+    215.0
+   ],
+   "quat": [
+    0.030844,
+    0.030844,
+    -0.706434,
+    0.706434
+   ],
+   "scale": [
+    1.0,
+    1.0,
+    1.0
+   ],
+   "cast_shadow": false
+  },
+  {
+   "name": "SM_Pushpin_12",
+   "cls": "StaticMeshActor",
+   "folder": "Board",
+   "mesh": "SM_Pushpin",
+   "location": [
+    -697.4,
+    195.0,
+    218.5
+   ],
+   "quat": [
+    0.0,
+    0.0,
+    -0.707107,
+    0.707107
+   ],
+   "scale": [
+    1.0,
+    1.0,
+    1.0
+   ],
+   "cast_shadow": false
+  },
+  {
+   "name": "SM_Polaroid_6_1",
+   "cls": "StaticMeshActor",
+   "folder": "Board",
+   "mesh": "SM_Polaroid_6",
+   "location": [
+    -697.0,
+    150.0,
+    122.0
+   ],
+   "quat": [
+    -0.024678,
+    -0.024678,
+    -0.706676,
+    0.706676
+   ],
+   "scale": [
+    1.0,
+    1.0,
+    1.0
+   ],
+   "cast_shadow": false
+  },
+  {
+   "name": "SM_Pushpin_13",
+   "cls": "StaticMeshActor",
+   "folder": "Board",
+   "mesh": "SM_Pushpin",
+   "location": [
+    -697.4,
+    150.0,
+    125.5
+   ],
+   "quat": [
+    0.0,
+    0.0,
+    -0.707107,
+    0.707107
+   ],
+   "scale": [
+    1.0,
+    1.0,
+    1.0
+   ],
+   "cast_shadow": false
+  },
+  {
+   "name": "SM_Polaroid_7_1",
+   "cls": "StaticMeshActor",
+   "folder": "Board",
+   "mesh": "SM_Polaroid_7",
+   "location": [
+    -696.94,
+    310.0,
+    115.0
+   ],
+   "quat": [
+    0.037007,
+    0.037007,
+    -0.706138,
+    0.706138
+   ],
+   "scale": [
+    1.0,
+    1.0,
+    1.0
+   ],
+   "cast_shadow": false
+  },
+  {
+   "name": "SM_Pushpin_14",
+   "cls": "StaticMeshActor",
+   "folder": "Board",
+   "mesh": "SM_Pushpin",
+   "location": [
+    -697.4,
+    310.0,
+    118.5
+   ],
+   "quat": [
+    0.0,
+    0.0,
+    -0.707107,
+    0.707107
+   ],
+   "scale": [
+    1.0,
+    1.0,
+    1.0
+   ],
+   "cast_shadow": false
+  },
+  {
+   "name": "SM_Note_0_1",
+   "cls": "StaticMeshActor",
+   "folder": "Board",
+   "mesh": "SM_Note_0",
+   "location": [
+    -696.88,
+    355.0,
+    120.0
+   ],
+   "quat": [
+    0.024678,
+    0.024678,
+    -0.706676,
+    0.706676
+   ],
+   "scale": [
+    1.0,
+    1.0,
+    1.0
+   ],
+   "cast_shadow": false
+  },
+  {
+   "name": "SM_Pushpin_15",
+   "cls": "StaticMeshActor",
+   "folder": "Board",
+   "mesh": "SM_Pushpin",
+   "location": [
+    -697.4,
+    355.0,
+    123.0
+   ],
+   "quat": [
+    0.0,
+    0.0,
+    -0.707107,
+    0.707107
+   ],
+   "scale": [
+    1.0,
+    1.0,
+    1.0
+   ],
+   "cast_shadow": false
+  },
+  {
+   "name": "SM_Note_1_1",
+   "cls": "StaticMeshActor",
+   "folder": "Board",
+   "mesh": "SM_Note_1",
+   "location": [
+    -696.82,
+    292.0,
+    118.0
+   ],
+   "quat": [
+    -0.043168,
+    -0.043168,
+    -0.705788,
+    0.705788
+   ],
+   "scale": [
+    1.0,
+    1.0,
+    1.0
+   ],
+   "cast_shadow": false
+  },
+  {
+   "name": "SM_Pushpin_16",
+   "cls": "StaticMeshActor",
+   "folder": "Board",
+   "mesh": "SM_Pushpin",
+   "location": [
+    -697.4,
+    292.0,
+    121.0
+   ],
+   "quat": [
+    0.0,
+    0.0,
+    -0.707107,
+    0.707107
+   ],
+   "scale": [
+    1.0,
+    1.0,
+    1.0
+   ],
+   "cast_shadow": false
+  },
+  {
+   "name": "SM_Note_2_1",
+   "cls": "StaticMeshActor",
+   "folder": "Board",
+   "mesh": "SM_Note_2",
+   "location": [
+    -696.76,
+    235.0,
+    117.0
+   ],
+   "quat": [
+    0.01851,
+    0.01851,
+    -0.706864,
+    0.706864
+   ],
+   "scale": [
+    1.0,
+    1.0,
+    1.0
+   ],
+   "cast_shadow": false
+  },
+  {
+   "name": "SM_Pushpin_17",
+   "cls": "StaticMeshActor",
+   "folder": "Board",
+   "mesh": "SM_Pushpin",
+   "location": [
+    -697.4,
+    235.0,
+    120.0
+   ],
+   "quat": [
+    0.0,
+    0.0,
+    -0.707107,
+    0.707107
+   ],
+   "scale": [
+    1.0,
+    1.0,
+    1.0
+   ],
+   "cast_shadow": false
+  },
+  {
+   "name": "SM_Note_3_1",
+   "cls": "StaticMeshActor",
+   "folder": "Board",
+   "mesh": "SM_Note_3",
+   "location": [
+    -696.7,
+    198.0,
+    123.0
+   ],
+   "quat": [
+    -0.030844,
+    -0.030844,
+    -0.706434,
+    0.706434
+   ],
+   "scale": [
+    1.0,
+    1.0,
+    1.0
+   ],
+   "cast_shadow": false
+  },
+  {
+   "name": "SM_Pushpin_18",
+   "cls": "StaticMeshActor",
+   "folder": "Board",
+   "mesh": "SM_Pushpin",
+   "location": [
+    -697.4,
+    198.0,
+    126.0
+   ],
+   "quat": [
+    0.0,
+    0.0,
+    -0.707107,
+    0.707107
+   ],
+   "scale": [
+    1.0,
+    1.0,
+    1.0
+   ],
+   "cast_shadow": false
+  },
+  {
+   "name": "SM_Note_4_1",
+   "cls": "StaticMeshActor",
+   "folder": "Board",
+   "mesh": "SM_Note_4",
+   "location": [
+    -696.64,
+    205.0,
+    202.0
+   ],
+   "quat": [
+    0.037007,
+    0.037007,
+    -0.706138,
+    0.706138
+   ],
+   "scale": [
+    1.0,
+    1.0,
+    1.0
+   ],
+   "cast_shadow": false
+  },
+  {
+   "name": "SM_Pushpin_19",
+   "cls": "StaticMeshActor",
+   "folder": "Board",
+   "mesh": "SM_Pushpin",
+   "location": [
+    -697.4,
+    205.0,
+    205.0
+   ],
+   "quat": [
+    0.0,
+    0.0,
+    -0.707107,
+    0.707107
+   ],
+   "scale": [
+    1.0,
+    1.0,
+    1.0
+   ],
+   "cast_shadow": false
+  },
+  {
+   "name": "SM_Note_5_1",
+   "cls": "StaticMeshActor",
+   "folder": "Board",
+   "mesh": "SM_Note_5",
+   "location": [
+    -696.58,
+    362.0,
+    205.0
+   ],
+   "quat": [
+    -0.024678,
+    -0.024678,
+    -0.706676,
+    0.706676
+   ],
+   "scale": [
+    1.0,
+    1.0,
+    1.0
+   ],
+   "cast_shadow": false
+  },
+  {
+   "name": "SM_Pushpin_20",
+   "cls": "StaticMeshActor",
+   "folder": "Board",
+   "mesh": "SM_Pushpin",
+   "location": [
+    -697.4,
+    362.0,
+    208.0
+   ],
+   "quat": [
+    0.0,
+    0.0,
+    -0.707107,
+    0.707107
+   ],
+   "scale": [
+    1.0,
+    1.0,
+    1.0
+   ],
+   "cast_shadow": false
+  },
+  {
+   "name": "SM_Note_6_1",
+   "cls": "StaticMeshActor",
+   "folder": "Board",
+   "mesh": "SM_Note_6",
+   "location": [
+    -696.52,
+    270.0,
+    218.0
+   ],
+   "quat": [
+    0.012341,
+    0.012341,
+    -0.706999,
+    0.706999
+   ],
+   "scale": [
+    1.0,
+    1.0,
+    1.0
+   ],
+   "cast_shadow": false
+  },
+  {
+   "name": "SM_Pushpin_21",
+   "cls": "StaticMeshActor",
+   "folder": "Board",
+   "mesh": "SM_Pushpin",
+   "location": [
+    -697.4,
+    270.0,
+    221.0
+   ],
+   "quat": [
+    0.0,
+    0.0,
+    -0.707107,
+    0.707107
+   ],
+   "scale": [
+    1.0,
+    1.0,
+    1.0
+   ],
+   "cast_shadow": false
+  },
+  {
+   "name": "SM_Note_7_1",
+   "cls": "StaticMeshActor",
+   "folder": "Board",
+   "mesh": "SM_Note_7",
+   "location": [
+    -696.46,
+    162.0,
+    195.0
+   ],
+   "quat": [
+    -0.049325,
+    -0.049325,
+    -0.705384,
+    0.705384
+   ],
+   "scale": [
+    1.0,
+    1.0,
+    1.0
+   ],
+   "cast_shadow": false
+  },
+  {
+   "name": "SM_Pushpin_22",
+   "cls": "StaticMeshActor",
+   "folder": "Board",
+   "mesh": "SM_Pushpin",
+   "location": [
+    -697.4,
+    162.0,
+    198.0
+   ],
+   "quat": [
+    0.0,
+    0.0,
+    -0.707107,
+    0.707107
+   ],
+   "scale": [
+    1.0,
+    1.0,
+    1.0
+   ],
+   "cast_shadow": false
+  },
+  {
+   "name": "SM_HO_BoardString_1",
+   "cls": "StaticMeshActor",
+   "folder": "Board",
+   "mesh": "SM_HO_BoardString",
+   "location": [
+    0.0,
+    -0.0,
+    0.0
+   ],
+   "quat": [
+    0.0,
+    0.0,
+    0.0,
+    1.0
+   ],
+   "scale": [
+    1.0,
+    1.0,
+    1.0
+   ],
+   "cast_shadow": false
+  },
+  {
+   "name": "SM_Pushpin_23",
+   "cls": "StaticMeshActor",
+   "folder": "Board",
+   "mesh": "SM_Pushpin",
+   "location": [
+    -697.3,
+    285.0,
+    186.0
+   ],
+   "quat": [
+    0.0,
+    0.0,
+    -0.707107,
+    0.707107
+   ],
+   "scale": [
+    1.0,
+    1.0,
+    1.0
+   ],
+   "cast_shadow": false
+  },
+  {
+   "name": "SM_Pushpin_24",
+   "cls": "StaticMeshActor",
+   "folder": "Board",
+   "mesh": "SM_Pushpin",
+   "location": [
+    -697.3,
+    238.0,
+    172.0
+   ],
+   "quat": [
+    0.0,
+    0.0,
+    -0.707107,
+    0.707107
+   ],
+   "scale": [
+    1.0,
+    1.0,
+    1.0
+   ],
+   "cast_shadow": false
+  },
+  {
+   "name": "SM_Pushpin_25",
+   "cls": "StaticMeshActor",
+   "folder": "Board",
+   "mesh": "SM_Pushpin",
+   "location": [
+    -697.3,
+    233.0,
+    186.0
+   ],
+   "quat": [
+    0.0,
+    0.0,
+    -0.707107,
+    0.707107
+   ],
+   "scale": [
+    1.0,
+    1.0,
+    1.0
+   ],
+   "cast_shadow": false
+  },
+  {
+   "name": "SM_Pushpin_26",
+   "cls": "StaticMeshActor",
+   "folder": "Board",
+   "mesh": "SM_Pushpin",
+   "location": [
+    -697.3,
+    227.0,
+    142.0
+   ],
+   "quat": [
+    0.0,
+    0.0,
+    -0.707107,
+    0.707107
+   ],
+   "scale": [
+    1.0,
+    1.0,
+    1.0
+   ],
+   "cast_shadow": false
+  },
+  {
+   "name": "SM_Desk_Wood_1",
+   "cls": "StaticMeshActor",
+   "folder": "Props",
+   "mesh": "SM_Desk_Wood",
+   "location": [
+    -660.0,
+    250.0,
+    0.0
+   ],
+   "quat": [
+    0.0,
+    0.0,
+    -0.707107,
+    0.707107
+   ],
+   "scale": [
+    1.0,
+    1.0,
+    1.0
+   ]
+  },
+  {
+   "name": "Light_DeskLamp",
+   "cls": "HHPracticalSpotLight",
+   "folder": "Lights",
+   "location": [
+    -678.0,
+    198.0,
+    76.0
+   ],
+   "quat": [
+    0.0,
+    0.0,
+    1.0,
+    0.0
+   ],
+   "scale": [
+    1.0,
+    1.0,
+    1.0
+   ],
+   "properties": {
+    "FlickerMode": {
+     "enum": "EHHFlickerMode",
+     "value": "Steady"
+    },
+    "FlickerStrength": 1.0,
+    "EmissiveStrength": 25
+   },
+   "components": {
+    "Light": {
+     "RelativeLocation": [
+      19.0,
+      -0.0,
+      41.5
+     ],
+     "Intensity": 180,
+     "IntensityUnits": {
+      "enum": "ELightUnits",
+      "value": "Candelas"
+     },
+     "bUseTemperature": true,
+     "Temperature": 2600.0,
+     "AttenuationRadius": 450,
+     "CastShadows": true,
+     "VolumetricScatteringIntensity": 1.0,
+     "RelativeDirection": [
+      0.42,
+      0,
+      -0.9
+     ],
+     "InnerConeAngle": 25,
+     "OuterConeAngle": 55,
+     "SourceRadius": 2.5
+    },
+    "Fixture": {
+     "CastShadow": false,
+     "StaticMesh": {
+      "asset": "SM_DeskLamp"
+     }
+    }
+   }
+  },
+  {
+   "name": "SM_Newspaper_1",
+   "cls": "StaticMeshActor",
+   "folder": "Props",
+   "mesh": "SM_Newspaper",
+   "location": [
+    -650.0,
+    265.0,
+    76.0
+   ],
+   "quat": [
+    -0.0,
+    -0.0,
+    -0.748956,
+    0.66262
+   ],
+   "scale": [
+    1.0,
+    1.0,
+    1.0
+   ]
+  },
+  {
+   "name": "SM_Mug_1",
+   "cls": "StaticMeshActor",
+   "folder": "Props",
+   "mesh": "SM_Mug",
+   "location": [
+    -635.0,
+    205.0,
+    76.0
+   ],
+   "quat": [
+    0.0,
+    0.0,
+    -0.258819,
+    0.965926
+   ],
+   "scale": [
+    1.0,
+    1.0,
+    1.0
+   ]
+  },
+  {
+   "name": "SM_Ashtray_1",
+   "cls": "StaticMeshActor",
+   "folder": "Props",
+   "mesh": "SM_Ashtray",
+   "location": [
+    -670.0,
+    305.0,
+    76.0
+   ],
+   "quat": [
+    0.0,
+    0.0,
+    0.0,
+    1.0
+   ],
+   "scale": [
+    1.0,
+    1.0,
+    1.0
+   ]
+  },
+  {
+   "name": "SM_Clipboard_1",
+   "cls": "StaticMeshActor",
+   "folder": "Props",
+   "mesh": "SM_Clipboard",
+   "location": [
+    -645.0,
+    325.0,
+    76.0
+   ],
+   "quat": [
+    0.0,
+    0.0,
+    -0.608761,
+    0.793353
+   ],
+   "scale": [
+    1.0,
+    1.0,
+    1.0
+   ]
+  },
+  {
+   "name": "SM_Walkie_1",
+   "cls": "StaticMeshActor",
+   "folder": "Props",
+   "mesh": "SM_Walkie",
+   "location": [
+    -680.0,
+    340.0,
+    76.0
+   ],
+   "quat": [
+    -0.0,
+    -0.0,
+    -0.766044,
+    0.642788
+   ],
+   "scale": [
+    1.0,
+    1.0,
+    1.0
+   ]
+  },
+  {
+   "name": "SM_Chair_Wood_1",
+   "cls": "StaticMeshActor",
+   "folder": "Props",
+   "mesh": "SM_Chair_Wood",
+   "location": [
+    -595.0,
+    245.0,
+    0.0
+   ],
+   "quat": [
+    0.0,
+    0.0,
+    0.608761,
+    0.793353
+   ],
+   "scale": [
+    1.0,
+    1.0,
+    1.0
+   ]
+  },
+  {
+   "name": "SM_Calendar_1",
+   "cls": "StaticMeshActor",
+   "folder": "Props",
+   "mesh": "SM_Calendar",
+   "location": [
+    -699.0,
+    75.0,
+    175.0
+   ],
+   "quat": [
+    0.0,
+    0.0,
+    -0.707107,
+    0.707107
+   ],
+   "scale": [
+    1.0,
+    1.0,
+    1.0
+   ],
+   "cast_shadow": false
+  },
+  {
+   "name": "SM_Box_B_3",
+   "cls": "StaticMeshActor",
+   "folder": "Props",
+   "mesh": "SM_Box_B",
+   "location": [
+    -670.0,
+    360.0,
+    0.0
+   ],
+   "quat": [
+    -0.0,
+    -0.0,
+    -0.737277,
+    0.67559
+   ],
+   "scale": [
+    1.0,
+    1.0,
+    1.0
+   ]
+  },
+  {
+   "name": "SM_Binder_1",
+   "cls": "StaticMeshActor",
+   "folder": "Props",
+   "mesh": "SM_Binder",
+   "location": [
+    -685.0,
+    155.0,
+    76.0
+   ],
+   "quat": [
+    0.0,
+    0.0,
+    -0.707107,
+    0.707107
+   ],
+   "scale": [
+    1.0,
+    1.0,
+    1.0
+   ]
+  },
+  {
+   "name": "SM_Pegboard_1",
+   "cls": "StaticMeshActor",
+   "folder": "Props",
+   "mesh": "SM_Pegboard",
+   "location": [
+    -300.0,
+    500.0,
+    115.0
+   ],
+   "quat": [
+    0.0,
+    0.0,
+    1.0,
+    0.0
+   ],
+   "scale": [
+    1.0,
+    1.0,
+    1.0
+   ]
+  },
+  {
+   "name": "SM_Tool_Hammer_1",
+   "cls": "StaticMeshActor",
+   "folder": "Workshop",
+   "mesh": "SM_Tool_Hammer",
+   "location": [
+    -365.0,
+    495.8,
+    180.0
+   ],
+   "quat": [
+    0.0,
+    0.0,
+    1.0,
+    0.0
+   ],
+   "scale": [
+    1.0,
+    1.0,
+    1.0
+   ]
+  },
+  {
+   "name": "SM_PegHook_1",
+   "cls": "StaticMeshActor",
+   "folder": "Workshop",
+   "mesh": "SM_PegHook",
+   "location": [
+    -365.0,
+    497.0,
+    185.0
+   ],
+   "quat": [
+    0.0,
+    0.0,
+    1.0,
+    0.0
+   ],
+   "scale": [
+    1.0,
+    1.0,
+    1.0
+   ]
+  },
+  {
+   "name": "SM_Tool_Wrench_1",
+   "cls": "StaticMeshActor",
+   "folder": "Workshop",
+   "mesh": "SM_Tool_Wrench",
+   "location": [
+    -335.0,
+    495.8,
+    185.0
+   ],
+   "quat": [
+    0.0,
+    0.0,
+    1.0,
+    0.0
+   ],
+   "scale": [
+    1.0,
+    1.0,
+    1.0
+   ]
+  },
+  {
+   "name": "SM_PegHook_2",
+   "cls": "StaticMeshActor",
+   "folder": "Workshop",
+   "mesh": "SM_PegHook",
+   "location": [
+    -335.0,
+    497.0,
+    190.0
+   ],
+   "quat": [
+    0.0,
+    0.0,
+    1.0,
+    0.0
+   ],
+   "scale": [
+    1.0,
+    1.0,
+    1.0
+   ]
+  },
+  {
+   "name": "SM_Tool_Screwdriver_1",
+   "cls": "StaticMeshActor",
+   "folder": "Workshop",
+   "mesh": "SM_Tool_Screwdriver",
+   "location": [
+    -312.0,
+    495.8,
+    185.0
+   ],
+   "quat": [
+    0.0,
+    0.0,
+    1.0,
+    0.0
+   ],
+   "scale": [
+    1.0,
+    1.0,
+    1.0
+   ]
+  },
+  {
+   "name": "SM_PegHook_3",
+   "cls": "StaticMeshActor",
+   "folder": "Workshop",
+   "mesh": "SM_PegHook",
+   "location": [
+    -312.0,
+    497.0,
+    190.0
+   ],
+   "quat": [
+    0.0,
+    0.0,
+    1.0,
+    0.0
+   ],
+   "scale": [
+    1.0,
+    1.0,
+    1.0
+   ]
+  },
+  {
+   "name": "SM_Tool_Screwdriver_2",
+   "cls": "StaticMeshActor",
+   "folder": "Workshop",
+   "mesh": "SM_Tool_Screwdriver",
+   "location": [
+    -300.0,
+    495.8,
+    183.0
+   ],
+   "quat": [
+    0.0,
+    0.0,
+    1.0,
+    0.0
+   ],
+   "scale": [
+    1.0,
+    1.0,
+    1.0
+   ]
+  },
+  {
+   "name": "SM_PegHook_4",
+   "cls": "StaticMeshActor",
+   "folder": "Workshop",
+   "mesh": "SM_PegHook",
+   "location": [
+    -300.0,
+    497.0,
+    188.0
+   ],
+   "quat": [
+    0.0,
+    0.0,
+    1.0,
+    0.0
+   ],
+   "scale": [
+    1.0,
+    1.0,
+    1.0
+   ]
+  },
+  {
+   "name": "SM_Tool_Pliers_1",
+   "cls": "StaticMeshActor",
+   "folder": "Workshop",
+   "mesh": "SM_Tool_Pliers",
+   "location": [
+    -280.0,
+    495.8,
+    185.0
+   ],
+   "quat": [
+    0.0,
+    0.0,
+    1.0,
+    0.0
+   ],
+   "scale": [
+    1.0,
+    1.0,
+    1.0
+   ]
+  },
+  {
+   "name": "SM_PegHook_5",
+   "cls": "StaticMeshActor",
+   "folder": "Workshop",
+   "mesh": "SM_PegHook",
+   "location": [
+    -280.0,
+    497.0,
+    190.0
+   ],
+   "quat": [
+    0.0,
+    0.0,
+    1.0,
+    0.0
+   ],
+   "scale": [
+    1.0,
+    1.0,
+    1.0
+   ]
+  },
+  {
+   "name": "SM_Tool_Saw_1",
+   "cls": "StaticMeshActor",
+   "folder": "Workshop",
+   "mesh": "SM_Tool_Saw",
+   "location": [
+    -255.0,
+    495.8,
+    175.0
+   ],
+   "quat": [
+    0.0,
+    0.0,
+    1.0,
+    0.0
+   ],
+   "scale": [
+    1.0,
+    1.0,
+    1.0
+   ]
+  },
+  {
+   "name": "SM_PegHook_6",
+   "cls": "StaticMeshActor",
+   "folder": "Workshop",
+   "mesh": "SM_PegHook",
+   "location": [
+    -255.0,
+    497.0,
+    180.0
+   ],
+   "quat": [
+    0.0,
+    0.0,
+    1.0,
+    0.0
+   ],
+   "scale": [
+    1.0,
+    1.0,
+    1.0
+   ]
+  },
+  {
+   "name": "SM_Tool_Wrench_2",
+   "cls": "StaticMeshActor",
+   "folder": "Workshop",
+   "mesh": "SM_Tool_Wrench",
+   "location": [
+    -210.0,
+    495.8,
+    182.0
+   ],
+   "quat": [
+    0.0,
+    0.0,
+    1.0,
+    0.0
+   ],
+   "scale": [
+    1.0,
+    1.0,
+    1.0
+   ]
+  },
+  {
+   "name": "SM_PegHook_7",
+   "cls": "StaticMeshActor",
+   "folder": "Workshop",
+   "mesh": "SM_PegHook",
+   "location": [
+    -210.0,
+    497.0,
+    187.0
+   ],
+   "quat": [
+    0.0,
+    0.0,
+    1.0,
+    0.0
+   ],
+   "scale": [
+    1.0,
+    1.0,
+    1.0
+   ]
+  },
+  {
+   "name": "SM_BenchVise_1",
+   "cls": "StaticMeshActor",
+   "folder": "Props",
+   "mesh": "SM_BenchVise",
+   "location": [
+    -220.0,
+    455.0,
+    92.0
+   ],
+   "quat": [
+    0.0,
+    0.0,
+    1.0,
+    0.0
+   ],
+   "scale": [
+    1.0,
+    1.0,
+    1.0
+   ]
+  },
+  {
+   "name": "SM_Toolbox_1",
+   "cls": "StaticMeshActor",
+   "folder": "Props",
+   "mesh": "SM_Toolbox",
+   "location": [
+    -355.0,
+    472.0,
+    92.0
+   ],
+   "quat": [
+    -0.0,
+    -0.0,
+    -0.997564,
+    0.069757
+   ],
+   "scale": [
+    1.0,
+    1.0,
+    1.0
+   ]
+  },
+  {
+   "name": "SM_PaintCan_3",
+   "cls": "StaticMeshActor",
+   "folder": "Props",
+   "mesh": "SM_PaintCan",
+   "location": [
+    -360.0,
+    460.0,
+    21.0
+   ],
+   "quat": [
+    0.0,
+    0.0,
+    0.0,
+    1.0
+   ],
+   "scale": [
+    1.0,
+    1.0,
+    1.0
+   ]
+  },
+  {
+   "name": "SM_PaintCan_4",
+   "cls": "StaticMeshActor",
+   "folder": "Props",
+   "mesh": "SM_PaintCan",
+   "location": [
+    -340.0,
+    470.0,
+    21.0
+   ],
+   "quat": [
+    0.0,
+    0.0,
+    -0.34202,
+    0.939693
+   ],
+   "scale": [
+    1.0,
+    1.0,
+    1.0
+   ]
+  },
+  {
+   "name": "SM_Box_A_3",
+   "cls": "StaticMeshActor",
+   "folder": "Props",
+   "mesh": "SM_Box_A",
+   "location": [
+    -250.0,
+    460.0,
+    21.0
+   ],
+   "quat": [
+    0.0,
+    0.0,
+    1.0,
+    0.0
+   ],
+   "scale": [
+    1.0,
+    1.0,
+    1.0
+   ]
+  },
+  {
+   "name": "SM_Locker_Triple_1",
+   "cls": "StaticMeshActor",
+   "folder": "Props",
+   "mesh": "SM_Locker_Triple",
+   "location": [
+    -60.0,
+    473.0,
+    0.0
+   ],
+   "quat": [
+    0.0,
+    0.0,
+    1.0,
+    0.0
+   ],
+   "scale": [
+    1.0,
+    1.0,
+    1.0
+   ]
+  },
+  {
+   "name": "SM_Stool_1",
+   "cls": "StaticMeshActor",
+   "folder": "Props",
+   "mesh": "SM_Stool",
+   "location": [
+    -290.0,
+    380.0,
+    0.0
+   ],
+   "quat": [
+    0.0,
+    0.0,
+    0.0,
+    1.0
+   ],
+   "scale": [
+    1.0,
+    1.0,
+    1.0
+   ]
+  },
+  {
+   "name": "Light_Fluoro_Bench",
+   "cls": "HHPracticalRectLight",
+   "folder": "Lights",
+   "location": [
+    -300.0,
+    430.0,
+    340.0
+   ],
+   "quat": [
+    0.0,
+    0.0,
+    0.0,
+    1.0
+   ],
+   "scale": [
+    1.0,
+    1.0,
+    1.0
+   ],
+   "properties": {
+    "FlickerMode": {
+     "enum": "EHHFlickerMode",
+     "value": "Buzz"
+    },
+    "FlickerStrength": 0.6,
+    "EmissiveStrength": 20
+   },
+   "components": {
+    "Light": {
+     "RelativeLocation": [
+      0.0,
+      -0.0,
+      -62.0
+     ],
+     "Intensity": 420,
+     "IntensityUnits": {
+      "enum": "ELightUnits",
+      "value": "Candelas"
+     },
+     "bUseTemperature": true,
+     "Temperature": 4300.0,
+     "AttenuationRadius": 1100,
+     "CastShadows": true,
+     "VolumetricScatteringIntensity": 1.0,
+     "RelativeDirection": [
+      0,
+      0,
+      -1
+     ],
+     "SourceWidth": 120,
+     "SourceHeight": 12,
+     "BarnDoorAngle": 75.0
+    },
+    "Fixture": {
+     "CastShadow": false,
+     "StaticMesh": {
+      "asset": "SM_Lamp_Fluorescent"
+     }
+    },
+    "Hum": {
+     "Sound": {
+      "asset": "A_Hum_Fluorescent_Loop"
+     }
+    }
+   },
+   "tags": [
+    "HH_MainLights",
+    "HH_Flickerable"
+   ]
+  },
+  {
+   "name": "Station_Loadout",
+   "cls": "HHStationActor",
+   "folder": "Stations",
+   "location": [
+    -300.0,
+    457.5,
+    0.0
+   ],
+   "quat": [
+    0.0,
+    0.0,
+    1.0,
+    0.0
+   ],
+   "scale": [
+    1.0,
+    1.0,
+    1.0
+   ],
+   "properties": {
+    "Screen": {
+     "enum": "EHHLobbyScreen",
+     "value": "Loadout"
+    },
+    "CameraDrift": 0.3,
+    "Prompt": {
+     "text": "Gear up"
+    }
+   },
+   "components": {
+    "ViewCamera": {
+     "world": {
+      "location": [
+       -200.0,
+       270.0,
+       170.0
+      ],
+      "quat": [
+       -0.100619,
+       0.062837,
+       0.842196,
+       0.52596
+      ]
+     },
+     "FieldOfView": 58
+    },
+    "Mesh": {
+     "StaticMesh": {
+      "asset": "SM_Workbench"
+     }
+    }
+   }
+  },
+  {
+   "name": "BreakerSwitch",
+   "cls": "HHLightSwitch",
+   "folder": "Gameplay",
+   "location": [
+    -520.0,
+    500.0,
+    145.0
+   ],
+   "quat": [
+    0.0,
+    0.0,
+    -0.707107,
+    0.707107
+   ],
+   "scale": [
+    1.0,
+    1.0,
+    1.0
+   ],
+   "properties": {
+    "LightTag": "HH_MainLights",
+    "InteractSound": {
+     "asset": "S_Switch_Breaker"
+    },
+    "Prompt": {
+     "text": "Main lights"
+    }
+   },
+   "components": {
+    "Lever": {
+     "StaticMesh": {
+      "asset": "SM_BreakerLever"
+     },
+     "RelativeLocation": [
+      13.0,
+      -0.0,
+      0.0
+     ]
+    },
+    "Mesh": {
+     "StaticMesh": {
+      "asset": "SM_BreakerBox"
+     }
+    }
+   }
+  },
+  {
+   "name": "SM_FireExtinguisher_2",
+   "cls": "StaticMeshActor",
+   "folder": "Props",
+   "mesh": "SM_FireExtinguisher",
+   "location": [
+    -475.0,
+    488.0,
+    0.0
+   ],
+   "quat": [
+    0.0,
+    0.0,
+    1.0,
+    0.0
+   ],
+   "scale": [
+    1.0,
+    1.0,
+    1.0
+   ]
+  },
+  {
+   "name": "Grime_1",
+   "cls": "DecalActor",
+   "folder": "Decals",
+   "location": [
+    -300.0,
+    499.0,
+    260.0
+   ],
+   "quat": [
+    0.707107,
+    0.707107,
+    -0.0,
+    0.0
+   ],
+   "scale": [
+    1.0,
+    1.0,
+    1.0
+   ],
+   "properties": {
+    "DecalMaterial": {
+     "asset": "MI_Decal_Grime"
+    }
+   },
+   "components": {
+    "Decal": {
+     "DecalSize": [
+      15.0,
+      120.0,
+      80.0
+     ]
+    }
+   }
+  },
+  {
+   "name": "Grime_2",
+   "cls": "DecalActor",
+   "folder": "Decals",
+   "location": [
+    400.0,
+    -499.0,
+    240.0
+   ],
+   "quat": [
+    0.0,
+    0.0,
+    -0.707107,
+    0.707107
+   ],
+   "scale": [
+    1.0,
+    1.0,
+    1.0
+   ],
+   "properties": {
+    "DecalMaterial": {
+     "asset": "MI_Decal_Grime"
+    }
+   },
+   "components": {
+    "Decal": {
+     "DecalSize": [
+      15.0,
+      80.0,
+      70.0
+     ]
+    }
+   }
+  },
+  {
+   "name": "PipeCreaks_1",
+   "cls": "HHAmbientEmitter",
+   "folder": "Audio",
+   "location": [
+    0.0,
+    470.0,
+    300.0
+   ],
+   "quat": [
+    0.0,
+    0.0,
+    0.0,
+    1.0
+   ],
+   "scale": [
+    1.0,
+    1.0,
+    1.0
+   ],
+   "properties": {
+    "MinInterval": 20,
+    "MaxInterval": 55,
+    "ScatterRadius": 400.0,
+    "VolumeRange": [
+     0.5,
+     1.0
+    ],
+    "OneShots": [
+     {
+      "asset": "A_PipeCreak_01"
+     },
+     {
+      "asset": "A_PipeCreak_02"
+     },
+     {
+      "asset": "A_PipeCreak_03"
+     },
+     {
+      "asset": "A_PipeCreak_04"
+     }
+    ],
+    "Caption": {
+     "text": "[Pipes groan]"
+    }
+   }
+  },
+  {
+   "name": "SM_ClothingRack_1",
+   "cls": "StaticMeshActor",
+   "folder": "Props",
+   "mesh": "SM_ClothingRack",
+   "location": [
+    310.0,
+    435.0,
+    0.0
+   ],
+   "quat": [
+    -0.0,
+    -0.0,
+    -0.999048,
+    0.043619
+   ],
+   "scale": [
+    1.0,
+    1.0,
+    1.0
+   ]
+  },
+  {
+   "name": "SM_Hanger_1",
+   "cls": "StaticMeshActor",
+   "folder": "Wardrobe",
+   "mesh": "SM_Hanger",
+   "location": [
+    359.81,
+    439.358,
+    160.0
+   ],
+   "quat": [
+    0.0,
+    0.0,
+    0.737277,
+    0.67559
+   ],
+   "scale": [
+    1.0,
+    1.0,
+    1.0
+   ]
+  },
+  {
+   "name": "SM_Garment_Coat_1",
+   "cls": "StaticMeshActor",
+   "folder": "Wardrobe",
+   "mesh": "SM_Garment_Coat",
+   "location": [
+    359.81,
+    439.358,
+    155.0
+   ],
+   "quat": [
+    0.0,
+    0.0,
+    0.737277,
+    0.67559
+   ],
+   "scale": [
+    1.0,
+    1.0,
+    1.0
+   ]
+  },
+  {
+   "name": "SM_Hanger_2",
+   "cls": "StaticMeshActor",
+   "folder": "Wardrobe",
+   "mesh": "SM_Hanger",
+   "location": [
+    324.943,
+    436.307,
+    160.0
+   ],
+   "quat": [
+    0.0,
+    0.0,
+    0.688355,
+    0.725374
+   ],
+   "scale": [
+    1.0,
+    1.0,
+    1.0
+   ]
+  },
+  {
+   "name": "SM_Garment_Hoodie_1",
+   "cls": "StaticMeshActor",
+   "folder": "Wardrobe",
+   "mesh": "SM_Garment_Hoodie",
+   "location": [
+    324.943,
+    436.307,
+    155.0
+   ],
+   "quat": [
+    0.0,
+    0.0,
+    0.688355,
+    0.725374
+   ],
+   "scale": [
+    1.0,
+    1.0,
+    1.0
+   ]
+  },
+  {
+   "name": "SM_Hanger_3",
+   "cls": "StaticMeshActor",
+   "folder": "Wardrobe",
+   "mesh": "SM_Hanger",
+   "location": [
+    290.076,
+    433.257,
+    160.0
+   ],
+   "quat": [
+    0.0,
+    0.0,
+    0.737277,
+    0.67559
+   ],
+   "scale": [
+    1.0,
+    1.0,
+    1.0
+   ]
+  },
+  {
+   "name": "SM_Garment_Jacket_1",
+   "cls": "StaticMeshActor",
+   "folder": "Wardrobe",
+   "mesh": "SM_Garment_Jacket",
+   "location": [
+    290.076,
+    433.257,
+    155.0
+   ],
+   "quat": [
+    0.0,
+    0.0,
+    0.737277,
+    0.67559
+   ],
+   "scale": [
+    1.0,
+    1.0,
+    1.0
+   ]
+  },
+  {
+   "name": "SM_Hanger_4",
+   "cls": "StaticMeshActor",
+   "folder": "Wardrobe",
+   "mesh": "SM_Hanger",
+   "location": [
+    260.19,
+    430.642,
+    160.0
+   ],
+   "quat": [
+    0.0,
+    0.0,
+    0.688355,
+    0.725374
+   ],
+   "scale": [
+    1.0,
+    1.0,
+    1.0
+   ]
+  },
+  {
+   "name": "SM_Garment_Coat_2",
+   "cls": "StaticMeshActor",
+   "folder": "Wardrobe",
+   "mesh": "SM_Garment_Coat",
+   "location": [
+    260.19,
+    430.642,
+    155.0
+   ],
+   "quat": [
+    0.0,
+    0.0,
+    0.688355,
+    0.725374
+   ],
+   "scale": [
+    1.0,
+    1.0,
+    1.0
+   ]
+  },
+  {
+   "name": "SM_Bench_Wood_1",
+   "cls": "StaticMeshActor",
+   "folder": "Props",
+   "mesh": "SM_Bench_Wood",
+   "location": [
+    78.0,
+    455.0,
+    0.0
+   ],
+   "quat": [
+    0.0,
+    0.0,
+    1.0,
+    0.0
+   ],
+   "scale": [
+    1.0,
+    1.0,
+    1.0
+   ]
+  },
+  {
+   "name": "SM_Shoebox_2",
+   "cls": "StaticMeshActor",
+   "folder": "Props",
+   "mesh": "SM_Shoebox",
+   "location": [
+    50.0,
+    455.0,
+    46.0
+   ],
+   "quat": [
+    -0.0,
+    -0.0,
+    -0.996195,
+    0.087156
+   ],
+   "scale": [
+    1.0,
+    1.0,
+    1.0
+   ]
+  },
+  {
+   "name": "SM_Shoebox_3",
+   "cls": "StaticMeshActor",
+   "folder": "Props",
+   "mesh": "SM_Shoebox",
+   "location": [
+    108.0,
+    460.0,
+    46.0
+   ],
+   "quat": [
+    0.0,
+    0.0,
+    0.999048,
+    0.043619
+   ],
+   "scale": [
+    1.0,
+    1.0,
+    1.0
+   ]
+  },
+  {
+   "name": "Light_Bulb_Mirror",
+   "cls": "HHPracticalPointLight",
+   "folder": "Lights",
+   "location": [
+    200.0,
+    340.0,
+    340.0
+   ],
+   "quat": [
+    0.0,
+    0.0,
+    0.0,
+    1.0
+   ],
+   "scale": [
+    1.0,
+    1.0,
+    1.0
+   ],
+   "properties": {
+    "FlickerMode": {
+     "enum": "EHHFlickerMode",
+     "value": "Flicker"
+    },
+    "FlickerStrength": 0.25,
+    "EmissiveStrength": 30
+   },
+   "components": {
+    "Light": {
+     "RelativeLocation": [
+      0.0,
+      -0.0,
+      -99.0
+     ],
+     "Intensity": 140,
+     "IntensityUnits": {
+      "enum": "ELightUnits",
+      "value": "Candelas"
+     },
+     "bUseTemperature": true,
+     "Temperature": 2500.0,
+     "AttenuationRadius": 650,
+     "CastShadows": true,
+     "VolumetricScatteringIntensity": 1.0,
+     "SourceRadius": 3
+    },
+    "Fixture": {
+     "CastShadow": false,
+     "StaticMesh": {
+      "asset": "SM_Lamp_Bulb"
+     }
+    }
+   },
+   "tags": [
+    "HH_Flickerable"
+   ]
+  },
+  {
+   "name": "Station_Customization",
+   "cls": "HHPreviewStation",
+   "folder": "Stations",
+   "location": [
+    200.0,
+    475.0,
+    0.0
+   ],
+   "quat": [
+    0.0,
+    0.0,
+    -0.707107,
+    0.707107
+   ],
+   "scale": [
+    1.0,
+    1.0,
+    1.0
+   ],
+   "properties": {
+    "Screen": {
+     "enum": "EHHLobbyScreen",
+     "value": "Customization"
+    },
+    "Prompt": {
+     "text": "Change clothes"
+    }
+   },
+   "components": {
+    "Mesh": {
+     "StaticMesh": {
+      "asset": "SM_Mirror_Standing"
+     },
+     "RelativeLocation": [
+      15.0,
+      -0.0,
+      0.0
+     ],
+     "RelativeQuat": [
+      0.0,
+      0.0,
+      -0.707107,
+      0.707107
+     ]
+    }
+   }
+  },
+  {
+   "name": "Light_WorkLight",
+   "cls": "HHPracticalSpotLight",
+   "folder": "Lights",
+   "location": [
+    345.0,
+    235.0,
+    0.0
+   ],
+   "quat": [
+    0.0,
+    0.0,
+    0.427358,
+    0.904083
+   ],
+   "scale": [
+    1.0,
+    1.0,
+    1.0
+   ],
+   "properties": {
+    "FlickerMode": {
+     "enum": "EHHFlickerMode",
+     "value": "Steady"
+    },
+    "FlickerStrength": 1.0,
+    "EmissiveStrength": 20
+   },
+   "components": {
+    "Light": {
+     "RelativeLocation": [
+      0.0,
+      10.0,
+      170.0
+     ],
+     "Intensity": 380,
+     "IntensityUnits": {
+      "enum": "ELightUnits",
+      "value": "Candelas"
+     },
+     "bUseTemperature": true,
+     "Temperature": 3300.0,
+     "AttenuationRadius": 900,
+     "CastShadows": true,
+     "VolumetricScatteringIntensity": 1.0,
+     "RelativeDirection": [
+      0,
+      0.94,
+      -0.34
+     ],
+     "InnerConeAngle": 18,
+     "OuterConeAngle": 42,
+     "SourceRadius": 8
+    },
+    "Fixture": {
+     "CastShadow": false,
+     "StaticMesh": {
+      "asset": "SM_WorkLight"
+     }
+    }
+   }
+  },
+  {
+   "name": "Cracks_1",
+   "cls": "DecalActor",
+   "folder": "Decals",
+   "location": [
+    80.0,
+    260.0,
+    0.0
+   ],
+   "quat": [
+    0.579228,
+    0.40558,
+    -0.579228,
+    0.40558
+   ],
+   "scale": [
+    1.0,
+    1.0,
+    1.0
+   ],
+   "properties": {
+    "DecalMaterial": {
+     "asset": "MI_Decal_Cracks"
+    }
+   },
+   "components": {
+    "Decal": {
+     "DecalSize": [
+      15.0,
+      110.00000000000001,
+      110.00000000000001
+     ]
+    }
+   }
+  },
+  {
+   "name": "SM_Cage_Panel_1",
+   "cls": "StaticMeshActor",
+   "folder": "Props",
+   "mesh": "SM_Cage_Panel",
+   "location": [
+    460.0,
+    260.0,
+    0.0
+   ],
+   "quat": [
+    0.0,
+    0.0,
+    0.0,
+    1.0
+   ],
+   "scale": [
+    1.0,
+    1.0,
+    1.0
+   ]
+  },
+  {
+   "name": "SM_Cage_Panel_2",
+   "cls": "StaticMeshActor",
+   "folder": "Props",
+   "mesh": "SM_Cage_Panel",
+   "location": [
+    690.0,
+    260.0,
+    0.0
+   ],
+   "quat": [
+    0.0,
+    0.0,
+    0.0,
+    1.0
+   ],
+   "scale": [
+    0.17,
+    1.0,
+    1.0
+   ]
+  },
+  {
+   "name": "SM_Cage_Panel_3",
+   "cls": "StaticMeshActor",
+   "folder": "Props",
+   "mesh": "SM_Cage_Panel",
+   "location": [
+    400.0,
+    320.0,
+    0.0
+   ],
+   "quat": [
+    0.0,
+    0.0,
+    -0.707107,
+    0.707107
+   ],
+   "scale": [
+    1.0,
+    1.0,
+    1.0
+   ]
+  },
+  {
+   "name": "SM_Cage_Panel_4",
+   "cls": "StaticMeshActor",
+   "folder": "Props",
+   "mesh": "SM_Cage_Panel",
+   "location": [
+    400.0,
+    440.0,
+    0.0
+   ],
+   "quat": [
+    0.0,
+    0.0,
+    -0.707107,
+    0.707107
+   ],
+   "scale": [
+    1.0,
+    1.0,
+    1.0
+   ]
+  },
+  {
+   "name": "SM_Cage_Panel_5",
+   "cls": "StaticMeshActor",
+   "folder": "Props",
+   "mesh": "SM_Cage_Panel",
+   "location": [
+    600.0,
+    260.0,
+    200.0
+   ],
+   "quat": [
+    0.0,
+    0.0,
+    0.0,
+    1.0
+   ],
+   "scale": [
+    1.33,
+    1.0,
+    0.167
+   ]
+  },
+  {
+   "name": "SM_CashBox_1",
+   "cls": "StaticMeshActor",
+   "folder": "Props",
+   "mesh": "SM_CashBox",
+   "location": [
+    560.0,
+    285.0,
+    102.0
+   ],
+   "quat": [
+    -0.0,
+    -0.0,
+    -0.996195,
+    0.087156
+   ],
+   "scale": [
+    1.0,
+    1.0,
+    1.0
+   ]
+  },
+  {
+   "name": "SM_Phone_Rotary_1",
+   "cls": "StaticMeshActor",
+   "folder": "Props",
+   "mesh": "SM_Phone_Rotary",
+   "location": [
+    645.0,
+    295.0,
+    102.0
+   ],
+   "quat": [
+    0.0,
+    0.0,
+    0.984808,
+    0.173648
+   ],
+   "scale": [
+    1.0,
+    1.0,
+    1.0
+   ]
+  },
+  {
+   "name": "SM_Sign_Fence_1",
+   "cls": "StaticMeshActor",
+   "folder": "Props",
+   "mesh": "SM_Sign_Fence",
+   "location": [
+    600.0,
+    255.0,
+    235.0
+   ],
+   "quat": [
+    0.0,
+    0.0,
+    1.0,
+    0.0
+   ],
+   "scale": [
+    1.0,
+    1.0,
+    1.0
+   ]
+  },
+  {
+   "name": "SM_Shelf_Metal_2",
+   "cls": "StaticMeshActor",
+   "folder": "Props",
+   "mesh": "SM_Shelf_Metal",
+   "location": [
+    500.0,
+    472.0,
+    0.0
+   ],
+   "quat": [
+    0.0,
+    0.0,
+    1.0,
+    0.0
+   ],
+   "scale": [
+    1.0,
+    1.0,
+    1.0
+   ]
+  },
+  {
+   "name": "SM_Shelf_Metal_3",
+   "cls": "StaticMeshActor",
+   "folder": "Props",
+   "mesh": "SM_Shelf_Metal",
+   "location": [
+    630.0,
+    472.0,
+    0.0
+   ],
+   "quat": [
+    0.0,
+    0.0,
+    1.0,
+    0.0
+   ],
+   "scale": [
+    1.0,
+    1.0,
+    1.0
+   ]
+  },
+  {
+   "name": "SM_Duffel_1",
+   "cls": "StaticMeshActor",
+   "folder": "Props",
+   "mesh": "SM_Duffel",
+   "location": [
+    500.0,
+    472.0,
+    13.5
+   ],
+   "quat": [
+    0.0,
+    0.0,
+    1.0,
+    0.0
+   ],
+   "scale": [
+    1.0,
+    1.0,
+    1.0
+   ]
+  },
+  {
+   "name": "SM_Box_A_4",
+   "cls": "StaticMeshActor",
+   "folder": "Props",
+   "mesh": "SM_Box_A",
+   "location": [
+    470.0,
+    475.0,
+    61.5
+   ],
+   "quat": [
+    0.0,
+    0.0,
+    0.999048,
+    0.043619
+   ],
+   "scale": [
+    1.0,
+    1.0,
+    1.0
+   ]
+  },
+  {
+   "name": "SM_Box_B_4",
+   "cls": "StaticMeshActor",
+   "folder": "Props",
+   "mesh": "SM_Box_B",
+   "location": [
+    530.0,
+    470.0,
+    61.5
+   ],
+   "quat": [
+    -0.0,
+    -0.0,
+    -0.999048,
+    0.043619
+   ],
+   "scale": [
+    1.0,
+    1.0,
+    1.0
+   ]
+  },
+  {
+   "name": "SM_Duffel_2",
+   "cls": "StaticMeshActor",
+   "folder": "Props",
+   "mesh": "SM_Duffel",
+   "location": [
+    500.0,
+    472.0,
+    111.5
+   ],
+   "quat": [
+    -0.0,
+    -0.0,
+    -0.996195,
+    0.087156
+   ],
+   "scale": [
+    0.8,
+    0.8,
+    0.8
+   ]
+  },
+  {
+   "name": "SM_Toolbox_2",
+   "cls": "StaticMeshActor",
+   "folder": "Props",
+   "mesh": "SM_Toolbox",
+   "location": [
+    500.0,
+    475.0,
+    161.5
+   ],
+   "quat": [
+    0.0,
+    0.0,
+    1.0,
+    0.0
+   ],
+   "scale": [
+    1.0,
+    1.0,
+    1.0
+   ]
+  },
+  {
+   "name": "SM_Duffel_3",
+   "cls": "StaticMeshActor",
+   "folder": "Props",
+   "mesh": "SM_Duffel",
+   "location": [
+    630.0,
+    472.0,
+    13.5
+   ],
+   "quat": [
+    0.0,
+    0.0,
+    1.0,
+    0.0
+   ],
+   "scale": [
+    1.0,
+    1.0,
+    1.0
+   ]
+  },
+  {
+   "name": "SM_Box_A_5",
+   "cls": "StaticMeshActor",
+   "folder": "Props",
+   "mesh": "SM_Box_A",
+   "location": [
+    600.0,
+    475.0,
+    61.5
+   ],
+   "quat": [
+    0.0,
+    0.0,
+    0.999048,
+    0.043619
+   ],
+   "scale": [
+    1.0,
+    1.0,
+    1.0
+   ]
+  },
+  {
+   "name": "SM_Box_B_5",
+   "cls": "StaticMeshActor",
+   "folder": "Props",
+   "mesh": "SM_Box_B",
+   "location": [
+    660.0,
+    470.0,
+    61.5
+   ],
+   "quat": [
+    -0.0,
+    -0.0,
+    -0.999048,
+    0.043619
+   ],
+   "scale": [
+    1.0,
+    1.0,
+    1.0
+   ]
+  },
+  {
+   "name": "SM_Duffel_4",
+   "cls": "StaticMeshActor",
+   "folder": "Props",
+   "mesh": "SM_Duffel",
+   "location": [
+    630.0,
+    472.0,
+    111.5
+   ],
+   "quat": [
+    -0.0,
+    -0.0,
+    -0.996195,
+    0.087156
+   ],
+   "scale": [
+    0.8,
+    0.8,
+    0.8
+   ]
+  },
+  {
+   "name": "SM_Toolbox_3",
+   "cls": "StaticMeshActor",
+   "folder": "Props",
+   "mesh": "SM_Toolbox",
+   "location": [
+    630.0,
+    475.0,
+    161.5
+   ],
+   "quat": [
+    0.0,
+    0.0,
+    1.0,
+    0.0
+   ],
+   "scale": [
+    1.0,
+    1.0,
+    1.0
+   ]
+  },
+  {
+   "name": "SM_Safe_1",
+   "cls": "StaticMeshActor",
+   "folder": "Props",
+   "mesh": "SM_Safe",
+   "location": [
+    665.0,
+    370.0,
+    0.0
+   ],
+   "quat": [
+    0.0,
+    0.0,
+    0.707107,
+    0.707107
+   ],
+   "scale": [
+    1.0,
+    1.0,
+    1.0
+   ]
+  },
+  {
+   "name": "SM_Stool_2",
+   "cls": "StaticMeshActor",
+   "folder": "Props",
+   "mesh": "SM_Stool",
+   "location": [
+    610.0,
+    345.0,
+    0.0
+   ],
+   "quat": [
+    0.0,
+    0.0,
+    0.0,
+    1.0
+   ],
+   "scale": [
+    1.0,
+    1.0,
+    1.0
+   ]
+  },
+  {
+   "name": "Light_Counter",
+   "cls": "HHPracticalPointLight",
+   "folder": "Lights",
+   "location": [
+    600.0,
+    215.0,
+    340.0
+   ],
+   "quat": [
+    0.0,
+    0.0,
+    0.0,
+    1.0
+   ],
+   "scale": [
+    1.0,
+    1.0,
+    1.0
+   ],
+   "properties": {
+    "FlickerMode": {
+     "enum": "EHHFlickerMode",
+     "value": "Steady"
+    },
+    "FlickerStrength": 1.0,
+    "EmissiveStrength": 30
+   },
+   "components": {
+    "Light": {
+     "RelativeLocation": [
+      0.0,
+      -0.0,
+      -99.0
+     ],
+     "Intensity": 120,
+     "IntensityUnits": {
+      "enum": "ELightUnits",
+      "value": "Candelas"
+     },
+     "bUseTemperature": true,
+     "Temperature": 2600.0,
+     "AttenuationRadius": 600,
+     "CastShadows": true,
+     "VolumetricScatteringIntensity": 1.0,
+     "SourceRadius": 3.0
+    },
+    "Fixture": {
+     "CastShadow": false,
+     "StaticMesh": {
+      "asset": "SM_Lamp_Bulb"
+     }
+    }
+   },
+   "tags": [
+    "HH_Flickerable"
+   ]
+  },
+  {
+   "name": "Light_Cage",
+   "cls": "HHPracticalPointLight",
+   "folder": "Lights",
+   "location": [
+    560.0,
+    500.0,
+    240.0
+   ],
+   "quat": [
+    0.0,
+    0.0,
+    1.0,
+    0.0
+   ],
+   "scale": [
+    1.0,
+    1.0,
+    1.0
+   ],
+   "properties": {
+    "FlickerMode": {
+     "enum": "EHHFlickerMode",
+     "value": "Flicker"
+    },
+    "FlickerStrength": 0.35,
+    "EmissiveStrength": 25
+   },
+   "components": {
+    "Light": {
+     "RelativeLocation": [
+      0.0,
+      12.0,
+      0.0
+     ],
+     "Intensity": 160,
+     "IntensityUnits": {
+      "enum": "ELightUnits",
+      "value": "Candelas"
+     },
+     "bUseTemperature": true,
+     "Temperature": 3000.0,
+     "AttenuationRadius": 700,
+     "CastShadows": true,
+     "VolumetricScatteringIntensity": 1.0,
+     "SourceRadius": 3.0
+    },
+    "Fixture": {
+     "CastShadow": false,
+     "StaticMesh": {
+      "asset": "SM_Lamp_Caged"
+     }
+    }
+   },
+   "tags": [
+    "HH_Flickerable"
+   ]
+  },
+  {
+   "name": "Station_Store",
+   "cls": "HHStationActor",
+   "folder": "Stations",
+   "location": [
+    600.0,
+    290.0,
+    0.0
+   ],
+   "quat": [
+    0.0,
+    0.0,
+    1.0,
+    0.0
+   ],
+   "scale": [
+    1.0,
+    1.0,
+    1.0
+   ],
+   "properties": {
+    "Screen": {
+     "enum": "EHHLobbyScreen",
+     "value": "Store"
+    },
+    "CameraDrift": 0.3,
+    "Prompt": {
+     "text": "Talk to the fence"
+    }
+   },
+   "components": {
+    "ViewCamera": {
+     "world": {
+      "location": [
+       475.0,
+       35.0,
+       190.0
+      ],
+      "quat": [
+       -0.037849,
+       0.05804,
+       0.54492,
+       0.83562
+      ]
+     },
+     "FieldOfView": 58
+    },
+    "Mesh": {
+     "StaticMesh": {
+      "asset": "SM_Counter"
+     }
+    }
+   }
+  },
+  {
+   "name": "SM_Rug_1",
+   "cls": "StaticMeshActor",
+   "folder": "Props",
+   "mesh": "SM_Rug",
+   "location": [
+    150.0,
+    -330.0,
+    0.0
+   ],
+   "quat": [
+    0.0,
+    0.0,
+    -0.017452,
+    0.999848
+   ],
+   "scale": [
+    1.0,
+    1.0,
+    1.0
+   ]
+  },
+  {
+   "name": "SM_TVStand_1",
+   "cls": "StaticMeshActor",
+   "folder": "Props",
+   "mesh": "SM_TVStand",
+   "location": [
+    150.0,
+    -475.0,
+    0.0
+   ],
+   "quat": [
+    0.0,
+    0.0,
+    0.0,
+    1.0
+   ],
+   "scale": [
+    1.0,
+    1.0,
+    1.0
+   ]
+  },
+  {
+   "name": "Light_TV",
+   "cls": "HHPracticalRectLight",
+   "folder": "Lights",
+   "location": [
+    150.0,
+    -470.0,
+    53.0
+   ],
+   "quat": [
+    0.0,
+    0.0,
+    0.052336,
+    0.99863
+   ],
+   "scale": [
+    1.0,
+    1.0,
+    1.0
+   ],
+   "properties": {
+    "FlickerMode": {
+     "enum": "EHHFlickerMode",
+     "value": "Television"
+    },
+    "FlickerStrength": 0.8,
+    "EmissiveStrength": 2.5
+   },
+   "components": {
+    "Light": {
+     "RelativeLocation": [
+      -6.0,
+      30.0,
+      28.0
+     ],
+     "Intensity": 30,
+     "IntensityUnits": {
+      "enum": "ELightUnits",
+      "value": "Candelas"
+     },
+     "bUseTemperature": false,
+     "Temperature": 2700.0,
+     "AttenuationRadius": 600,
+     "CastShadows": true,
+     "VolumetricScatteringIntensity": 1.0,
+     "RelativeDirection": [
+      0,
+      1,
+      0
+     ],
+     "LightColor": [
+      0.7,
+      0.8,
+      1.0
+     ],
+     "SourceWidth": 38,
+     "SourceHeight": 30,
+     "BarnDoorAngle": 75.0
+    },
+    "Fixture": {
+     "CastShadow": false,
+     "StaticMesh": {
+      "asset": "SM_TV_CRT"
+     }
+    },
+    "Hum": {
+     "Sound": {
+      "asset": "A_TV_Static_Loop"
+     }
+    }
+   }
+  },
+  {
+   "name": "SM_Couch_1",
+   "cls": "StaticMeshActor",
+   "folder": "Props",
+   "mesh": "SM_Couch",
+   "location": [
+    150.0,
+    -225.0,
+    0.0
+   ],
+   "quat": [
+    0.0,
+    0.0,
+    1.0,
+    0.0
+   ],
+   "scale": [
+    1.0,
+    1.0,
+    1.0
+   ]
+  },
+  {
+   "name": "SM_CoffeeTable_1",
+   "cls": "StaticMeshActor",
+   "folder": "Props",
+   "mesh": "SM_CoffeeTable",
+   "location": [
+    150.0,
+    -330.0,
+    0.0
+   ],
+   "quat": [
+    0.0,
+    0.0,
+    -0.008727,
+    0.999962
+   ],
+   "scale": [
+    1.0,
+    1.0,
+    1.0
+   ]
+  },
+  {
+   "name": "SM_Armchair_1",
+   "cls": "StaticMeshActor",
+   "folder": "Props",
+   "mesh": "SM_Armchair",
+   "location": [
+    375.0,
+    -320.0,
+    0.0
+   ],
+   "quat": [
+    0.0,
+    0.0,
+    0.87462,
+    0.48481
+   ],
+   "scale": [
+    1.0,
+    1.0,
+    1.0
+   ]
+  },
+  {
+   "name": "SM_Crate_Wood_1",
+   "cls": "StaticMeshActor",
+   "folder": "Props",
+   "mesh": "SM_Crate_Wood",
+   "location": [
+    390.0,
+    -455.0,
+    0.0
+   ],
+   "quat": [
+    0.0,
+    0.0,
+    -0.034899,
+    0.999391
+   ],
+   "scale": [
+    1.0,
+    1.0,
+    1.0
+   ]
+  },
+  {
+   "name": "Radio",
+   "cls": "HHRadioActor",
+   "folder": "Gameplay",
+   "location": [
+    385.0,
+    -455.0,
+    51.0
+   ],
+   "quat": [
+    0.0,
+    0.0,
+    0.069757,
+    0.997564
+   ],
+   "scale": [
+    1.0,
+    1.0,
+    1.0
+   ],
+   "properties": {
+    "Stations": [
+     {
+      "asset": "M_Radio_Station_A"
+     },
+     {
+      "asset": "M_Radio_Station_B"
+     }
+    ],
+    "StaticLoop": {
+     "asset": "A_Radio_Static_Loop"
+    },
+    "TuneSound": {
+     "asset": "S_Radio_Tune"
+    },
+    "Prompt": {
+     "text": "Tune the radio"
+    }
+   },
+   "components": {
+    "Mesh": {
+     "StaticMesh": {
+      "asset": "SM_Radio_Vintage"
+     }
+    }
+   }
+  },
+  {
+   "name": "Light_FloorLamp",
+   "cls": "HHPracticalPointLight",
+   "folder": "Lights",
+   "location": [
+    -25.0,
+    -435.0,
+    0.0
+   ],
+   "quat": [
+    0.0,
+    0.0,
+    0.0,
+    1.0
+   ],
+   "scale": [
+    1.0,
+    1.0,
+    1.0
+   ],
+   "properties": {
+    "FlickerMode": {
+     "enum": "EHHFlickerMode",
+     "value": "Steady"
+    },
+    "FlickerStrength": 1.0,
+    "EmissiveStrength": 3
+   },
+   "components": {
+    "Light": {
+     "RelativeLocation": [
+      0.0,
+      -0.0,
+      145.0
+     ],
+     "Intensity": 70,
+     "IntensityUnits": {
+      "enum": "ELightUnits",
+      "value": "Candelas"
+     },
+     "bUseTemperature": true,
+     "Temperature": 2300.0,
+     "AttenuationRadius": 600,
+     "CastShadows": true,
+     "VolumetricScatteringIntensity": 1.0,
+     "SourceRadius": 8
+    },
+    "Fixture": {
+     "CastShadow": false,
+     "StaticMesh": {
+      "asset": "SM_FloorLamp"
+     }
+    }
+   }
+  },
+  {
+   "name": "Light_Heater",
+   "cls": "HHPracticalPointLight",
+   "folder": "Lights",
+   "location": [
+    -30.0,
+    -250.0,
+    0.0
+   ],
+   "quat": [
+    0.0,
+    0.0,
+    0.461749,
+    0.887011
+   ],
+   "scale": [
+    1.0,
+    1.0,
+    1.0
+   ],
+   "properties": {
+    "FlickerMode": {
+     "enum": "EHHFlickerMode",
+     "value": "Ember"
+    },
+    "FlickerStrength": 0.6,
+    "EmissiveStrength": 12
+   },
+   "components": {
+    "Light": {
+     "RelativeLocation": [
+      0.0,
+      12.0,
+      30.0
+     ],
+     "Intensity": 12,
+     "IntensityUnits": {
+      "enum": "ELightUnits",
+      "value": "Candelas"
+     },
+     "bUseTemperature": false,
+     "Temperature": 2700.0,
+     "AttenuationRadius": 300,
+     "CastShadows": false,
+     "VolumetricScatteringIntensity": 1.0,
+     "LightColor": [
+      1.0,
+      0.35,
+      0.08
+     ],
+     "SourceRadius": 3.0
+    },
+    "Fixture": {
+     "CastShadow": false,
+     "StaticMesh": {
+      "asset": "SM_SpaceHeater"
+     }
+    }
+   }
+  },
+  {
+   "name": "SM_BeerBottle_1",
+   "cls": "StaticMeshActor",
+   "folder": "Clutter",
+   "mesh": "SM_BeerBottle",
+   "location": [
+    120.0,
+    -320.0,
+    42.0
+   ],
+   "quat": [
+    0.0,
+    0.0,
+    0.0,
+    1.0
+   ],
+   "scale": [
+    1.0,
+    1.0,
+    1.0
+   ]
+  },
+  {
+   "name": "SM_BeerBottle_2",
+   "cls": "StaticMeshActor",
+   "folder": "Clutter",
+   "mesh": "SM_BeerBottle",
+   "location": [
+    132.0,
+    -312.0,
+    42.0
+   ],
+   "quat": [
+    0.0,
+    0.0,
+    -0.34202,
+    0.939693
+   ],
+   "scale": [
+    1.0,
+    1.0,
+    1.0
+   ]
+  },
+  {
+   "name": "SM_Can_1",
+   "cls": "StaticMeshActor",
+   "folder": "Clutter",
+   "mesh": "SM_Can",
+   "location": [
+    185.0,
+    -345.0,
+    42.0
+   ],
+   "quat": [
+    0.0,
+    0.0,
+    0.0,
+    1.0
+   ],
+   "scale": [
+    1.0,
+    1.0,
+    1.0
+   ]
+  },
+  {
+   "name": "SM_PizzaBox_1",
+   "cls": "StaticMeshActor",
+   "folder": "Clutter",
+   "mesh": "SM_PizzaBox",
+   "location": [
+    170.0,
+    -320.0,
+    42.0
+   ],
+   "quat": [
+    0.0,
+    0.0,
+    -0.121869,
+    0.992546
+   ],
+   "scale": [
+    1.0,
+    1.0,
+    1.0
+   ]
+  },
+  {
+   "name": "SM_Ashtray_2",
+   "cls": "StaticMeshActor",
+   "folder": "Clutter",
+   "mesh": "SM_Ashtray",
+   "location": [
+    105.0,
+    -345.0,
+    42.0
+   ],
+   "quat": [
+    0.0,
+    0.0,
+    0.0,
+    1.0
+   ],
+   "scale": [
+    1.0,
+    1.0,
+    1.0
+   ]
+  },
+  {
+   "name": "SM_Magazine_1",
+   "cls": "StaticMeshActor",
+   "folder": "Clutter",
+   "mesh": "SM_Magazine",
+   "location": [
+    140.0,
+    -350.0,
+    42.0
+   ],
+   "quat": [
+    0.0,
+    0.0,
+    0.173648,
+    0.984808
+   ],
+   "scale": [
+    1.0,
+    1.0,
+    1.0
+   ]
+  },
+  {
+   "name": "SM_Mug_2",
+   "cls": "StaticMeshActor",
+   "folder": "Clutter",
+   "mesh": "SM_Mug",
+   "location": [
+    205.0,
+    -315.0,
+    42.0
+   ],
+   "quat": [
+    -0.0,
+    -0.0,
+    -0.866025,
+    0.5
+   ],
+   "scale": [
+    1.0,
+    1.0,
+    1.0
+   ]
+  },
+  {
+   "name": "SM_Magazine_2",
+   "cls": "StaticMeshActor",
+   "folder": "Clutter",
+   "mesh": "SM_Magazine",
+   "location": [
+    130.0,
+    -330.0,
+    13.5
+   ],
+   "quat": [
+    0.0,
+    0.0,
+    -0.300706,
+    0.953717
+   ],
+   "scale": [
+    1.0,
+    1.0,
+    1.0
+   ]
+  },
+  {
+   "name": "SM_BeerBottle_3",
+   "cls": "StaticMeshActor",
+   "folder": "Clutter",
+   "mesh": "SM_BeerBottle",
+   "location": [
+    60.0,
+    -295.0,
+    0.0
+   ],
+   "quat": [
+    0.0,
+    0.0,
+    0.0,
+    1.0
+   ],
+   "scale": [
+    1.0,
+    1.0,
+    1.0
+   ]
+  },
+  {
+   "name": "SM_Can_2",
+   "cls": "StaticMeshActor",
+   "folder": "Clutter",
+   "mesh": "SM_Can",
+   "location": [
+    260.0,
+    -220.0,
+    0.0
+   ],
+   "quat": [
+    0.0,
+    0.0,
+    0.0,
+    1.0
+   ],
+   "scale": [
+    1.0,
+    1.0,
+    1.0
+   ]
+  },
+  {
+   "name": "SM_Clock_Wall_1",
+   "cls": "StaticMeshActor",
+   "folder": "Clutter",
+   "mesh": "SM_Clock_Wall",
+   "location": [
+    -60.0,
+    -499.0,
+    235.0
+   ],
+   "quat": [
+    0.0,
+    0.0,
+    0.0,
+    1.0
+   ],
+   "scale": [
+    1.0,
+    1.0,
+    1.0
+   ]
+  },
+  {
+   "name": "ClockTick_1",
+   "cls": "HHAmbientEmitter",
+   "folder": "Audio",
+   "location": [
+    -60.0,
+    -495.0,
+    235.0
+   ],
+   "quat": [
+    0.0,
+    0.0,
+    0.0,
+    1.0
+   ],
+   "scale": [
+    1.0,
+    1.0,
+    1.0
+   ],
+   "properties": {
+    "MinInterval": 4.0,
+    "MaxInterval": 14.0,
+    "ScatterRadius": 150.0,
+    "VolumeRange": [
+     0.5,
+     1.0
+    ]
+   },
+   "components": {
+    "Loop": {
+     "Sound": {
+      "asset": "A_Clock_Tick_Loop"
+     }
+    }
+   }
+  },
+  {
+   "name": "Rain_NorthWindow_1",
+   "cls": "HHAmbientEmitter",
+   "folder": "Audio",
+   "location": [
+    150.0,
+    -510.0,
+    280.0
+   ],
+   "quat": [
+    0.0,
+    0.0,
+    0.0,
+    1.0
+   ],
+   "scale": [
+    1.0,
+    1.0,
+    1.0
+   ],
+   "properties": {
+    "MinInterval": 4.0,
+    "MaxInterval": 14.0,
+    "ScatterRadius": 150.0,
+    "VolumeRange": [
+     0.5,
+     1.0
+    ]
+   },
+   "components": {
+    "Loop": {
+     "Sound": {
+      "asset": "A_Rain_Window_Loop"
+     }
+    }
+   }
+  },
+  {
+   "name": "Rain_WestWindow_1",
+   "cls": "HHAmbientEmitter",
+   "folder": "Audio",
+   "location": [
+    -710.0,
+    -300.0,
+    280.0
+   ],
+   "quat": [
+    0.0,
+    0.0,
+    0.0,
+    1.0
+   ],
+   "scale": [
+    1.0,
+    1.0,
+    1.0
+   ],
+   "properties": {
+    "MinInterval": 4.0,
+    "MaxInterval": 14.0,
+    "ScatterRadius": 150.0,
+    "VolumeRange": [
+     0.5,
+     1.0
+    ]
+   },
+   "components": {
+    "Loop": {
+     "Sound": {
+      "asset": "A_Rain_Window_Loop"
+     }
+    }
+   }
+  },
+  {
+   "name": "Creaks_1",
+   "cls": "HHAmbientEmitter",
+   "folder": "Audio",
+   "location": [
+    0.0,
+    -0.0,
+    360.0
+   ],
+   "quat": [
+    0.0,
+    0.0,
+    0.0,
+    1.0
+   ],
+   "scale": [
+    1.0,
+    1.0,
+    1.0
+   ],
+   "properties": {
+    "MinInterval": 30,
+    "MaxInterval": 75,
+    "ScatterRadius": 500.0,
+    "VolumeRange": [
+     0.5,
+     1.0
+    ],
+    "OneShots": [
+     {
+      "asset": "A_WoodCreak_01"
+     },
+     {
+      "asset": "A_WoodCreak_02"
+     },
+     {
+      "asset": "A_WoodCreak_03"
+     }
+    ],
+    "Caption": {
+     "text": "[Floorboards creak overhead]"
+    }
+   }
+  },
+  {
+   "name": "SM_CRT_Monitor_1",
+   "cls": "StaticMeshActor",
+   "folder": "Props",
+   "mesh": "SM_CRT_Monitor",
+   "location": [
+    672.0,
+    155.0,
+    76.2
+   ],
+   "quat": [
+    0.0,
+    0.0,
+    0.608761,
+    0.793353
+   ],
+   "scale": [
+    1.0,
+    1.0,
+    1.0
+   ]
+  },
+  {
+   "name": "SM_CRT_Monitor_2",
+   "cls": "StaticMeshActor",
+   "folder": "Props",
+   "mesh": "SM_CRT_Monitor",
+   "location": [
+    672.0,
+    82.0,
+    76.2
+   ],
+   "quat": [
+    0.0,
+    0.0,
+    0.777146,
+    0.62932
+   ],
+   "scale": [
+    1.0,
+    1.0,
+    1.0
+   ]
+  },
+  {
+   "name": "SM_Keyboard_1",
+   "cls": "StaticMeshActor",
+   "folder": "Props",
+   "mesh": "SM_Keyboard",
+   "location": [
+    635.0,
+    115.0,
+    76.2
+   ],
+   "quat": [
+    0.0,
+    0.0,
+    0.707107,
+    0.707107
+   ],
+   "scale": [
+    1.0,
+    1.0,
+    1.0
+   ]
+  },
+  {
+   "name": "SM_Binder_2",
+   "cls": "StaticMeshActor",
+   "folder": "Props",
+   "mesh": "SM_Binder",
+   "location": [
+    685.0,
+    35.0,
+    76.2
+   ],
+   "quat": [
+    0.0,
+    0.0,
+    0.0,
+    1.0
+   ],
+   "scale": [
+    1.0,
+    1.0,
+    1.0
+   ]
+  },
+  {
+   "name": "SM_Mug_3",
+   "cls": "StaticMeshActor",
+   "folder": "Props",
+   "mesh": "SM_Mug",
+   "location": [
+    630.0,
+    60.0,
+    76.2
+   ],
+   "quat": [
+    0.0,
+    0.0,
+    -0.173648,
+    0.984808
+   ],
+   "scale": [
+    1.0,
+    1.0,
+    1.0
+   ]
+  },
+  {
+   "name": "SM_Stool_3",
+   "cls": "StaticMeshActor",
+   "folder": "Props",
+   "mesh": "SM_Stool",
+   "location": [
+    585.0,
+    120.0,
+    0.0
+   ],
+   "quat": [
+    0.0,
+    0.0,
+    0.0,
+    1.0
+   ],
+   "scale": [
+    1.0,
+    1.0,
+    1.0
+   ]
+  },
+  {
+   "name": "SM_Calendar_2",
+   "cls": "StaticMeshActor",
+   "folder": "Props",
+   "mesh": "SM_Calendar",
+   "location": [
+    699.0,
+    215.0,
+    155.0
+   ],
+   "quat": [
+    0.0,
+    0.0,
+    0.707107,
+    0.707107
+   ],
+   "scale": [
+    1.0,
+    1.0,
+    1.0
+   ],
+   "cast_shadow": false
+  },
+  {
+   "name": "Light_Monitors",
+   "cls": "HHPracticalPointLight",
+   "folder": "Lights",
+   "location": [
+    630.0,
+    115.0,
+    115.0
+   ],
+   "quat": [
+    0.0,
+    0.0,
+    0.0,
+    1.0
+   ],
+   "scale": [
+    1.0,
+    1.0,
+    1.0
+   ],
+   "properties": {
+    "FlickerMode": {
+     "enum": "EHHFlickerMode",
+     "value": "Television"
+    },
+    "FlickerStrength": 0.4
+   },
+   "components": {
+    "Light": {
+     "RelativeLocation": [
+      0.0,
+      -0.0,
+      0.0
+     ],
+     "Intensity": 10,
+     "IntensityUnits": {
+      "enum": "ELightUnits",
+      "value": "Candelas"
+     },
+     "bUseTemperature": false,
+     "Temperature": 2700.0,
+     "AttenuationRadius": 350,
+     "CastShadows": false,
+     "VolumetricScatteringIntensity": 1.0,
+     "LightColor": [
+      0.55,
+      0.9,
+      0.65
+     ],
+     "SourceRadius": 3.0
+    }
+   }
+  },
+  {
+   "name": "Station_Settings",
+   "cls": "HHStationActor",
+   "folder": "Stations",
+   "location": [
+    660.0,
+    115.0,
+    0.0
+   ],
+   "quat": [
+    0.0,
+    0.0,
+    0.707107,
+    0.707107
+   ],
+   "scale": [
+    1.0,
+    1.0,
+    1.0
+   ],
+   "properties": {
+    "Screen": {
+     "enum": "EHHLobbyScreen",
+     "value": "Settings"
+    },
+    "CameraDrift": 0.25,
+    "Prompt": {
+     "text": "Adjust settings"
+    }
+   },
+   "components": {
+    "ViewCamera": {
+     "world": {
+      "location": [
+       485.0,
+       45.0,
+       158.0
+      ],
+      "quat": [
+       -0.023585,
+       0.130062,
+       0.176859,
+       0.97532
+      ]
+     },
+     "FieldOfView": 58
+    },
+    "Mesh": {
+     "StaticMesh": {
+      "asset": "SM_Desk_Metal"
+     }
+    }
+   }
+  },
+  {
+   "name": "Light_StairTop",
+   "cls": "HHPracticalPointLight",
+   "folder": "Lights",
+   "location": [
+    640.0,
+    -500.0,
+    445.0
+   ],
+   "quat": [
+    0.0,
+    0.0,
+    0.0,
+    1.0
+   ],
+   "scale": [
+    1.0,
+    1.0,
+    1.0
+   ],
+   "properties": {
+    "FlickerMode": {
+     "enum": "EHHFlickerMode",
+     "value": "Dying"
+    },
+    "FlickerStrength": 0.7,
+    "EmissiveStrength": 25
+   },
+   "components": {
+    "Light": {
+     "RelativeLocation": [
+      0.0,
+      8.0,
+      0.0
+     ],
+     "Intensity": 45,
+     "IntensityUnits": {
+      "enum": "ELightUnits",
+      "value": "Candelas"
+     },
+     "bUseTemperature": true,
+     "Temperature": 3200.0,
+     "AttenuationRadius": 600,
+     "CastShadows": true,
+     "VolumetricScatteringIntensity": 1.0,
+     "SourceRadius": 3.0
+    },
+    "Fixture": {
+     "CastShadow": false,
+     "StaticMesh": {
+      "asset": "SM_Lamp_Bulkhead"
+     }
+    }
+   },
+   "tags": [
+    "HH_Flickerable"
+   ]
+  },
+  {
+   "name": "SM_Boiler_1",
+   "cls": "StaticMeshActor",
+   "folder": "Props",
+   "mesh": "SM_Boiler",
+   "location": [
+    -460.0,
+    740.0,
+    0.0
+   ],
+   "quat": [
+    0.0,
+    0.0,
+    0.0,
+    1.0
+   ],
+   "scale": [
+    1.0,
+    1.0,
+    1.0
+   ]
+  },
+  {
+   "name": "Light_BoilerFlame",
+   "cls": "HHPracticalPointLight",
+   "folder": "Lights",
+   "location": [
+    -460.0,
+    790.0,
+    45.0
+   ],
+   "quat": [
+    0.0,
+    0.0,
+    0.0,
+    1.0
+   ],
+   "scale": [
+    1.0,
+    1.0,
+    1.0
+   ],
+   "properties": {
+    "FlickerMode": {
+     "enum": "EHHFlickerMode",
+     "value": "Ember"
+    },
+    "FlickerStrength": 0.7
+   },
+   "components": {
+    "Light": {
+     "RelativeLocation": [
+      0.0,
+      -0.0,
+      0.0
+     ],
+     "Intensity": 20,
+     "IntensityUnits": {
+      "enum": "ELightUnits",
+      "value": "Candelas"
+     },
+     "bUseTemperature": false,
+     "Temperature": 2700.0,
+     "AttenuationRadius": 300,
+     "CastShadows": false,
+     "VolumetricScatteringIntensity": 1.0,
+     "LightColor": [
+      1.0,
+      0.35,
+      0.08
+     ],
+     "SourceRadius": 3.0
+    }
+   }
+  },
+  {
+   "name": "SM_WaterHeater_1",
+   "cls": "StaticMeshActor",
+   "folder": "Props",
+   "mesh": "SM_WaterHeater",
+   "location": [
+    -650.0,
+    775.0,
+    0.0
+   ],
+   "quat": [
+    0.0,
+    0.0,
+    0.0,
+    1.0
+   ],
+   "scale": [
+    1.0,
+    1.0,
+    1.0
+   ]
+  },
+  {
+   "name": "SM_MopBucket_1",
+   "cls": "StaticMeshActor",
+   "folder": "Props",
+   "mesh": "SM_MopBucket",
+   "location": [
+    -640.0,
+    590.0,
+    0.0
+   ],
+   "quat": [
+    0.0,
+    0.0,
+    -0.258819,
+    0.965926
+   ],
+   "scale": [
+    1.0,
+    1.0,
+    1.0
+   ]
+  },
+  {
+   "name": "SM_Shelf_Metal_4",
+   "cls": "StaticMeshActor",
+   "folder": "Props",
+   "mesh": "SM_Shelf_Metal",
+   "location": [
+    -673.0,
+    690.0,
+    0.0
+   ],
+   "quat": [
+    0.0,
+    0.0,
+    -0.707107,
+    0.707107
+   ],
+   "scale": [
+    1.0,
+    1.0,
+    1.0
+   ]
+  },
+  {
+   "name": "SM_PaintCan_5",
+   "cls": "StaticMeshActor",
+   "folder": "Props",
+   "mesh": "SM_PaintCan",
+   "location": [
+    -675.0,
+    720.0,
+    13.5
+   ],
+   "quat": [
+    0.0,
+    0.0,
+    -0.117537,
+    0.993068
+   ],
+   "scale": [
+    1.0,
+    1.0,
+    1.0
+   ]
+  },
+  {
+   "name": "SM_Box_B_6",
+   "cls": "StaticMeshActor",
+   "folder": "Props",
+   "mesh": "SM_Box_B",
+   "location": [
+    -673.0,
+    670.0,
+    13.5
+   ],
+   "quat": [
+    -0.0,
+    -0.0,
+    -0.72357,
+    0.690251
+   ],
+   "scale": [
+    1.0,
+    1.0,
+    1.0
+   ]
+  },
+  {
+   "name": "SM_PaintCan_6",
+   "cls": "StaticMeshActor",
+   "folder": "Props",
+   "mesh": "SM_PaintCan",
+   "location": [
+    -675.0,
+    720.0,
+    61.5
+   ],
+   "quat": [
+    0.0,
+    0.0,
+    -0.511293,
+    0.859406
+   ],
+   "scale": [
+    1.0,
+    1.0,
+    1.0
+   ]
+  },
+  {
+   "name": "SM_Box_B_7",
+   "cls": "StaticMeshActor",
+   "folder": "Props",
+   "mesh": "SM_Box_B",
+   "location": [
+    -673.0,
+    670.0,
+    61.5
+   ],
+   "quat": [
+    -0.0,
+    -0.0,
+    -0.778791,
+    0.627284
+   ],
+   "scale": [
+    1.0,
+    1.0,
+    1.0
+   ]
+  },
+  {
+   "name": "SM_PaintCan_7",
+   "cls": "StaticMeshActor",
+   "folder": "Props",
+   "mesh": "SM_PaintCan",
+   "location": [
+    -675.0,
+    720.0,
+    111.5
+   ],
+   "quat": [
+    -0.0,
+    -0.0,
+    -0.82659,
+    0.562805
+   ],
+   "scale": [
+    1.0,
+    1.0,
+    1.0
+   ]
+  },
+  {
+   "name": "SM_Box_B_8",
+   "cls": "StaticMeshActor",
+   "folder": "Props",
+   "mesh": "SM_Box_B",
+   "location": [
+    -673.0,
+    670.0,
+    111.5
+   ],
+   "quat": [
+    -0.0,
+    -0.0,
+    -0.830499,
+    0.55702
+   ],
+   "scale": [
+    1.0,
+    1.0,
+    1.0
+   ]
+  },
+  {
+   "name": "SM_Barrel_3",
+   "cls": "StaticMeshActor",
+   "folder": "Props",
+   "mesh": "SM_Barrel",
+   "location": [
+    -395.0,
+    575.0,
+    0.0
+   ],
+   "quat": [
+    0.0,
+    0.0,
+    -0.642788,
+    0.766044
+   ],
+   "scale": [
+    1.0,
+    1.0,
+    1.0
+   ]
+  },
+  {
+   "name": "Light_Boiler",
+   "cls": "HHPracticalPointLight",
+   "folder": "Lights",
+   "location": [
+    -530.0,
+    660.0,
+    300.0
+   ],
+   "quat": [
+    0.0,
+    0.0,
+    0.0,
+    1.0
+   ],
+   "scale": [
+    1.0,
+    1.0,
+    1.0
+   ],
+   "properties": {
+    "FlickerMode": {
+     "enum": "EHHFlickerMode",
+     "value": "Dying"
+    },
+    "FlickerStrength": 0.8,
+    "EmissiveStrength": 30
+   },
+   "components": {
+    "Light": {
+     "RelativeLocation": [
+      0.0,
+      -0.0,
+      -99.0
+     ],
+     "Intensity": 55,
+     "IntensityUnits": {
+      "enum": "ELightUnits",
+      "value": "Candelas"
+     },
+     "bUseTemperature": true,
+     "Temperature": 2400.0,
+     "AttenuationRadius": 550,
+     "CastShadows": true,
+     "VolumetricScatteringIntensity": 1.0,
+     "SourceRadius": 3.0
+    },
+    "Fixture": {
+     "CastShadow": false,
+     "StaticMesh": {
+      "asset": "SM_Lamp_Bulb"
+     }
+    }
+   },
+   "tags": [
+    "HH_Flickerable"
+   ]
+  },
+  {
+   "name": "BoilerHum_1",
+   "cls": "HHAmbientEmitter",
+   "folder": "Audio",
+   "location": [
+    -460.0,
+    740.0,
+    100.0
+   ],
+   "quat": [
+    0.0,
+    0.0,
+    0.0,
+    1.0
+   ],
+   "scale": [
+    1.0,
+    1.0,
+    1.0
+   ],
+   "properties": {
+    "MinInterval": 4.0,
+    "MaxInterval": 14.0,
+    "ScatterRadius": 150.0,
+    "VolumeRange": [
+     0.5,
+     1.0
+    ]
+   },
+   "components": {
+    "Loop": {
+     "Sound": {
+      "asset": "A_Hum_Boiler_Loop"
+     }
+    }
+   }
+  },
+  {
+   "name": "Drips_1",
+   "cls": "HHAmbientEmitter",
+   "folder": "Audio",
+   "location": [
+    -560.0,
+    700.0,
+    260.0
+   ],
+   "quat": [
+    0.0,
+    0.0,
+    0.0,
+    1.0
+   ],
+   "scale": [
+    1.0,
+    1.0,
+    1.0
+   ],
+   "properties": {
+    "MinInterval": 2.5,
+    "MaxInterval": 8.0,
+    "ScatterRadius": 120.0,
+    "VolumeRange": [
+     0.5,
+     1.0
+    ],
+    "OneShots": [
+     {
+      "asset": "A_Drip_01"
+     },
+     {
+      "asset": "A_Drip_02"
+     },
+     {
+      "asset": "A_Drip_03"
+     },
+     {
+      "asset": "A_Drip_04"
+     },
+     {
+      "asset": "A_Drip_05"
+     },
+     {
+      "asset": "A_Drip_06"
+     }
+    ],
+    "Caption": {
+     "text": "[Water drips]"
+    }
+   }
+  },
+  {
+   "name": "HH_Whisper_1",
+   "cls": "TargetPoint",
+   "folder": "Gameplay",
+   "location": [
+    -560.0,
+    720.0,
+    160.0
+   ],
+   "quat": [
+    0.0,
+    0.0,
+    0.0,
+    1.0
+   ],
+   "scale": [
+    1.0,
+    1.0,
+    1.0
+   ],
+   "tags": [
+    "HH_Whisper"
+   ]
+  },
+  {
+   "name": "WaterStain_2",
+   "cls": "DecalActor",
+   "folder": "Decals",
+   "location": [
+    -550.0,
+    700.0,
+    0.0
+   ],
+   "quat": [
+    0.5,
+    0.5,
+    -0.5,
+    0.5
+   ],
+   "scale": [
+    1.0,
+    1.0,
+    1.0
+   ],
+   "properties": {
+    "DecalMaterial": {
+     "asset": "MI_Decal_Water"
+    }
+   },
+   "components": {
+    "Decal": {
+     "DecalSize": [
+      15.0,
+      80.0,
+      80.0
+     ]
+    }
+   }
+  },
+  {
+   "name": "Light_Pendant_Van",
+   "cls": "HHPracticalSpotLight",
+   "folder": "Lights",
+   "location": [
+    -360.0,
+    -100.0,
+    340.0
+   ],
+   "quat": [
+    0.0,
+    0.0,
+    0.0,
+    1.0
+   ],
+   "scale": [
+    1.0,
+    1.0,
+    1.0
+   ],
+   "properties": {
+    "FlickerMode": {
+     "enum": "EHHFlickerMode",
+     "value": "Steady"
+    },
+    "FlickerStrength": 1.0,
+    "EmissiveStrength": 30
+   },
+   "components": {
+    "Light": {
+     "RelativeLocation": [
+      0.0,
+      -0.0,
+      -80.0
+     ],
+     "Intensity": 260,
+     "IntensityUnits": {
+      "enum": "ELightUnits",
+      "value": "Candelas"
+     },
+     "bUseTemperature": true,
+     "Temperature": 2700.0,
+     "AttenuationRadius": 1000,
+     "CastShadows": true,
+     "VolumetricScatteringIntensity": 1.0,
+     "RelativeDirection": [
+      0,
+      0,
+      -1
+     ],
+     "InnerConeAngle": 28,
+     "OuterConeAngle": 62,
+     "SourceRadius": 4
+    },
+    "Fixture": {
+     "CastShadow": true,
+     "StaticMesh": {
+      "asset": "SM_Lamp_Industrial"
+     }
+    }
+   },
+   "tags": [
+    "HH_MainLights",
+    "HH_Flickerable"
+   ]
+  },
+  {
+   "name": "Light_Pendant_Lounge",
+   "cls": "HHPracticalSpotLight",
+   "folder": "Lights",
+   "location": [
+    150.0,
+    -305.0,
+    340.0
+   ],
+   "quat": [
+    0.0,
+    0.0,
+    0.0,
+    1.0
+   ],
+   "scale": [
+    1.0,
+    1.0,
+    1.0
+   ],
+   "properties": {
+    "FlickerMode": {
+     "enum": "EHHFlickerMode",
+     "value": "Steady"
+    },
+    "FlickerStrength": 1.0,
+    "EmissiveStrength": 30
+   },
+   "components": {
+    "Light": {
+     "RelativeLocation": [
+      0.0,
+      -0.0,
+      -80.0
+     ],
+     "Intensity": 260,
+     "IntensityUnits": {
+      "enum": "ELightUnits",
+      "value": "Candelas"
+     },
+     "bUseTemperature": true,
+     "Temperature": 2700.0,
+     "AttenuationRadius": 1000,
+     "CastShadows": true,
+     "VolumetricScatteringIntensity": 1.0,
+     "RelativeDirection": [
+      0,
+      0,
+      -1
+     ],
+     "InnerConeAngle": 28,
+     "OuterConeAngle": 62,
+     "SourceRadius": 4
+    },
+    "Fixture": {
+     "CastShadow": true,
+     "StaticMesh": {
+      "asset": "SM_Lamp_Industrial"
+     }
+    }
+   },
+   "tags": [
+    "HH_MainLights",
+    "HH_Flickerable"
+   ]
+  },
+  {
+   "name": "Light_Pendant_Centre",
+   "cls": "HHPracticalSpotLight",
+   "folder": "Lights",
+   "location": [
+    40.0,
+    140.0,
+    340.0
+   ],
+   "quat": [
+    0.0,
+    0.0,
+    0.0,
+    1.0
+   ],
+   "scale": [
+    1.0,
+    1.0,
+    1.0
+   ],
+   "properties": {
+    "FlickerMode": {
+     "enum": "EHHFlickerMode",
+     "value": "Steady"
+    },
+    "FlickerStrength": 1.0,
+    "EmissiveStrength": 30
+   },
+   "components": {
+    "Light": {
+     "RelativeLocation": [
+      0.0,
+      -0.0,
+      -80.0
+     ],
+     "Intensity": 260,
+     "IntensityUnits": {
+      "enum": "ELightUnits",
+      "value": "Candelas"
+     },
+     "bUseTemperature": true,
+     "Temperature": 2700.0,
+     "AttenuationRadius": 1000,
+     "CastShadows": true,
+     "VolumetricScatteringIntensity": 1.0,
+     "RelativeDirection": [
+      0,
+      0,
+      -1
+     ],
+     "InnerConeAngle": 28,
+     "OuterConeAngle": 62,
+     "SourceRadius": 4
+    },
+    "Fixture": {
+     "CastShadow": true,
+     "StaticMesh": {
+      "asset": "SM_Lamp_Industrial"
+     }
+    }
+   },
+   "tags": [
+    "HH_MainLights",
+    "HH_Flickerable"
+   ]
+  },
+  {
+   "name": "Light_Pendant_Board",
+   "cls": "HHPracticalSpotLight",
+   "folder": "Lights",
+   "location": [
+    -560.0,
+    250.0,
+    340.0
+   ],
+   "quat": [
+    0.0,
+    0.0,
+    0.0,
+    1.0
+   ],
+   "scale": [
+    1.0,
+    1.0,
+    1.0
+   ],
+   "properties": {
+    "FlickerMode": {
+     "enum": "EHHFlickerMode",
+     "value": "Steady"
+    },
+    "FlickerStrength": 1.0,
+    "EmissiveStrength": 30
+   },
+   "components": {
+    "Light": {
+     "RelativeLocation": [
+      0.0,
+      -0.0,
+      -80.0
+     ],
+     "Intensity": 260,
+     "IntensityUnits": {
+      "enum": "ELightUnits",
+      "value": "Candelas"
+     },
+     "bUseTemperature": true,
+     "Temperature": 2700.0,
+     "AttenuationRadius": 1000,
+     "CastShadows": true,
+     "VolumetricScatteringIntensity": 1.0,
+     "RelativeDirection": [
+      0,
+      0,
+      -1
+     ],
+     "InnerConeAngle": 28,
+     "OuterConeAngle": 62,
+     "SourceRadius": 4
+    },
+    "Fixture": {
+     "CastShadow": true,
+     "StaticMesh": {
+      "asset": "SM_Lamp_Industrial"
+     }
+    }
+   },
+   "tags": [
+    "HH_MainLights",
+    "HH_Flickerable"
+   ]
+  },
+  {
+   "name": "Light_Street",
+   "cls": "HHPracticalSpotLight",
+   "folder": "Lights",
+   "location": [
+    -90.0,
+    -1260.0,
+    245.0
+   ],
+   "quat": [
+    0.0,
+    0.0,
+    1.0,
+    0.0
+   ],
+   "scale": [
+    1.0,
+    1.0,
+    1.0
+   ],
+   "properties": {
+    "FlickerMode": {
+     "enum": "EHHFlickerMode",
+     "value": "Steady"
+    },
+    "FlickerStrength": 1.0,
+    "EmissiveStrength": 25
+   },
+   "components": {
+    "Light": {
+     "RelativeLocation": [
+      90.0,
+      -0.0,
+      430.0
+     ],
+     "Intensity": 1800,
+     "IntensityUnits": {
+      "enum": "ELightUnits",
+      "value": "Candelas"
+     },
+     "bUseTemperature": false,
+     "Temperature": 2700.0,
+     "AttenuationRadius": 2600,
+     "CastShadows": true,
+     "VolumetricScatteringIntensity": 1.0,
+     "RelativeDirection": [
+      0.19,
+      -0.81,
+      -0.57
+     ],
+     "LightColor": [
+      1.0,
+      0.58,
+      0.25
+     ],
+     "InnerConeAngle": 35,
+     "OuterConeAngle": 65,
+     "SourceRadius": 10
+    },
+    "Fixture": {
+     "CastShadow": false,
+     "StaticMesh": {
+      "asset": "SM_StreetLamp"
+     }
+    }
+   }
+  },
+  {
+   "name": "Station_MainMenu",
+   "cls": "HHStationActor",
+   "folder": "Stations",
+   "location": [
+    500.0,
+    -360.0,
+    0.0
+   ],
+   "quat": [
+    0.0,
+    0.0,
+    0.0,
+    1.0
+   ],
+   "scale": [
+    1.0,
+    1.0,
+    1.0
+   ],
+   "properties": {
+    "Screen": {
+     "enum": "EHHLobbyScreen",
+     "value": "MainMenu"
+    },
+    "bUsable": false,
+    "CameraDrift": 0.6
+   },
+   "components": {
+    "ViewCamera": {
+     "world": {
+      "location": [
+       535.0,
+       -360.0,
+       215.0
+      ],
+      "quat": [
+       -0.060034,
+       0.021852,
+       0.937767,
+       0.341338
+      ]
+     },
+     "FieldOfView": 62
+    }
+   }
+  },
+  {
+   "name": "PlayerStart_0",
+   "cls": "PlayerStart",
+   "folder": "Gameplay",
+   "location": [
+    -60.0,
+    130.0,
+    92.0
+   ],
+   "quat": [
+    0.0,
+    0.0,
+    0.994029,
+    0.109117
+   ],
+   "scale": [
+    1.0,
+    1.0,
+    1.0
+   ],
+   "properties": {
+    "PlayerStartTag": "Crew0"
+   }
+  },
+  {
+   "name": "PlayerStart_1",
+   "cls": "PlayerStart",
+   "folder": "Gameplay",
+   "location": [
+    50.0,
+    190.0,
+    92.0
+   ],
+   "quat": [
+    0.0,
+    0.0,
+    0.998941,
+    0.046007
+   ],
+   "scale": [
+    1.0,
+    1.0,
+    1.0
+   ],
+   "properties": {
+    "PlayerStartTag": "Crew1"
+   }
+  },
+  {
+   "name": "PlayerStart_2",
+   "cls": "PlayerStart",
+   "folder": "Gameplay",
+   "location": [
+    160.0,
+    130.0,
+    92.0
+   ],
+   "quat": [
+    0.0,
+    0.0,
+    0.996936,
+    0.078221
+   ],
+   "scale": [
+    1.0,
+    1.0,
+    1.0
+   ],
+   "properties": {
+    "PlayerStartTag": "Crew2"
+   }
+  },
+  {
+   "name": "PlayerStart_3",
+   "cls": "PlayerStart",
+   "folder": "Gameplay",
+   "location": [
+    50.0,
+    60.0,
+    92.0
+   ],
+   "quat": [
+    0.0,
+    0.0,
+    0.989908,
+    0.141714
+   ],
+   "scale": [
+    1.0,
+    1.0,
+    1.0
+   ],
+   "properties": {
+    "PlayerStartTag": "Crew3"
+   }
+  },
+  {
+   "name": "HH_OverheadStart_1",
+   "cls": "TargetPoint",
+   "folder": "Gameplay",
+   "location": [
+    -500.0,
+    300.0,
+    385.0
+   ],
+   "quat": [
+    0.0,
+    0.0,
+    0.0,
+    1.0
+   ],
+   "scale": [
+    1.0,
+    1.0,
+    1.0
+   ],
+   "tags": [
+    "HH_OverheadStart"
+   ]
+  },
+  {
+   "name": "HH_OverheadEnd_1",
+   "cls": "TargetPoint",
+   "folder": "Gameplay",
+   "location": [
+    500.0,
+    -350.0,
+    385.0
+   ],
+   "quat": [
+    0.0,
+    0.0,
+    0.0,
+    1.0
+   ],
+   "scale": [
+    1.0,
+    1.0,
+    1.0
+   ],
+   "tags": [
+    "HH_OverheadEnd"
+   ]
+  },
+  {
+   "name": "HH_Whisper_2",
+   "cls": "TargetPoint",
+   "folder": "Gameplay",
+   "location": [
+    640.0,
+    -460.0,
+    300.0
+   ],
+   "quat": [
+    0.0,
+    0.0,
+    0.0,
+    1.0
+   ],
+   "scale": [
+    1.0,
+    1.0,
+    1.0
+   ],
+   "tags": [
+    "HH_Whisper"
+   ]
+  },
+  {
+   "name": "HH_Whisper_3",
+   "cls": "TargetPoint",
+   "folder": "Gameplay",
+   "location": [
+    -580.0,
+    -440.0,
+    120.0
+   ],
+   "quat": [
+    0.0,
+    0.0,
+    0.0,
+    1.0
+   ],
+   "scale": [
+    1.0,
+    1.0,
+    1.0
+   ],
+   "tags": [
+    "HH_Whisper"
+   ]
+  },
+  {
+   "name": "AmbienceDirector",
+   "cls": "HHAmbienceDirector",
+   "folder": "Audio",
+   "location": [
+    0.0,
+    -0.0,
+    200.0
+   ],
+   "quat": [
+    0.0,
+    0.0,
+    0.0,
+    1.0
+   ],
+   "scale": [
+    1.0,
+    1.0,
+    1.0
+   ],
+   "properties": {
+    "OverheadSteps": [
+     {
+      "asset": "A_Overhead_Step_01"
+     },
+     {
+      "asset": "A_Overhead_Step_02"
+     },
+     {
+      "asset": "A_Overhead_Step_03"
+     },
+     {
+      "asset": "A_Overhead_Step_04"
+     },
+     {
+      "asset": "A_Overhead_Step_05"
+     },
+     {
+      "asset": "A_Overhead_Step_06"
+     }
+    ],
+    "DistantDoorSound": {
+     "asset": "A_DoorSlam_Distant_01"
+    },
+    "KnockSound": {
+     "asset": "A_Knock_Three"
+    },
+    "WhisperSounds": [
+     {
+      "asset": "A_Whisper_01"
+     },
+     {
+      "asset": "A_Whisper_02"
+     },
+     {
+      "asset": "A_Whisper_03"
+     }
+    ],
+    "ElectricalStutterSound": {
+     "asset": "A_Electrical_Stutter"
+    },
+    "RadioBleedSound": {
+     "asset": "A_Radio_Bleed"
+    }
+   }
+  },
+  {
+   "name": "Weather",
+   "cls": "HHWeatherController",
+   "folder": "Audio",
+   "location": [
+    150.0,
+    -850.0,
+    500.0
+   ],
+   "quat": [
+    0.0,
+    0.0,
+    0.0,
+    1.0
+   ],
+   "scale": [
+    1.0,
+    1.0,
+    1.0
+   ],
+   "properties": {
+    "ThunderSounds": [
+     {
+      "asset": "A_Thunder_01"
+     },
+     {
+      "asset": "A_Thunder_02"
+     },
+     {
+      "asset": "A_Thunder_03"
+     },
+     {
+      "asset": "A_Thunder_04"
+     },
+     {
+      "asset": "A_Thunder_05"
+     }
+    ],
+    "ThunderCaption": {
+     "text": "[Thunder rolls]"
+    }
+   }
+  },
+  {
+   "name": "RoomTone_1",
+   "cls": "HHAmbientEmitter",
+   "folder": "Audio",
+   "location": [
+    0.0,
+    -0.0,
+    160.0
+   ],
+   "quat": [
+    0.0,
+    0.0,
+    0.0,
+    1.0
+   ],
+   "scale": [
+    1.0,
+    1.0,
+    1.0
+   ],
+   "properties": {
+    "MinInterval": 4.0,
+    "MaxInterval": 14.0,
+    "ScatterRadius": 150.0,
+    "VolumeRange": [
+     0.5,
+     1.0
+    ]
+   },
+   "components": {
+    "Loop": {
+     "Sound": {
+      "asset": "A_RoomTone_Basement_Loop"
+     }
+    }
+   }
+  },
+  {
+   "name": "RainOutside_1",
+   "cls": "HHAmbientEmitter",
+   "folder": "Audio",
+   "location": [
+    0.0,
+    -650.0,
+    300.0
+   ],
+   "quat": [
+    0.0,
+    0.0,
+    0.0,
+    1.0
+   ],
+   "scale": [
+    1.0,
+    1.0,
+    1.0
+   ],
+   "properties": {
+    "MinInterval": 4.0,
+    "MaxInterval": 14.0,
+    "ScatterRadius": 150.0,
+    "VolumeRange": [
+     0.5,
+     1.0
+    ]
+   },
+   "components": {
+    "Loop": {
+     "Sound": {
+      "asset": "A_Rain_Outside_Loop"
+     }
+    }
+   }
+  },
+  {
+   "name": "LevelEnvironment",
+   "cls": "HHEnvironment",
+   "folder": "Environment",
+   "location": [
+    0,
+    0,
+    0
+   ],
+   "quat": [
+    0,
+    0,
+    0,
+    1
+   ],
+   "scale": [
+    1,
+    1,
+    1
+   ],
+   "properties": {
+    "fog_density": 0.025,
+    "fog_height_falloff": 0.35,
+    "fog_color": [
+     0.06,
+     0.07,
+     0.085
+    ],
+    "volumetric_albedo": [
+     0.85,
+     0.85,
+     0.85
+    ],
+    "volumetric_extinction": 1.2,
+    "exposure_min": -1.5,
+    "exposure_max": 2.0,
+    "exposure_bias": 0.6,
+    "bloom": 0.55,
+    "vignette": 0.45,
+    "grain": 0.12,
+    "contrast": 1.05,
+    "saturation": 0.92,
+    "shadows_tint": [
+     0.92,
+     0.97,
+     1.04
+    ],
+    "highlights_tint": [
+     1.04,
+     1.0,
+     0.95
+    ],
+    "lens_dirt": "T_LensDirt",
+    "sky_light_intensity": 0.0
+   }
+  }
+ ]
+}
