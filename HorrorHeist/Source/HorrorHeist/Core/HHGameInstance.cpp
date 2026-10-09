@@ -16,7 +16,7 @@ void UHHGameInstance::Init()
 	}
 	if (!GameData)
 	{
-		UE_LOG(LogHorrorHeist, Warning, TEXT("No HHGameData asset found. Run 'Horror Heist > Run Project Setup' in the editor (Project Settings > Game > Horror Heist)."));
+		UE_LOG(LogHorrorHeist, Warning, TEXT("No HHGameData asset found. In the editor use 'The Quiet Job > Build / Rebuild All Content' (see README)."));
 	}
 
 	Super::Init();

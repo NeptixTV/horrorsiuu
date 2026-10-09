@@ -6,6 +6,8 @@
 <p align="center"><b>Eine vollständige Digital Audio Workstation (DAW) im Browser</b><br/>
 Step-Sequencer · Playlist · Piano Roll · Mixer · Effekte · Synthesizer · Drum Machine · Mikrofon-Aufnahme · Pitch Correction</p>
 
+> **Ebenfalls in diesem Repository:** [`HorrorHeist/`](HorrorHeist/README.md) – *The Quiet Job*, ein Koop-Horror-Heist-Spiel für Unreal Engine 5 (Meilenstein 1: begehbares Versteck, Menüs, Multiplayer, Kosmetik, Einstellungen). Details und Setup in der dortigen README.
+
 ---
 
 ## Windows-Programm (.exe)

@@ -1,6 +1,7 @@
 #pragma once
 
 #include "CoreMinimal.h"
+#include "Misc/EnumRange.h"
 #include "HHTypes.generated.h"
 
 /** Where a cosmetic is worn. Order defines the order of the customization tabs. */
