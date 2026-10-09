@@ -764,7 +764,7 @@ def gameplay():
                        location=[0, 0, 0], quat=[0, 0, 0, 1], scale=[1, 1, 1],
                        properties=dict(fog_density=0.025, fog_height_falloff=0.35, fog_color=[0.06, 0.07, 0.085],
                                        volumetric_albedo=[0.85, 0.85, 0.85], volumetric_extinction=1.2,
-                                       exposure_min=-1.5, exposure_max=2.0, exposure_bias=0.6,
+                                       exposure_min=1.0, exposure_max=4.0, exposure_bias=0.3,
                                        bloom=0.55, vignette=0.45, grain=0.12, contrast=1.05,
                                        saturation=0.92, shadows_tint=[0.92, 0.97, 1.04], highlights_tint=[1.04, 1.0, 0.95],
                                        lens_dirt='T_LensDirt', sky_light_intensity=0.0)))

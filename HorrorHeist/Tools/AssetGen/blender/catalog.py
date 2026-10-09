@@ -92,8 +92,8 @@ COSMETICS = [
       desc='No prints, no excuses.'),
 
     # Pants (required).
-    C('CO_Pants_Jeans', 'Jeans', 'Pants', 'SK_HH_Pants_Jeans', (1.0, 1.0, 1.0), owned=True),
-    C('CO_Pants_Jeans_Black', 'Black Jeans', 'Pants', 'SK_HH_Pants_Jeans', (0.18, 0.18, 0.2), owned=True),
+    C('CO_Pants_Jeans', 'Jeans', 'Pants', 'SK_HH_Pants_Jeans', (0.24, 0.32, 0.50), owned=True),
+    C('CO_Pants_Jeans_Black', 'Black Jeans', 'Pants', 'SK_HH_Pants_Jeans', (0.08, 0.08, 0.09), owned=True),
     C('CO_Pants_Cargo_Olive', 'Cargo Pants (Olive)', 'Pants', 'SK_HH_Pants_Cargo', (0.22, 0.24, 0.14), price=600),
     C('CO_Pants_Cargo_Black', 'Cargo Pants (Black)', 'Pants', 'SK_HH_Pants_Cargo', (0.05, 0.05, 0.05), price=600),
     C('CO_Pants_Slacks', 'Slacks', 'Pants', 'SK_HH_Pants_Slacks', (0.20, 0.20, 0.22), price=500),

@@ -938,9 +938,9 @@
    "slot": "Pants",
    "mesh": "SK_HH_Pants_Jeans",
    "tint": [
-    1.0,
-    1.0,
-    1.0
+    0.24,
+    0.32,
+    0.5
    ],
    "tint2": null,
    "price": 0,
@@ -961,9 +961,9 @@
    "slot": "Pants",
    "mesh": "SK_HH_Pants_Jeans",
    "tint": [
-    0.18,
-    0.18,
-    0.2
+    0.08,
+    0.08,
+    0.09
    ],
    "tint2": null,
    "price": 0,

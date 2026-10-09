@@ -7297,9 +7297,9 @@
      0.85
     ],
     "volumetric_extinction": 1.2,
-    "exposure_min": -1.5,
-    "exposure_max": 2.0,
-    "exposure_bias": 0.6,
+    "exposure_min": 1.0,
+    "exposure_max": 4.0,
+    "exposure_bias": 0.3,
     "bloom": 0.55,
     "vignette": 0.45,
     "grain": 0.12,
