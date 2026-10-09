@@ -23,6 +23,7 @@ import {
 import { exportProjectFile, importProjectFile, newProject, saveProjectAs } from '../../project/manager';
 import { pickFile } from '../dialogs/filePick';
 import './toolbar.css';
+import { askText } from '../dialogs/askText';
 
 function menuAt(e: React.MouseEvent, items: MenuItem[]) {
   const r = (e.currentTarget as HTMLElement).getBoundingClientRect();
@@ -35,7 +36,7 @@ function fileMenu(): MenuItem[] {
     { label: 'Open…', shortcut: 'Ctrl+O', onClick: () => openWindow({ kind: 'projects' }) },
     { separator: true },
     { label: 'Save', shortcut: 'Ctrl+S', onClick: () => void doSave() },
-    { label: 'Save as…', shortcut: 'Ctrl+Shift+S', onClick: () => { const n = prompt('Save project as', `${getProject().name} copy`); if (n) void saveProjectAs(n); } },
+    { label: 'Save as…', shortcut: 'Ctrl+Shift+S', onClick: () => { void askText('Save project as', `${getProject().name} copy`).then((n) => { if (n) void saveProjectAs(n); }); } },
     { separator: true },
     { label: 'Export WAV (song)…', onClick: () => void exportWav('song') },
     { label: 'Export WAV (current pattern)…', onClick: () => void exportWav('pattern') },

@@ -21,6 +21,7 @@ import { addDrumKit } from '../browser/Browser';
 import { decodeAudioFile } from '../../project/manager';
 import { currentStepFor } from './playhead';
 import './rack.css';
+import { askText } from '../dialogs/askText';
 
 // paint-drag state shared by all step buttons
 let paint: { patternId: string; channelId: string; value: number } | null = null;
@@ -112,7 +113,7 @@ const ChannelRow = memo(function ChannelRow({
     showMenu(e.clientX, e.clientY, [
       { label: 'Open editor', onClick: openEditor },
       { label: 'Piano roll', onClick: () => setUI({ pianoChannelId: channel.id, selectedChannelId: channel.id, dockTab: 'piano' }) },
-      { label: 'Rename…', onClick: () => { const n = prompt('Channel name', channel.name); if (n) updateChannel(channel.id, { name: n }, 'Rename channel'); } },
+      { label: 'Rename…', onClick: () => { void askText('Channel name', channel.name).then((n) => { if (n) updateChannel(channel.id, { name: n }, 'Rename channel'); }); } },
       { label: 'Colour', submenu: colorMenu(channel.color, (c) => updateChannel(channel.id, { color: c }, 'Channel colour')) },
       { label: 'Route to mixer insert', submenu: p.mixer.map((m, i) => ({ label: i === 0 ? 'Master' : `${i} · ${m.name}`, checked: m.id === channel.mixerTrackId, onClick: () => updateChannel(channel.id, { mixerTrackId: m.id }, 'Route channel') })) },
       { separator: true },

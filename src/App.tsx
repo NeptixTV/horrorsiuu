@@ -13,6 +13,7 @@ import { Dock } from './ui/Dock';
 import { Windows } from './ui/Windows';
 import { Splitter } from './ui/components/Splitter';
 import { ContextMenuHost } from './ui/components/ContextMenu';
+import { AskTextHost } from './ui/dialogs/askText';
 import { Icon } from './ui/components/Icon';
 import { installShortcuts } from './ui/shortcuts';
 import { syncTransportUI, showDock } from './ui/commands';
@@ -180,6 +181,7 @@ export function App() {
       {!splashGone && <Splash progress={progress} label={label} done={ready} onGone={() => setSplashGone(true)} />}
       {ready && splashGone && !setupDone && <SetupWizard onDone={() => undefined} />}
       <ContextMenuHost />
+      <AskTextHost />
       <Toast />
     </>
   );

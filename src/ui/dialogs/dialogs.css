@@ -27,3 +27,6 @@
 .about h2 { margin: 4px 0 0; }
 .about p { margin: 0; line-height: 1.5; }
 .crumb { color: var(--dim); font-weight: 400; }
+.ask-form { padding: 14px; display: flex; flex-direction: column; gap: 12px; }
+.ask-form .input { height: 30px; font-size: 13px; }
+.ask-actions { display: flex; justify-content: flex-end; gap: 6px; }

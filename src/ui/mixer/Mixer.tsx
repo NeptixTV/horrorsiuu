@@ -20,6 +20,7 @@ import { colorMenu } from '../components/ColorPicker';
 import { readDragPayload } from '../browser/Browser';
 import { applyVocalChain } from '../browser/vocalChains';
 import './mixer.css';
+import { askText } from '../dialogs/askText';
 
 function levelsOf(id: string) {
   return () => {
@@ -70,7 +71,7 @@ const Strip = memo(function Strip({ track, index, selected }: { track: MixerTrac
     e.preventDefault();
     const p = getProject();
     showMenu(e.clientX, e.clientY, [
-      { label: 'Rename…', onClick: () => { const n = prompt('Insert name', track.name); if (n) updateMixerTrack(track.id, { name: n }, 'Rename insert'); } },
+      { label: 'Rename…', onClick: () => { void askText('Insert name', track.name).then((n) => { if (n) updateMixerTrack(track.id, { name: n }, 'Rename insert'); }); } },
       { label: 'Colour', submenu: colorMenu(track.color, (c) => updateMixerTrack(track.id, { color: c }, 'Insert colour')) },
       { label: 'Add effect', submenu: effectMenu(track.id) },
       ...(!isMaster ? [
@@ -94,7 +95,7 @@ const Strip = memo(function Strip({ track, index, selected }: { track: MixerTrac
     >
       <div className="mx-top">
         <span className="mx-num">{isMaster ? 'M' : index}</span>
-        <span className="mx-name" title={track.name} onDoubleClick={() => { const n = prompt('Insert name', track.name); if (n) updateMixerTrack(track.id, { name: n }, 'Rename insert'); }}>{track.name}</span>
+        <span className="mx-name" title={track.name} onDoubleClick={() => { void askText('Insert name', track.name).then((n) => { if (n) updateMixerTrack(track.id, { name: n }, 'Rename insert'); }); }}>{track.name}</span>
       </div>
       <div className="mx-fx-dots" title={track.inserts.map((i) => EFFECTS[i.type].name).join(', ') || 'No effects'}>
         {track.inserts.slice(0, 8).map((fx) => <span key={fx.id} className={`mx-dot ${fx.bypass ? 'off' : ''}`} style={{ background: EFFECTS[fx.type].color }} />)}

@@ -8,7 +8,33 @@ Step-Sequencer · Playlist · Piano Roll · Mixer · Effekte · Synthesizer · D
 
 ---
 
-## Schnellstart
+## Windows-Programm (.exe)
+
+Goofy Studio gibt es als Windows-Programm – mit eigenem Chromium (Electron), daher funktionieren Audio,
+AudioWorklets und Mikrofon genau wie getestet.
+
+- **`GoofyStudio-1.0.0-portable.exe`** – Doppelklick und los, keine Installation nötig.
+- **`GoofyStudio-1.0.0-Setup.exe`** – Installer mit Desktop- und Startmenü-Verknüpfung.
+
+Beide werden automatisch vom Workflow **„Build Windows .exe“** gebaut (GitHub → *Actions* → letzter Lauf →
+*Artifacts* → `GoofyStudio-Windows`). Wird ein Tag wie `v1.0.0` gepusht, landen sie zusätzlich als Release auf GitHub.
+
+Selbst bauen:
+
+```bash
+npm install
+npm run dist:win      # → release/GoofyStudio-<version>-portable.exe (+ Setup.exe unter Windows)
+npm run desktop       # Desktop-Version direkt starten (Windows, macOS, Linux)
+```
+
+> Hinweis: Die .exe ist nicht code-signiert. Windows SmartScreen zeigt beim ersten Start evtl.
+> „Der Computer wurde durch Windows geschützt“ → *Weitere Informationen* → *Trotzdem ausführen*.
+> Unter Linux/macOS gebaut entsteht nur die portable .exe; der Installer braucht Windows (oder Wine).
+
+Projekte, Einstellungen und Aufnahmen speichert die Desktop-App im Benutzerprofil
+(`%APPDATA%\Goofy Studio`).
+
+## Web-Version (Entwicklung)
 
 Voraussetzung: [Node.js](https://nodejs.org) 20 oder neuer.
 
@@ -26,8 +52,7 @@ Weitere Befehle:
 | `npm run preview` | Den Build lokal testen |
 | `npm test` | Unit-Tests (Sequencer, Undo/Redo, Routing, Musiktheorie) |
 
-**Als Desktop-App:** Die App ist eine installierbare Web-App (PWA). In Chrome/Edge in der Adressleiste auf
-„Installieren“ klicken – Goofy Studio läuft dann in einem eigenen Fenster mit eigenem Icon.
+Die Web-Version ist außerdem als PWA installierbar (Chrome/Edge → „Installieren“).
 
 **Online stellen (GitHub Pages):** In den Repo-Einstellungen *Settings → Pages → Source: GitHub Actions* wählen und
 den Workflow „Deploy to GitHub Pages“ unter *Actions* starten.
@@ -122,6 +147,8 @@ Projektdatei exportieren/importieren (`.goofy.json` inkl. Aufnahmen). Gespeicher
 ## Architektur
 
 ```
+electron/             Desktop-Hülle: main.cjs (Fenster, app://-Protokoll, Mikrofon-Rechte), afterPack.cjs (Icon in die .exe)
+build/                App-Icons (icon.ico / icon.png)
 src/
 ├── audio/            Audio-Engine (unabhängig von React)
 │   ├── engine.ts       AudioContext, Master-Analyser, Aufnahme-Steuerung

@@ -2,29 +2,39 @@
   "name": "goofy-studio",
   "private": true,
   "version": "1.0.0",
-  "description": "Goofy Studio – a browser based digital audio workstation",
+  "description": "Goofy Studio – a digital audio workstation for the browser and the desktop",
+  "author": "Goofy Studio",
+  "homepage": "https://github.com/NeptixTV/horrorsiuu",
   "type": "module",
+  "main": "electron/main.cjs",
   "scripts": {
     "dev": "vite",
     "build": "tsc --noEmit && vite build",
     "build:single": "vite build --mode single",
     "preview": "vite preview",
     "typecheck": "tsc --noEmit",
-    "test": "vitest run"
-  },
-  "dependencies": {
-    "immer": "^11.1.21",
-    "react": "^19.3.0",
-    "react-dom": "^19.3.0",
-    "zustand": "^5.0.15"
+    "test": "vitest run",
+    "desktop": "vite build && electron .",
+    "dist:win": "vite build && electron-builder --win",
+    "dist:linux": "vite build && electron-builder --linux",
+    "dist:mac": "vite build && electron-builder --mac"
   },
   "devDependencies": {
+    "@fontsource/inter": "^5.3.0",
+    "@fontsource/jetbrains-mono": "^5.3.0",
     "@types/react": "^19.3.0",
     "@types/react-dom": "^19.3.0",
     "@vitejs/plugin-react": "^6.1.2",
+    "electron": "^44.7.0",
+    "electron-builder": "^26.15.3",
+    "immer": "^11.1.21",
+    "react": "^19.3.0",
+    "react-dom": "^19.3.0",
+    "resedit": "^3.1.0",
     "typescript": "~5.9.3",
     "vite": "^8.3.4",
     "vite-plugin-singlefile": "^2.3.3",
-    "vitest": "^5.0.3"
+    "vitest": "^5.0.3",
+    "zustand": "^5.0.15"
   }
 }

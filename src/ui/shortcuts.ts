@@ -7,6 +7,7 @@ import {
   deleteSelected, doRedo, doSave, doUndo, duplicateSelected, muteSelected, selectAll, setMode, showDock, soloSelected, togglePlay, toggleRecord,
 } from './commands';
 import { newProject, saveProjectAs } from '../project/manager';
+import { askText } from './dialogs/askText';
 
 const held = new Map<string, number>();
 let octave = 0;
@@ -27,7 +28,7 @@ function onKeyDown(e: KeyboardEvent) {
   const k = e.key.toLowerCase();
 
   if (mod) {
-    if (k === 's') { e.preventDefault(); if (e.shiftKey) { const n = prompt('Save project as', `${getProject().name} copy`); if (n) void saveProjectAs(n); } else void doSave(); return; }
+    if (k === 's') { e.preventDefault(); if (e.shiftKey) { void askText('Save project as', `${getProject().name} copy`).then((n) => { if (n) void saveProjectAs(n); }); } else void doSave(); return; }
     if (k === 'z') { e.preventDefault(); if (e.shiftKey) doRedo(); else doUndo(); return; }
     if (k === 'y') { e.preventDefault(); doRedo(); return; }
     if (k === 'a') { e.preventDefault(); selectAll(); return; }

@@ -21,6 +21,7 @@ import { addChannel } from '../../state/actions';
 import { drawClips, drawGrid, drawLoop, drawRuler, RULER_H, type View } from './draw';
 import { rgba } from '../../state/utils';
 import './playlist.css';
+import { askText } from '../dialogs/askText';
 
 type Drag =
   | { kind: 'move'; startTick: number; startTrack: number; anchorId: string; orig: Map<string, { start: number; track: number }>; moved: boolean }
@@ -434,7 +435,7 @@ export function Playlist() {
         { label: 'Open in piano roll', onClick: () => setUI({ selectedPatternId: c.patternId!, dockTab: 'piano', dockOpen: true }) },
         { label: 'Open in channel rack', onClick: () => setUI({ selectedPatternId: c.patternId!, dockTab: 'rack', dockOpen: true }) },
         { label: 'Make unique', onClick: () => { const id = clonePattern(c.patternId!); if (id) { updateClips(new Set([c.id]), (k) => { k.patternId = id; }, 'Make unique'); setUI({ selectedPatternId: id }); } } },
-        { label: 'Rename pattern…', onClick: () => { const n = prompt('Pattern name', pat?.name); if (n && pat) updatePattern(pat.id, { name: n }); } },
+        { label: 'Rename pattern…', onClick: () => { void askText('Pattern name', pat?.name).then((n) => { if (n && pat) updatePattern(pat.id, { name: n }); }); } },
         { label: 'Pattern colour', submenu: colorMenu(pat?.color ?? '', (col) => pat && updatePattern(pat.id, { color: col })) },
         { label: 'Fit length to pattern', onClick: () => pat && updateClips(new Set([c.id]), (k) => { k.length = patternLength(pat, project.timeSig); k.offset = 0; }, 'Fit clip') },
       );
@@ -564,7 +565,7 @@ export function Playlist() {
     const tr = project.tracks.find((t) => t.id === trackId);
     if (!tr) return;
     showMenu(e.clientX, e.clientY, [
-      { label: 'Rename…', onClick: () => { const n = prompt('Track name', tr.name); if (n) updateTrack(tr.id, { name: n }, 'Rename track'); } },
+      { label: 'Rename…', onClick: () => { void askText('Track name', tr.name).then((n) => { if (n) updateTrack(tr.id, { name: n }, 'Rename track'); }); } },
       { label: 'Colour', submenu: colorMenu(tr.color, (c) => updateTrack(tr.id, { color: c }, 'Track colour')) },
       { label: 'Record into this track', checked: ui().selectedTrackId === tr.id, onClick: () => setUI({ selectedTrackId: tr.id }) },
       { label: 'Route audio clips to', submenu: project.mixer.map((m, i) => ({ label: i === 0 ? 'Master' : `${i} · ${m.name}`, checked: tr.mixerTrackId === m.id, onClick: () => updateTrack(tr.id, { mixerTrackId: m.id }, 'Route track') })) },
@@ -616,11 +617,11 @@ export function Playlist() {
                 draggable
                 onDragStart={(e) => { e.dataTransfer.setData('application/x-goofy', JSON.stringify({ type: 'pattern', patternId: p.id })); setUI({ dragPayload: { type: 'pattern', patternId: p.id } }); }}
                 onClick={() => { setUI({ selectedPatternId: p.id }); engine.transport.patternId = p.id; }}
-                onDoubleClick={() => { const n = prompt('Pattern name', p.name); if (n) updatePattern(p.id, { name: n }); }}
+                onDoubleClick={() => { void askText('Pattern name', p.name).then((n) => { if (n) updatePattern(p.id, { name: n }); }); }}
                 onContextMenu={(e) => {
                   e.preventDefault();
                   showMenu(e.clientX, e.clientY, [
-                    { label: 'Rename…', onClick: () => { const n = prompt('Pattern name', p.name); if (n) updatePattern(p.id, { name: n }); } },
+                    { label: 'Rename…', onClick: () => { void askText('Pattern name', p.name).then((n) => { if (n) updatePattern(p.id, { name: n }); }); } },
                     { label: 'Clone', onClick: () => setUI({ selectedPatternId: clonePattern(p.id) }) },
                     { label: 'Colour', submenu: colorMenu(p.color, (c) => updatePattern(p.id, { color: c })) },
                     { label: 'Delete', danger: true, disabled: patterns.length <= 1, onClick: () => removePattern(p.id) },
@@ -662,7 +663,7 @@ export function Playlist() {
                     onContextMenu={(e) => headerMenu(e, t.id)}
                   >
                     <span className="pl-header-color" style={{ background: t.color }} />
-                    <span className="pl-header-name" onDoubleClick={() => { const n = prompt('Track name', t.name); if (n) updateTrack(t.id, { name: n }, 'Rename track'); }}>{t.name}</span>
+                    <span className="pl-header-name" onDoubleClick={() => { void askText('Track name', t.name).then((n) => { if (n) updateTrack(t.id, { name: n }, 'Rename track'); }); }}>{t.name}</span>
                     {selectedTrackId === t.id && <Icon name="mic" size={10} style={{ color: 'var(--rec)', opacity: 0.8 }} />}
                     <span
                       className={`led ${t.mute ? '' : 'on'}`}
