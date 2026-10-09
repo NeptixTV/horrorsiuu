@@ -6,3 +6,7 @@ dist-single
 .vite
 coverage
 release
+
+# Melty: temporary request files (may contain upload data), never commit tokens
+melty-request*.json
+.env
