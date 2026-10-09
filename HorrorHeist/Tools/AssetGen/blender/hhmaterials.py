@@ -174,12 +174,15 @@ CATALOG = {
     'MI_Char_Nylon2': character('T_Nylon', uv=3.0, use_tint2=True),
     'MI_Char_Fabric': character('T_Fabric_Weave', uv=3.0),
     'MI_Char_Rubber': character('T_Rubber', (0.25, 0.25, 0.25), uv=4.0),
+    'MI_Char_Rubber2': character('T_Rubber', uv=4.0, use_tint2=True),
+    'MI_Char_Glass': glass((0.35, 0.4, 0.42), 0.25, 0.05),
     'MI_Char_Hair': character('T_Fabric_Weave', (0.75, 0.75, 0.75), uv=8.0, rough=0.75),
     'MI_Char_Plastic': character('T_Plaster', uv=2.0, rough=0.55),
     'MI_Char_Plastic2': character('T_Plaster', uv=2.0, rough=0.55, use_tint2=True),
     'MI_Char_Metal': character('T_Metal_Steel', uv=2.0),
     'MI_Char_Paper': character('T_Cardboard', uv=2.0),
     'MI_Char_Eye': solid((0.03, 0.025, 0.02), 0.1),
+    'MI_Char_EyeWhite': solid((0.72, 0.69, 0.64), 0.15),
 }
 
 TEXTURE_SETS = sorted({v['tex'] for v in CATALOG.values() if 'tex' in v})

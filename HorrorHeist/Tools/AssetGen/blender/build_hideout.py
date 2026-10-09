@@ -24,6 +24,7 @@ import bpy  # noqa: E402
 from mathutils import Euler, Matrix, Vector  # noqa: E402
 
 import hhblend as H  # noqa: E402
+import items  # noqa: E402,F401  (registers the equipment meshes as props)
 import props as P  # noqa: E402
 from hhblend import Builder  # noqa: E402
 
@@ -467,6 +468,11 @@ def van_area():
     static('SM_Tire', (-1.42, 4.48, 0.4), rot=65)
     static('SM_Sawhorse', (-5.2, -1.6, 0), rot=10)
     static('SM_Box_Open', (-1.3, 3.5, 0), rot=12)
+    static('SM_EQ_Duffel', (-1.85, 0.6, 0), rot=35)
+    static('SM_EQ_Sack', (-5.3, 4.5, 0), rot=10)
+    static('SM_EQ_Lantern', (-6.73, 0.55, 1.615), rot=90)
+    static('SM_EQ_Camera', (6.4, -0.55, 0.762), rot=-110)
+    static('SM_EQ_NoiseMeter', (-6.45, -1.75, 0.76), rot=80)
     static('SM_Shelf_Metal', (-6.73, 0.2, 0), rot=90)
     for z, items in ((0.135, ('SM_Box_A', 'SM_Box_B')), (0.615, ('SM_PaintCan', 'SM_PaintCan', 'SM_Bucket')),
                      (1.115, ('SM_Box_B', 'SM_Shoebox')), (1.615, ('SM_Box_A',))):
@@ -546,6 +552,11 @@ def workbench_area():
         static(name, (x, face + 0.012, z), rot=180, collection='Workshop', shadow=True)
         static('SM_PegHook', (x, face, z + 0.05), rot=180, collection='Workshop')
     static('SM_BenchVise', (-2.2, -4.55, 0.92), rot=180)
+    # Tonight's gear, laid out on the bench.
+    for name, loc, rot in (('SM_EQ_Torch_Pocket', (-2.62, -4.42, 0.92), 25), ('SM_EQ_Crowbar', (-3.08, -4.3, 0.92), 3),
+                           ('SM_EQ_Lockpicks', (-2.9, -4.68, 0.92), 8), ('SM_EQ_Walkie', (-3.88, -4.42, 0.92), 100),
+                           ('SM_EQ_Headlamp', (-2.45, -4.75, 0.92), -20), ('SM_EQ_GlassCutter', (-3.35, -4.62, 0.92), 60)):
+        static(name, loc, rot=rot, collection='Workshop')
     static('SM_Toolbox', (-3.55, -4.72, 0.92), rot=172)
     static('SM_PaintCan', (-3.6, -4.6, 0.21))
     static('SM_PaintCan', (-3.4, -4.7, 0.21), rot=40)

@@ -1,4 +1,275 @@
 {
+ "A_HH_CrouchIdle": {
+  "collision": "none",
+  "file": "SourceArt/Meshes/Character/Anims/A_HH_CrouchIdle.fbx",
+  "folder": "Character/Anims",
+  "fps": 30,
+  "frames": 90,
+  "kind": "anim",
+  "materials": [],
+  "nanite": false,
+  "skeleton": "SK_HH_Body"
+ },
+ "A_HH_CrouchWalk": {
+  "collision": "none",
+  "file": "SourceArt/Meshes/Character/Anims/A_HH_CrouchWalk.fbx",
+  "folder": "Character/Anims",
+  "fps": 30,
+  "frames": 36,
+  "kind": "anim",
+  "materials": [],
+  "nanite": false,
+  "skeleton": "SK_HH_Body"
+ },
+ "A_HH_Fall": {
+  "collision": "none",
+  "file": "SourceArt/Meshes/Character/Anims/A_HH_Fall.fbx",
+  "folder": "Character/Anims",
+  "fps": 30,
+  "frames": 30,
+  "kind": "anim",
+  "materials": [],
+  "nanite": false,
+  "skeleton": "SK_HH_Body"
+ },
+ "A_HH_Idle": {
+  "collision": "none",
+  "file": "SourceArt/Meshes/Character/Anims/A_HH_Idle.fbx",
+  "folder": "Character/Anims",
+  "fps": 30,
+  "frames": 120,
+  "kind": "anim",
+  "materials": [],
+  "nanite": false,
+  "skeleton": "SK_HH_Body"
+ },
+ "A_HH_Run": {
+  "collision": "none",
+  "file": "SourceArt/Meshes/Character/Anims/A_HH_Run.fbx",
+  "folder": "Character/Anims",
+  "fps": 30,
+  "frames": 19,
+  "kind": "anim",
+  "materials": [],
+  "nanite": false,
+  "skeleton": "SK_HH_Body"
+ },
+ "A_HH_Walk": {
+  "collision": "none",
+  "file": "SourceArt/Meshes/Character/Anims/A_HH_Walk.fbx",
+  "folder": "Character/Anims",
+  "fps": 30,
+  "frames": 24,
+  "kind": "anim",
+  "materials": [],
+  "nanite": false,
+  "skeleton": "SK_HH_Body"
+ },
+ "SK_HH_Body": {
+  "collision": "none",
+  "file": "SourceArt/Meshes/Character/SK_HH_Body.fbx",
+  "folder": "Character",
+  "kind": "skeletal",
+  "materials": [
+   "MI_Char_Skin",
+   "MI_Char_EyeWhite",
+   "MI_Char_Eye"
+  ],
+  "nanite": false
+ },
+ "SK_HH_Gloves": {
+  "collision": "none",
+  "file": "SourceArt/Meshes/Cosmetics/SK_HH_Gloves.fbx",
+  "folder": "Cosmetics",
+  "kind": "skeletal",
+  "materials": [
+   "MI_Char_Leather"
+  ],
+  "nanite": false,
+  "skeleton": "SK_HH_Body"
+ },
+ "SK_HH_Gloves_Thin": {
+  "collision": "none",
+  "file": "SourceArt/Meshes/Cosmetics/SK_HH_Gloves_Thin.fbx",
+  "folder": "Cosmetics",
+  "kind": "skeletal",
+  "materials": [
+   "MI_Char_Plastic"
+  ],
+  "nanite": false,
+  "skeleton": "SK_HH_Body"
+ },
+ "SK_HH_Jacket_Bomber": {
+  "collision": "none",
+  "file": "SourceArt/Meshes/Cosmetics/SK_HH_Jacket_Bomber.fbx",
+  "folder": "Cosmetics",
+  "kind": "skeletal",
+  "materials": [
+   "MI_Char_Nylon",
+   "MI_Char_Knit"
+  ],
+  "nanite": false,
+  "skeleton": "SK_HH_Body"
+ },
+ "SK_HH_Jacket_Leather": {
+  "collision": "none",
+  "file": "SourceArt/Meshes/Cosmetics/SK_HH_Jacket_Leather.fbx",
+  "folder": "Cosmetics",
+  "kind": "skeletal",
+  "materials": [
+   "MI_Char_Leather"
+  ],
+  "nanite": false,
+  "skeleton": "SK_HH_Body"
+ },
+ "SK_HH_Jacket_Rain": {
+  "collision": "none",
+  "file": "SourceArt/Meshes/Cosmetics/SK_HH_Jacket_Rain.fbx",
+  "folder": "Cosmetics",
+  "kind": "skeletal",
+  "materials": [
+   "MI_Char_Nylon"
+  ],
+  "nanite": false,
+  "skeleton": "SK_HH_Body"
+ },
+ "SK_HH_Jacket_Vest": {
+  "collision": "none",
+  "file": "SourceArt/Meshes/Cosmetics/SK_HH_Jacket_Vest.fbx",
+  "folder": "Cosmetics",
+  "kind": "skeletal",
+  "materials": [
+   "MI_Char_Nylon"
+  ],
+  "nanite": false,
+  "skeleton": "SK_HH_Body"
+ },
+ "SK_HH_Jacket_Work": {
+  "collision": "none",
+  "file": "SourceArt/Meshes/Cosmetics/SK_HH_Jacket_Work.fbx",
+  "folder": "Cosmetics",
+  "kind": "skeletal",
+  "materials": [
+   "MI_Char_Fabric"
+  ],
+  "nanite": false,
+  "skeleton": "SK_HH_Body"
+ },
+ "SK_HH_Pants_Cargo": {
+  "collision": "none",
+  "file": "SourceArt/Meshes/Cosmetics/SK_HH_Pants_Cargo.fbx",
+  "folder": "Cosmetics",
+  "kind": "skeletal",
+  "materials": [
+   "MI_Char_Fabric"
+  ],
+  "nanite": false,
+  "skeleton": "SK_HH_Body"
+ },
+ "SK_HH_Pants_Jeans": {
+  "collision": "none",
+  "file": "SourceArt/Meshes/Cosmetics/SK_HH_Pants_Jeans.fbx",
+  "folder": "Cosmetics",
+  "kind": "skeletal",
+  "materials": [
+   "MI_Char_Denim",
+   "MI_Char_Leather",
+   "MI_Char_Metal"
+  ],
+  "nanite": false,
+  "skeleton": "SK_HH_Body"
+ },
+ "SK_HH_Pants_Slacks": {
+  "collision": "none",
+  "file": "SourceArt/Meshes/Cosmetics/SK_HH_Pants_Slacks.fbx",
+  "folder": "Cosmetics",
+  "kind": "skeletal",
+  "materials": [
+   "MI_Char_Fabric"
+  ],
+  "nanite": false,
+  "skeleton": "SK_HH_Body"
+ },
+ "SK_HH_Shoes_Boots": {
+  "collision": "none",
+  "file": "SourceArt/Meshes/Cosmetics/SK_HH_Shoes_Boots.fbx",
+  "folder": "Cosmetics",
+  "kind": "skeletal",
+  "materials": [
+   "MI_Char_Leather",
+   "MI_Char_Rubber"
+  ],
+  "nanite": false,
+  "skeleton": "SK_HH_Body"
+ },
+ "SK_HH_Shoes_Dress": {
+  "collision": "none",
+  "file": "SourceArt/Meshes/Cosmetics/SK_HH_Shoes_Dress.fbx",
+  "folder": "Cosmetics",
+  "kind": "skeletal",
+  "materials": [
+   "MI_Char_Leather"
+  ],
+  "nanite": false,
+  "skeleton": "SK_HH_Body"
+ },
+ "SK_HH_Shoes_Sneakers": {
+  "collision": "none",
+  "file": "SourceArt/Meshes/Cosmetics/SK_HH_Shoes_Sneakers.fbx",
+  "folder": "Cosmetics",
+  "kind": "skeletal",
+  "materials": [
+   "MI_Char_Cotton",
+   "MI_Char_Rubber2"
+  ],
+  "nanite": false,
+  "skeleton": "SK_HH_Body"
+ },
+ "SK_HH_Top_Hoodie": {
+  "collision": "none",
+  "file": "SourceArt/Meshes/Cosmetics/SK_HH_Top_Hoodie.fbx",
+  "folder": "Cosmetics",
+  "kind": "skeletal",
+  "materials": [
+   "MI_Char_Cotton"
+  ],
+  "nanite": false,
+  "skeleton": "SK_HH_Body"
+ },
+ "SK_HH_Top_Sweater": {
+  "collision": "none",
+  "file": "SourceArt/Meshes/Cosmetics/SK_HH_Top_Sweater.fbx",
+  "folder": "Cosmetics",
+  "kind": "skeletal",
+  "materials": [
+   "MI_Char_Knit",
+   "MI_Char_Knit2"
+  ],
+  "nanite": false,
+  "skeleton": "SK_HH_Body"
+ },
+ "SK_HH_Top_Tee": {
+  "collision": "none",
+  "file": "SourceArt/Meshes/Cosmetics/SK_HH_Top_Tee.fbx",
+  "folder": "Cosmetics",
+  "kind": "skeletal",
+  "materials": [
+   "MI_Char_Cotton"
+  ],
+  "nanite": false,
+  "skeleton": "SK_HH_Body"
+ },
+ "SK_HH_Top_Turtleneck": {
+  "collision": "none",
+  "file": "SourceArt/Meshes/Cosmetics/SK_HH_Top_Turtleneck.fbx",
+  "folder": "Cosmetics",
+  "kind": "skeletal",
+  "materials": [
+   "MI_Char_Knit"
+  ],
+  "nanite": false,
+  "skeleton": "SK_HH_Body"
+ },
  "SM_Armchair": {
   "collision": "box",
   "file": "SourceArt/Meshes/Props/Lounge/SM_Armchair.fbx",
@@ -421,6 +692,176 @@
   ],
   "nanite": false
  },
+ "SM_EQ_Camera": {
+  "collision": "box",
+  "file": "SourceArt/Meshes/Equipment/SM_EQ_Camera.fbx",
+  "folder": "Equipment",
+  "kind": "static",
+  "materials": [
+   "MI_Plastic_Black",
+   "MI_Plastic_Grey",
+   "MI_Glass",
+   "MI_Plastic_White",
+   "MI_Plastic_Red",
+   "MI_Plastic_Yellow",
+   "MI_Metal_Green",
+   "MI_Metal_Blue",
+   "MI_Img_Polaroids"
+  ],
+  "nanite": false
+ },
+ "SM_EQ_Crowbar": {
+  "collision": "convex",
+  "file": "SourceArt/Meshes/Equipment/SM_EQ_Crowbar.fbx",
+  "folder": "Equipment",
+  "kind": "static",
+  "materials": [
+   "MI_Metal_Blue",
+   "MI_Steel"
+  ],
+  "nanite": false
+ },
+ "SM_EQ_Duffel": {
+  "collision": "convex",
+  "file": "SourceArt/Meshes/Equipment/SM_EQ_Duffel.fbx",
+  "folder": "Equipment",
+  "kind": "static",
+  "materials": [
+   "MI_Nylon_Black",
+   "MI_Nylon_Olive",
+   "MI_Chrome"
+  ],
+  "nanite": false
+ },
+ "SM_EQ_GlassCutter": {
+  "collision": "none",
+  "file": "SourceArt/Meshes/Equipment/SM_EQ_GlassCutter.fbx",
+  "folder": "Equipment",
+  "kind": "static",
+  "materials": [
+   "MI_Rubber_Black",
+   "MI_Steel",
+   "MI_Aluminium",
+   "MI_Plastic_Red"
+  ],
+  "nanite": false
+ },
+ "SM_EQ_Headlamp": {
+  "collision": "none",
+  "file": "SourceArt/Meshes/Equipment/SM_EQ_Headlamp.fbx",
+  "folder": "Equipment",
+  "kind": "static",
+  "materials": [
+   "MI_Nylon_Black",
+   "MI_Plastic_Black",
+   "MI_Glass",
+   "MI_Plastic_Red"
+  ],
+  "nanite": false
+ },
+ "SM_EQ_Lantern": {
+  "collision": "convex",
+  "file": "SourceArt/Meshes/Equipment/SM_EQ_Lantern.fbx",
+  "folder": "Equipment",
+  "kind": "static",
+  "materials": [
+   "MI_Metal_Red",
+   "MI_Glass",
+   "MI_Emit_Bulb",
+   "MI_Paper",
+   "MI_Steel",
+   "MI_Brass"
+  ],
+  "nanite": false
+ },
+ "SM_EQ_Lockpicks": {
+  "collision": "none",
+  "file": "SourceArt/Meshes/Equipment/SM_EQ_Lockpicks.fbx",
+  "folder": "Equipment",
+  "kind": "static",
+  "materials": [
+   "MI_Leather",
+   "MI_Chrome",
+   "MI_Plastic_Black"
+  ],
+  "nanite": false
+ },
+ "SM_EQ_NoiseMeter": {
+  "collision": "none",
+  "file": "SourceArt/Meshes/Equipment/SM_EQ_NoiseMeter.fbx",
+  "folder": "Equipment",
+  "kind": "static",
+  "materials": [
+   "MI_Plastic_Yellow",
+   "MI_Paper",
+   "MI_Plastic_Red",
+   "MI_Plastic_Black",
+   "MI_Fabric_Grey",
+   "MI_Emit_Red"
+  ],
+  "nanite": false
+ },
+ "SM_EQ_Sack": {
+  "collision": "convex",
+  "file": "SourceArt/Meshes/Equipment/SM_EQ_Sack.fbx",
+  "folder": "Equipment",
+  "kind": "static",
+  "materials": [
+   "MI_Fabric_Brown",
+   "MI_Cable"
+  ],
+  "nanite": false
+ },
+ "SM_EQ_SaltPouch": {
+  "collision": "none",
+  "file": "SourceArt/Meshes/Equipment/SM_EQ_SaltPouch.fbx",
+  "folder": "Equipment",
+  "kind": "static",
+  "materials": [
+   "MI_Fabric_Shade",
+   "MI_Cable",
+   "MI_Plastic_White"
+  ],
+  "nanite": false
+ },
+ "SM_EQ_Torch_Patrol": {
+  "collision": "convex",
+  "file": "SourceArt/Meshes/Equipment/SM_EQ_Torch_Patrol.fbx",
+  "folder": "Equipment",
+  "kind": "static",
+  "materials": [
+   "MI_Metal_Black",
+   "MI_Glass",
+   "MI_Rubber_Black"
+  ],
+  "nanite": false
+ },
+ "SM_EQ_Torch_Pocket": {
+  "collision": "convex",
+  "file": "SourceArt/Meshes/Equipment/SM_EQ_Torch_Pocket.fbx",
+  "folder": "Equipment",
+  "kind": "static",
+  "materials": [
+   "MI_Aluminium",
+   "MI_Glass",
+   "MI_Rubber_Black",
+   "MI_Cable"
+  ],
+  "nanite": false
+ },
+ "SM_EQ_Walkie": {
+  "collision": "none",
+  "file": "SourceArt/Meshes/Equipment/SM_EQ_Walkie.fbx",
+  "folder": "Equipment",
+  "kind": "static",
+  "materials": [
+   "MI_Plastic_Black",
+   "MI_Rubber_Black",
+   "MI_Plastic_Grey",
+   "MI_Emit_Green"
+  ],
+  "nanite": false
+ },
  "SM_FireExtinguisher": {
   "collision": "convex",
   "file": "SourceArt/Meshes/Props/Clutter/SM_FireExtinguisher.fbx",
@@ -483,6 +924,216 @@
   "kind": "static",
   "materials": [
    "MI_Leather_Black"
+  ],
+  "nanite": false
+ },
+ "SM_HH_Acc_Chain": {
+  "collision": "none",
+  "file": "SourceArt/Meshes/Cosmetics/SM_HH_Acc_Chain.fbx",
+  "folder": "Cosmetics",
+  "kind": "static",
+  "materials": [
+   "MI_Char_Metal"
+  ],
+  "nanite": false
+ },
+ "SM_HH_Acc_Earpiece": {
+  "collision": "none",
+  "file": "SourceArt/Meshes/Cosmetics/SM_HH_Acc_Earpiece.fbx",
+  "folder": "Cosmetics",
+  "kind": "static",
+  "materials": [
+   "MI_Char_Plastic"
+  ],
+  "nanite": false
+ },
+ "SM_HH_Acc_Glasses": {
+  "collision": "none",
+  "file": "SourceArt/Meshes/Cosmetics/SM_HH_Acc_Glasses.fbx",
+  "folder": "Cosmetics",
+  "kind": "static",
+  "materials": [
+   "MI_Char_Plastic",
+   "MI_Char_Glass"
+  ],
+  "nanite": false
+ },
+ "SM_HH_Acc_Watch": {
+  "collision": "none",
+  "file": "SourceArt/Meshes/Cosmetics/SM_HH_Acc_Watch.fbx",
+  "folder": "Cosmetics",
+  "kind": "static",
+  "materials": [
+   "MI_Char_Leather",
+   "MI_Char_Metal",
+   "MI_Char_Glass"
+  ],
+  "nanite": false
+ },
+ "SM_HH_Back_Duffel": {
+  "collision": "none",
+  "file": "SourceArt/Meshes/Cosmetics/SM_HH_Back_Duffel.fbx",
+  "folder": "Cosmetics",
+  "kind": "static",
+  "materials": [
+   "MI_Char_Nylon",
+   "MI_Char_Metal"
+  ],
+  "nanite": false
+ },
+ "SM_HH_Back_Rucksack": {
+  "collision": "none",
+  "file": "SourceArt/Meshes/Cosmetics/SM_HH_Back_Rucksack.fbx",
+  "folder": "Cosmetics",
+  "kind": "static",
+  "materials": [
+   "MI_Char_Nylon",
+   "MI_Char_Metal"
+  ],
+  "nanite": false
+ },
+ "SM_HH_Back_Tactical": {
+  "collision": "none",
+  "file": "SourceArt/Meshes/Cosmetics/SM_HH_Back_Tactical.fbx",
+  "folder": "Cosmetics",
+  "kind": "static",
+  "materials": [
+   "MI_Char_Nylon",
+   "MI_Char_Nylon2"
+  ],
+  "nanite": false
+ },
+ "SM_HH_Hair_Crop": {
+  "collision": "none",
+  "file": "SourceArt/Meshes/Cosmetics/SM_HH_Hair_Crop.fbx",
+  "folder": "Cosmetics",
+  "kind": "static",
+  "materials": [
+   "MI_Char_Hair"
+  ],
+  "nanite": false
+ },
+ "SM_HH_Hair_Curly": {
+  "collision": "none",
+  "file": "SourceArt/Meshes/Cosmetics/SM_HH_Hair_Curly.fbx",
+  "folder": "Cosmetics",
+  "kind": "static",
+  "materials": [
+   "MI_Char_Hair"
+  ],
+  "nanite": false
+ },
+ "SM_HH_Hair_Messy": {
+  "collision": "none",
+  "file": "SourceArt/Meshes/Cosmetics/SM_HH_Hair_Messy.fbx",
+  "folder": "Cosmetics",
+  "kind": "static",
+  "materials": [
+   "MI_Char_Hair"
+  ],
+  "nanite": false
+ },
+ "SM_HH_Hair_Tied": {
+  "collision": "none",
+  "file": "SourceArt/Meshes/Cosmetics/SM_HH_Hair_Tied.fbx",
+  "folder": "Cosmetics",
+  "kind": "static",
+  "materials": [
+   "MI_Char_Hair"
+  ],
+  "nanite": false
+ },
+ "SM_HH_Hat_Beanie": {
+  "collision": "none",
+  "file": "SourceArt/Meshes/Cosmetics/SM_HH_Hat_Beanie.fbx",
+  "folder": "Cosmetics",
+  "kind": "static",
+  "materials": [
+   "MI_Char_Knit"
+  ],
+  "nanite": false
+ },
+ "SM_HH_Hat_Cap": {
+  "collision": "none",
+  "file": "SourceArt/Meshes/Cosmetics/SM_HH_Hat_Cap.fbx",
+  "folder": "Cosmetics",
+  "kind": "static",
+  "materials": [
+   "MI_Char_Cotton",
+   "MI_Char_Cotton2"
+  ],
+  "nanite": false
+ },
+ "SM_HH_Hat_FlatCap": {
+  "collision": "none",
+  "file": "SourceArt/Meshes/Cosmetics/SM_HH_Hat_FlatCap.fbx",
+  "folder": "Cosmetics",
+  "kind": "static",
+  "materials": [
+   "MI_Char_Fabric"
+  ],
+  "nanite": false
+ },
+ "SM_HH_Mask_Balaclava": {
+  "collision": "none",
+  "file": "SourceArt/Meshes/Cosmetics/SM_HH_Mask_Balaclava.fbx",
+  "folder": "Cosmetics",
+  "kind": "static",
+  "materials": [
+   "MI_Char_Knit"
+  ],
+  "nanite": false
+ },
+ "SM_HH_Mask_Doll": {
+  "collision": "none",
+  "file": "SourceArt/Meshes/Cosmetics/SM_HH_Mask_Doll.fbx",
+  "folder": "Cosmetics",
+  "kind": "static",
+  "materials": [
+   "MI_Char_Plastic",
+   "MI_Char_Plastic2"
+  ],
+  "nanite": false
+ },
+ "SM_HH_Mask_Domino": {
+  "collision": "none",
+  "file": "SourceArt/Meshes/Cosmetics/SM_HH_Mask_Domino.fbx",
+  "folder": "Cosmetics",
+  "kind": "static",
+  "materials": [
+   "MI_Char_Fabric"
+  ],
+  "nanite": false
+ },
+ "SM_HH_Mask_Gas": {
+  "collision": "none",
+  "file": "SourceArt/Meshes/Cosmetics/SM_HH_Mask_Gas.fbx",
+  "folder": "Cosmetics",
+  "kind": "static",
+  "materials": [
+   "MI_Char_Rubber",
+   "MI_Char_Glass",
+   "MI_Char_Metal"
+  ],
+  "nanite": false
+ },
+ "SM_HH_Mask_Hockey": {
+  "collision": "none",
+  "file": "SourceArt/Meshes/Cosmetics/SM_HH_Mask_Hockey.fbx",
+  "folder": "Cosmetics",
+  "kind": "static",
+  "materials": [
+   "MI_Char_Plastic"
+  ],
+  "nanite": false
+ },
+ "SM_HH_Mask_PaperBag": {
+  "collision": "none",
+  "file": "SourceArt/Meshes/Cosmetics/SM_HH_Mask_PaperBag.fbx",
+  "folder": "Cosmetics",
+  "kind": "static",
+  "materials": [
+   "MI_Char_Paper"
   ],
   "nanite": false
  },

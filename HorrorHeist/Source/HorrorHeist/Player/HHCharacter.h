@@ -123,7 +123,7 @@ protected:
 	TObjectPtr<UHHFootstepComponent> Footsteps;
 
 	UPROPERTY(EditDefaultsOnly, Category = "Movement")
-	float WalkSpeed = 210.f;
+	float WalkSpeed = 175.f;
 
 	UPROPERTY(EditDefaultsOnly, Category = "Movement")
 	float SprintSpeed = 410.f;

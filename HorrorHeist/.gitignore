@@ -16,3 +16,7 @@ Build/
 # Python caches from the editor setup scripts
 __pycache__/
 *.pyc
+
+# QA render scratch
+SourceArt/Previews/_*/
+__pycache__/

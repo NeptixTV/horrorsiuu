@@ -1,0 +1,1837 @@
+{
+ "cosmetics": [
+  {
+   "id": "CO_Skin_Porcelain",
+   "name": "Skin Tone: Porcelain",
+   "slot": "Body",
+   "mesh": null,
+   "tint": [
+    0.93,
+    0.78,
+    0.68
+   ],
+   "tint2": null,
+   "price": 0,
+   "rarity": "Common",
+   "level": 1,
+   "owned": true,
+   "desc": "",
+   "flavor": "",
+   "theme": "",
+   "bone": "head",
+   "hides_hair": false,
+   "skin": true,
+   "order": 1
+  },
+  {
+   "id": "CO_Skin_Fair",
+   "name": "Skin Tone: Fair",
+   "slot": "Body",
+   "mesh": null,
+   "tint": [
+    0.86,
+    0.67,
+    0.54
+   ],
+   "tint2": null,
+   "price": 0,
+   "rarity": "Common",
+   "level": 1,
+   "owned": true,
+   "desc": "",
+   "flavor": "",
+   "theme": "",
+   "bone": "head",
+   "hides_hair": false,
+   "skin": true,
+   "order": 2
+  },
+  {
+   "id": "CO_Skin_Olive",
+   "name": "Skin Tone: Olive",
+   "slot": "Body",
+   "mesh": null,
+   "tint": [
+    0.72,
+    0.54,
+    0.38
+   ],
+   "tint2": null,
+   "price": 0,
+   "rarity": "Common",
+   "level": 1,
+   "owned": true,
+   "desc": "",
+   "flavor": "",
+   "theme": "",
+   "bone": "head",
+   "hides_hair": false,
+   "skin": true,
+   "order": 3
+  },
+  {
+   "id": "CO_Skin_Tan",
+   "name": "Skin Tone: Tan",
+   "slot": "Body",
+   "mesh": null,
+   "tint": [
+    0.6,
+    0.42,
+    0.3
+   ],
+   "tint2": null,
+   "price": 0,
+   "rarity": "Common",
+   "level": 1,
+   "owned": true,
+   "desc": "",
+   "flavor": "",
+   "theme": "",
+   "bone": "head",
+   "hides_hair": false,
+   "skin": true,
+   "order": 4
+  },
+  {
+   "id": "CO_Skin_Umber",
+   "name": "Skin Tone: Umber",
+   "slot": "Body",
+   "mesh": null,
+   "tint": [
+    0.4,
+    0.27,
+    0.19
+   ],
+   "tint2": null,
+   "price": 0,
+   "rarity": "Common",
+   "level": 1,
+   "owned": true,
+   "desc": "",
+   "flavor": "",
+   "theme": "",
+   "bone": "head",
+   "hides_hair": false,
+   "skin": true,
+   "order": 5
+  },
+  {
+   "id": "CO_Skin_Deep",
+   "name": "Skin Tone: Deep",
+   "slot": "Body",
+   "mesh": null,
+   "tint": [
+    0.24,
+    0.155,
+    0.11
+   ],
+   "tint2": null,
+   "price": 0,
+   "rarity": "Common",
+   "level": 1,
+   "owned": true,
+   "desc": "",
+   "flavor": "",
+   "theme": "",
+   "bone": "head",
+   "hides_hair": false,
+   "skin": true,
+   "order": 6
+  },
+  {
+   "id": "CO_Hair_Crop_Brown",
+   "name": "Short Crop (Brown)",
+   "slot": "Hair",
+   "mesh": "SM_HH_Hair_Crop",
+   "tint": [
+    0.16,
+    0.09,
+    0.05
+   ],
+   "tint2": null,
+   "price": 0,
+   "rarity": "Common",
+   "level": 1,
+   "owned": true,
+   "desc": "Low maintenance. Fits under anything.",
+   "flavor": "",
+   "theme": "",
+   "bone": "head",
+   "hides_hair": false,
+   "skin": false,
+   "order": 0
+  },
+  {
+   "id": "CO_Hair_Crop_Black",
+   "name": "Short Crop (Black)",
+   "slot": "Hair",
+   "mesh": "SM_HH_Hair_Crop",
+   "tint": [
+    0.03,
+    0.025,
+    0.02
+   ],
+   "tint2": null,
+   "price": 0,
+   "rarity": "Common",
+   "level": 1,
+   "owned": true,
+   "desc": "",
+   "flavor": "",
+   "theme": "",
+   "bone": "head",
+   "hides_hair": false,
+   "skin": false,
+   "order": 0
+  },
+  {
+   "id": "CO_Hair_Messy_Blond",
+   "name": "Bed Head (Sandy)",
+   "slot": "Hair",
+   "mesh": "SM_HH_Hair_Messy",
+   "tint": [
+    0.52,
+    0.4,
+    0.22
+   ],
+   "tint2": null,
+   "price": 400,
+   "rarity": "Common",
+   "level": 1,
+   "owned": false,
+   "desc": "Slept in the van again.",
+   "flavor": "",
+   "theme": "",
+   "bone": "head",
+   "hides_hair": false,
+   "skin": false,
+   "order": 0
+  },
+  {
+   "id": "CO_Hair_Messy_Grey",
+   "name": "Bed Head (Grey)",
+   "slot": "Hair",
+   "mesh": "SM_HH_Hair_Messy",
+   "tint": [
+    0.46,
+    0.45,
+    0.43
+   ],
+   "tint2": null,
+   "price": 700,
+   "rarity": "Uncommon",
+   "level": 4,
+   "owned": false,
+   "desc": "It was brown before the Marrow job.",
+   "flavor": "",
+   "theme": "",
+   "bone": "head",
+   "hides_hair": false,
+   "skin": false,
+   "order": 0
+  },
+  {
+   "id": "CO_Hair_Tied_Red",
+   "name": "Tied Back (Auburn)",
+   "slot": "Hair",
+   "mesh": "SM_HH_Hair_Tied",
+   "tint": [
+    0.33,
+    0.09,
+    0.035
+   ],
+   "tint2": null,
+   "price": 600,
+   "rarity": "Common",
+   "level": 1,
+   "owned": false,
+   "desc": "",
+   "flavor": "",
+   "theme": "",
+   "bone": "head",
+   "hides_hair": false,
+   "skin": false,
+   "order": 0
+  },
+  {
+   "id": "CO_Hair_Tied_Black",
+   "name": "Tied Back (Black)",
+   "slot": "Hair",
+   "mesh": "SM_HH_Hair_Tied",
+   "tint": [
+    0.03,
+    0.025,
+    0.02
+   ],
+   "tint2": null,
+   "price": 600,
+   "rarity": "Common",
+   "level": 1,
+   "owned": false,
+   "desc": "",
+   "flavor": "",
+   "theme": "",
+   "bone": "head",
+   "hides_hair": false,
+   "skin": false,
+   "order": 0
+  },
+  {
+   "id": "CO_Hair_Curly_Black",
+   "name": "Curls (Black)",
+   "slot": "Hair",
+   "mesh": "SM_HH_Hair_Curly",
+   "tint": [
+    0.035,
+    0.028,
+    0.022
+   ],
+   "tint2": null,
+   "price": 800,
+   "rarity": "Uncommon",
+   "level": 1,
+   "owned": false,
+   "desc": "",
+   "flavor": "",
+   "theme": "",
+   "bone": "head",
+   "hides_hair": false,
+   "skin": false,
+   "order": 0
+  },
+  {
+   "id": "CO_Hat_Beanie_Charcoal",
+   "name": "Beanie (Charcoal)",
+   "slot": "Hat",
+   "mesh": "SM_HH_Hat_Beanie",
+   "tint": [
+    0.12,
+    0.12,
+    0.13
+   ],
+   "tint2": null,
+   "price": 250,
+   "rarity": "Common",
+   "level": 1,
+   "owned": false,
+   "desc": "Warm, dark, forgettable.",
+   "flavor": "",
+   "theme": "",
+   "bone": "head",
+   "hides_hair": true,
+   "skin": false,
+   "order": 0
+  },
+  {
+   "id": "CO_Hat_Beanie_Mustard",
+   "name": "Beanie (Mustard)",
+   "slot": "Hat",
+   "mesh": "SM_HH_Hat_Beanie",
+   "tint": [
+    0.62,
+    0.43,
+    0.08
+   ],
+   "tint2": null,
+   "price": 300,
+   "rarity": "Common",
+   "level": 1,
+   "owned": false,
+   "desc": "Bold choice for a burglar.",
+   "flavor": "",
+   "theme": "",
+   "bone": "head",
+   "hides_hair": true,
+   "skin": false,
+   "order": 0
+  },
+  {
+   "id": "CO_Hat_FlatCap",
+   "name": "Flat Cap",
+   "slot": "Hat",
+   "mesh": "SM_HH_Hat_FlatCap",
+   "tint": [
+    0.32,
+    0.25,
+    0.17
+   ],
+   "tint2": null,
+   "price": 650,
+   "rarity": "Uncommon",
+   "level": 1,
+   "owned": false,
+   "desc": "Brannigan's late father wore one.",
+   "flavor": "",
+   "theme": "",
+   "bone": "head",
+   "hides_hair": true,
+   "skin": false,
+   "order": 0
+  },
+  {
+   "id": "CO_Hat_Cap_Company",
+   "name": "Company Cap",
+   "slot": "Hat",
+   "mesh": "SM_HH_Hat_Cap",
+   "tint": [
+    0.12,
+    0.24,
+    0.18
+   ],
+   "tint2": [
+    0.72,
+    0.7,
+    0.62
+   ],
+   "price": 450,
+   "rarity": "Common",
+   "level": 1,
+   "owned": false,
+   "desc": "Brannigan & Sons Plumbing. Excellent cover story.",
+   "flavor": "",
+   "theme": "",
+   "bone": "head",
+   "hides_hair": true,
+   "skin": false,
+   "order": 0
+  },
+  {
+   "id": "CO_Hat_Cap_Red",
+   "name": "Ball Cap (Red)",
+   "slot": "Hat",
+   "mesh": "SM_HH_Hat_Cap",
+   "tint": [
+    0.45,
+    0.05,
+    0.04
+   ],
+   "tint2": [
+    0.45,
+    0.05,
+    0.04
+   ],
+   "price": 450,
+   "rarity": "Common",
+   "level": 1,
+   "owned": false,
+   "desc": "",
+   "flavor": "",
+   "theme": "",
+   "bone": "head",
+   "hides_hair": true,
+   "skin": false,
+   "order": 0
+  },
+  {
+   "id": "CO_Mask_Balaclava",
+   "name": "Balaclava",
+   "slot": "Mask",
+   "mesh": "SM_HH_Mask_Balaclava",
+   "tint": [
+    0.05,
+    0.05,
+    0.055
+   ],
+   "tint2": null,
+   "price": 500,
+   "rarity": "Common",
+   "level": 1,
+   "owned": false,
+   "desc": "The classic. Itchy.",
+   "flavor": "",
+   "theme": "",
+   "bone": "head",
+   "hides_hair": true,
+   "skin": false,
+   "order": 0
+  },
+  {
+   "id": "CO_Mask_PaperBag",
+   "name": "Paper Bag",
+   "slot": "Mask",
+   "mesh": "SM_HH_Mask_PaperBag",
+   "tint": null,
+   "tint2": null,
+   "price": 300,
+   "rarity": "Common",
+   "level": 1,
+   "owned": false,
+   "desc": "Two holes. Good enough.",
+   "flavor": "",
+   "theme": "",
+   "bone": "head",
+   "hides_hair": true,
+   "skin": false,
+   "order": 0
+  },
+  {
+   "id": "CO_Mask_Domino",
+   "name": "Domino Mask",
+   "slot": "Mask",
+   "mesh": "SM_HH_Mask_Domino",
+   "tint": [
+    0.05,
+    0.05,
+    0.06
+   ],
+   "tint2": null,
+   "price": 350,
+   "rarity": "Common",
+   "level": 1,
+   "owned": false,
+   "desc": "Hides almost nothing. Feels great.",
+   "flavor": "",
+   "theme": "",
+   "bone": "head",
+   "hides_hair": false,
+   "skin": false,
+   "order": 0
+  },
+  {
+   "id": "CO_Mask_Hockey",
+   "name": "Goalie Mask",
+   "slot": "Mask",
+   "mesh": "SM_HH_Mask_Hockey",
+   "tint": [
+    0.82,
+    0.8,
+    0.74
+   ],
+   "tint2": null,
+   "price": 1200,
+   "rarity": "Rare",
+   "level": 2,
+   "owned": false,
+   "desc": "From the lake house job. The lake house was empty.",
+   "flavor": "",
+   "theme": "",
+   "bone": "head",
+   "hides_hair": false,
+   "skin": false,
+   "order": 0
+  },
+  {
+   "id": "CO_Mask_Gas",
+   "name": "Gas Mask",
+   "slot": "Mask",
+   "mesh": "SM_HH_Mask_Gas",
+   "tint": [
+    0.12,
+    0.13,
+    0.11
+   ],
+   "tint2": null,
+   "price": 1800,
+   "rarity": "Rare",
+   "level": 3,
+   "owned": false,
+   "desc": "Breathing sounds included.",
+   "flavor": "",
+   "theme": "",
+   "bone": "head",
+   "hides_hair": false,
+   "skin": false,
+   "order": 0
+  },
+  {
+   "id": "CO_Mask_Doll",
+   "name": "Porcelain Face",
+   "slot": "Mask",
+   "mesh": "SM_HH_Mask_Doll",
+   "tint": [
+    0.86,
+    0.83,
+    0.78
+   ],
+   "tint2": [
+    0.55,
+    0.12,
+    0.12
+   ],
+   "price": 2500,
+   "rarity": "Epic",
+   "level": 5,
+   "owned": false,
+   "desc": "Found in the Marrow attic.",
+   "flavor": "It was warm when we picked it up.",
+   "theme": "",
+   "bone": "head",
+   "hides_hair": false,
+   "skin": false,
+   "order": 0
+  },
+  {
+   "id": "CO_Top_Tee_Ash",
+   "name": "Plain Tee (Ash)",
+   "slot": "Top",
+   "mesh": "SK_HH_Top_Tee",
+   "tint": [
+    0.4,
+    0.4,
+    0.4
+   ],
+   "tint2": null,
+   "price": 0,
+   "rarity": "Common",
+   "level": 1,
+   "owned": true,
+   "desc": "",
+   "flavor": "",
+   "theme": "",
+   "bone": "head",
+   "hides_hair": false,
+   "skin": false,
+   "order": 0
+  },
+  {
+   "id": "CO_Top_Tee_Black",
+   "name": "Plain Tee (Black)",
+   "slot": "Top",
+   "mesh": "SK_HH_Top_Tee",
+   "tint": [
+    0.04,
+    0.04,
+    0.045
+   ],
+   "tint2": null,
+   "price": 0,
+   "rarity": "Common",
+   "level": 1,
+   "owned": true,
+   "desc": "",
+   "flavor": "",
+   "theme": "",
+   "bone": "head",
+   "hides_hair": false,
+   "skin": false,
+   "order": 0
+  },
+  {
+   "id": "CO_Top_Tee_White",
+   "name": "Plain Tee (White)",
+   "slot": "Top",
+   "mesh": "SK_HH_Top_Tee",
+   "tint": [
+    0.8,
+    0.79,
+    0.76
+   ],
+   "tint2": null,
+   "price": 100,
+   "rarity": "Common",
+   "level": 1,
+   "owned": false,
+   "desc": "",
+   "flavor": "",
+   "theme": "",
+   "bone": "head",
+   "hides_hair": false,
+   "skin": false,
+   "order": 0
+  },
+  {
+   "id": "CO_Top_Sweater_Stripe",
+   "name": "Striped Sweater",
+   "slot": "Top",
+   "mesh": "SK_HH_Top_Sweater",
+   "tint": [
+    0.62,
+    0.56,
+    0.44
+   ],
+   "tint2": [
+    0.1,
+    0.12,
+    0.22
+   ],
+   "price": 600,
+   "rarity": "Common",
+   "level": 1,
+   "owned": false,
+   "desc": "Grandma's. Don't ask.",
+   "flavor": "",
+   "theme": "",
+   "bone": "head",
+   "hides_hair": false,
+   "skin": false,
+   "order": 0
+  },
+  {
+   "id": "CO_Top_Hoodie_Grey",
+   "name": "Hoodie (Grey)",
+   "slot": "Top",
+   "mesh": "SK_HH_Top_Hoodie",
+   "tint": [
+    0.33,
+    0.33,
+    0.34
+   ],
+   "tint2": null,
+   "price": 700,
+   "rarity": "Common",
+   "level": 1,
+   "owned": false,
+   "desc": "",
+   "flavor": "",
+   "theme": "",
+   "bone": "head",
+   "hides_hair": false,
+   "skin": false,
+   "order": 0
+  },
+  {
+   "id": "CO_Top_Hoodie_Black",
+   "name": "Hoodie (Black)",
+   "slot": "Top",
+   "mesh": "SK_HH_Top_Hoodie",
+   "tint": [
+    0.04,
+    0.04,
+    0.045
+   ],
+   "tint2": null,
+   "price": 700,
+   "rarity": "Common",
+   "level": 1,
+   "owned": false,
+   "desc": "",
+   "flavor": "",
+   "theme": "",
+   "bone": "head",
+   "hides_hair": false,
+   "skin": false,
+   "order": 0
+  },
+  {
+   "id": "CO_Top_Hoodie_Forest",
+   "name": "Hoodie (Forest)",
+   "slot": "Top",
+   "mesh": "SK_HH_Top_Hoodie",
+   "tint": [
+    0.08,
+    0.18,
+    0.12
+   ],
+   "tint2": null,
+   "price": 750,
+   "rarity": "Common",
+   "level": 1,
+   "owned": false,
+   "desc": "",
+   "flavor": "",
+   "theme": "",
+   "bone": "head",
+   "hides_hair": false,
+   "skin": false,
+   "order": 0
+  },
+  {
+   "id": "CO_Top_Turtleneck",
+   "name": "Turtleneck",
+   "slot": "Top",
+   "mesh": "SK_HH_Top_Turtleneck",
+   "tint": [
+    0.03,
+    0.03,
+    0.035
+   ],
+   "tint2": null,
+   "price": 900,
+   "rarity": "Uncommon",
+   "level": 1,
+   "owned": false,
+   "desc": "Cat burglar classic.",
+   "flavor": "",
+   "theme": "",
+   "bone": "head",
+   "hides_hair": false,
+   "skin": false,
+   "order": 0
+  },
+  {
+   "id": "CO_Jacket_Work",
+   "name": "Work Jacket",
+   "slot": "Jacket",
+   "mesh": "SK_HH_Jacket_Work",
+   "tint": [
+    0.42,
+    0.33,
+    0.19
+   ],
+   "tint2": null,
+   "price": 800,
+   "rarity": "Common",
+   "level": 1,
+   "owned": false,
+   "desc": "Canvas, pockets, plausible deniability.",
+   "flavor": "",
+   "theme": "",
+   "bone": "head",
+   "hides_hair": false,
+   "skin": false,
+   "order": 0
+  },
+  {
+   "id": "CO_Jacket_Bomber",
+   "name": "Bomber Jacket",
+   "slot": "Jacket",
+   "mesh": "SK_HH_Jacket_Bomber",
+   "tint": [
+    0.17,
+    0.2,
+    0.12
+   ],
+   "tint2": null,
+   "price": 1200,
+   "rarity": "Common",
+   "level": 1,
+   "owned": false,
+   "desc": "",
+   "flavor": "",
+   "theme": "",
+   "bone": "head",
+   "hides_hair": false,
+   "skin": false,
+   "order": 0
+  },
+  {
+   "id": "CO_Jacket_Rain",
+   "name": "Rain Jacket",
+   "slot": "Jacket",
+   "mesh": "SK_HH_Jacket_Rain",
+   "tint": [
+    0.78,
+    0.56,
+    0.04
+   ],
+   "tint2": null,
+   "price": 1100,
+   "rarity": "Uncommon",
+   "level": 2,
+   "owned": false,
+   "desc": "Yellow. Like hers.",
+   "flavor": "",
+   "theme": "",
+   "bone": "head",
+   "hides_hair": false,
+   "skin": false,
+   "order": 0
+  },
+  {
+   "id": "CO_Jacket_Leather",
+   "name": "Leather Jacket",
+   "slot": "Jacket",
+   "mesh": "SK_HH_Jacket_Leather",
+   "tint": [
+    0.06,
+    0.055,
+    0.05
+   ],
+   "tint2": null,
+   "price": 1600,
+   "rarity": "Rare",
+   "level": 3,
+   "owned": false,
+   "desc": "",
+   "flavor": "",
+   "theme": "",
+   "bone": "head",
+   "hides_hair": false,
+   "skin": false,
+   "order": 0
+  },
+  {
+   "id": "CO_Jacket_Vest",
+   "name": "Tactical Vest",
+   "slot": "Jacket",
+   "mesh": "SK_HH_Jacket_Vest",
+   "tint": [
+    0.1,
+    0.11,
+    0.08
+   ],
+   "tint2": null,
+   "price": 2000,
+   "rarity": "Rare",
+   "level": 4,
+   "owned": false,
+   "desc": "Bought online. Nobody asked questions.",
+   "flavor": "",
+   "theme": "",
+   "bone": "head",
+   "hides_hair": false,
+   "skin": false,
+   "order": 0
+  },
+  {
+   "id": "CO_Gloves_Work",
+   "name": "Work Gloves",
+   "slot": "Gloves",
+   "mesh": "SK_HH_Gloves",
+   "tint": [
+    0.42,
+    0.28,
+    0.14
+   ],
+   "tint2": null,
+   "price": 200,
+   "rarity": "Common",
+   "level": 1,
+   "owned": false,
+   "desc": "",
+   "flavor": "",
+   "theme": "",
+   "bone": "head",
+   "hides_hair": false,
+   "skin": false,
+   "order": 0
+  },
+  {
+   "id": "CO_Gloves_Black",
+   "name": "Leather Gloves",
+   "slot": "Gloves",
+   "mesh": "SK_HH_Gloves",
+   "tint": [
+    0.04,
+    0.035,
+    0.03
+   ],
+   "tint2": null,
+   "price": 250,
+   "rarity": "Common",
+   "level": 1,
+   "owned": false,
+   "desc": "",
+   "flavor": "",
+   "theme": "",
+   "bone": "head",
+   "hides_hair": false,
+   "skin": false,
+   "order": 0
+  },
+  {
+   "id": "CO_Gloves_Latex",
+   "name": "Latex Gloves",
+   "slot": "Gloves",
+   "mesh": "SK_HH_Gloves_Thin",
+   "tint": [
+    0.35,
+    0.47,
+    0.62
+   ],
+   "tint2": null,
+   "price": 150,
+   "rarity": "Common",
+   "level": 1,
+   "owned": false,
+   "desc": "No prints, no excuses.",
+   "flavor": "",
+   "theme": "",
+   "bone": "head",
+   "hides_hair": false,
+   "skin": false,
+   "order": 0
+  },
+  {
+   "id": "CO_Pants_Jeans",
+   "name": "Jeans",
+   "slot": "Pants",
+   "mesh": "SK_HH_Pants_Jeans",
+   "tint": [
+    1.0,
+    1.0,
+    1.0
+   ],
+   "tint2": null,
+   "price": 0,
+   "rarity": "Common",
+   "level": 1,
+   "owned": true,
+   "desc": "",
+   "flavor": "",
+   "theme": "",
+   "bone": "head",
+   "hides_hair": false,
+   "skin": false,
+   "order": 0
+  },
+  {
+   "id": "CO_Pants_Jeans_Black",
+   "name": "Black Jeans",
+   "slot": "Pants",
+   "mesh": "SK_HH_Pants_Jeans",
+   "tint": [
+    0.18,
+    0.18,
+    0.2
+   ],
+   "tint2": null,
+   "price": 0,
+   "rarity": "Common",
+   "level": 1,
+   "owned": true,
+   "desc": "",
+   "flavor": "",
+   "theme": "",
+   "bone": "head",
+   "hides_hair": false,
+   "skin": false,
+   "order": 0
+  },
+  {
+   "id": "CO_Pants_Cargo_Olive",
+   "name": "Cargo Pants (Olive)",
+   "slot": "Pants",
+   "mesh": "SK_HH_Pants_Cargo",
+   "tint": [
+    0.22,
+    0.24,
+    0.14
+   ],
+   "tint2": null,
+   "price": 600,
+   "rarity": "Common",
+   "level": 1,
+   "owned": false,
+   "desc": "",
+   "flavor": "",
+   "theme": "",
+   "bone": "head",
+   "hides_hair": false,
+   "skin": false,
+   "order": 0
+  },
+  {
+   "id": "CO_Pants_Cargo_Black",
+   "name": "Cargo Pants (Black)",
+   "slot": "Pants",
+   "mesh": "SK_HH_Pants_Cargo",
+   "tint": [
+    0.05,
+    0.05,
+    0.05
+   ],
+   "tint2": null,
+   "price": 600,
+   "rarity": "Common",
+   "level": 1,
+   "owned": false,
+   "desc": "",
+   "flavor": "",
+   "theme": "",
+   "bone": "head",
+   "hides_hair": false,
+   "skin": false,
+   "order": 0
+  },
+  {
+   "id": "CO_Pants_Slacks",
+   "name": "Slacks",
+   "slot": "Pants",
+   "mesh": "SK_HH_Pants_Slacks",
+   "tint": [
+    0.2,
+    0.2,
+    0.22
+   ],
+   "tint2": null,
+   "price": 500,
+   "rarity": "Common",
+   "level": 1,
+   "owned": false,
+   "desc": "",
+   "flavor": "",
+   "theme": "",
+   "bone": "head",
+   "hides_hair": false,
+   "skin": false,
+   "order": 0
+  },
+  {
+   "id": "CO_Shoes_Sneakers_White",
+   "name": "Sneakers (White)",
+   "slot": "Shoes",
+   "mesh": "SK_HH_Shoes_Sneakers",
+   "tint": [
+    0.76,
+    0.75,
+    0.72
+   ],
+   "tint2": [
+    0.8,
+    0.78,
+    0.72
+   ],
+   "price": 0,
+   "rarity": "Common",
+   "level": 1,
+   "owned": true,
+   "desc": "",
+   "flavor": "",
+   "theme": "",
+   "bone": "head",
+   "hides_hair": false,
+   "skin": false,
+   "order": 0
+  },
+  {
+   "id": "CO_Shoes_Sneakers_Black",
+   "name": "Sneakers (Black)",
+   "slot": "Shoes",
+   "mesh": "SK_HH_Shoes_Sneakers",
+   "tint": [
+    0.05,
+    0.05,
+    0.05
+   ],
+   "tint2": [
+    0.75,
+    0.73,
+    0.68
+   ],
+   "price": 0,
+   "rarity": "Common",
+   "level": 1,
+   "owned": true,
+   "desc": "",
+   "flavor": "",
+   "theme": "",
+   "bone": "head",
+   "hides_hair": false,
+   "skin": false,
+   "order": 0
+  },
+  {
+   "id": "CO_Shoes_Boots",
+   "name": "Work Boots",
+   "slot": "Shoes",
+   "mesh": "SK_HH_Shoes_Boots",
+   "tint": [
+    0.3,
+    0.18,
+    0.09
+   ],
+   "tint2": null,
+   "price": 700,
+   "rarity": "Common",
+   "level": 1,
+   "owned": false,
+   "desc": "",
+   "flavor": "",
+   "theme": "",
+   "bone": "head",
+   "hides_hair": false,
+   "skin": false,
+   "order": 0
+  },
+  {
+   "id": "CO_Shoes_Dress",
+   "name": "Dress Shoes",
+   "slot": "Shoes",
+   "mesh": "SK_HH_Shoes_Dress",
+   "tint": [
+    0.03,
+    0.025,
+    0.02
+   ],
+   "tint2": null,
+   "price": 650,
+   "rarity": "Common",
+   "level": 1,
+   "owned": false,
+   "desc": "Quiet soles. Mostly.",
+   "flavor": "",
+   "theme": "",
+   "bone": "head",
+   "hides_hair": false,
+   "skin": false,
+   "order": 0
+  },
+  {
+   "id": "CO_Back_Rucksack",
+   "name": "Rucksack",
+   "slot": "Backpack",
+   "mesh": "SM_HH_Back_Rucksack",
+   "tint": [
+    0.1,
+    0.13,
+    0.22
+   ],
+   "tint2": null,
+   "price": 500,
+   "rarity": "Common",
+   "level": 1,
+   "owned": false,
+   "desc": "",
+   "flavor": "",
+   "theme": "",
+   "bone": "spine_03",
+   "hides_hair": false,
+   "skin": false,
+   "order": 0
+  },
+  {
+   "id": "CO_Back_Duffel",
+   "name": "Shoulder Duffel",
+   "slot": "Backpack",
+   "mesh": "SM_HH_Back_Duffel",
+   "tint": [
+    0.05,
+    0.05,
+    0.05
+   ],
+   "tint2": null,
+   "price": 900,
+   "rarity": "Common",
+   "level": 1,
+   "owned": false,
+   "desc": "",
+   "flavor": "",
+   "theme": "",
+   "bone": "spine_03",
+   "hides_hair": false,
+   "skin": false,
+   "order": 0
+  },
+  {
+   "id": "CO_Back_Tactical",
+   "name": "Tactical Pack",
+   "slot": "Backpack",
+   "mesh": "SM_HH_Back_Tactical",
+   "tint": [
+    0.17,
+    0.19,
+    0.11
+   ],
+   "tint2": null,
+   "price": 1400,
+   "rarity": "Rare",
+   "level": 3,
+   "owned": false,
+   "desc": "",
+   "flavor": "",
+   "theme": "",
+   "bone": "spine_03",
+   "hides_hair": false,
+   "skin": false,
+   "order": 0
+  },
+  {
+   "id": "CO_Acc_Glasses",
+   "name": "Reading Glasses",
+   "slot": "Accessory",
+   "mesh": "SM_HH_Acc_Glasses",
+   "tint": [
+    0.1,
+    0.07,
+    0.04
+   ],
+   "tint2": null,
+   "price": 250,
+   "rarity": "Common",
+   "level": 1,
+   "owned": false,
+   "desc": "",
+   "flavor": "",
+   "theme": "",
+   "bone": "head",
+   "hides_hair": false,
+   "skin": false,
+   "order": 0
+  },
+  {
+   "id": "CO_Acc_Watch",
+   "name": "Wristwatch",
+   "slot": "Accessory",
+   "mesh": "SM_HH_Acc_Watch",
+   "tint": [
+    0.75,
+    0.6,
+    0.3
+   ],
+   "tint2": null,
+   "price": 300,
+   "rarity": "Common",
+   "level": 1,
+   "owned": false,
+   "desc": "Always 3:17 for some reason.",
+   "flavor": "",
+   "theme": "",
+   "bone": "lowerarm_l",
+   "hides_hair": false,
+   "skin": false,
+   "order": 0
+  },
+  {
+   "id": "CO_Acc_Earpiece",
+   "name": "Earpiece",
+   "slot": "Accessory",
+   "mesh": "SM_HH_Acc_Earpiece",
+   "tint": [
+    0.05,
+    0.05,
+    0.05
+   ],
+   "tint2": null,
+   "price": 400,
+   "rarity": "Common",
+   "level": 1,
+   "owned": false,
+   "desc": "",
+   "flavor": "",
+   "theme": "",
+   "bone": "head",
+   "hides_hair": false,
+   "skin": false,
+   "order": 0
+  },
+  {
+   "id": "CO_Acc_Chain",
+   "name": "Gold Chain",
+   "slot": "Accessory",
+   "mesh": "SM_HH_Acc_Chain",
+   "tint": [
+    0.78,
+    0.6,
+    0.28
+   ],
+   "tint2": null,
+   "price": 750,
+   "rarity": "Uncommon",
+   "level": 1,
+   "owned": false,
+   "desc": "",
+   "flavor": "",
+   "theme": "",
+   "bone": "spine_03",
+   "hides_hair": false,
+   "skin": false,
+   "order": 0
+  }
+ ],
+ "equipment": [
+  {
+   "id": "EQ_Light_Pocket",
+   "name": "Pocket Torch",
+   "slot": "Light",
+   "mesh": "SM_EQ_Torch_Pocket",
+   "stats": [
+    {
+     "id": "Intensity",
+     "label": "Brightness",
+     "value": 900,
+     "max": 3000,
+     "lower_better": false
+    },
+    {
+     "id": "Range",
+     "label": "Reach",
+     "value": 1400,
+     "max": 3000,
+     "lower_better": false
+    },
+    {
+     "id": "Cone",
+     "label": "Beam Width",
+     "value": 22,
+     "max": 80,
+     "lower_better": false
+    },
+    {
+     "id": "Warmth",
+     "label": "Warmth",
+     "value": 0.75,
+     "max": 1.0,
+     "lower_better": false
+    }
+   ],
+   "price": 0,
+   "rarity": "Common",
+   "level": 1,
+   "owned": true,
+   "desc": "Cheap, warm and just bright enough.",
+   "flavor": "",
+   "order": 1
+  },
+  {
+   "id": "EQ_Light_Patrol",
+   "name": "Patrol Torch",
+   "slot": "Light",
+   "mesh": "SM_EQ_Torch_Patrol",
+   "stats": [
+    {
+     "id": "Intensity",
+     "label": "Brightness",
+     "value": 2600,
+     "max": 3000,
+     "lower_better": false
+    },
+    {
+     "id": "Range",
+     "label": "Reach",
+     "value": 2600,
+     "max": 3000,
+     "lower_better": false
+    },
+    {
+     "id": "Cone",
+     "label": "Beam Width",
+     "value": 16,
+     "max": 80,
+     "lower_better": false
+    },
+    {
+     "id": "Warmth",
+     "label": "Warmth",
+     "value": 0.3,
+     "max": 1.0,
+     "lower_better": false
+    }
+   ],
+   "price": 900,
+   "rarity": "Common",
+   "level": 1,
+   "owned": false,
+   "desc": "Long, heavy, very bright. Also a club.",
+   "flavor": "",
+   "order": 2
+  },
+  {
+   "id": "EQ_Light_Headlamp",
+   "name": "Headlamp",
+   "slot": "Light",
+   "mesh": "SM_EQ_Headlamp",
+   "stats": [
+    {
+     "id": "Intensity",
+     "label": "Brightness",
+     "value": 1100,
+     "max": 3000,
+     "lower_better": false
+    },
+    {
+     "id": "Range",
+     "label": "Reach",
+     "value": 1500,
+     "max": 3000,
+     "lower_better": false
+    },
+    {
+     "id": "Cone",
+     "label": "Beam Width",
+     "value": 34,
+     "max": 80,
+     "lower_better": false
+    },
+    {
+     "id": "Warmth",
+     "label": "Warmth",
+     "value": 0.5,
+     "max": 1.0,
+     "lower_better": false
+    }
+   ],
+   "price": 1200,
+   "rarity": "Uncommon",
+   "level": 2,
+   "owned": false,
+   "desc": "Hands free. Looks where you look.",
+   "flavor": "",
+   "order": 3
+  },
+  {
+   "id": "EQ_Light_Lantern",
+   "name": "Storm Lantern",
+   "slot": "Light",
+   "mesh": "SM_EQ_Lantern",
+   "stats": [
+    {
+     "id": "Intensity",
+     "label": "Brightness",
+     "value": 700,
+     "max": 3000,
+     "lower_better": false
+    },
+    {
+     "id": "Range",
+     "label": "Reach",
+     "value": 1000,
+     "max": 3000,
+     "lower_better": false
+    },
+    {
+     "id": "Cone",
+     "label": "Beam Width",
+     "value": 70,
+     "max": 80,
+     "lower_better": false
+    },
+    {
+     "id": "Warmth",
+     "label": "Warmth",
+     "value": 1.0,
+     "max": 1.0,
+     "lower_better": false
+    }
+   ],
+   "price": 1500,
+   "rarity": "Rare",
+   "level": 3,
+   "owned": false,
+   "desc": "Soft light all around. Like the painting.",
+   "flavor": "",
+   "order": 4
+  },
+  {
+   "id": "EQ_Entry_Lockpicks",
+   "name": "Lockpick Roll",
+   "slot": "Entry",
+   "mesh": "SM_EQ_Lockpicks",
+   "stats": [
+    {
+     "id": "Speed",
+     "label": "Speed",
+     "value": 40,
+     "max": 100.0,
+     "lower_better": false
+    },
+    {
+     "id": "Noise",
+     "label": "Noise",
+     "value": 12,
+     "max": 100.0,
+     "lower_better": true
+    }
+   ],
+   "price": 0,
+   "rarity": "Common",
+   "level": 1,
+   "owned": true,
+   "desc": "Slow and silent.",
+   "flavor": "",
+   "order": 1
+  },
+  {
+   "id": "EQ_Entry_Crowbar",
+   "name": "Crowbar",
+   "slot": "Entry",
+   "mesh": "SM_EQ_Crowbar",
+   "stats": [
+    {
+     "id": "Speed",
+     "label": "Speed",
+     "value": 85,
+     "max": 100.0,
+     "lower_better": false
+    },
+    {
+     "id": "Noise",
+     "label": "Noise",
+     "value": 80,
+     "max": 100.0,
+     "lower_better": true
+    }
+   ],
+   "price": 400,
+   "rarity": "Common",
+   "level": 1,
+   "owned": false,
+   "desc": "Fast and loud. Everyone will know.",
+   "flavor": "",
+   "order": 2
+  },
+  {
+   "id": "EQ_Entry_GlassCutter",
+   "name": "Glass Cutter",
+   "slot": "Entry",
+   "mesh": "SM_EQ_GlassCutter",
+   "stats": [
+    {
+     "id": "Speed",
+     "label": "Speed",
+     "value": 60,
+     "max": 100.0,
+     "lower_better": false
+    },
+    {
+     "id": "Noise",
+     "label": "Noise",
+     "value": 25,
+     "max": 100.0,
+     "lower_better": true
+    }
+   ],
+   "price": 1100,
+   "rarity": "Uncommon",
+   "level": 2,
+   "owned": false,
+   "desc": "Windows are just doors that nobody locks properly.",
+   "flavor": "",
+   "order": 3
+  },
+  {
+   "id": "EQ_Util_Walkie",
+   "name": "Walkie-Talkie",
+   "slot": "Utility",
+   "mesh": "SM_EQ_Walkie",
+   "stats": [
+    {
+     "id": "Range",
+     "label": "Range",
+     "value": 60,
+     "max": 100.0,
+     "lower_better": false
+    },
+    {
+     "id": "Battery",
+     "label": "Battery",
+     "value": 70,
+     "max": 100.0,
+     "lower_better": false
+    }
+   ],
+   "price": 0,
+   "rarity": "Common",
+   "level": 1,
+   "owned": true,
+   "desc": "Hear the crew through walls. Sometimes something else.",
+   "flavor": "",
+   "order": 1
+  },
+  {
+   "id": "EQ_Util_Salt",
+   "name": "Salt Pouch",
+   "slot": "Utility",
+   "mesh": "SM_EQ_SaltPouch",
+   "stats": [
+    {
+     "id": "Charges",
+     "label": "Charges",
+     "value": 3,
+     "max": 5,
+     "lower_better": false
+    },
+    {
+     "id": "Strength",
+     "label": "Strength",
+     "value": 45,
+     "max": 100.0,
+     "lower_better": false
+    }
+   ],
+   "price": 600,
+   "rarity": "Uncommon",
+   "level": 2,
+   "owned": false,
+   "desc": "An old superstition. Pour a line across a doorway.",
+   "flavor": "",
+   "order": 2
+  },
+  {
+   "id": "EQ_Gadget_Camera",
+   "name": "Instant Camera",
+   "slot": "Gadget",
+   "mesh": "SM_EQ_Camera",
+   "stats": [
+    {
+     "id": "Flash",
+     "label": "Flash",
+     "value": 60,
+     "max": 100.0,
+     "lower_better": false
+    },
+    {
+     "id": "Shots",
+     "label": "Film",
+     "value": 10,
+     "max": 12,
+     "lower_better": false
+    }
+   ],
+   "price": 800,
+   "rarity": "Common",
+   "level": 1,
+   "owned": false,
+   "desc": "Proof for the client. The photos sometimes show more.",
+   "flavor": "",
+   "order": 1
+  },
+  {
+   "id": "EQ_Gadget_NoiseMeter",
+   "name": "Noise Meter",
+   "slot": "Gadget",
+   "mesh": "SM_EQ_NoiseMeter",
+   "stats": [
+    {
+     "id": "Sensitivity",
+     "label": "Sensitivity",
+     "value": 70,
+     "max": 100.0,
+     "lower_better": false
+    },
+    {
+     "id": "Range",
+     "label": "Range",
+     "value": 50,
+     "max": 100.0,
+     "lower_better": false
+    }
+   ],
+   "price": 1300,
+   "rarity": "Rare",
+   "level": 3,
+   "owned": false,
+   "desc": "Shows how loud you are. And what else is.",
+   "flavor": "",
+   "order": 2
+  },
+  {
+   "id": "EQ_Bag_Duffel",
+   "name": "Duffel Bag",
+   "slot": "Bag",
+   "mesh": "SM_EQ_Duffel",
+   "stats": [
+    {
+     "id": "Capacity",
+     "label": "Capacity",
+     "value": 50,
+     "max": 100.0,
+     "lower_better": false
+    },
+    {
+     "id": "Noise",
+     "label": "Rustle",
+     "value": 20,
+     "max": 100.0,
+     "lower_better": true
+    }
+   ],
+   "price": 0,
+   "rarity": "Common",
+   "level": 1,
+   "owned": true,
+   "desc": "",
+   "flavor": "",
+   "order": 1
+  },
+  {
+   "id": "EQ_Bag_Sack",
+   "name": "Burlap Sack",
+   "slot": "Bag",
+   "mesh": "SM_EQ_Sack",
+   "stats": [
+    {
+     "id": "Capacity",
+     "label": "Capacity",
+     "value": 75,
+     "max": 100.0,
+     "lower_better": false
+    },
+    {
+     "id": "Noise",
+     "label": "Rustle",
+     "value": 45,
+     "max": 100.0,
+     "lower_better": true
+    }
+   ],
+   "price": 500,
+   "rarity": "Common",
+   "level": 1,
+   "owned": false,
+   "desc": "Holds more. Clinks louder.",
+   "flavor": "",
+   "order": 2
+  }
+ ],
+ "missions": [
+  {
+   "id": "JOB_Vance",
+   "name": "The Vance Residence",
+   "address": "14 Ashgrove Lane",
+   "difficulty": "Quiet",
+   "residents": 3,
+   "crew": 2,
+   "pay": [
+    1800,
+    3200
+   ],
+   "level": 1,
+   "photo": "T_Mission_Vance",
+   "order": 1,
+   "target": "Coin collection (master bedroom)",
+   "briefing": "Suburban two-storey. Cash in the study, a coin collection upstairs. The back door sticks. The Vances never seem to leave the house, not even to sleep.",
+   "rumor": "The neighbours say the youngest Vance stopped going to school years ago. Nobody remembers there being a youngest Vance."
+  },
+  {
+   "id": "JOB_Rectory",
+   "name": "St. Agnes Rectory",
+   "address": "Church Road",
+   "difficulty": "Uneasy",
+   "residents": 1,
+   "crew": 2,
+   "pay": [
+    3500,
+    6000
+   ],
+   "level": 2,
+   "photo": "T_Mission_Rectory",
+   "order": 2,
+   "target": "The parish silver",
+   "briefing": "Father Doyle keeps the collection money in the vestry safe until Monday. He is old, half deaf, and talks to someone in the empty church at night.",
+   "rumor": "The bell rings at 3:17 every night. There is no rope."
+  },
+  {
+   "id": "JOB_Marrow",
+   "name": "The Marrow House",
+   "address": "Marrow Street",
+   "difficulty": "Restless",
+   "residents": 0,
+   "crew": 3,
+   "pay": [
+    6000,
+    9500
+   ],
+   "level": 3,
+   "photo": "T_Mission_Marrow",
+   "order": 3,
+   "target": "Josiah Marrow's study for \"The Lantern Bearer\"",
+   "briefing": "Empty since 1974. The family left everything behind. A buyer wants the study sketch for the museum's famous painting; it should still hang upstairs.",
+   "rumor": "Every October there's a light in the attic window. The power was cut in '75."
+  },
+  {
+   "id": "JOB_Whitlock",
+   "name": "Whitlock Farmhouse",
+   "address": "Old Quarry Road",
+   "difficulty": "Malevolent",
+   "residents": 2,
+   "crew": 4,
+   "pay": [
+    12000,
+    20000
+   ],
+   "level": 5,
+   "photo": "T_Mission_Whitlock",
+   "order": 4,
+   "target": "Whatever is in the barn",
+   "briefing": "Brannigan won't talk about the Whitlocks. Someone pays very well for what is locked in the barn. Nobody who went out there came back to say what it is.",
+   "rumor": "The red light in the barn has been on since 1998."
+  }
+ ],
+ "defaults": {
+  "cosmetics": {
+   "Body": "CO_Skin_Fair",
+   "Hair": "CO_Hair_Crop_Brown",
+   "Top": "CO_Top_Tee_Ash",
+   "Pants": "CO_Pants_Jeans",
+   "Shoes": "CO_Shoes_Sneakers_White"
+  },
+  "equipment": {
+   "Light": "EQ_Light_Pocket",
+   "Entry": "EQ_Entry_Lockpicks",
+   "Utility": "EQ_Util_Walkie",
+   "Bag": "EQ_Bag_Duffel"
+  },
+  "starting_cash": 1500
+ }
+}

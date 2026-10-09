@@ -1072,6 +1072,116 @@
    ]
   },
   {
+   "name": "SM_EQ_Duffel_1",
+   "cls": "StaticMeshActor",
+   "folder": "Props",
+   "mesh": "SM_EQ_Duffel",
+   "location": [
+    -185.0,
+    -60.0,
+    0.0
+   ],
+   "quat": [
+    0.0,
+    0.0,
+    -0.300706,
+    0.953717
+   ],
+   "scale": [
+    1.0,
+    1.0,
+    1.0
+   ]
+  },
+  {
+   "name": "SM_EQ_Sack_1",
+   "cls": "StaticMeshActor",
+   "folder": "Props",
+   "mesh": "SM_EQ_Sack",
+   "location": [
+    -530.0,
+    -450.0,
+    0.0
+   ],
+   "quat": [
+    0.0,
+    0.0,
+    -0.087156,
+    0.996195
+   ],
+   "scale": [
+    1.0,
+    1.0,
+    1.0
+   ]
+  },
+  {
+   "name": "SM_EQ_Lantern_1",
+   "cls": "StaticMeshActor",
+   "folder": "Props",
+   "mesh": "SM_EQ_Lantern",
+   "location": [
+    -673.0,
+    -55.0,
+    161.5
+   ],
+   "quat": [
+    0.0,
+    0.0,
+    -0.707107,
+    0.707107
+   ],
+   "scale": [
+    1.0,
+    1.0,
+    1.0
+   ]
+  },
+  {
+   "name": "SM_EQ_Camera_1",
+   "cls": "StaticMeshActor",
+   "folder": "Props",
+   "mesh": "SM_EQ_Camera",
+   "location": [
+    640.0,
+    55.0,
+    76.2
+   ],
+   "quat": [
+    0.0,
+    0.0,
+    0.819152,
+    0.573576
+   ],
+   "scale": [
+    1.0,
+    1.0,
+    1.0
+   ]
+  },
+  {
+   "name": "SM_EQ_NoiseMeter_1",
+   "cls": "StaticMeshActor",
+   "folder": "Props",
+   "mesh": "SM_EQ_NoiseMeter",
+   "location": [
+    -645.0,
+    175.0,
+    76.0
+   ],
+   "quat": [
+    0.0,
+    0.0,
+    -0.642788,
+    0.766044
+   ],
+   "scale": [
+    1.0,
+    1.0,
+    1.0
+   ]
+  },
+  {
    "name": "SM_Shelf_Metal_1",
    "cls": "StaticMeshActor",
    "folder": "Props",
@@ -3112,6 +3222,138 @@
     0.0,
     1.0,
     0.0
+   ],
+   "scale": [
+    1.0,
+    1.0,
+    1.0
+   ]
+  },
+  {
+   "name": "SM_EQ_Torch_Pocket_1",
+   "cls": "StaticMeshActor",
+   "folder": "Workshop",
+   "mesh": "SM_EQ_Torch_Pocket",
+   "location": [
+    -262.0,
+    442.0,
+    92.0
+   ],
+   "quat": [
+    0.0,
+    0.0,
+    -0.21644,
+    0.976296
+   ],
+   "scale": [
+    1.0,
+    1.0,
+    1.0
+   ]
+  },
+  {
+   "name": "SM_EQ_Crowbar_1",
+   "cls": "StaticMeshActor",
+   "folder": "Workshop",
+   "mesh": "SM_EQ_Crowbar",
+   "location": [
+    -308.0,
+    430.0,
+    92.0
+   ],
+   "quat": [
+    0.0,
+    0.0,
+    -0.026177,
+    0.999657
+   ],
+   "scale": [
+    1.0,
+    1.0,
+    1.0
+   ]
+  },
+  {
+   "name": "SM_EQ_Lockpicks_1",
+   "cls": "StaticMeshActor",
+   "folder": "Workshop",
+   "mesh": "SM_EQ_Lockpicks",
+   "location": [
+    -290.0,
+    468.0,
+    92.0
+   ],
+   "quat": [
+    0.0,
+    0.0,
+    -0.069757,
+    0.997564
+   ],
+   "scale": [
+    1.0,
+    1.0,
+    1.0
+   ]
+  },
+  {
+   "name": "SM_EQ_Walkie_1",
+   "cls": "StaticMeshActor",
+   "folder": "Workshop",
+   "mesh": "SM_EQ_Walkie",
+   "location": [
+    -388.0,
+    442.0,
+    92.0
+   ],
+   "quat": [
+    -0.0,
+    -0.0,
+    -0.766044,
+    0.642788
+   ],
+   "scale": [
+    1.0,
+    1.0,
+    1.0
+   ]
+  },
+  {
+   "name": "SM_EQ_Headlamp_1",
+   "cls": "StaticMeshActor",
+   "folder": "Workshop",
+   "mesh": "SM_EQ_Headlamp",
+   "location": [
+    -245.0,
+    475.0,
+    92.0
+   ],
+   "quat": [
+    0.0,
+    0.0,
+    0.173648,
+    0.984808
+   ],
+   "scale": [
+    1.0,
+    1.0,
+    1.0
+   ]
+  },
+  {
+   "name": "SM_EQ_GlassCutter_1",
+   "cls": "StaticMeshActor",
+   "folder": "Workshop",
+   "mesh": "SM_EQ_GlassCutter",
+   "location": [
+    -335.0,
+    462.0,
+    92.0
+   ],
+   "quat": [
+    0.0,
+    0.0,
+    -0.5,
+    0.866025
    ],
    "scale": [
     1.0,
