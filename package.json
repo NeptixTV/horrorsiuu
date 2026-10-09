@@ -1,5 +1,6 @@
 {
   "name": "goofy-studio",
+  "productName": "Goofy Studio",
   "private": true,
   "version": "1.0.0",
   "description": "Goofy Studio – a digital audio workstation for the browser and the desktop",
