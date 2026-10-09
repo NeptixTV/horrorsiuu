@@ -1,0 +1,962 @@
+[
+ {
+  "file": "SourceArt/Audio/Ambience/A_Clock_Tick_Loop.wav",
+  "category": "Ambient",
+  "loop": true,
+  "spatial": true,
+  "radius": 600,
+  "caption": "",
+  "volume": 1.0,
+  "seconds": 2.0
+ },
+ {
+  "file": "SourceArt/Audio/Ambience/A_DoorSlam_Distant_01.wav",
+  "category": "Ambient",
+  "loop": false,
+  "spatial": true,
+  "radius": 3000,
+  "caption": "[A door slams somewhere above]",
+  "volume": 1.0,
+  "seconds": 2.5
+ },
+ {
+  "file": "SourceArt/Audio/Ambience/A_DoorSlam_Distant_02.wav",
+  "category": "Ambient",
+  "loop": false,
+  "spatial": true,
+  "radius": 3000,
+  "caption": "[A door slams somewhere above]",
+  "volume": 1.0,
+  "seconds": 2.5
+ },
+ {
+  "file": "SourceArt/Audio/Ambience/A_Drip_01.wav",
+  "category": "Ambient",
+  "loop": false,
+  "spatial": true,
+  "radius": 900,
+  "caption": "",
+  "volume": 1.0,
+  "seconds": 0.7
+ },
+ {
+  "file": "SourceArt/Audio/Ambience/A_Drip_02.wav",
+  "category": "Ambient",
+  "loop": false,
+  "spatial": true,
+  "radius": 900,
+  "caption": "",
+  "volume": 1.0,
+  "seconds": 0.7
+ },
+ {
+  "file": "SourceArt/Audio/Ambience/A_Drip_03.wav",
+  "category": "Ambient",
+  "loop": false,
+  "spatial": true,
+  "radius": 900,
+  "caption": "",
+  "volume": 1.0,
+  "seconds": 0.7
+ },
+ {
+  "file": "SourceArt/Audio/Ambience/A_Drip_04.wav",
+  "category": "Ambient",
+  "loop": false,
+  "spatial": true,
+  "radius": 900,
+  "caption": "",
+  "volume": 1.0,
+  "seconds": 0.7
+ },
+ {
+  "file": "SourceArt/Audio/Ambience/A_Drip_05.wav",
+  "category": "Ambient",
+  "loop": false,
+  "spatial": true,
+  "radius": 900,
+  "caption": "",
+  "volume": 1.0,
+  "seconds": 0.7
+ },
+ {
+  "file": "SourceArt/Audio/Ambience/A_Drip_06.wav",
+  "category": "Ambient",
+  "loop": false,
+  "spatial": true,
+  "radius": 900,
+  "caption": "",
+  "volume": 1.0,
+  "seconds": 0.7
+ },
+ {
+  "file": "SourceArt/Audio/Ambience/A_Electrical_Stutter.wav",
+  "category": "SFX",
+  "loop": false,
+  "spatial": true,
+  "radius": 1500,
+  "caption": "[Electrical buzzing]",
+  "volume": 1.0,
+  "seconds": 1.8
+ },
+ {
+  "file": "SourceArt/Audio/Ambience/A_Hum_Boiler_Loop.wav",
+  "category": "Ambient",
+  "loop": true,
+  "spatial": true,
+  "radius": 1100,
+  "caption": "",
+  "volume": 1.0,
+  "seconds": 18.0
+ },
+ {
+  "file": "SourceArt/Audio/Ambience/A_Hum_Fluorescent_Loop.wav",
+  "category": "Ambient",
+  "loop": true,
+  "spatial": true,
+  "radius": 700,
+  "caption": "",
+  "volume": 1.0,
+  "seconds": 8.0
+ },
+ {
+  "file": "SourceArt/Audio/Ambience/A_Knock_Three.wav",
+  "category": "Ambient",
+  "loop": false,
+  "spatial": true,
+  "radius": 2600,
+  "caption": "[Three slow knocks]",
+  "volume": 1.0,
+  "seconds": 3.0
+ },
+ {
+  "file": "SourceArt/Audio/Ambience/A_Overhead_Step_01.wav",
+  "category": "Ambient",
+  "loop": false,
+  "spatial": true,
+  "radius": 2200,
+  "caption": "",
+  "volume": 1.0,
+  "seconds": 0.9
+ },
+ {
+  "file": "SourceArt/Audio/Ambience/A_Overhead_Step_02.wav",
+  "category": "Ambient",
+  "loop": false,
+  "spatial": true,
+  "radius": 2200,
+  "caption": "",
+  "volume": 1.0,
+  "seconds": 0.9
+ },
+ {
+  "file": "SourceArt/Audio/Ambience/A_Overhead_Step_03.wav",
+  "category": "Ambient",
+  "loop": false,
+  "spatial": true,
+  "radius": 2200,
+  "caption": "",
+  "volume": 1.0,
+  "seconds": 0.9
+ },
+ {
+  "file": "SourceArt/Audio/Ambience/A_Overhead_Step_04.wav",
+  "category": "Ambient",
+  "loop": false,
+  "spatial": true,
+  "radius": 2200,
+  "caption": "",
+  "volume": 1.0,
+  "seconds": 0.9
+ },
+ {
+  "file": "SourceArt/Audio/Ambience/A_Overhead_Step_05.wav",
+  "category": "Ambient",
+  "loop": false,
+  "spatial": true,
+  "radius": 2200,
+  "caption": "",
+  "volume": 1.0,
+  "seconds": 0.9
+ },
+ {
+  "file": "SourceArt/Audio/Ambience/A_Overhead_Step_06.wav",
+  "category": "Ambient",
+  "loop": false,
+  "spatial": true,
+  "radius": 2200,
+  "caption": "",
+  "volume": 1.0,
+  "seconds": 0.9
+ },
+ {
+  "file": "SourceArt/Audio/Ambience/A_PipeCreak_01.wav",
+  "category": "Ambient",
+  "loop": false,
+  "spatial": true,
+  "radius": 1400,
+  "caption": "",
+  "volume": 1.0,
+  "seconds": 2.46
+ },
+ {
+  "file": "SourceArt/Audio/Ambience/A_PipeCreak_02.wav",
+  "category": "Ambient",
+  "loop": false,
+  "spatial": true,
+  "radius": 1400,
+  "caption": "",
+  "volume": 1.0,
+  "seconds": 2.708
+ },
+ {
+  "file": "SourceArt/Audio/Ambience/A_PipeCreak_03.wav",
+  "category": "Ambient",
+  "loop": false,
+  "spatial": true,
+  "radius": 1400,
+  "caption": "",
+  "volume": 1.0,
+  "seconds": 2.185
+ },
+ {
+  "file": "SourceArt/Audio/Ambience/A_PipeCreak_04.wav",
+  "category": "Ambient",
+  "loop": false,
+  "spatial": true,
+  "radius": 1400,
+  "caption": "",
+  "volume": 1.0,
+  "seconds": 1.218
+ },
+ {
+  "file": "SourceArt/Audio/Ambience/A_Radio_Bleed.wav",
+  "category": "Dialogue",
+  "loop": false,
+  "spatial": true,
+  "radius": 1100,
+  "caption": "[A voice inside the static]",
+  "volume": 1.0,
+  "seconds": 3.4
+ },
+ {
+  "file": "SourceArt/Audio/Ambience/A_Radio_Static_Loop.wav",
+  "category": "Music",
+  "loop": true,
+  "spatial": true,
+  "radius": 900,
+  "caption": "",
+  "volume": 1.0,
+  "seconds": 10.5
+ },
+ {
+  "file": "SourceArt/Audio/Ambience/A_Rain_Outside_Loop.wav",
+  "category": "Ambient",
+  "loop": true,
+  "spatial": false,
+  "radius": 1500.0,
+  "caption": "",
+  "volume": 1.0,
+  "seconds": 40.0
+ },
+ {
+  "file": "SourceArt/Audio/Ambience/A_Rain_Window_Loop.wav",
+  "category": "Ambient",
+  "loop": true,
+  "spatial": true,
+  "radius": 900,
+  "caption": "",
+  "volume": 1.0,
+  "seconds": 21.0
+ },
+ {
+  "file": "SourceArt/Audio/Ambience/A_RoomTone_Basement_Loop.wav",
+  "category": "Ambient",
+  "loop": true,
+  "spatial": false,
+  "radius": 1500.0,
+  "caption": "",
+  "volume": 1.0,
+  "seconds": 28.0
+ },
+ {
+  "file": "SourceArt/Audio/Ambience/A_TV_Static_Loop.wav",
+  "category": "Ambient",
+  "loop": true,
+  "spatial": true,
+  "radius": 800,
+  "caption": "",
+  "volume": 1.0,
+  "seconds": 9.0
+ },
+ {
+  "file": "SourceArt/Audio/Ambience/A_Thunder_01.wav",
+  "category": "Ambient",
+  "loop": false,
+  "spatial": false,
+  "radius": 1500.0,
+  "caption": "[Thunder]",
+  "volume": 1.0,
+  "seconds": 10.014
+ },
+ {
+  "file": "SourceArt/Audio/Ambience/A_Thunder_02.wav",
+  "category": "Ambient",
+  "loop": false,
+  "spatial": false,
+  "radius": 1500.0,
+  "caption": "[Thunder]",
+  "volume": 1.0,
+  "seconds": 12.351
+ },
+ {
+  "file": "SourceArt/Audio/Ambience/A_Thunder_03.wav",
+  "category": "Ambient",
+  "loop": false,
+  "spatial": false,
+  "radius": 1500.0,
+  "caption": "[Thunder]",
+  "volume": 1.0,
+  "seconds": 10.971
+ },
+ {
+  "file": "SourceArt/Audio/Ambience/A_Thunder_04.wav",
+  "category": "Ambient",
+  "loop": false,
+  "spatial": false,
+  "radius": 1500.0,
+  "caption": "[Thunder]",
+  "volume": 1.0,
+  "seconds": 12.578
+ },
+ {
+  "file": "SourceArt/Audio/Ambience/A_Thunder_05.wav",
+  "category": "Ambient",
+  "loop": false,
+  "spatial": false,
+  "radius": 1500.0,
+  "caption": "[Thunder]",
+  "volume": 1.0,
+  "seconds": 9.853
+ },
+ {
+  "file": "SourceArt/Audio/Ambience/A_Whisper_01.wav",
+  "category": "Dialogue",
+  "loop": false,
+  "spatial": true,
+  "radius": 900,
+  "caption": "[Whispering]",
+  "volume": 1.0,
+  "seconds": 3.035
+ },
+ {
+  "file": "SourceArt/Audio/Ambience/A_Whisper_02.wav",
+  "category": "Dialogue",
+  "loop": false,
+  "spatial": true,
+  "radius": 900,
+  "caption": "[Whispering]",
+  "volume": 1.0,
+  "seconds": 3.144
+ },
+ {
+  "file": "SourceArt/Audio/Ambience/A_Whisper_03.wav",
+  "category": "Dialogue",
+  "loop": false,
+  "spatial": true,
+  "radius": 900,
+  "caption": "[Whispering]",
+  "volume": 1.0,
+  "seconds": 2.36
+ },
+ {
+  "file": "SourceArt/Audio/Ambience/A_Wind_Gust_01.wav",
+  "category": "Ambient",
+  "loop": false,
+  "spatial": true,
+  "radius": 1600,
+  "caption": "",
+  "volume": 1.0,
+  "seconds": 5.707
+ },
+ {
+  "file": "SourceArt/Audio/Ambience/A_Wind_Gust_02.wav",
+  "category": "Ambient",
+  "loop": false,
+  "spatial": true,
+  "radius": 1600,
+  "caption": "",
+  "volume": 1.0,
+  "seconds": 7.71
+ },
+ {
+  "file": "SourceArt/Audio/Ambience/A_Wind_Gust_03.wav",
+  "category": "Ambient",
+  "loop": false,
+  "spatial": true,
+  "radius": 1600,
+  "caption": "",
+  "volume": 1.0,
+  "seconds": 5.481
+ },
+ {
+  "file": "SourceArt/Audio/Ambience/A_WoodCreak_01.wav",
+  "category": "Ambient",
+  "loop": false,
+  "spatial": true,
+  "radius": 1300,
+  "caption": "",
+  "volume": 1.0,
+  "seconds": 1.124
+ },
+ {
+  "file": "SourceArt/Audio/Ambience/A_WoodCreak_02.wav",
+  "category": "Ambient",
+  "loop": false,
+  "spatial": true,
+  "radius": 1300,
+  "caption": "",
+  "volume": 1.0,
+  "seconds": 1.174
+ },
+ {
+  "file": "SourceArt/Audio/Ambience/A_WoodCreak_03.wav",
+  "category": "Ambient",
+  "loop": false,
+  "spatial": true,
+  "radius": 1300,
+  "caption": "",
+  "volume": 1.0,
+  "seconds": 1.409
+ },
+ {
+  "file": "SourceArt/Audio/Footsteps/S_Footstep_Concrete_01.wav",
+  "category": "SFX",
+  "loop": false,
+  "spatial": true,
+  "radius": 1300,
+  "caption": "",
+  "volume": 1.0,
+  "seconds": 0.45
+ },
+ {
+  "file": "SourceArt/Audio/Footsteps/S_Footstep_Concrete_02.wav",
+  "category": "SFX",
+  "loop": false,
+  "spatial": true,
+  "radius": 1300,
+  "caption": "",
+  "volume": 1.0,
+  "seconds": 0.45
+ },
+ {
+  "file": "SourceArt/Audio/Footsteps/S_Footstep_Concrete_03.wav",
+  "category": "SFX",
+  "loop": false,
+  "spatial": true,
+  "radius": 1300,
+  "caption": "",
+  "volume": 1.0,
+  "seconds": 0.45
+ },
+ {
+  "file": "SourceArt/Audio/Footsteps/S_Footstep_Concrete_04.wav",
+  "category": "SFX",
+  "loop": false,
+  "spatial": true,
+  "radius": 1300,
+  "caption": "",
+  "volume": 1.0,
+  "seconds": 0.45
+ },
+ {
+  "file": "SourceArt/Audio/Footsteps/S_Footstep_Concrete_05.wav",
+  "category": "SFX",
+  "loop": false,
+  "spatial": true,
+  "radius": 1300,
+  "caption": "",
+  "volume": 1.0,
+  "seconds": 0.45
+ },
+ {
+  "file": "SourceArt/Audio/Footsteps/S_Footstep_Concrete_06.wav",
+  "category": "SFX",
+  "loop": false,
+  "spatial": true,
+  "radius": 1300,
+  "caption": "",
+  "volume": 1.0,
+  "seconds": 0.45
+ },
+ {
+  "file": "SourceArt/Audio/Footsteps/S_Footstep_Fabric_01.wav",
+  "category": "SFX",
+  "loop": false,
+  "spatial": true,
+  "radius": 900,
+  "caption": "",
+  "volume": 1.0,
+  "seconds": 0.45
+ },
+ {
+  "file": "SourceArt/Audio/Footsteps/S_Footstep_Fabric_02.wav",
+  "category": "SFX",
+  "loop": false,
+  "spatial": true,
+  "radius": 900,
+  "caption": "",
+  "volume": 1.0,
+  "seconds": 0.45
+ },
+ {
+  "file": "SourceArt/Audio/Footsteps/S_Footstep_Fabric_03.wav",
+  "category": "SFX",
+  "loop": false,
+  "spatial": true,
+  "radius": 900,
+  "caption": "",
+  "volume": 1.0,
+  "seconds": 0.45
+ },
+ {
+  "file": "SourceArt/Audio/Footsteps/S_Footstep_Fabric_04.wav",
+  "category": "SFX",
+  "loop": false,
+  "spatial": true,
+  "radius": 900,
+  "caption": "",
+  "volume": 1.0,
+  "seconds": 0.45
+ },
+ {
+  "file": "SourceArt/Audio/Footsteps/S_Footstep_Metal_01.wav",
+  "category": "SFX",
+  "loop": false,
+  "spatial": true,
+  "radius": 1400,
+  "caption": "",
+  "volume": 1.0,
+  "seconds": 0.45
+ },
+ {
+  "file": "SourceArt/Audio/Footsteps/S_Footstep_Metal_02.wav",
+  "category": "SFX",
+  "loop": false,
+  "spatial": true,
+  "radius": 1400,
+  "caption": "",
+  "volume": 1.0,
+  "seconds": 0.45
+ },
+ {
+  "file": "SourceArt/Audio/Footsteps/S_Footstep_Metal_03.wav",
+  "category": "SFX",
+  "loop": false,
+  "spatial": true,
+  "radius": 1400,
+  "caption": "",
+  "volume": 1.0,
+  "seconds": 0.45
+ },
+ {
+  "file": "SourceArt/Audio/Footsteps/S_Footstep_Metal_04.wav",
+  "category": "SFX",
+  "loop": false,
+  "spatial": true,
+  "radius": 1400,
+  "caption": "",
+  "volume": 1.0,
+  "seconds": 0.45
+ },
+ {
+  "file": "SourceArt/Audio/Footsteps/S_Footstep_Metal_05.wav",
+  "category": "SFX",
+  "loop": false,
+  "spatial": true,
+  "radius": 1400,
+  "caption": "",
+  "volume": 1.0,
+  "seconds": 0.45
+ },
+ {
+  "file": "SourceArt/Audio/Footsteps/S_Footstep_Metal_06.wav",
+  "category": "SFX",
+  "loop": false,
+  "spatial": true,
+  "radius": 1400,
+  "caption": "",
+  "volume": 1.0,
+  "seconds": 0.45
+ },
+ {
+  "file": "SourceArt/Audio/Footsteps/S_Footstep_Wood_01.wav",
+  "category": "SFX",
+  "loop": false,
+  "spatial": true,
+  "radius": 1300,
+  "caption": "",
+  "volume": 1.0,
+  "seconds": 0.45
+ },
+ {
+  "file": "SourceArt/Audio/Footsteps/S_Footstep_Wood_02.wav",
+  "category": "SFX",
+  "loop": false,
+  "spatial": true,
+  "radius": 1300,
+  "caption": "",
+  "volume": 1.0,
+  "seconds": 0.45
+ },
+ {
+  "file": "SourceArt/Audio/Footsteps/S_Footstep_Wood_03.wav",
+  "category": "SFX",
+  "loop": false,
+  "spatial": true,
+  "radius": 1300,
+  "caption": "",
+  "volume": 1.0,
+  "seconds": 0.45
+ },
+ {
+  "file": "SourceArt/Audio/Footsteps/S_Footstep_Wood_04.wav",
+  "category": "SFX",
+  "loop": false,
+  "spatial": true,
+  "radius": 1300,
+  "caption": "",
+  "volume": 1.0,
+  "seconds": 0.45
+ },
+ {
+  "file": "SourceArt/Audio/Footsteps/S_Footstep_Wood_05.wav",
+  "category": "SFX",
+  "loop": false,
+  "spatial": true,
+  "radius": 1300,
+  "caption": "",
+  "volume": 1.0,
+  "seconds": 0.45
+ },
+ {
+  "file": "SourceArt/Audio/Footsteps/S_Footstep_Wood_06.wav",
+  "category": "SFX",
+  "loop": false,
+  "spatial": true,
+  "radius": 1300,
+  "caption": "",
+  "volume": 1.0,
+  "seconds": 0.45
+ },
+ {
+  "file": "SourceArt/Audio/Footsteps/S_Land_01.wav",
+  "category": "SFX",
+  "loop": false,
+  "spatial": true,
+  "radius": 1600,
+  "caption": "",
+  "volume": 1.0,
+  "seconds": 0.8
+ },
+ {
+  "file": "SourceArt/Audio/Footsteps/S_Land_02.wav",
+  "category": "SFX",
+  "loop": false,
+  "spatial": true,
+  "radius": 1600,
+  "caption": "",
+  "volume": 1.0,
+  "seconds": 0.8
+ },
+ {
+  "file": "SourceArt/Audio/Music/M_Departure_Sting.wav",
+  "category": "Music",
+  "loop": false,
+  "spatial": false,
+  "radius": 1500.0,
+  "caption": "",
+  "volume": 1.0,
+  "seconds": 10.0
+ },
+ {
+  "file": "SourceArt/Audio/Music/M_Hideout_Theme.wav",
+  "category": "Music",
+  "loop": true,
+  "spatial": false,
+  "radius": 1500.0,
+  "caption": "",
+  "volume": 1.0,
+  "seconds": 150.0
+ },
+ {
+  "file": "SourceArt/Audio/Music/M_Radio_Station_A.wav",
+  "category": "Music",
+  "loop": true,
+  "spatial": true,
+  "radius": 1300,
+  "caption": "",
+  "volume": 1.0,
+  "seconds": 91.929
+ },
+ {
+  "file": "SourceArt/Audio/Music/M_Radio_Station_B.wav",
+  "category": "Music",
+  "loop": true,
+  "spatial": true,
+  "radius": 1300,
+  "caption": "",
+  "volume": 1.0,
+  "seconds": 99.71
+ },
+ {
+  "file": "SourceArt/Audio/Music/M_Title_Sting.wav",
+  "category": "Music",
+  "loop": false,
+  "spatial": false,
+  "radius": 1500.0,
+  "caption": "",
+  "volume": 1.0,
+  "seconds": 14.0
+ },
+ {
+  "file": "SourceArt/Audio/SFX/S_Door_Creak_Slow.wav",
+  "category": "SFX",
+  "loop": false,
+  "spatial": true,
+  "radius": 1600,
+  "caption": "[A door creaks open]",
+  "volume": 1.0,
+  "seconds": 3.4
+ },
+ {
+  "file": "SourceArt/Audio/SFX/S_Door_Wood_Close.wav",
+  "category": "SFX",
+  "loop": false,
+  "spatial": true,
+  "radius": 1800,
+  "caption": "",
+  "volume": 1.0,
+  "seconds": 1.2
+ },
+ {
+  "file": "SourceArt/Audio/SFX/S_Door_Wood_Open.wav",
+  "category": "SFX",
+  "loop": false,
+  "spatial": true,
+  "radius": 1500,
+  "caption": "",
+  "volume": 1.0,
+  "seconds": 1.4
+ },
+ {
+  "file": "SourceArt/Audio/SFX/S_Flashlight_Off.wav",
+  "category": "SFX",
+  "loop": false,
+  "spatial": true,
+  "radius": 700,
+  "caption": "",
+  "volume": 1.0,
+  "seconds": 0.3
+ },
+ {
+  "file": "SourceArt/Audio/SFX/S_Flashlight_On.wav",
+  "category": "SFX",
+  "loop": false,
+  "spatial": true,
+  "radius": 700,
+  "caption": "",
+  "volume": 1.0,
+  "seconds": 0.3
+ },
+ {
+  "file": "SourceArt/Audio/SFX/S_Locker_Close.wav",
+  "category": "SFX",
+  "loop": false,
+  "spatial": true,
+  "radius": 1800,
+  "caption": "",
+  "volume": 1.0,
+  "seconds": 1.2
+ },
+ {
+  "file": "SourceArt/Audio/SFX/S_Locker_Open.wav",
+  "category": "SFX",
+  "loop": false,
+  "spatial": true,
+  "radius": 1500,
+  "caption": "",
+  "volume": 1.0,
+  "seconds": 1.2
+ },
+ {
+  "file": "SourceArt/Audio/SFX/S_Radio_Tune.wav",
+  "category": "SFX",
+  "loop": false,
+  "spatial": true,
+  "radius": 900,
+  "caption": "",
+  "volume": 1.0,
+  "seconds": 1.3
+ },
+ {
+  "file": "SourceArt/Audio/SFX/S_Switch_Breaker.wav",
+  "category": "SFX",
+  "loop": false,
+  "spatial": true,
+  "radius": 1400,
+  "caption": "",
+  "volume": 1.0,
+  "seconds": 0.7
+ },
+ {
+  "file": "SourceArt/Audio/SFX/S_Switch_Click.wav",
+  "category": "SFX",
+  "loop": false,
+  "spatial": true,
+  "radius": 900,
+  "caption": "",
+  "volume": 1.0,
+  "seconds": 0.25
+ },
+ {
+  "file": "SourceArt/Audio/SFX/S_Van_Door_Slide.wav",
+  "category": "SFX",
+  "loop": false,
+  "spatial": true,
+  "radius": 2000,
+  "caption": "",
+  "volume": 1.0,
+  "seconds": 1.8
+ },
+ {
+  "file": "SourceArt/Audio/UI/UI_Back.wav",
+  "category": "UI",
+  "loop": false,
+  "spatial": false,
+  "radius": 1500.0,
+  "caption": "",
+  "volume": 1.0,
+  "seconds": 0.18
+ },
+ {
+  "file": "SourceArt/Audio/UI/UI_Click.wav",
+  "category": "UI",
+  "loop": false,
+  "spatial": false,
+  "radius": 1500.0,
+  "caption": "",
+  "volume": 1.0,
+  "seconds": 0.12
+ },
+ {
+  "file": "SourceArt/Audio/UI/UI_Confirm.wav",
+  "category": "UI",
+  "loop": false,
+  "spatial": false,
+  "radius": 1500.0,
+  "caption": "",
+  "volume": 1.0,
+  "seconds": 0.7
+ },
+ {
+  "file": "SourceArt/Audio/UI/UI_CountdownTick.wav",
+  "category": "UI",
+  "loop": false,
+  "spatial": false,
+  "radius": 1500.0,
+  "caption": "",
+  "volume": 1.0,
+  "seconds": 0.12
+ },
+ {
+  "file": "SourceArt/Audio/UI/UI_Equip.wav",
+  "category": "UI",
+  "loop": false,
+  "spatial": false,
+  "radius": 1500.0,
+  "caption": "",
+  "volume": 1.0,
+  "seconds": 0.5
+ },
+ {
+  "file": "SourceArt/Audio/UI/UI_Error.wav",
+  "category": "UI",
+  "loop": false,
+  "spatial": false,
+  "radius": 1500.0,
+  "caption": "",
+  "volume": 1.0,
+  "seconds": 0.4
+ },
+ {
+  "file": "SourceArt/Audio/UI/UI_Hover.wav",
+  "category": "UI",
+  "loop": false,
+  "spatial": false,
+  "radius": 1500.0,
+  "caption": "",
+  "volume": 1.0,
+  "seconds": 0.06
+ },
+ {
+  "file": "SourceArt/Audio/UI/UI_LevelUp.wav",
+  "category": "UI",
+  "loop": false,
+  "spatial": false,
+  "radius": 1500.0,
+  "caption": "",
+  "volume": 1.0,
+  "seconds": 2.6
+ },
+ {
+  "file": "SourceArt/Audio/UI/UI_Notify.wav",
+  "category": "UI",
+  "loop": false,
+  "spatial": false,
+  "radius": 1500.0,
+  "caption": "",
+  "volume": 1.0,
+  "seconds": 1.1
+ },
+ {
+  "file": "SourceArt/Audio/UI/UI_OpenPanel.wav",
+  "category": "UI",
+  "loop": false,
+  "spatial": false,
+  "radius": 1500.0,
+  "caption": "",
+  "volume": 1.0,
+  "seconds": 0.45
+ },
+ {
+  "file": "SourceArt/Audio/UI/UI_Purchase.wav",
+  "category": "UI",
+  "loop": false,
+  "spatial": false,
+  "radius": 1500.0,
+  "caption": "",
+  "volume": 1.0,
+  "seconds": 1.3
+ },
+ {
+  "file": "SourceArt/Audio/UI/UI_Ready.wav",
+  "category": "UI",
+  "loop": false,
+  "spatial": false,
+  "radius": 1500.0,
+  "caption": "",
+  "volume": 1.0,
+  "seconds": 0.9
+ },
+ {
+  "file": "SourceArt/Audio/UI/UI_Unready.wav",
+  "category": "UI",
+  "loop": false,
+  "spatial": false,
+  "radius": 1500.0,
+  "caption": "",
+  "volume": 1.0,
+  "seconds": 0.35
+ }
+]
