@@ -775,12 +775,12 @@ void SHHSettingsPanel::RestoreDefaults()
 	{
 		return;
 	}
-	TWeakPtr<SHHSettingsPanel> WeakThis = SharedThis(this);
+	TWeakPtr<SHHSettingsPanel> WeakPanel = SharedThis(this);
 	LobbyHUD->ShowConfirm(
 		LOCTEXT("DefaultsTitle", "RESTORE DEFAULTS?"),
 		LOCTEXT("DefaultsBody", "Every setting, including key bindings, goes back to factory values."),
 		LOCTEXT("DefaultsConfirm", "RESTORE"),
-		[WeakThis]()
+		[WeakPanel]()
 		{
 			if (UHHGameUserSettings* S = UHHGameUserSettings::Get())
 			{
@@ -788,7 +788,7 @@ void SHHSettingsPanel::RestoreDefaults()
 				S->ApplySettings(false);
 				S->SaveSettings();
 			}
-			if (TSharedPtr<SHHSettingsPanel> Panel = WeakThis.Pin())
+			if (TSharedPtr<SHHSettingsPanel> Panel = WeakPanel.Pin())
 			{
 				Panel->SetTab(Panel->Tab);
 			}
