@@ -205,7 +205,7 @@ void SHHTextEntryModal::Submit()
 	const FText Value = FText::FromString(TextBox.IsValid() ? TextBox->GetText().ToString().TrimStartAndEnd() : FString());
 	if (Value.IsEmpty())
 	{
-		HHUI::PlaySound(EHHUISound::Error);
+		HHUI::PlayUISound(EHHUISound::Error);
 		return;
 	}
 	OnSubmit.ExecuteIfBound(Value);

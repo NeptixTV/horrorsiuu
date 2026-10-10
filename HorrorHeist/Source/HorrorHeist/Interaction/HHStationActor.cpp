@@ -5,6 +5,7 @@
 #include "Camera/CameraComponent.h"
 #include "Components/StaticMeshComponent.h"
 #include "EngineUtils.h"
+#include "Engine/World.h"
 #include "GameFramework/Pawn.h"
 
 AHHStationActor::AHHStationActor()

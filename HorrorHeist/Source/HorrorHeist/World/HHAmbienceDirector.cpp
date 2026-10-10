@@ -74,7 +74,7 @@ EHHAmbientEvent AHHAmbienceDirector::PickEvent(FRandomStream& Stream) const
 	{
 		Total += Entry.Event == LastEvent ? 0.f : Entry.Weight;
 	}
-	float Roll = Stream.FRandRange(0.f, FMath::Max(Total, KINDA_SMALL_NUMBER));
+	float Roll = Stream.FRandRange(0.f, FMath::Max(Total, UE_KINDA_SMALL_NUMBER));
 	for (const FWeighted& Entry : Table)
 	{
 		const float Weight = Entry.Event == LastEvent ? 0.f : Entry.Weight;

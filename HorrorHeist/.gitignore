@@ -20,3 +20,6 @@ __pycache__/
 # QA render scratch
 SourceArt/Previews/_*/
 __pycache__/
+
+# Output of Build-HorrorHeist.bat
+BuildLog.txt

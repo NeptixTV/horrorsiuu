@@ -55,7 +55,7 @@ protected:
 	void PlayOverheadStep();
 	void PlayLightsStutter(int32 Seed);
 	void PlayRadioInterference(int32 Seed);
-	void PlayAtTagged(FName Tag, USoundBase* Sound, const FText& Caption, int32 Seed, bool bNearestToViewer);
+	void PlayAtTagged(FName Tag, USoundBase* Sound, const FText& CaptionText, int32 Seed, bool bNearestToViewer);
 	void Caption(const FText& Text, float Duration = 3.f) const;
 
 	UPROPERTY(EditAnywhere, Category = "Timing")

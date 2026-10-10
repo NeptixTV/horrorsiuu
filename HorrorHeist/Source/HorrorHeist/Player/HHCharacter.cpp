@@ -16,6 +16,8 @@
 #include "Components/CapsuleComponent.h"
 #include "Components/SkeletalMeshComponent.h"
 #include "Components/SpotLightComponent.h"
+#include "Engine/SkeletalMesh.h"
+#include "Engine/World.h"
 #include "EnhancedInputComponent.h"
 #include "GameFramework/CharacterMovementComponent.h"
 #include "GameFramework/SpringArmComponent.h"
@@ -268,9 +270,9 @@ void AHHCharacter::UpdateLocalVisibility()
 	GetMesh()->SetVisibility(!bLocallyHidden, true);
 }
 
-void AHHCharacter::SetLocallyHidden(bool bHidden)
+void AHHCharacter::SetLocallyHidden(bool bInHidden)
 {
-	bLocallyHidden = bHidden;
+	bLocallyHidden = bInHidden;
 	UpdateLocalVisibility();
 }
 
@@ -590,7 +592,7 @@ void AHHCharacter::UpdateCamera(float DeltaSeconds)
 
 	// One sine period = two steps. Cadence rises with speed.
 	const float Cadence = FMath::Lerp(1.7f, 2.7f, MoveAlpha);
-	BobPhase = FMath::Fmod(BobPhase + DeltaSeconds * Cadence * PI, 2.f * PI);
+	BobPhase = FMath::Fmod(BobPhase + DeltaSeconds * Cadence * UE_PI, 2.f * UE_PI);
 
 	FVector Offset(0.f, 0.f, CameraZ - LandingDip);
 	if (bAllowBob)

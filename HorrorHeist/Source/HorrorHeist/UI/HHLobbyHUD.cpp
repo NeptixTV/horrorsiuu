@@ -245,7 +245,7 @@ void AHHLobbyHUD::OpenScreen(EHHLobbyScreen NewScreen, AHHStationActor* Station)
 	}
 	if (Previous != NewScreen && NewScreen != EHHLobbyScreen::None && NewScreen != EHHLobbyScreen::MainMenu)
 	{
-		HHUI::PlaySound(EHHUISound::OpenPanel);
+		HHUI::PlayUISound(EHHUISound::OpenPanel);
 	}
 }
 
@@ -297,7 +297,7 @@ void AHHLobbyHUD::DismissTitle()
 	{
 		Root->SetTitleVisible(false);
 	}
-	HHUI::PlaySound(EHHUISound::Confirm);
+	HHUI::PlayUISound(EHHUISound::Confirm);
 
 	const UHHProfileSubsystem* Profile = UHHProfileSubsystem::Get(this);
 	if (Profile && Profile->NeedsName())
@@ -339,7 +339,7 @@ void AHHLobbyHUD::Tick(float DeltaSeconds)
 			if (Second != LastCountdownSecond && Second > 0)
 			{
 				LastCountdownSecond = Second;
-				HHUI::PlaySound(EHHUISound::CountdownTick);
+				HHUI::PlayUISound(EHHUISound::CountdownTick);
 			}
 		}
 		else
@@ -357,7 +357,7 @@ void AHHLobbyHUD::ShowNotification(const FText& Message, EHHNotifyType Type)
 	if (Root.IsValid())
 	{
 		Root->PushToast(Message, Type);
-		HHUI::PlaySound(Type == EHHNotifyType::Error ? EHHUISound::Error : EHHUISound::Notify);
+		HHUI::PlayUISound(Type == EHHNotifyType::Error ? EHHUISound::Error : EHHUISound::Notify);
 	}
 }
 
@@ -522,7 +522,7 @@ void AHHLobbyHUD::HandleLevelUp(int32 NewLevel)
 	if (Root.IsValid())
 	{
 		Root->PushToast(FText::Format(LOCTEXT("LevelUp", "Reputation grows. You are now level {0}."), FText::AsNumber(NewLevel)), EHHNotifyType::Success);
-		HHUI::PlaySound(EHHUISound::LevelUp);
+		HHUI::PlayUISound(EHHUISound::LevelUp);
 	}
 }
 

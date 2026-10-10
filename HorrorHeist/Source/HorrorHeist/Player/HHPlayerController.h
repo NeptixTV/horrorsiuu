@@ -43,7 +43,7 @@ public:
 	/** True while this client is transmitting voice. */
 	bool IsTransmittingVoice() const { return bTransmitting; }
 	/** True while the given crew member is talking (from the voice interface). */
-	bool IsPlayerTalking(const APlayerState* PlayerState) const;
+	bool IsPlayerTalking(const APlayerState* InPlayerState) const;
 
 	UFUNCTION(Client, Reliable)
 	void ClientNotify(const FText& Message, EHHNotifyType Type);

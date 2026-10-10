@@ -22,12 +22,14 @@ allen dafür nötigen Assets. Alle Modelle, Texturen, Sounds und Musikstücke wu
 
 ## Schnellstart
 
-**Voraussetzungen:** Unreal Engine **5.5** (5.4 sollte ebenfalls funktionieren), Visual Studio 2022 mit
-„Spieleentwicklung mit C++“ (Windows) bzw. Xcode/clang (macOS/Linux).
+**Voraussetzungen:** Unreal Engine **5.5**, Visual Studio 2022 (17.8 oder neuer) mit den Workloads
+„Spieleentwicklung mit C++“, „Desktopentwicklung mit C++“ und „.NET-Desktopentwicklung“ (Windows).
 
-1. `HorrorHeist.uproject` per Rechtsklick → **Generate Visual Studio project files**, dann die `.sln` öffnen und
-   **HorrorHeistEditor / Development Editor** bauen.
-   *(Alternativ: `.uproject` doppelklicken und die Frage „Module neu bauen?“ mit Ja beantworten.)*
+1. **`Build-HorrorHeist.bat`** doppelklicken. Das Skript findet UE 5.5 (oder bekommt den Pfad als Parameter),
+   erzeugt die Visual-Studio-2022-Projektdateien (`HorrorHeist.sln`) und kompiliert **HorrorHeistEditor**
+   (Win64, Development). Das komplette Protokoll steht danach in **`BuildLog.txt`**.
+   *(Manuell geht es auch: Rechtsklick auf `HorrorHeist.uproject` → **Generate Visual Studio project files**,
+   `HorrorHeist.sln` öffnen, Konfiguration **Development Editor / Win64**, **Erstellen → Projektmappe erstellen**.)*
 2. Beim **ersten Start** des Editors erscheint der Dialog *„The game content has not been built yet“* →
    **Yes**. Das Setup-Skript (`Content/Python/hh_setup`) importiert dann automatisch alles aus `SourceArt/`:
    ~155 Texturen, ~95 Sounds/Musikstücke, ~170 Meshes und 6 Animationen. Danach erstellt es
@@ -40,10 +42,11 @@ allen dafür nötigen Assets. Alle Modelle, Texturen, Sounds und Musikstücke wu
 4. Im echten Spiel: Hauptmenü → **PLAY** → Reiter *CREW & SESSION* → **OPEN TO CREW** (hosten),
    **FIND CREWS** (LAN-Suche) oder **JOIN BY IP** (Port 7777).
 
-> Hinweis: Diese Umgebung hatte keine Unreal Engine; der C++-Code und das Setup-Skript wurden daher nicht
-> kompiliert bzw. im Editor ausgeführt, sondern gegen die UE-5.4/5.5-APIs geprüft (siehe „Stand & Grenzen“).
-> Falls der erste Build Fehler meldet, sind es erfahrungsgemäß Kleinigkeiten (Include, Signatur).
-> Das Setup-Skript protokolliert jede Warnung im Output Log (Filter „HH Setup“) und läuft trotzdem weiter.
+> Hinweis: Der Code wurde ohne installierte Unreal Engine entwickelt und gegen die UE-5.5-APIs und die
+> Build-Regeln von UE 5.5 geprüft (Variablen-Verdeckung = Fehler, explizite Includes, Format-Strings,
+> Modul-Abhängigkeiten), aber noch nicht mit einem echten Compiler übersetzt. Meldet der Build trotzdem einen
+> Fehler, steht die genaue Ursache in `BuildLog.txt` (bzw. `Saved/Logs/HorrorHeist.log`, wenn der Editor selbst
+> kompiliert hat). Das Setup-Skript protokolliert jede Warnung im Output Log (Filter „HH Setup“).
 
 ---
 

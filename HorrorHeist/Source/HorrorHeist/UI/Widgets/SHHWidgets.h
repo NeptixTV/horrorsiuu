@@ -17,7 +17,7 @@ namespace HHUI
 	/** World context used to reach the audio subsystem from Slate. Set by the HUD. */
 	void SetContext(UObject* Context);
 	UObject* GetContext();
-	void PlaySound(EHHUISound Sound);
+	void PlayUISound(EHHUISound Sound);
 
 	TSharedRef<SWidget> SectionLabel(const FText& Text);
 	TSharedRef<SWidget> PanelHeader(const FText& Index, const FText& Title, const FText& Subtitle);

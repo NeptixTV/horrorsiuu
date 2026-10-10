@@ -4,6 +4,7 @@
 #include "Core/HHGameData.h"
 #include "Data/HHCharacterDefinition.h"
 #include "Components/SkeletalMeshComponent.h"
+#include "Engine/SkeletalMesh.h"
 
 AHHPreviewMannequin::AHHPreviewMannequin()
 {

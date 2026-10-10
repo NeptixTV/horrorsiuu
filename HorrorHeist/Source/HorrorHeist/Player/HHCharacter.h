@@ -51,7 +51,7 @@ public:
 
 	void SetThirdPerson(bool bEnable);
 	/** Hide this pawn on the local screen only (e.g. while the mannequin preview is shown). */
-	void SetLocallyHidden(bool bHidden);
+	void SetLocallyHidden(bool bInHidden);
 
 	UFUNCTION(Server, Reliable)
 	void ServerInteract(AActor* Target);

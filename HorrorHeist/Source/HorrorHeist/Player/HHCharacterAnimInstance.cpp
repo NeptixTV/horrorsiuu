@@ -48,7 +48,7 @@ namespace
 	float LoopTime(const UAnimSequence* Sequence, float Time)
 	{
 		const float Length = Sequence ? static_cast<float>(Sequence->GetPlayLength()) : 0.f;
-		return Length > KINDA_SMALL_NUMBER ? FMath::Fmod(Time, Length) : 0.f;
+		return Length > UE_KINDA_SMALL_NUMBER ? FMath::Fmod(Time, Length) : 0.f;
 	}
 
 	float PhaseTime(const UAnimSequence* Sequence, float Phase)
@@ -140,7 +140,7 @@ void UHHCharacterAnimInstance::NativeUpdateAnimation(float DeltaSeconds)
 	}
 	for (int32 Index = 0; Index < PendingNumSamples; ++Index)
 	{
-		PendingSamples[Index].Weight /= FMath::Max(Total, KINDA_SMALL_NUMBER);
+		PendingSamples[Index].Weight /= FMath::Max(Total, UE_KINDA_SMALL_NUMBER);
 	}
 
 	// Hand the frame to the proxy (evaluated after this on a worker thread).
@@ -181,7 +181,7 @@ bool FHHAnimInstanceProxy::Evaluate(FPoseContext& Output)
 	for (int32 Index = 1; Index < NumSamples; ++Index)
 	{
 		const FHHAnimSample& Sample = Samples[Index];
-		if (!Sample.Sequence || Sample.Weight <= KINDA_SMALL_NUMBER)
+		if (!Sample.Sequence || Sample.Weight <= UE_KINDA_SMALL_NUMBER)
 		{
 			continue;
 		}

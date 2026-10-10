@@ -128,7 +128,7 @@ void AHHWeatherController::Tick(float DeltaSeconds)
 	{
 		// One soft swell instead of strobing pulses.
 		const float Alpha = FMath::Clamp(FlashTime / FMath::Max(FlashLength, 0.1f), 0.f, 1.f);
-		Level = FMath::Sin(Alpha * PI) * 0.35f;
+		Level = FMath::Sin(Alpha * UE_PI) * 0.35f;
 	}
 
 	Flash->SetIntensity(FlashIntensity * Level);

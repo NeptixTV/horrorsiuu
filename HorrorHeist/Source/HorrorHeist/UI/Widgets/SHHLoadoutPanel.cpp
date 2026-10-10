@@ -144,10 +144,10 @@ void SHHLoadoutPanel::RebuildSlots()
 			SNew(SButton)
 			.ButtonStyle(&FHHStyle::Button("HH.Button.Card"))
 			.ContentPadding(FMargin(0.f))
-			.OnHovered_Lambda([]() { HHUI::PlaySound(EHHUISound::Hover); })
+			.OnHovered_Lambda([]() { HHUI::PlayUISound(EHHUISound::Hover); })
 			.OnClicked_Lambda([this, Slot]()
 			{
-				HHUI::PlaySound(EHHUISound::Click);
+				HHUI::PlayUISound(EHHUISound::Click);
 				SelectSlot(Slot);
 				return FReply::Handled();
 			})

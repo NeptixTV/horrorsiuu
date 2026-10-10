@@ -18,6 +18,7 @@
 #include "Widgets/Layout/SBox.h"
 #include "Widgets/Layout/SScrollBox.h"
 #include "Widgets/SBoxPanel.h"
+#include "Widgets/SNullWidget.h"
 #include "Widgets/SOverlay.h"
 #include "Widgets/Text/STextBlock.h"
 
@@ -168,10 +169,10 @@ void SHHPlayPanel::RebuildJobList()
 			SNew(SButton)
 			.ButtonStyle(&FHHStyle::Button("HH.Button.Card"))
 			.ContentPadding(FMargin(0.f))
-			.OnHovered_Lambda([]() { HHUI::PlaySound(EHHUISound::Hover); })
+			.OnHovered_Lambda([]() { HHUI::PlayUISound(EHHUISound::Hover); })
 			.OnClicked_Lambda([this, Id]()
 			{
-				HHUI::PlaySound(EHHUISound::Click);
+				HHUI::PlayUISound(EHHUISound::Click);
 				Inspect(Id);
 				return FReply::Handled();
 			})
@@ -606,10 +607,10 @@ void SHHPlayPanel::RebuildSessionList()
 			.ButtonStyle(&FHHStyle::Button("HH.Button.Card"))
 			.ContentPadding(FMargin(16.f, 12.f))
 			.IsEnabled(Info.OpenSlots > 0)
-			.OnHovered_Lambda([]() { HHUI::PlaySound(EHHUISound::Hover); })
+			.OnHovered_Lambda([]() { HHUI::PlayUISound(EHHUISound::Hover); })
 			.OnClicked_Lambda([WeakHUD, ResultIndex]()
 			{
-				HHUI::PlaySound(EHHUISound::Confirm);
+				HHUI::PlayUISound(EHHUISound::Confirm);
 				if (AHHLobbyHUD* LobbyHUD = WeakHUD.Get())
 				{
 					if (UHHSessionSubsystem* Subsystem = UHHSessionSubsystem::Get(LobbyHUD))

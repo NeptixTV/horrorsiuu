@@ -31,7 +31,7 @@ namespace HHUI
 		return GContext.Get();
 	}
 
-	void PlaySound(EHHUISound Sound)
+	void PlayUISound(EHHUISound Sound)
 	{
 		if (UObject* Context = GContext.Get())
 		{
@@ -242,10 +242,10 @@ void SHHNavButton::Construct(const FArguments& InArgs)
 		SAssignNew(Button, SButton)
 		.ButtonStyle(&FHHStyle::Button("HH.Button.Invisible"))
 		.ContentPadding(FMargin(0.f, 7.f))
-		.OnHovered_Lambda([]() { HHUI::PlaySound(EHHUISound::Hover); })
+		.OnHovered_Lambda([]() { HHUI::PlayUISound(EHHUISound::Hover); })
 		.OnClicked_Lambda([this]()
 		{
-			HHUI::PlaySound(EHHUISound::Click);
+			HHUI::PlayUISound(EHHUISound::Click);
 			OnClicked.ExecuteIfBound();
 			return FReply::Handled();
 		})
@@ -326,10 +326,10 @@ void SHHActionButton::Construct(const FArguments& InArgs)
 			.HAlign(HAlign_Center)
 			.VAlign(VAlign_Center)
 			.ContentPadding(FMargin(20.f, 0.f))
-			.OnHovered_Lambda([]() { HHUI::PlaySound(EHHUISound::Hover); })
+			.OnHovered_Lambda([]() { HHUI::PlayUISound(EHHUISound::Hover); })
 			.OnClicked_Lambda([this]()
 			{
-				HHUI::PlaySound(ClickSound);
+				HHUI::PlayUISound(ClickSound);
 				OnClicked.ExecuteIfBound();
 				return FReply::Handled();
 			})
@@ -391,12 +391,12 @@ void SHHTabBar::Construct(const FArguments& InArgs)
 			SNew(SButton)
 			.ButtonStyle(&FHHStyle::Button("HH.Button.Invisible"))
 			.ContentPadding(FMargin(0.f, 4.f))
-			.OnHovered_Lambda([]() { HHUI::PlaySound(EHHUISound::Hover); })
+			.OnHovered_Lambda([]() { HHUI::PlayUISound(EHHUISound::Hover); })
 			.OnClicked_Lambda([this, Index]()
 			{
 				if (Selected.Get() != Index)
 				{
-					HHUI::PlaySound(EHHUISound::Click);
+					HHUI::PlayUISound(EHHUISound::Click);
 					OnSelected.ExecuteIfBound(Index);
 				}
 				return FReply::Handled();
@@ -445,7 +445,7 @@ void SHHOptionRow::Construct(const FArguments& InArgs)
 			.ButtonStyle(&FHHStyle::Button("HH.Button.Ghost"))
 			.ContentPadding(FMargin(8.f, 6.f))
 			.IsFocusable(false)
-			.OnHovered_Lambda([]() { HHUI::PlaySound(EHHUISound::Hover); })
+			.OnHovered_Lambda([]() { HHUI::PlayUISound(EHHUISound::Hover); })
 			.OnClicked_Lambda([this, Direction]() { Step(Direction); return FReply::Handled(); })
 			[
 				SNew(SImage)
@@ -509,7 +509,7 @@ void SHHOptionRow::Step(int32 Direction)
 	const int32 Next = Options.IsValidIndex(Current)
 		? (Current + Direction + Options.Num()) % Options.Num()
 		: (Direction > 0 ? 0 : Options.Num() - 1);
-	HHUI::PlaySound(EHHUISound::Click);
+	HHUI::PlayUISound(EHHUISound::Click);
 	OnChanged.ExecuteIfBound(Next);
 }
 
@@ -537,7 +537,7 @@ void SHHSliderRow::Construct(const FArguments& InArgs)
 	Value = InArgs._Value;
 	OnChanged = InArgs._OnChanged;
 	Min = InArgs._Min;
-	Max = FMath::Max(InArgs._Max, InArgs._Min + KINDA_SMALL_NUMBER);
+	Max = FMath::Max(InArgs._Max, InArgs._Min + UE_KINDA_SMALL_NUMBER);
 	const float DisplayScale = InArgs._DisplayScale;
 	const int32 Decimals = InArgs._DisplayDecimals;
 	const FText Suffix = InArgs._Suffix;
@@ -570,7 +570,7 @@ void SHHSliderRow::Construct(const FArguments& InArgs)
 					.StepSize(InArgs._Step)
 					.Value(Value)
 					.OnValueChanged_Lambda([this](float NewValue) { OnChanged.ExecuteIfBound(NewValue); })
-					.OnMouseCaptureEnd_Lambda([]() { HHUI::PlaySound(EHHUISound::Click); })
+					.OnMouseCaptureEnd_Lambda([]() { HHUI::PlayUISound(EHHUISound::Click); })
 				]
 			]
 			+ SHorizontalBox::Slot().AutoWidth().VAlign(VAlign_Center).Padding(14.f, 0.f, 0.f, 0.f)
@@ -623,10 +623,10 @@ void SHHItemCard::Construct(const FArguments& InArgs)
 			SNew(SButton)
 			.ButtonStyle(&FHHStyle::Button("HH.Button.Card"))
 			.ContentPadding(FMargin(0.f))
-			.OnHovered_Lambda([]() { HHUI::PlaySound(EHHUISound::Hover); })
+			.OnHovered_Lambda([]() { HHUI::PlayUISound(EHHUISound::Hover); })
 			.OnClicked_Lambda([this]()
 			{
-				HHUI::PlaySound(EHHUISound::Click);
+				HHUI::PlayUISound(EHHUISound::Click);
 				OnClicked.ExecuteIfBound();
 				return FReply::Handled();
 			})

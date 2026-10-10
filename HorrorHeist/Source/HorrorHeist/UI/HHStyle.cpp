@@ -85,10 +85,10 @@ FLinearColor FHHStyle::WithAlpha(const FLinearColor& Color, float Alpha)
 
 FSlateFontInfo FHHStyle::Font(EHHFont Face, float Size, int32 LetterSpacing)
 {
-	FSlateFontInfo Info = BaseFont(Face);
-	Info.Size = Size;
-	Info.LetterSpacing = LetterSpacing;
-	return Info;
+	FSlateFontInfo FontInfo = BaseFont(Face);
+	FontInfo.Size = Size;
+	FontInfo.LetterSpacing = LetterSpacing;
+	return FontInfo;
 }
 
 void FHHStyle::Initialize()

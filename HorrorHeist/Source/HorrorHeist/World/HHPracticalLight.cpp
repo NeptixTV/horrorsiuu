@@ -203,7 +203,7 @@ float AHHPracticalLight::ComputeFlicker(float DeltaSeconds)
 			return FMath::Lerp(1.f, Stutter(14.f), Strength);
 		}
 		// Mains ripple, barely visible.
-		return 0.985f + 0.015f * FMath::Sin(Time * 2.f * PI * 50.f);
+		return 0.985f + 0.015f * FMath::Sin(Time * 2.f * UE_PI * 50.f);
 	}
 	case EHHFlickerMode::Dying:
 	{

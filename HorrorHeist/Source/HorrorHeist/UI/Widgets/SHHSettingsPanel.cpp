@@ -267,7 +267,7 @@ TSharedRef<SWidget> SHHSettingsPanel::BuildGraphics()
 	Box->AddSlot().AutoHeight()
 	[
 		Slider(LOCTEXT("Fov", "Field of View"), LOCTEXT("FovTip", "Horizontal field of view in first person."),
-			70.f, 110.f, 1.f, 1.f, 0, LOCTEXT("Deg", "°"),
+			70.f, 110.f, 1.f, 1.f, 0, LOCTEXT("Deg", "\u00B0"),
 			[](const UHHGameUserSettings& S) { return S.FieldOfView; },
 			[](UHHGameUserSettings& S, float V) { S.FieldOfView = V; })
 	];
@@ -827,10 +827,10 @@ void SHHKeyBindRow::Construct(const FArguments& InArgs)
 					.ButtonStyle(&FHHStyle::Button("HH.Button.Secondary"))
 					.HAlign(HAlign_Center)
 					.ContentPadding(FMargin(10.f, 6.f))
-					.OnHovered_Lambda([]() { HHUI::PlaySound(EHHUISound::Hover); })
+					.OnHovered_Lambda([]() { HHUI::PlayUISound(EHHUISound::Hover); })
 					.OnClicked_Lambda([this]()
 					{
-						HHUI::PlaySound(EHHUISound::Click);
+						HHUI::PlayUISound(EHHUISound::Click);
 						bListening = true;
 						FSlateApplication::Get().SetKeyboardFocus(SharedThis(this), EFocusCause::SetDirectly);
 						return FReply::Handled();
@@ -869,12 +869,12 @@ void SHHKeyBindRow::Commit(const FKey& Key)
 	}
 	if (UHHInputSubsystem::IsReservedKey(Key))
 	{
-		HHUI::PlaySound(EHHUISound::Error);
+		HHUI::PlayUISound(EHHUISound::Error);
 		return;
 	}
 
 	const FName Swapped = Input->RebindKey(BindingId, Key);
-	HHUI::PlaySound(EHHUISound::Confirm);
+	HHUI::PlayUISound(EHHUISound::Confirm);
 	if (!Swapped.IsNone())
 	{
 		for (const FHHBindingInfo& Info : UHHInputSubsystem::GetRebindableBindings())
@@ -897,7 +897,7 @@ FReply SHHKeyBindRow::OnKeyDown(const FGeometry& MyGeometry, const FKeyEvent& In
 	if (InKeyEvent.GetKey() == EKeys::Escape)
 	{
 		bListening = false;
-		HHUI::PlaySound(EHHUISound::Back);
+		HHUI::PlayUISound(EHHUISound::Back);
 		return FReply::Handled();
 	}
 	Commit(InKeyEvent.GetKey());

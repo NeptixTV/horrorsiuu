@@ -57,7 +57,7 @@ protected:
 	void OnRep_On();
 
 	float ComputeFlicker(float DeltaSeconds);
-	void ApplyLevel(float Level);
+	void ApplyLevel(float InLevel);
 	void UpdateTickState();
 
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Light")

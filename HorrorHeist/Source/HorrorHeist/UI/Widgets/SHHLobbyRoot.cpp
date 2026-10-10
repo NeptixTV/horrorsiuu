@@ -187,7 +187,7 @@ FReply SHHLobbyRoot::OnKeyDown(const FGeometry& MyGeometry, const FKeyEvent& InK
 	{
 		if (bBack && ModalBack.IsBound())
 		{
-			HHUI::PlaySound(EHHUISound::Back);
+			HHUI::PlayUISound(EHHUISound::Back);
 			// Copy first: the delegate usually closes the modal, which unbinds it.
 			const FSimpleDelegate Back = ModalBack;
 			Back.ExecuteIfBound();
@@ -197,7 +197,7 @@ FReply SHHLobbyRoot::OnKeyDown(const FGeometry& MyGeometry, const FKeyEvent& InK
 
 	if (bBack && LobbyHUD)
 	{
-		HHUI::PlaySound(EHHUISound::Back);
+		HHUI::PlayUISound(EHHUISound::Back);
 		LobbyHUD->Back();
 		return FReply::Handled();
 	}
@@ -634,7 +634,7 @@ TSharedRef<SWidget> SHHLobbyRoot::BuildTitle()
 		+ SOverlay::Slot().HAlign(HAlign_Left).VAlign(VAlign_Bottom).Padding(FMargin(110.f, 0.f, 0.f, 46.f))
 		[
 			SNew(STextBlock)
-			.Text(LOCTEXT("TitleFooter", "HOLLOWMERE   ·   AFTER MIDNIGHT"))
+			.Text(LOCTEXT("TitleFooter", "HOLLOWMERE   \u00B7   AFTER MIDNIGHT"))
 			.Font(FHHStyle::Font(EHHFont::Condensed, 12.f, 500))
 			.ColorAndOpacity_Lambda([Age]() { return FSlateColor(FHHStyle::WithAlpha(FHHStyle::TextFaint(), FMath::Clamp((Age() - 3.f) / 2.f, 0.f, 1.f))); })
 		];

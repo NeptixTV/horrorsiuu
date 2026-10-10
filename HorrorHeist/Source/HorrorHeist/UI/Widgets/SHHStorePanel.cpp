@@ -198,12 +198,12 @@ void SHHStorePanel::Buy(const UHHItemDefinition* Item)
 			UHHProfileSubsystem* Profile = HUDPtr ? UHHProfileSubsystem::Get(HUDPtr) : nullptr;
 			if (Profile && Profile->Purchase(Item))
 			{
-				HHUI::PlaySound(EHHUISound::Purchase);
+				HHUI::PlayUISound(EHHUISound::Purchase);
 				HUDPtr->ShowNotification(FText::Format(LOCTEXT("Bought", "{0} is yours. Find it in your locker or mirror."), Item->DisplayName), EHHNotifyType::Success);
 			}
 			else
 			{
-				HHUI::PlaySound(EHHUISound::Error);
+				HHUI::PlayUISound(EHHUISound::Error);
 			}
 		});
 }

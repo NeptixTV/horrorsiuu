@@ -6,6 +6,7 @@
 #include "InputModifiers.h"
 #include "Engine/LocalPlayer.h"
 #include "GameFramework/PlayerController.h"
+#include "UObject/Class.h"
 
 #define LOCTEXT_NAMESPACE "HHInput"
 

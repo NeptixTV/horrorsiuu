@@ -30,7 +30,11 @@ public class HorrorHeist : ModuleRules
 			"OnlineSubsystemUtils",
 			"RenderCore",
 			"EngineSettings",
-			"CoreOnline"
+			"CoreOnline",
+			// UPhysicalMaterial::DetermineSurfaceType (footstep surfaces) lives in PhysicsCore.
+			"PhysicsCore",
+			// FAssetRegistryModule / IAssetRegistry (item registry fallback scan).
+			"AssetRegistry"
 		});
 
 		// Voice capture / VoIP (push-to-talk) lives in the online subsystem utils.

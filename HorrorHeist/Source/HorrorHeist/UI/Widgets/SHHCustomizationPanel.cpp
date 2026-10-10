@@ -51,7 +51,7 @@ public:
 					SNew(SButton)
 					.ButtonStyle(&FHHStyle::Button("HH.Button.Secondary"))
 					.ContentPadding(FMargin(12.f, 8.f))
-					.OnClicked_Lambda([Rotate]() { HHUI::PlaySound(EHHUISound::Click); Rotate(-45.f); return FReply::Handled(); })
+					.OnClicked_Lambda([Rotate]() { HHUI::PlayUISound(EHHUISound::Click); Rotate(-45.f); return FReply::Handled(); })
 					[
 						SNew(SImage).Image(FHHStyle::Brush("HH.Icon.ChevronLeft")).DesiredSizeOverride(FVector2D(14.0, 14.0))
 					]
@@ -59,7 +59,7 @@ public:
 				+ SHorizontalBox::Slot().AutoWidth().VAlign(VAlign_Center).Padding(16.f, 0.f)
 				[
 					SNew(STextBlock)
-					.Text(LOCTEXT("DragHint", "DRAG TO TURN  ·  WHEEL TO ZOOM"))
+					.Text(LOCTEXT("DragHint", "DRAG TO TURN  \u00B7  WHEEL TO ZOOM"))
 					.Font(FHHStyle::Font(EHHFont::Condensed, 12.f, 300))
 					.ColorAndOpacity(FSlateColor(FHHStyle::TextDim()))
 					.ShadowOffset(FVector2D(0.0, 1.0))
@@ -70,7 +70,7 @@ public:
 					SNew(SButton)
 					.ButtonStyle(&FHHStyle::Button("HH.Button.Secondary"))
 					.ContentPadding(FMargin(12.f, 8.f))
-					.OnClicked_Lambda([Rotate]() { HHUI::PlaySound(EHHUISound::Click); Rotate(45.f); return FReply::Handled(); })
+					.OnClicked_Lambda([Rotate]() { HHUI::PlayUISound(EHHUISound::Click); Rotate(45.f); return FReply::Handled(); })
 					[
 						SNew(SImage).Image(FHHStyle::Brush("HH.Icon.ChevronRight")).DesiredSizeOverride(FVector2D(14.0, 14.0))
 					]
@@ -239,10 +239,10 @@ void SHHCustomizationPanel::RebuildSlotTabs()
 			SNew(SButton)
 			.ButtonStyle(&FHHStyle::Button(bActive ? "HH.Button.Secondary" : "HH.Button.Ghost"))
 			.ContentPadding(FMargin(12.f, 6.f))
-			.OnHovered_Lambda([]() { HHUI::PlaySound(EHHUISound::Hover); })
+			.OnHovered_Lambda([]() { HHUI::PlayUISound(EHHUISound::Hover); })
 			.OnClicked_Lambda([this, Slot]()
 			{
-				HHUI::PlaySound(EHHUISound::Click);
+				HHUI::PlayUISound(EHHUISound::Click);
 				SelectSlot(Slot);
 				return FReply::Handled();
 			})
@@ -333,7 +333,7 @@ void SHHCustomizationPanel::Select(FName ItemId)
 	if (!Item)
 	{
 		// "None" on an optional slot.
-		HHUI::PlaySound(EHHUISound::Equip);
+		HHUI::PlayUISound(EHHUISound::Equip);
 		Profile->ClearCosmeticSlot(SelectedSlot);
 		if (AHHPreviewStation* Station = GetStation())
 		{
@@ -346,7 +346,7 @@ void SHHCustomizationPanel::Select(FName ItemId)
 	if (Profile->IsOwned(ItemId))
 	{
 		// Owned: wear it right away (the crew sees it too).
-		HHUI::PlaySound(EHHUISound::Equip);
+		HHUI::PlayUISound(EHHUISound::Equip);
 		if (AHHPreviewStation* Station = GetStation())
 		{
 			Station->ShowEquipped();
@@ -378,13 +378,13 @@ void SHHCustomizationPanel::Buy(const UHHCosmeticDefinition* Item)
 			UHHProfileSubsystem* Profile = HUDPtr ? UHHProfileSubsystem::Get(HUDPtr) : nullptr;
 			if (Profile && Profile->Purchase(Item))
 			{
-				HHUI::PlaySound(EHHUISound::Purchase);
+				HHUI::PlayUISound(EHHUISound::Purchase);
 				HUDPtr->ShowNotification(FText::Format(LOCTEXT("Bought", "{0} is yours."), Item->DisplayName), EHHNotifyType::Success);
 				Profile->EquipCosmetic(Item);
 			}
 			else if (HUDPtr)
 			{
-				HHUI::PlaySound(EHHUISound::Error);
+				HHUI::PlayUISound(EHHUISound::Error);
 			}
 		});
 }

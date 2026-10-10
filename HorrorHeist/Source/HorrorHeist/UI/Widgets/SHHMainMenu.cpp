@@ -107,10 +107,10 @@ void SHHMainMenu::Construct(const FArguments& InArgs)
 				SNew(SButton)
 				.ButtonStyle(&FHHStyle::Button("HH.Button.Invisible"))
 				.ContentPadding(FMargin(0.f))
-				.OnHovered_Lambda([]() { HHUI::PlaySound(EHHUISound::Hover); })
+				.OnHovered_Lambda([]() { HHUI::PlayUISound(EHHUISound::Hover); })
 				.OnClicked_Lambda([WeakHUD]()
 				{
-					HHUI::PlaySound(EHHUISound::Back);
+					HHUI::PlayUISound(EHHUISound::Back);
 					if (AHHLobbyHUD* LobbyHUD = WeakHUD.Get())
 					{
 						LobbyHUD->CloseMenu();
@@ -211,7 +211,7 @@ TSharedRef<SWidget> SHHMainMenu::BuildPlayerCard()
 						{
 							if (AHHLobbyHUD* LobbyHUD = WeakHUD.Get())
 							{
-								HHUI::PlaySound(EHHUISound::Click);
+								HHUI::PlayUISound(EHHUISound::Click);
 								LobbyHUD->ShowNameEntry(false);
 							}
 							return FReply::Handled();
@@ -296,10 +296,10 @@ TSharedRef<SWidget> SHHMainMenu::BuildJobSummary()
 	return SNew(SButton)
 		.ButtonStyle(&FHHStyle::Button("HH.Button.Card"))
 		.ContentPadding(FMargin(18.f, 14.f))
-		.OnHovered_Lambda([]() { HHUI::PlaySound(EHHUISound::Hover); })
+		.OnHovered_Lambda([]() { HHUI::PlayUISound(EHHUISound::Hover); })
 		.OnClicked_Lambda([WeakHUD]()
 		{
-			HHUI::PlaySound(EHHUISound::Click);
+			HHUI::PlayUISound(EHHUISound::Click);
 			if (AHHLobbyHUD* LobbyHUD = WeakHUD.Get())
 			{
 				LobbyHUD->OpenScreen(EHHLobbyScreen::Play);
@@ -332,7 +332,7 @@ TSharedRef<SWidget> SHHMainMenu::BuildJobSummary()
 					{
 						return FText::GetEmpty();
 					}
-					return FText::Format(LOCTEXT("JobLine", "{0}   ·   {1} - {2}"), HHText::DifficultyName(M->Difficulty), HHText::Money(M->PayoutMin), HHText::Money(M->PayoutMax));
+					return FText::Format(LOCTEXT("JobLine", "{0}   \u00B7   {1} - {2}"), HHText::DifficultyName(M->Difficulty), HHText::Money(M->PayoutMin), HHText::Money(M->PayoutMax));
 				})
 				.Font(FHHStyle::Font(EHHFont::Condensed, 13.f, 120))
 				.ColorAndOpacity_Lambda([Mission]() { const UHHMissionDefinition* M = Mission(); return FSlateColor(M ? HHText::DifficultyColor(M->Difficulty) : FHHStyle::TextFaint()); })
