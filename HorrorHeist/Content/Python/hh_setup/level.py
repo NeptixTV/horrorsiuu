@@ -1,10 +1,18 @@
-"""Builds /Game/HorrorHeist/Maps/L_Hideout from SourceArt/Layout/L_Hideout.json."""
+"""Builds the maps from SourceArt/Layout/<map>.json (written by Tools/AssetGen/blender/build_world.py).
+
+L_Town is a plain level that the persistent maps (L_Hideout and the job maps) stream in as an
+always-loaded sub-level. Re-running is safe: only the actors this script placed (tag HH_Generated)
+in the map being rebuilt are destroyed and placed again; anything added by hand is kept.
+"""
 import unreal
 
 from . import util as U
 
-MAP = U.ROOT + '/Maps/L_Hideout'
+MAPS_DIR = U.ROOT + '/Maps'
 GENERATED = 'HH_Generated'
+# Build order: the streamed town first, then the persistent maps that reference it.
+ORDER = ('L_Town', 'L_Hideout', 'L_Job_Vance', 'L_Job_Marrow', 'L_Job_Rectory')
+GAME_MODES = {'HHHeistGameMode': '/Script/HorrorHeist.HHHeistGameMode'}
 
 
 def _subsystems():
@@ -12,19 +20,63 @@ def _subsystems():
             unreal.get_editor_subsystem(unreal.EditorActorSubsystem))
 
 
-def open_or_create(rebuild):
+def _world():
+    return unreal.get_editor_subsystem(unreal.UnrealEditorSubsystem).get_editor_world()
+
+
+def open_or_create(map_path, rebuild):
+    """Open (or create) a map and remove the actors a previous run generated in THIS map only
+    (streamed sub-levels are loaded too and must not be touched)."""
     les, eas = _subsystems()
-    U.ensure_dir(U.ROOT + '/Maps')
-    if U.EAL.does_asset_exist(MAP):
-        les.load_level(MAP)
+    U.ensure_dir(MAPS_DIR)
+    if U.EAL.does_asset_exist(map_path):
+        les.load_level(map_path)
         if rebuild:
+            prefix = map_path + '.'
+            removed = 0
             for actor in eas.get_all_level_actors():
-                if actor.actor_has_tag(GENERATED):
+                if actor.actor_has_tag(GENERATED) and actor.get_path_name().startswith(prefix):
                     eas.destroy_actor(actor)
+                    removed += 1
+            U.log(f'{map_path}: removed {removed} generated actors')
     else:
-        if not les.new_level(MAP):
-            raise RuntimeError('Could not create ' + MAP)
+        if not les.new_level(map_path):
+            raise RuntimeError('Could not create ' + map_path)
     return les, eas
+
+
+def ensure_streaming(les, map_name, sublevels):
+    """Add the sub-levels as always-loaded streaming levels (no-op if already there) and make the
+    persistent level current again (adding a level makes the new one current)."""
+    world = _world()
+    for sub in sublevels:
+        package = f'{MAPS_DIR}/{sub}'
+        if not U.EAL.does_asset_exist(package):
+            U.warn(f'{map_name}: sub-level {sub} does not exist (build order?)')
+            continue
+        try:
+            unreal.EditorLevelUtils.add_level_to_world(world, package, unreal.LevelStreamingAlwaysLoaded)
+        except Exception as exc:  # noqa: BLE001
+            U.warn(f'{map_name}: could not stream {sub}: {exc}')
+    try:
+        les.set_current_level_by_name(map_name)
+    except Exception as exc:  # noqa: BLE001
+        U.warn(f'{map_name}: could not make the persistent level current: {exc}')
+
+
+def set_game_mode(map_name, mode):
+    path = GAME_MODES.get(mode)
+    if not path:
+        return
+    klass = unreal.load_class(None, path)
+    if klass is None:
+        U.warn(f'{map_name}: game mode {path} not found (is the C++ module built?)')
+        return
+    try:
+        settings = _world().get_world_settings()
+        settings.set_editor_property('default_game_mode', klass)
+    except Exception as exc:  # noqa: BLE001
+        U.warn(f'{map_name}: could not set the game mode override: {exc}')
 
 
 def _vec(v):
@@ -52,6 +104,8 @@ def apply_component(comp, values):
                 comp.set_relative_location(_vec(value), False, False)
             elif key == 'RelativeQuat':
                 comp.set_relative_rotation(_rot(value), False, False)
+            elif key == 'RelativeScale3D':
+                comp.set_relative_scale3d(_vec(value))
             elif key == 'RelativeDirection':
                 comp.set_relative_rotation(unreal.MathLibrary.make_rot_from_x(_vec(value)), False, False)
             elif key == 'StaticMesh':
@@ -178,20 +232,43 @@ def build_environment(eas, p):
     ppv.set_editor_property('settings', s)
 
 
-def build_level(rebuild=True):
-    layout = U.load_json('Layout', 'L_Hideout.json')
-    les, eas = open_or_create(rebuild)
-    spawned = 0
-    with unreal.ScopedSlowTask(len(layout['actors']), 'Placing the hideout') as task:
+def build_map(name, rebuild=True):
+    try:
+        layout = U.load_json('Layout', name + '.json')
+    except FileNotFoundError:
+        U.warn(f'{name}: no layout (run Tools/AssetGen/blender/build_world.py)')
+        return
+    map_path = f'{MAPS_DIR}/{name}'
+    les, eas = open_or_create(map_path, rebuild)
+    ensure_streaming(les, name, layout.get('streaming', []))
+    set_game_mode(name, layout.get('game_mode'))
+    prefix = map_path + '.'
+    spawned = misplaced = 0
+    with unreal.ScopedSlowTask(len(layout['actors']), f'Placing {name}') as task:
         task.make_dialog(False)
         for e in layout['actors']:
             task.enter_progress_frame(1)
             try:
                 if e['cls'] == 'HHEnvironment':
                     build_environment(eas, e['properties'])
-                elif spawn(eas, e) is not None:
-                    spawned += 1
+                    continue
+                actor = spawn(eas, e)
+                if actor is None:
+                    continue
+                spawned += 1
+                if not actor.get_path_name().startswith(prefix):
+                    misplaced += 1
             except Exception as exc:  # noqa: BLE001
-                U.warn(f'{e.get("name")}: {exc}')
+                U.warn(f'{name}/{e.get("name")}: {exc}')
+    if misplaced:
+        U.warn(f'{name}: {misplaced} actors were placed into a streamed sub-level instead of the map itself')
     les.save_current_level()
-    U.log(f'L_Hideout: {spawned} actors placed')
+    U.log(f'{name}: {spawned} actors placed')
+
+
+def build_level(rebuild=True):
+    """All maps, in dependency order; ends with the hideout open."""
+    for name in ORDER:
+        build_map(name, rebuild)
+    les, _ = _subsystems()
+    les.load_level(f'{MAPS_DIR}/L_Hideout')

@@ -1351,7 +1351,8 @@
    "owned": true,
    "desc": "Cheap, warm and just bright enough.",
    "flavor": "",
-   "order": 1
+   "order": 1,
+   "tool": "Light"
   },
   {
    "id": "EQ_Light_Patrol",
@@ -1394,7 +1395,8 @@
    "owned": false,
    "desc": "Long, heavy, very bright. Also a club.",
    "flavor": "",
-   "order": 2
+   "order": 2,
+   "tool": "Light"
   },
   {
    "id": "EQ_Light_Headlamp",
@@ -1437,7 +1439,8 @@
    "owned": false,
    "desc": "Hands free. Looks where you look.",
    "flavor": "",
-   "order": 3
+   "order": 3,
+   "tool": "Light"
   },
   {
    "id": "EQ_Light_Lantern",
@@ -1480,7 +1483,8 @@
    "owned": false,
    "desc": "Soft light all around. Like the painting.",
    "flavor": "",
-   "order": 4
+   "order": 4,
+   "tool": "Light"
   },
   {
    "id": "EQ_Entry_Lockpicks",
@@ -1509,7 +1513,8 @@
    "owned": true,
    "desc": "Slow and silent.",
    "flavor": "",
-   "order": 1
+   "order": 1,
+   "tool": "Lockpick"
   },
   {
    "id": "EQ_Entry_Crowbar",
@@ -1538,7 +1543,8 @@
    "owned": false,
    "desc": "Fast and loud. Everyone will know.",
    "flavor": "",
-   "order": 2
+   "order": 2,
+   "tool": "Crowbar"
   },
   {
    "id": "EQ_Entry_GlassCutter",
@@ -1567,7 +1573,8 @@
    "owned": false,
    "desc": "Windows are just doors that nobody locks properly.",
    "flavor": "",
-   "order": 3
+   "order": 3,
+   "tool": "GlassCutter"
   },
   {
    "id": "EQ_Util_Walkie",
@@ -1596,7 +1603,8 @@
    "owned": true,
    "desc": "Hear the crew through walls. Sometimes something else.",
    "flavor": "",
-   "order": 1
+   "order": 1,
+   "tool": "Walkie"
   },
   {
    "id": "EQ_Util_Salt",
@@ -1625,7 +1633,8 @@
    "owned": false,
    "desc": "An old superstition. Pour a line across a doorway.",
    "flavor": "",
-   "order": 2
+   "order": 2,
+   "tool": "Salt"
   },
   {
    "id": "EQ_Gadget_Camera",
@@ -1654,7 +1663,8 @@
    "owned": false,
    "desc": "Proof for the client. The photos sometimes show more.",
    "flavor": "",
-   "order": 1
+   "order": 1,
+   "tool": "Camera"
   },
   {
    "id": "EQ_Gadget_NoiseMeter",
@@ -1683,7 +1693,8 @@
    "owned": false,
    "desc": "Shows how loud you are. And what else is.",
    "flavor": "",
-   "order": 2
+   "order": 2,
+   "tool": "NoiseMeter"
   },
   {
    "id": "EQ_Bag_Duffel",
@@ -1712,7 +1723,8 @@
    "owned": true,
    "desc": "",
    "flavor": "",
-   "order": 1
+   "order": 1,
+   "tool": "Bag"
   },
   {
    "id": "EQ_Bag_Sack",
@@ -1741,7 +1753,8 @@
    "owned": false,
    "desc": "Holds more. Clinks louder.",
    "flavor": "",
-   "order": 2
+   "order": 2,
+   "tool": "Bag"
   }
  ],
  "missions": [
@@ -1761,7 +1774,14 @@
    "order": 1,
    "target": "Coin collection (master bedroom)",
    "briefing": "Suburban two-storey. Cash in the study, a coin collection upstairs. The back door sticks. The Vances never seem to leave the house, not even to sleep.",
-   "rumor": "The neighbours say the youngest Vance stopped going to school years ago. Nobody remembers there being a youngest Vance."
+   "rumor": "The neighbours say the youngest Vance stopped going to school years ago. Nobody remembers there being a youngest Vance.",
+   "map": "/Game/HorrorHeist/Maps/L_Job_Vance",
+   "available": true,
+   "night": true,
+   "min_haul": 1500,
+   "target_item": "LT_CoinCollection",
+   "aggression": 1.0,
+   "house": "HH_House_Vance"
   },
   {
    "id": "JOB_Rectory",
@@ -1779,7 +1799,14 @@
    "order": 2,
    "target": "The parish silver",
    "briefing": "Father Doyle keeps the collection money in the vestry safe until Monday. He is old, half deaf, and talks to someone in the empty church at night.",
-   "rumor": "The bell rings at 3:17 every night. There is no rope."
+   "rumor": "The bell rings at 3:17 every night. There is no rope.",
+   "map": "/Game/HorrorHeist/Maps/L_Job_Rectory",
+   "available": false,
+   "night": true,
+   "min_haul": 3000,
+   "target_item": "",
+   "aggression": 1.3,
+   "house": "HH_House_Rectory"
   },
   {
    "id": "JOB_Marrow",
@@ -1797,7 +1824,14 @@
    "order": 3,
    "target": "Josiah Marrow's study for \"The Lantern Bearer\"",
    "briefing": "Empty since 1974. The family left everything behind. A buyer wants the study sketch for the museum's famous painting; it should still hang upstairs.",
-   "rumor": "Every October there's a light in the attic window. The power was cut in '75."
+   "rumor": "Every October there's a light in the attic window. The power was cut in '75.",
+   "map": "/Game/HorrorHeist/Maps/L_Job_Marrow",
+   "available": false,
+   "night": true,
+   "min_haul": 5000,
+   "target_item": "",
+   "aggression": 1.6,
+   "house": "HH_House_Marrow"
   },
   {
    "id": "JOB_Whitlock",
@@ -1815,7 +1849,376 @@
    "order": 4,
    "target": "Whatever is in the barn",
    "briefing": "Brannigan won't talk about the Whitlocks. Someone pays very well for what is locked in the barn. Nobody who went out there came back to say what it is.",
-   "rumor": "The red light in the barn has been on since 1998."
+   "rumor": "The red light in the barn has been on since 1998.",
+   "map": "",
+   "available": false,
+   "night": true,
+   "min_haul": 8000,
+   "target_item": "",
+   "aggression": 2.0,
+   "house": ""
+  }
+ ],
+ "loot": [
+  {
+   "id": "LT_TV",
+   "name": "Flat-Screen TV",
+   "mesh": "SM_Loot_TV",
+   "value": [
+    300,
+    500
+   ],
+   "anger": 4.0,
+   "heavy": true,
+   "cursed": false,
+   "desc": "Heavy. Carry it with both hands.",
+   "rarity": "Common",
+   "sound": "S_Loot_Pickup_Heavy_01"
+  },
+  {
+   "id": "LT_Laptop",
+   "name": "Laptop",
+   "mesh": "SM_Loot_Laptop",
+   "value": [
+    250,
+    450
+   ],
+   "anger": 2.0,
+   "heavy": false,
+   "cursed": false,
+   "desc": "",
+   "rarity": "Common",
+   "sound": "S_Loot_Pickup_Small_01"
+  },
+  {
+   "id": "LT_JewelryBox",
+   "name": "Jewellery Box",
+   "mesh": "SM_Loot_JewelryBox",
+   "value": [
+    400,
+    900
+   ],
+   "anger": 4.0,
+   "heavy": false,
+   "cursed": false,
+   "desc": "",
+   "rarity": "Uncommon",
+   "sound": "S_Loot_Pickup_Small_02"
+  },
+  {
+   "id": "LT_Watch",
+   "name": "Gold Wristwatch",
+   "mesh": "SM_Loot_Watch",
+   "value": [
+    350,
+    800
+   ],
+   "anger": 3.0,
+   "heavy": false,
+   "cursed": false,
+   "desc": "",
+   "rarity": "Uncommon",
+   "sound": "S_Loot_Pickup_Small_01"
+  },
+  {
+   "id": "LT_Ring",
+   "name": "Diamond Ring",
+   "mesh": "SM_Loot_Ring",
+   "value": [
+    500,
+    1200
+   ],
+   "anger": 4.0,
+   "heavy": false,
+   "cursed": false,
+   "desc": "",
+   "rarity": "Rare",
+   "sound": "S_Loot_Pickup_Small_01"
+  },
+  {
+   "id": "LT_Necklace",
+   "name": "Pearl Necklace",
+   "mesh": "SM_Loot_Necklace",
+   "value": [
+    400,
+    900
+   ],
+   "anger": 3.0,
+   "heavy": false,
+   "cursed": false,
+   "desc": "",
+   "rarity": "Uncommon",
+   "sound": "S_Loot_Pickup_Small_03"
+  },
+  {
+   "id": "LT_Cash",
+   "name": "Cash",
+   "mesh": "SM_Loot_Cash",
+   "value": [
+    300,
+    700
+   ],
+   "anger": 2.0,
+   "heavy": false,
+   "cursed": false,
+   "desc": "",
+   "rarity": "Common",
+   "sound": "S_Loot_Pickup_Small_02"
+  },
+  {
+   "id": "LT_Silverware",
+   "name": "Silverware Case",
+   "mesh": "SM_Loot_Silverware",
+   "value": [
+    300,
+    600
+   ],
+   "anger": 3.0,
+   "heavy": false,
+   "cursed": false,
+   "desc": "",
+   "rarity": "Common",
+   "sound": "S_Loot_Pickup_Small_01"
+  },
+  {
+   "id": "LT_Vase",
+   "name": "Porcelain Vase",
+   "mesh": "SM_Loot_Vase",
+   "value": [
+    150,
+    400
+   ],
+   "anger": 2.0,
+   "heavy": false,
+   "cursed": false,
+   "desc": "",
+   "rarity": "Common",
+   "sound": "S_Loot_Pickup_Small_03"
+  },
+  {
+   "id": "LT_Console",
+   "name": "Game Console",
+   "mesh": "SM_Loot_Console",
+   "value": [
+    150,
+    300
+   ],
+   "anger": 1.0,
+   "heavy": false,
+   "cursed": false,
+   "desc": "",
+   "rarity": "Common",
+   "sound": "S_Loot_Pickup_Small_01"
+  },
+  {
+   "id": "LT_Tablet",
+   "name": "Tablet",
+   "mesh": "SM_Loot_Tablet",
+   "value": [
+    120,
+    250
+   ],
+   "anger": 1.0,
+   "heavy": false,
+   "cursed": false,
+   "desc": "",
+   "rarity": "Common",
+   "sound": "S_Loot_Pickup_Small_01"
+  },
+  {
+   "id": "LT_Phone",
+   "name": "Phone",
+   "mesh": "SM_Loot_Phone",
+   "value": [
+    80,
+    200
+   ],
+   "anger": 1.0,
+   "heavy": false,
+   "cursed": false,
+   "desc": "",
+   "rarity": "Common",
+   "sound": "S_Loot_Pickup_Small_03"
+  },
+  {
+   "id": "LT_Perfume",
+   "name": "Perfume",
+   "mesh": "SM_Loot_Perfume",
+   "value": [
+    60,
+    150
+   ],
+   "anger": 1.0,
+   "heavy": false,
+   "cursed": false,
+   "desc": "",
+   "rarity": "Common",
+   "sound": "S_Loot_Pickup_Small_02"
+  },
+  {
+   "id": "LT_Whiskey",
+   "name": "Aged Whiskey",
+   "mesh": "SM_Loot_Whiskey",
+   "value": [
+    80,
+    180
+   ],
+   "anger": 1.0,
+   "heavy": false,
+   "cursed": false,
+   "desc": "",
+   "rarity": "Common",
+   "sound": "S_Loot_Pickup_Small_01"
+  },
+  {
+   "id": "LT_Painting",
+   "name": "Small Oil Painting",
+   "mesh": "SM_Loot_Painting",
+   "value": [
+    250,
+    700
+   ],
+   "anger": 4.0,
+   "heavy": false,
+   "cursed": false,
+   "desc": "",
+   "rarity": "Uncommon",
+   "sound": "S_Loot_Pickup_Small_01"
+  },
+  {
+   "id": "LT_Camera",
+   "name": "Vintage Camera",
+   "mesh": "SM_Loot_Camera",
+   "value": [
+    120,
+    300
+   ],
+   "anger": 2.0,
+   "heavy": false,
+   "cursed": false,
+   "desc": "",
+   "rarity": "Common",
+   "sound": "S_Loot_Pickup_Small_03"
+  },
+  {
+   "id": "LT_Candlestick",
+   "name": "Silver Candlestick",
+   "mesh": "SM_Loot_Candlestick",
+   "value": [
+    100,
+    250
+   ],
+   "anger": 3.0,
+   "heavy": false,
+   "cursed": false,
+   "desc": "",
+   "rarity": "Common",
+   "sound": "S_Loot_Pickup_Small_01"
+  },
+  {
+   "id": "LT_MusicBox",
+   "name": "Music Box",
+   "mesh": "SM_Loot_MusicBox",
+   "value": [
+    150,
+    350
+   ],
+   "anger": 8.0,
+   "heavy": false,
+   "cursed": false,
+   "desc": "It was playing when you found it.",
+   "rarity": "Uncommon",
+   "sound": "S_Loot_Pickup_Small_01"
+  },
+  {
+   "id": "LT_CoinJar",
+   "name": "Coin Jar",
+   "mesh": "SM_Loot_CoinJar",
+   "value": [
+    40,
+    110
+   ],
+   "anger": 1.0,
+   "heavy": false,
+   "cursed": false,
+   "desc": "",
+   "rarity": "Common",
+   "sound": "S_Loot_Pickup_Small_03"
+  },
+  {
+   "id": "LT_MantelClock",
+   "name": "Mantel Clock",
+   "mesh": "SM_Loot_MantelClock",
+   "value": [
+    150,
+    350
+   ],
+   "anger": 3.0,
+   "heavy": false,
+   "cursed": false,
+   "desc": "",
+   "rarity": "Common",
+   "sound": "S_Loot_Pickup_Small_01"
+  },
+  {
+   "id": "LT_Figurine",
+   "name": "Porcelain Figurine",
+   "mesh": "SM_Loot_Figurine",
+   "value": [
+    80,
+    220
+   ],
+   "anger": 3.0,
+   "heavy": false,
+   "cursed": false,
+   "desc": "",
+   "rarity": "Common",
+   "sound": "S_Loot_Pickup_Small_01"
+  },
+  {
+   "id": "LT_Handbag",
+   "name": "Designer Handbag",
+   "mesh": "SM_Loot_Handbag",
+   "value": [
+    200,
+    500
+   ],
+   "anger": 2.0,
+   "heavy": false,
+   "cursed": false,
+   "desc": "",
+   "rarity": "Common",
+   "sound": "S_Loot_Pickup_Small_02"
+  },
+  {
+   "id": "LT_Locket",
+   "name": "Old Locket",
+   "mesh": "SM_Loot_Locket",
+   "value": [
+    600,
+    1400
+   ],
+   "anger": 6.0,
+   "heavy": false,
+   "cursed": true,
+   "desc": "A portrait inside. You feel watched while you carry it.",
+   "rarity": "Rare",
+   "sound": "S_Loot_Pickup_Small_02"
+  },
+  {
+   "id": "LT_CoinCollection",
+   "name": "Coin Collection",
+   "mesh": "SM_Loot_CoinCollection",
+   "value": [
+    1200,
+    2200
+   ],
+   "anger": 10.0,
+   "heavy": false,
+   "cursed": false,
+   "desc": "The client's target. Twenty old coins under glass.",
+   "rarity": "Rare",
+   "sound": "S_Loot_Pickup_Small_01"
   }
  ],
  "defaults": {

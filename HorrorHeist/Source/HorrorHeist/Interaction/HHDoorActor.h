@@ -118,6 +118,13 @@ protected:
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Door|Lock")
 	FName KeyId;
 
+	/**
+	 * House this door belongs to (doors live in the shared town level). If set, the lock can only
+	 * be worked on a job whose mission has the same HouseTag - other houses stay shut.
+	 */
+	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Door|Lock")
+	FName HouseTag;
+
 	/** Base times; better tools (higher "Speed" stat) are faster. */
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Door|Lock")
 	float PickSeconds = 6.f;
@@ -150,7 +157,9 @@ protected:
 	void OnRep_Lock();
 
 	void OpenAwayFrom(AActor* Interactor);
+	/** On a job, and this door's house is tonight's target (or the door belongs to no house). */
 	bool IsOnJob() const;
+	bool IsOnAnyJob() const;
 	float ToolSeconds(AActor* Interactor, FName ToolTag, float BaseSeconds, float ReferenceSpeed) const;
 	void PlayForEveryone(USoundBase* Sound) const;
 

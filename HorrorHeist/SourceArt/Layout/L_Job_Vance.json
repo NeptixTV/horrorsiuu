@@ -1,0 +1,2644 @@
+{
+ "level": "L_Job_Vance",
+ "units": "cm",
+ "actors": [
+  {
+   "name": "Loot_TV_1",
+   "cls": "HHLootActor",
+   "folder": "Loot",
+   "location": [
+    6151.0,
+    -6030.0,
+    371.2
+   ],
+   "quat": [
+    0.0,
+    0.0,
+    -0.707107,
+    0.707107
+   ],
+   "scale": [
+    1.0,
+    1.0,
+    1.0
+   ],
+   "properties": {
+    "ItemId": "LT_TV"
+   },
+   "components": {
+    "Mesh": {
+     "StaticMesh": {
+      "asset": "SM_Loot_TV"
+     }
+    }
+   }
+  },
+  {
+   "name": "Loot_Console_1",
+   "cls": "HHLootActor",
+   "folder": "Loot",
+   "location": [
+    6205.0,
+    -6030.0,
+    321.2
+   ],
+   "quat": [
+    0.0,
+    0.0,
+    -0.642788,
+    0.766045
+   ],
+   "scale": [
+    1.0,
+    1.0,
+    1.0
+   ],
+   "properties": {
+    "ItemId": "LT_Console"
+   },
+   "components": {
+    "Mesh": {
+     "StaticMesh": {
+      "asset": "SM_Loot_Console"
+     }
+    }
+   }
+  },
+  {
+   "name": "Loot_MantelClock_1",
+   "cls": "HHLootActor",
+   "folder": "Loot",
+   "location": [
+    6390.0,
+    -6201.0,
+    446.2
+   ],
+   "quat": [
+    0.0,
+    0.0,
+    0.0,
+    1.0
+   ],
+   "scale": [
+    1.0,
+    1.0,
+    1.0
+   ],
+   "properties": {
+    "ItemId": "LT_MantelClock"
+   },
+   "components": {
+    "Mesh": {
+     "StaticMesh": {
+      "asset": "SM_Loot_MantelClock"
+     }
+    }
+   }
+  },
+  {
+   "name": "Loot_Candlestick_1",
+   "cls": "HHLootActor",
+   "folder": "Loot",
+   "location": [
+    6330.0,
+    -6201.0,
+    446.2
+   ],
+   "quat": [
+    0.0,
+    0.0,
+    0.707107,
+    0.707107
+   ],
+   "scale": [
+    1.0,
+    1.0,
+    1.0
+   ],
+   "properties": {
+    "ItemId": "LT_Candlestick"
+   },
+   "components": {
+    "Mesh": {
+     "StaticMesh": {
+      "asset": "SM_Loot_Candlestick"
+     }
+    }
+   }
+  },
+  {
+   "name": "Loot_Vase_1",
+   "cls": "HHLootActor",
+   "folder": "Loot",
+   "location": [
+    6275.0,
+    -6195.0,
+    321.2
+   ],
+   "quat": [
+    0.0,
+    0.0,
+    0.707107,
+    0.707107
+   ],
+   "scale": [
+    1.0,
+    1.0,
+    1.0
+   ],
+   "properties": {
+    "ItemId": "LT_Vase"
+   },
+   "components": {
+    "Mesh": {
+     "StaticMesh": {
+      "asset": "SM_Loot_Vase"
+     }
+    }
+   }
+  },
+  {
+   "name": "Loot_Whiskey_1",
+   "cls": "HHLootActor",
+   "folder": "Loot",
+   "location": [
+    6205.0,
+    -5855.0,
+    381.2
+   ],
+   "quat": [
+    0.0,
+    0.0,
+    0.573576,
+    0.819152
+   ],
+   "scale": [
+    1.0,
+    1.0,
+    1.0
+   ],
+   "properties": {
+    "ItemId": "LT_Whiskey"
+   },
+   "components": {
+    "Mesh": {
+     "StaticMesh": {
+      "asset": "SM_Loot_Whiskey"
+     }
+    }
+   }
+  },
+  {
+   "name": "Loot_Silverware_1",
+   "cls": "HHLootActor",
+   "folder": "Loot",
+   "location": [
+    6900.0,
+    -6197.0,
+    406.2
+   ],
+   "quat": [
+    0.0,
+    0.0,
+    0.0,
+    1.0
+   ],
+   "scale": [
+    1.0,
+    1.0,
+    1.0
+   ],
+   "properties": {
+    "ItemId": "LT_Silverware"
+   },
+   "components": {
+    "Mesh": {
+     "StaticMesh": {
+      "asset": "SM_Loot_Silverware"
+     }
+    }
+   }
+  },
+  {
+   "name": "Loot_Candlestick_2",
+   "cls": "HHLootActor",
+   "folder": "Loot",
+   "location": [
+    6800.0,
+    -6020.0,
+    397.2
+   ],
+   "quat": [
+    0.0,
+    0.0,
+    0.707107,
+    0.707107
+   ],
+   "scale": [
+    1.0,
+    1.0,
+    1.0
+   ],
+   "properties": {
+    "ItemId": "LT_Candlestick"
+   },
+   "components": {
+    "Mesh": {
+     "StaticMesh": {
+      "asset": "SM_Loot_Candlestick"
+     }
+    }
+   }
+  },
+  {
+   "name": "Loot_Painting_1",
+   "cls": "HHLootActor",
+   "folder": "Loot",
+   "location": [
+    6963.0,
+    -5890.0,
+    321.2
+   ],
+   "quat": [
+    0.0,
+    0.0,
+    0.707107,
+    0.707107
+   ],
+   "scale": [
+    1.0,
+    1.0,
+    1.0
+   ],
+   "properties": {
+    "ItemId": "LT_Painting"
+   },
+   "components": {
+    "Mesh": {
+     "StaticMesh": {
+      "asset": "SM_Loot_Painting"
+     }
+    }
+   }
+  },
+  {
+   "name": "Loot_Laptop_1",
+   "cls": "HHLootActor",
+   "folder": "Loot",
+   "location": [
+    6262.0,
+    -5217.0,
+    396.6
+   ],
+   "quat": [
+    0.0,
+    0.0,
+    0.996195,
+    0.087156
+   ],
+   "scale": [
+    1.0,
+    1.0,
+    1.0
+   ],
+   "properties": {
+    "ItemId": "LT_Laptop"
+   },
+   "components": {
+    "Mesh": {
+     "StaticMesh": {
+      "asset": "SM_Loot_Laptop"
+     }
+    }
+   }
+  },
+  {
+   "name": "Loot_Cash_1",
+   "cls": "HHLootActor",
+   "folder": "Loot",
+   "location": [
+    6330.0,
+    -5225.0,
+    396.6
+   ],
+   "quat": [
+    -0.0,
+    -0.0,
+    -1.0,
+    0.0
+   ],
+   "scale": [
+    1.0,
+    1.0,
+    1.0
+   ],
+   "properties": {
+    "ItemId": "LT_Cash",
+    "ContainerId": "StudyDesk"
+   },
+   "components": {
+    "Mesh": {
+     "StaticMesh": {
+      "asset": "SM_Loot_Cash"
+     }
+    }
+   }
+  },
+  {
+   "name": "Loot_Camera_1",
+   "cls": "HHLootActor",
+   "folder": "Loot",
+   "location": [
+    6160.0,
+    -5545.0,
+    321.2
+   ],
+   "quat": [
+    0.0,
+    0.0,
+    0.5,
+    0.866025
+   ],
+   "scale": [
+    1.0,
+    1.0,
+    1.0
+   ],
+   "properties": {
+    "ItemId": "LT_Camera"
+   },
+   "components": {
+    "Mesh": {
+     "StaticMesh": {
+      "asset": "SM_Loot_Camera"
+     }
+    }
+   }
+  },
+  {
+   "name": "Loot_CoinJar_1",
+   "cls": "HHLootActor",
+   "folder": "Loot",
+   "location": [
+    6675.0,
+    -5205.0,
+    417.2
+   ],
+   "quat": [
+    0.0,
+    0.0,
+    0.707107,
+    0.707107
+   ],
+   "scale": [
+    1.0,
+    1.0,
+    1.0
+   ],
+   "properties": {
+    "ItemId": "LT_CoinJar"
+   },
+   "components": {
+    "Mesh": {
+     "StaticMesh": {
+      "asset": "SM_Loot_CoinJar"
+     }
+    }
+   }
+  },
+  {
+   "name": "Loot_Phone_1",
+   "cls": "HHLootActor",
+   "folder": "Loot",
+   "location": [
+    6630.0,
+    -5445.0,
+    397.2
+   ],
+   "quat": [
+    0.0,
+    0.0,
+    0.5373,
+    0.843391
+   ],
+   "scale": [
+    1.0,
+    1.0,
+    1.0
+   ],
+   "properties": {
+    "ItemId": "LT_Phone"
+   },
+   "components": {
+    "Mesh": {
+     "StaticMesh": {
+      "asset": "SM_Loot_Phone"
+     }
+    }
+   }
+  },
+  {
+   "name": "Loot_CoinCollection_1",
+   "cls": "HHLootActor",
+   "folder": "Loot",
+   "location": [
+    6153.0,
+    -6030.0,
+    696.2
+   ],
+   "quat": [
+    0.0,
+    0.0,
+    -0.707107,
+    0.707107
+   ],
+   "scale": [
+    1.0,
+    1.0,
+    1.0
+   ],
+   "properties": {
+    "ItemId": "LT_CoinCollection",
+    "ContainerId": "MasterDresser"
+   },
+   "components": {
+    "Mesh": {
+     "StaticMesh": {
+      "asset": "SM_Loot_CoinCollection"
+     }
+    }
+   }
+  },
+  {
+   "name": "Loot_JewelryBox_1",
+   "cls": "HHLootActor",
+   "folder": "Loot",
+   "location": [
+    6150.0,
+    -6075.0,
+    696.2
+   ],
+   "quat": [
+    0.0,
+    0.0,
+    -0.707107,
+    0.707107
+   ],
+   "scale": [
+    1.0,
+    1.0,
+    1.0
+   ],
+   "properties": {
+    "ItemId": "LT_JewelryBox"
+   },
+   "components": {
+    "Mesh": {
+     "StaticMesh": {
+      "asset": "SM_Loot_JewelryBox"
+     }
+    }
+   }
+  },
+  {
+   "name": "Loot_Perfume_1",
+   "cls": "HHLootActor",
+   "folder": "Loot",
+   "location": [
+    6148.0,
+    -5985.0,
+    696.2
+   ],
+   "quat": [
+    0.0,
+    0.0,
+    -0.642788,
+    0.766045
+   ],
+   "scale": [
+    1.0,
+    1.0,
+    1.0
+   ],
+   "properties": {
+    "ItemId": "LT_Perfume"
+   },
+   "components": {
+    "Mesh": {
+     "StaticMesh": {
+      "asset": "SM_Loot_Perfume"
+     }
+    }
+   }
+  },
+  {
+   "name": "Loot_Necklace_1",
+   "cls": "HHLootActor",
+   "folder": "Loot",
+   "location": [
+    6500.0,
+    -6204.0,
+    666.2
+   ],
+   "quat": [
+    0.0,
+    0.0,
+    0.087156,
+    0.996195
+   ],
+   "scale": [
+    1.0,
+    1.0,
+    1.0
+   ],
+   "properties": {
+    "ItemId": "LT_Necklace",
+    "ContainerId": "MasterNightstand"
+   },
+   "components": {
+    "Mesh": {
+     "StaticMesh": {
+      "asset": "SM_Loot_Necklace"
+     }
+    }
+   }
+  },
+  {
+   "name": "Loot_Watch_1",
+   "cls": "HHLootActor",
+   "folder": "Loot",
+   "location": [
+    6530.0,
+    -6204.0,
+    666.2
+   ],
+   "quat": [
+    0.0,
+    0.0,
+    -0.087156,
+    0.996195
+   ],
+   "scale": [
+    1.0,
+    1.0,
+    1.0
+   ],
+   "properties": {
+    "ItemId": "LT_Watch"
+   },
+   "components": {
+    "Mesh": {
+     "StaticMesh": {
+      "asset": "SM_Loot_Watch"
+     }
+    }
+   }
+  },
+  {
+   "name": "Loot_Handbag_1",
+   "cls": "HHLootActor",
+   "folder": "Loot",
+   "location": [
+    6460.0,
+    -5875.0,
+    611.2
+   ],
+   "quat": [
+    0.0,
+    0.0,
+    0.965926,
+    0.258819
+   ],
+   "scale": [
+    1.0,
+    1.0,
+    1.0
+   ],
+   "properties": {
+    "ItemId": "LT_Handbag"
+   },
+   "components": {
+    "Mesh": {
+     "StaticMesh": {
+      "asset": "SM_Loot_Handbag"
+     }
+    }
+   }
+  },
+  {
+   "name": "Loot_Ring_1",
+   "cls": "HHLootActor",
+   "folder": "Loot",
+   "location": [
+    6735.0,
+    -5208.0,
+    703.2
+   ],
+   "quat": [
+    -0.0,
+    -0.0,
+    -1.0,
+    0.0
+   ],
+   "scale": [
+    1.0,
+    1.0,
+    1.0
+   ],
+   "properties": {
+    "ItemId": "LT_Ring",
+    "ContainerId": "BathCabinet"
+   },
+   "components": {
+    "Mesh": {
+     "StaticMesh": {
+      "asset": "SM_Loot_Ring"
+     }
+    }
+   }
+  },
+  {
+   "name": "Loot_MusicBox_1",
+   "cls": "HHLootActor",
+   "folder": "Loot",
+   "location": [
+    6290.0,
+    -5410.0,
+    612.2
+   ],
+   "quat": [
+    0.0,
+    0.0,
+    -0.5,
+    0.866025
+   ],
+   "scale": [
+    1.0,
+    1.0,
+    1.0
+   ],
+   "properties": {
+    "ItemId": "LT_MusicBox"
+   },
+   "components": {
+    "Mesh": {
+     "StaticMesh": {
+      "asset": "SM_Loot_MusicBox"
+     }
+    }
+   }
+  },
+  {
+   "name": "Loot_Tablet_1",
+   "cls": "HHLootActor",
+   "folder": "Loot",
+   "location": [
+    6350.0,
+    -5295.0,
+    666.0
+   ],
+   "quat": [
+    0.0,
+    0.0,
+    0.984808,
+    0.173648
+   ],
+   "scale": [
+    1.0,
+    1.0,
+    1.0
+   ],
+   "properties": {
+    "ItemId": "LT_Tablet"
+   },
+   "components": {
+    "Mesh": {
+     "StaticMesh": {
+      "asset": "SM_Loot_Tablet"
+     }
+    }
+   }
+  },
+  {
+   "name": "Loot_Figurine_1",
+   "cls": "HHLootActor",
+   "folder": "Loot",
+   "location": [
+    6475.0,
+    -5196.0,
+    666.2
+   ],
+   "quat": [
+    -0.0,
+    -0.0,
+    -0.996195,
+    0.087156
+   ],
+   "scale": [
+    1.0,
+    1.0,
+    1.0
+   ],
+   "properties": {
+    "ItemId": "LT_Figurine"
+   },
+   "components": {
+    "Mesh": {
+     "StaticMesh": {
+      "asset": "SM_Loot_Figurine"
+     }
+    }
+   }
+  },
+  {
+   "name": "Loot_Locket_1",
+   "cls": "HHLootActor",
+   "folder": "Loot",
+   "location": [
+    6230.0,
+    -5920.0,
+    112.2
+   ],
+   "quat": [
+    0.0,
+    0.0,
+    0.707107,
+    0.707107
+   ],
+   "scale": [
+    1.0,
+    1.0,
+    1.0
+   ],
+   "properties": {
+    "ItemId": "LT_Locket",
+    "ContainerId": "BasementTrunk"
+   },
+   "components": {
+    "Mesh": {
+     "StaticMesh": {
+      "asset": "SM_Loot_Locket"
+     }
+    }
+   }
+  },
+  {
+   "name": "Search_StudyDesk",
+   "cls": "HHSearchableActor",
+   "folder": "Loot",
+   "location": [
+    6335.0,
+    -5230.0,
+    370.0
+   ],
+   "quat": [
+    0.0,
+    0.0,
+    0.707107,
+    0.707107
+   ],
+   "scale": [
+    1.0,
+    1.0,
+    1.0
+   ],
+   "properties": {
+    "ContainerId": "StudyDesk",
+    "ContainerName": {
+     "text": "desk drawers"
+    },
+    "SearchSeconds": 1.8,
+    "SearchVolumeExtent": [
+     25.0,
+     30.0,
+     25.0
+    ]
+   }
+  },
+  {
+   "name": "Search_MasterDresser",
+   "cls": "HHSearchableActor",
+   "folder": "Loot",
+   "location": [
+    6180.0,
+    -6030.0,
+    655.0
+   ],
+   "quat": [
+    0.0,
+    0.0,
+    0.707107,
+    0.707107
+   ],
+   "scale": [
+    1.0,
+    1.0,
+    1.0
+   ],
+   "properties": {
+    "ContainerId": "MasterDresser",
+    "ContainerName": {
+     "text": "dresser"
+    },
+    "SearchSeconds": 1.8,
+    "SearchVolumeExtent": [
+     60.0,
+     30.0,
+     42.0
+    ]
+   }
+  },
+  {
+   "name": "Search_MasterNightstand",
+   "cls": "HHSearchableActor",
+   "folder": "Loot",
+   "location": [
+    6515.0,
+    -6180.0,
+    645.0
+   ],
+   "quat": [
+    0.0,
+    0.0,
+    0.707107,
+    0.707107
+   ],
+   "scale": [
+    1.0,
+    1.0,
+    1.0
+   ],
+   "properties": {
+    "ContainerId": "MasterNightstand",
+    "ContainerName": {
+     "text": "nightstand"
+    },
+    "SearchSeconds": 1.8,
+    "SearchVolumeExtent": [
+     25.0,
+     25.0,
+     25.0
+    ]
+   }
+  },
+  {
+   "name": "Search_BathCabinet",
+   "cls": "HHSearchableActor",
+   "folder": "Loot",
+   "location": [
+    6735.0,
+    -5185.0,
+    765.0
+   ],
+   "quat": [
+    0.0,
+    0.0,
+    0.707107,
+    0.707107
+   ],
+   "scale": [
+    1.0,
+    1.0,
+    1.0
+   ],
+   "properties": {
+    "ContainerId": "BathCabinet",
+    "ContainerName": {
+     "text": "medicine cabinet"
+    },
+    "SearchSeconds": 1.8,
+    "SearchVolumeExtent": [
+     12.0,
+     28.000000000000004,
+     32.0
+    ]
+   }
+  },
+  {
+   "name": "Search_BasementTrunk",
+   "cls": "HHSearchableActor",
+   "folder": "Loot",
+   "location": [
+    6230.0,
+    -5920.0,
+    60.0
+   ],
+   "quat": [
+    0.0,
+    0.0,
+    0.707107,
+    0.707107
+   ],
+   "scale": [
+    1.0,
+    1.0,
+    1.0
+   ],
+   "properties": {
+    "ContainerId": "BasementTrunk",
+    "ContainerName": {
+     "text": "old trunk"
+    },
+    "SearchSeconds": 1.8,
+    "SearchVolumeExtent": [
+     50.0,
+     35.0,
+     32.0
+    ],
+    "OpenOffset": [
+     0.0,
+     0.0,
+     0.0
+    ]
+   },
+   "components": {
+    "Mesh": {
+     "StaticMesh": {
+      "asset": "SM_Crate_Wood"
+     }
+    }
+   }
+  },
+  {
+   "name": "Search_KitchenDrawers",
+   "cls": "HHSearchableActor",
+   "folder": "Loot",
+   "location": [
+    6840.0,
+    -5235.0,
+    395.0
+   ],
+   "quat": [
+    0.0,
+    0.0,
+    0.707107,
+    0.707107
+   ],
+   "scale": [
+    1.0,
+    1.0,
+    1.0
+   ],
+   "properties": {
+    "ContainerId": "KitchenDrawers",
+    "ContainerName": {
+     "text": "kitchen drawers"
+    },
+    "SearchSeconds": 1.8,
+    "SearchVolumeExtent": [
+     30.0,
+     50.0,
+     25.0
+    ]
+   }
+  },
+  {
+   "name": "Search_GuestDesk",
+   "cls": "HHSearchableActor",
+   "folder": "Loot",
+   "location": [
+    6700.0,
+    -5920.0,
+    660.0
+   ],
+   "quat": [
+    0.0,
+    0.0,
+    0.707107,
+    0.707107
+   ],
+   "scale": [
+    1.0,
+    1.0,
+    1.0
+   ],
+   "properties": {
+    "ContainerId": "GuestDesk",
+    "ContainerName": {
+     "text": "sewing desk"
+    },
+    "SearchSeconds": 1.8,
+    "SearchVolumeExtent": [
+     30.0,
+     50.0,
+     25.0
+    ]
+   }
+  },
+  {
+   "name": "Search_Gnome",
+   "cls": "HHSearchableActor",
+   "folder": "Loot",
+   "location": [
+    5990.0,
+    -5485.0,
+    275.0
+   ],
+   "quat": [
+    0.0,
+    0.0,
+    0.707107,
+    0.707107
+   ],
+   "scale": [
+    1.0,
+    1.0,
+    1.0
+   ],
+   "properties": {
+    "ContainerId": "Gnome",
+    "ContainerName": {
+     "text": "garden gnome"
+    },
+    "SearchSeconds": 1.2,
+    "SearchVolumeExtent": [
+     18.0,
+     18.0,
+     20.0
+    ]
+   }
+  },
+  {
+   "name": "Loot_SpareKey",
+   "cls": "HHLootActor",
+   "folder": "Loot",
+   "location": [
+    6000.0,
+    -5455.0,
+    262.0
+   ],
+   "quat": [
+    0.0,
+    0.0,
+    0.5,
+    0.866025
+   ],
+   "scale": [
+    1.0,
+    1.0,
+    1.0
+   ],
+   "properties": {
+    "ItemId": "Key",
+    "ContainerId": "Gnome",
+    "KeyId": "VanceSpareKey",
+    "KeyName": {
+     "text": "spare key to 14 Ashgrove Lane"
+    }
+   },
+   "components": {
+    "Mesh": {
+     "StaticMesh": {
+      "asset": "SM_Key_Spare"
+     }
+    }
+   }
+  },
+  {
+   "name": "Vance_HouseVolume",
+   "cls": "HHHouseVolume",
+   "folder": "Gameplay",
+   "location": [
+    6550.0,
+    -5700.0,
+    479.0
+   ],
+   "quat": [
+    0.0,
+    0.0,
+    0.0,
+    1.0
+   ],
+   "scale": [
+    1.0,
+    1.0,
+    1.0
+   ],
+   "properties": {
+    "HouseTag": "HH_House_Vance"
+   },
+   "components": {
+    "Box": {
+     "BoxExtent": [
+      460.0,
+      560.0,
+      448.99999999999994
+     ]
+    }
+   }
+  },
+  {
+   "name": "Vance_Haunt",
+   "cls": "HHHauntDirector",
+   "folder": "Haunt",
+   "location": [
+    6550.0,
+    -5700.0,
+    420.0
+   ],
+   "quat": [
+    0.0,
+    0.0,
+    0.0,
+    1.0
+   ],
+   "scale": [
+    1.0,
+    1.0,
+    1.0
+   ],
+   "properties": {
+    "HouseTag": "HH_House_Vance",
+    "SettleSounds": [
+     {
+      "asset": "A_House_Settle_01"
+     },
+     {
+      "asset": "A_House_Settle_02"
+     },
+     {
+      "asset": "A_House_Settle_03"
+     },
+     {
+      "asset": "A_House_Settle_04"
+     },
+     {
+      "asset": "A_WoodCreak_01"
+     },
+     {
+      "asset": "A_WoodCreak_02"
+     },
+     {
+      "asset": "A_PipeCreak_01"
+     }
+    ],
+    "DistantSounds": [
+     {
+      "asset": "A_Haunt_Knock_Wall_01"
+     },
+     {
+      "asset": "A_Haunt_Knock_Wall_02"
+     },
+     {
+      "asset": "A_DoorSlam_Distant_01"
+     },
+     {
+      "asset": "A_Knock_Three"
+     }
+    ],
+    "FootstepSounds": [
+     {
+      "asset": "A_Overhead_Step_01"
+     },
+     {
+      "asset": "A_Overhead_Step_02"
+     },
+     {
+      "asset": "A_Overhead_Step_03"
+     },
+     {
+      "asset": "A_Overhead_Step_04"
+     },
+     {
+      "asset": "A_Overhead_Step_05"
+     },
+     {
+      "asset": "A_Overhead_Step_06"
+     },
+     {
+      "asset": "A_Haunt_Footsteps_Run_01"
+     }
+    ],
+    "DragSounds": [
+     {
+      "asset": "A_Haunt_Drag_01"
+     },
+     {
+      "asset": "A_Haunt_Drag_02"
+     }
+    ],
+    "MusicBoxSound": {
+     "asset": "A_Haunt_MusicBox_01"
+    },
+    "SlamSounds": [
+     {
+      "asset": "A_Haunt_Door_Slam_01"
+     },
+     {
+      "asset": "A_Haunt_Door_Slam_02"
+     }
+    ],
+    "WhisperSounds": [
+     {
+      "asset": "A_Whisper_01"
+     },
+     {
+      "asset": "A_Whisper_02"
+     },
+     {
+      "asset": "A_Whisper_03"
+     },
+     {
+      "asset": "A_Haunt_Breath_01"
+     },
+     {
+      "asset": "A_Haunt_Breath_02"
+     }
+    ],
+    "GlassSounds": [
+     {
+      "asset": "A_Haunt_Glass_Fall_01"
+     },
+     {
+      "asset": "A_Haunt_Glass_Fall_02"
+     }
+    ],
+    "BulbPopSound": {
+     "asset": "S_Light_Bulb_Pop"
+    },
+    "DoorCreakSound": {
+     "asset": "S_Door_Creak_Slow"
+    },
+    "StingerSounds": [
+     {
+      "asset": "M_Haunt_Stinger_01"
+     },
+     {
+      "asset": "M_Haunt_Stinger_02"
+     }
+    ]
+   }
+  },
+  {
+   "name": "Vance_HauntPoint_1",
+   "cls": "TargetPoint",
+   "folder": "Haunt",
+   "location": [
+    6390.0,
+    -6020.0,
+    440.0
+   ],
+   "quat": [
+    0.0,
+    0.0,
+    0.0,
+    1.0
+   ],
+   "scale": [
+    1.0,
+    1.0,
+    1.0
+   ],
+   "tags": [
+    "HH_HauntPoint",
+    "HH_House_Vance"
+   ]
+  },
+  {
+   "name": "Vance_HauntPoint_2",
+   "cls": "TargetPoint",
+   "folder": "Haunt",
+   "location": [
+    6820.0,
+    -6020.0,
+    440.0
+   ],
+   "quat": [
+    0.0,
+    0.0,
+    0.0,
+    1.0
+   ],
+   "scale": [
+    1.0,
+    1.0,
+    1.0
+   ],
+   "tags": [
+    "HH_HauntPoint",
+    "HH_House_Vance"
+   ]
+  },
+  {
+   "name": "Vance_HauntPoint_3",
+   "cls": "TargetPoint",
+   "folder": "Haunt",
+   "location": [
+    6300.0,
+    -5380.0,
+    440.0
+   ],
+   "quat": [
+    0.0,
+    0.0,
+    0.0,
+    1.0
+   ],
+   "scale": [
+    1.0,
+    1.0,
+    1.0
+   ],
+   "tags": [
+    "HH_HauntPoint",
+    "HH_House_Vance"
+   ]
+  },
+  {
+   "name": "Vance_HauntPoint_4",
+   "cls": "TargetPoint",
+   "folder": "Haunt",
+   "location": [
+    6730.0,
+    -5380.0,
+    440.0
+   ],
+   "quat": [
+    0.0,
+    0.0,
+    0.0,
+    1.0
+   ],
+   "scale": [
+    1.0,
+    1.0,
+    1.0
+   ],
+   "tags": [
+    "HH_HauntPoint",
+    "HH_House_Vance"
+   ]
+  },
+  {
+   "name": "Vance_HauntPoint_5",
+   "cls": "TargetPoint",
+   "folder": "Haunt",
+   "location": [
+    6450.0,
+    -5750.0,
+    440.0
+   ],
+   "quat": [
+    0.0,
+    0.0,
+    0.0,
+    1.0
+   ],
+   "scale": [
+    1.0,
+    1.0,
+    1.0
+   ],
+   "tags": [
+    "HH_HauntPoint",
+    "HH_House_Vance"
+   ]
+  },
+  {
+   "name": "Vance_HauntPoint_6",
+   "cls": "TargetPoint",
+   "folder": "Haunt",
+   "location": [
+    6390.0,
+    -6020.0,
+    730.0
+   ],
+   "quat": [
+    0.0,
+    0.0,
+    0.0,
+    1.0
+   ],
+   "scale": [
+    1.0,
+    1.0,
+    1.0
+   ],
+   "tags": [
+    "HH_HauntPoint",
+    "HH_House_Vance"
+   ]
+  },
+  {
+   "name": "Vance_HauntPoint_7",
+   "cls": "TargetPoint",
+   "folder": "Haunt",
+   "location": [
+    6820.0,
+    -6020.0,
+    730.0
+   ],
+   "quat": [
+    0.0,
+    0.0,
+    0.0,
+    1.0
+   ],
+   "scale": [
+    1.0,
+    1.0,
+    1.0
+   ],
+   "tags": [
+    "HH_HauntPoint",
+    "HH_House_Vance"
+   ]
+  },
+  {
+   "name": "Vance_HauntPoint_8",
+   "cls": "TargetPoint",
+   "folder": "Haunt",
+   "location": [
+    6320.0,
+    -5380.0,
+    730.0
+   ],
+   "quat": [
+    0.0,
+    0.0,
+    0.0,
+    1.0
+   ],
+   "scale": [
+    1.0,
+    1.0,
+    1.0
+   ],
+   "tags": [
+    "HH_HauntPoint",
+    "HH_House_Vance"
+   ]
+  },
+  {
+   "name": "Vance_HauntPoint_9",
+   "cls": "TargetPoint",
+   "folder": "Haunt",
+   "location": [
+    6760.0,
+    -5380.0,
+    730.0
+   ],
+   "quat": [
+    0.0,
+    0.0,
+    0.0,
+    1.0
+   ],
+   "scale": [
+    1.0,
+    1.0,
+    1.0
+   ],
+   "tags": [
+    "HH_HauntPoint",
+    "HH_House_Vance"
+   ]
+  },
+  {
+   "name": "Vance_HauntPoint_10",
+   "cls": "TargetPoint",
+   "folder": "Haunt",
+   "location": [
+    6850.0,
+    -5750.0,
+    730.0
+   ],
+   "quat": [
+    0.0,
+    0.0,
+    0.0,
+    1.0
+   ],
+   "scale": [
+    1.0,
+    1.0,
+    1.0
+   ],
+   "tags": [
+    "HH_HauntPoint",
+    "HH_House_Vance"
+   ]
+  },
+  {
+   "name": "Vance_HauntPoint_11",
+   "cls": "TargetPoint",
+   "folder": "Haunt",
+   "location": [
+    6500.0,
+    -5700.0,
+    180.0
+   ],
+   "quat": [
+    0.0,
+    0.0,
+    0.0,
+    1.0
+   ],
+   "scale": [
+    1.0,
+    1.0,
+    1.0
+   ],
+   "tags": [
+    "HH_HauntPoint",
+    "HH_House_Vance"
+   ]
+  },
+  {
+   "name": "Vance_HauntPoint_12",
+   "cls": "TargetPoint",
+   "folder": "Haunt",
+   "location": [
+    6800.0,
+    -6050.0,
+    160.0
+   ],
+   "quat": [
+    0.0,
+    0.0,
+    0.0,
+    1.0
+   ],
+   "scale": [
+    1.0,
+    1.0,
+    1.0
+   ],
+   "tags": [
+    "HH_HauntPoint",
+    "HH_House_Vance"
+   ]
+  },
+  {
+   "name": "Vance_HauntPoint_13",
+   "cls": "TargetPoint",
+   "folder": "Haunt",
+   "location": [
+    6550.0,
+    -5700.0,
+    958.0
+   ],
+   "quat": [
+    0.0,
+    0.0,
+    0.0,
+    1.0
+   ],
+   "scale": [
+    1.0,
+    1.0,
+    1.0
+   ],
+   "tags": [
+    "HH_HauntPoint",
+    "HH_House_Vance"
+   ]
+  },
+  {
+   "name": "Vance_HauntPoint_14",
+   "cls": "TargetPoint",
+   "folder": "Haunt",
+   "location": [
+    6500.0,
+    -5400.0,
+    948.0
+   ],
+   "quat": [
+    0.0,
+    0.0,
+    0.0,
+    1.0
+   ],
+   "scale": [
+    1.0,
+    1.0,
+    1.0
+   ],
+   "tags": [
+    "HH_HauntPoint",
+    "HH_House_Vance"
+   ]
+  },
+  {
+   "name": "Vance_ApparitionPoint_1",
+   "cls": "TargetPoint",
+   "folder": "Haunt",
+   "location": [
+    6940.0,
+    -5750.0,
+    610.0
+   ],
+   "quat": [
+    0.0,
+    0.0,
+    0.0,
+    1.0
+   ],
+   "scale": [
+    1.0,
+    1.0,
+    1.0
+   ],
+   "tags": [
+    "HH_ApparitionPoint",
+    "HH_House_Vance"
+   ]
+  },
+  {
+   "name": "Vance_ApparitionPoint_2",
+   "cls": "TargetPoint",
+   "folder": "Haunt",
+   "location": [
+    6890.0,
+    -6160.0,
+    320.0
+   ],
+   "quat": [
+    0.0,
+    0.0,
+    0.5,
+    0.866025
+   ],
+   "scale": [
+    1.0,
+    1.0,
+    1.0
+   ],
+   "tags": [
+    "HH_ApparitionPoint",
+    "HH_House_Vance"
+   ]
+  },
+  {
+   "name": "Vance_ApparitionPoint_3",
+   "cls": "TargetPoint",
+   "folder": "Haunt",
+   "location": [
+    6180.0,
+    -5240.0,
+    610.0
+   ],
+   "quat": [
+    -0.0,
+    -0.0,
+    -0.965926,
+    0.258819
+   ],
+   "scale": [
+    1.0,
+    1.0,
+    1.0
+   ],
+   "tags": [
+    "HH_ApparitionPoint",
+    "HH_House_Vance"
+   ]
+  },
+  {
+   "name": "Vance_ApparitionPoint_4",
+   "cls": "TargetPoint",
+   "folder": "Haunt",
+   "location": [
+    6190.0,
+    -6160.0,
+    60.0
+   ],
+   "quat": [
+    0.0,
+    0.0,
+    0.258819,
+    0.965926
+   ],
+   "scale": [
+    1.0,
+    1.0,
+    1.0
+   ],
+   "tags": [
+    "HH_ApparitionPoint",
+    "HH_House_Vance"
+   ]
+  },
+  {
+   "name": "Vance_ApparitionPoint_5",
+   "cls": "TargetPoint",
+   "folder": "Haunt",
+   "location": [
+    6930.0,
+    -5640.0,
+    60.0
+   ],
+   "quat": [
+    0.0,
+    0.0,
+    -0.707107,
+    0.707107
+   ],
+   "scale": [
+    1.0,
+    1.0,
+    1.0
+   ],
+   "tags": [
+    "HH_ApparitionPoint",
+    "HH_House_Vance"
+   ]
+  },
+  {
+   "name": "Vance_ApparitionPoint_6",
+   "cls": "TargetPoint",
+   "folder": "Haunt",
+   "location": [
+    6160.0,
+    -5750.0,
+    610.0
+   ],
+   "quat": [
+    0.0,
+    0.0,
+    0.707107,
+    0.707107
+   ],
+   "scale": [
+    1.0,
+    1.0,
+    1.0
+   ],
+   "tags": [
+    "HH_ApparitionPoint",
+    "HH_House_Vance"
+   ]
+  },
+  {
+   "name": "Vance_Haunt_Chair",
+   "cls": "HHHauntProp",
+   "folder": "Haunt",
+   "location": [
+    6725.0,
+    -6020.0,
+    321.2
+   ],
+   "quat": [
+    0.0,
+    0.0,
+    -0.707107,
+    0.707107
+   ],
+   "scale": [
+    1.0,
+    1.0,
+    1.0
+   ],
+   "properties": {
+    "AltLocation": [
+     6695.0,
+     -6000.0,
+     321.2
+    ],
+    "AltRotation": [
+     0.0,
+     0.0,
+     -125.0
+    ]
+   },
+   "components": {
+    "Mesh": {
+     "StaticMesh": {
+      "asset": "SM_DiningChair"
+     }
+    }
+   },
+   "tags": [
+    "HH_House_Vance"
+   ]
+  },
+  {
+   "name": "Vance_Haunt_Rocker",
+   "cls": "HHHauntProp",
+   "folder": "Haunt",
+   "location": [
+    6390.0,
+    -5460.0,
+    611.2
+   ],
+   "quat": [
+    -0.0,
+    -0.0,
+    -0.819152,
+    0.573576
+   ],
+   "scale": [
+    1.0,
+    1.0,
+    1.0
+   ],
+   "properties": {
+    "AltLocation": [
+     6340.0,
+     -5480.0,
+     611.2
+    ],
+    "AltRotation": [
+     0.0,
+     0.0,
+     -0.0
+    ]
+   },
+   "components": {
+    "Mesh": {
+     "StaticMesh": {
+      "asset": "SM_RockingChair"
+     }
+    }
+   },
+   "tags": [
+    "HH_House_Vance"
+   ]
+  },
+  {
+   "name": "Vance_Haunt_Teddy",
+   "cls": "HHHauntProp",
+   "folder": "Haunt",
+   "location": [
+    6395.0,
+    -5235.0,
+    665.0
+   ],
+   "quat": [
+    -0.0,
+    -0.0,
+    -0.996195,
+    0.087156
+   ],
+   "scale": [
+    1.0,
+    1.0,
+    1.0
+   ],
+   "properties": {
+    "AltLocation": [
+     6220.0,
+     -5640.0,
+     611.2
+    ],
+    "AltRotation": [
+     0.0,
+     0.0,
+     -90.0
+    ]
+   },
+   "components": {
+    "Mesh": {
+     "StaticMesh": {
+      "asset": "SM_Teddy"
+     }
+    }
+   },
+   "tags": [
+    "HH_House_Vance"
+   ]
+  },
+  {
+   "name": "Vance_Haunt_Picture",
+   "cls": "HHHauntProp",
+   "folder": "Haunt",
+   "location": [
+    6540.0,
+    -5696.0,
+    470.0
+   ],
+   "quat": [
+    -0.0,
+    -0.0,
+    -1.0,
+    0.0
+   ],
+   "scale": [
+    1.0,
+    1.0,
+    1.0
+   ],
+   "properties": {
+    "AltLocation": [
+     6540.0,
+     -5696.0,
+     468.0
+    ],
+    "AltRotation": [
+     14.0,
+     0.0,
+     180.0
+    ]
+   },
+   "components": {
+    "Mesh": {
+     "StaticMesh": {
+      "asset": "SM_Picture_Frame"
+     }
+    }
+   },
+   "tags": [
+    "HH_House_Vance"
+   ]
+  },
+  {
+   "name": "Vance_Haunt_Monitor",
+   "cls": "HHHauntDevice",
+   "folder": "Haunt",
+   "location": [
+    6298.0,
+    -5197.0,
+    396.6
+   ],
+   "quat": [
+    -0.0,
+    -0.0,
+    -1.0,
+    0.0
+   ],
+   "scale": [
+    1.0,
+    1.0,
+    1.0
+   ],
+   "properties": {
+    "DeviceName": {
+     "text": "monitor"
+    },
+    "Caption": {
+     "text": "[A screen hisses with static]"
+    },
+    "SwitchOnSound": {
+     "asset": "S_TV_Power_On"
+    },
+    "Prompt": {
+     "text": "Switch off the monitor"
+    }
+   },
+   "components": {
+    "Screen": {
+     "StaticMesh": {
+      "asset": "SM_Screen_Quad"
+     },
+     "RelativeLocation": [
+      0.0,
+      1.3,
+      25.0
+     ],
+     "RelativeScale3D": [
+      0.52,
+      1.0,
+      0.31
+     ]
+    },
+    "Audio": {
+     "Sound": {
+      "asset": "A_TV_Static_Loop"
+     }
+    },
+    "Glow": {
+     "RelativeLocation": [
+      0.0,
+      30.0,
+      27.0
+     ]
+    },
+    "Mesh": {
+     "StaticMesh": {
+      "asset": "SM_Monitor_Flat"
+     }
+    }
+   },
+   "tags": [
+    "HH_House_Vance"
+   ]
+  },
+  {
+   "name": "Vance_Haunt_Radio",
+   "cls": "HHHauntDevice",
+   "folder": "Haunt",
+   "location": [
+    6875.0,
+    -5205.0,
+    417.2
+   ],
+   "quat": [
+    -0.0,
+    -0.0,
+    -1.0,
+    0.0
+   ],
+   "scale": [
+    1.0,
+    1.0,
+    1.0
+   ],
+   "properties": {
+    "DeviceName": {
+     "text": "radio"
+    },
+    "Caption": {
+     "text": "[The radio crackles to life]"
+    },
+    "SwitchOnSound": {
+     "asset": "S_Radio_Tune"
+    },
+    "Prompt": {
+     "text": "Switch off the radio"
+    }
+   },
+   "components": {
+    "Audio": {
+     "Sound": {
+      "asset": "A_Radio_Static_Loop"
+     }
+    },
+    "Glow": {
+     "RelativeLocation": [
+      0.0,
+      20.0,
+      15.0
+     ]
+    },
+    "Mesh": {
+     "StaticMesh": {
+      "asset": "SM_Radio_Vintage"
+     }
+    }
+   },
+   "tags": [
+    "HH_House_Vance"
+   ]
+  },
+  {
+   "name": "Vance_Apparition",
+   "cls": "HHApparition",
+   "folder": "Haunt",
+   "location": [
+    6940.0,
+    -5750.0,
+    610.0
+   ],
+   "quat": [
+    0.0,
+    0.0,
+    0.0,
+    1.0
+   ],
+   "scale": [
+    1.0,
+    1.0,
+    1.0
+   ],
+   "properties": {
+    "IdleAnim": {
+     "asset": "A_HH_Idle"
+    },
+    "GhostMaterial": {
+     "asset": "MI_Apparition"
+    },
+    "AppearSound": {
+     "asset": "A_Haunt_Breath_02"
+    },
+    "HuntSpeed": 135.0,
+    "CatchDistance": 110.0
+   },
+   "components": {
+    "Body": {
+     "SkeletalMeshAsset": {
+      "asset": "SK_HH_Body"
+     }
+    },
+    "Presence": {
+     "Sound": {
+      "asset": "A_Electric_Buzz_Loop"
+     }
+    }
+   },
+   "tags": [
+    "HH_House_Vance"
+   ]
+  },
+  {
+   "name": "SM_Van_Body_2",
+   "cls": "StaticMeshActor",
+   "folder": "Van",
+   "mesh": "SM_Van_Body",
+   "location": [
+    5075.0,
+    -5700.0,
+    245.0
+   ],
+   "quat": [
+    0.0,
+    0.0,
+    0.0,
+    1.0
+   ],
+   "scale": [
+    1.0,
+    1.0,
+    1.0
+   ]
+  },
+  {
+   "name": "SM_Van_Wheel_5",
+   "cls": "StaticMeshActor",
+   "folder": "Van",
+   "mesh": "SM_Van_Wheel",
+   "location": [
+    5163.0,
+    -5545.0,
+    282.5
+   ],
+   "quat": [
+    0.0,
+    0.0,
+    0.0,
+    1.0
+   ],
+   "scale": [
+    1.0,
+    1.0,
+    1.0
+   ]
+  },
+  {
+   "name": "SM_Van_Wheel_6",
+   "cls": "StaticMeshActor",
+   "folder": "Van",
+   "mesh": "SM_Van_Wheel",
+   "location": [
+    4987.0,
+    -5545.0,
+    282.5
+   ],
+   "quat": [
+    0.0,
+    0.0,
+    1.0,
+    0.0
+   ],
+   "scale": [
+    1.0,
+    1.0,
+    1.0
+   ]
+  },
+  {
+   "name": "SM_Van_Wheel_7",
+   "cls": "StaticMeshActor",
+   "folder": "Van",
+   "mesh": "SM_Van_Wheel",
+   "location": [
+    5163.0,
+    -5845.0,
+    282.5
+   ],
+   "quat": [
+    0.0,
+    0.0,
+    0.0,
+    1.0
+   ],
+   "scale": [
+    1.0,
+    1.0,
+    1.0
+   ]
+  },
+  {
+   "name": "SM_Van_Wheel_8",
+   "cls": "StaticMeshActor",
+   "folder": "Van",
+   "mesh": "SM_Van_Wheel",
+   "location": [
+    4987.0,
+    -5845.0,
+    282.5
+   ],
+   "quat": [
+    0.0,
+    0.0,
+    1.0,
+    0.0
+   ],
+   "scale": [
+    1.0,
+    1.0,
+    1.0
+   ]
+  },
+  {
+   "name": "SM_Van_Livery_3",
+   "cls": "StaticMeshActor",
+   "folder": "Van",
+   "mesh": "SM_Van_Livery",
+   "location": [
+    5176.2,
+    -5562.0,
+    390.0
+   ],
+   "quat": [
+    0.0,
+    0.0,
+    -0.707107,
+    0.707107
+   ],
+   "scale": [
+    1.0,
+    1.0,
+    1.0
+   ],
+   "cast_shadow": false
+  },
+  {
+   "name": "SM_Van_Livery_4",
+   "cls": "StaticMeshActor",
+   "folder": "Van",
+   "mesh": "SM_Van_Livery",
+   "location": [
+    4973.8,
+    -5680.0,
+    390.0
+   ],
+   "quat": [
+    0.0,
+    0.0,
+    0.707107,
+    0.707107
+   ],
+   "scale": [
+    1.0,
+    1.0,
+    1.0
+   ],
+   "cast_shadow": false
+  },
+  {
+   "name": "SM_Van_SlidingDoor_2",
+   "cls": "StaticMeshActor",
+   "folder": "Van",
+   "mesh": "SM_Van_SlidingDoor",
+   "location": [
+    5174.0,
+    -5720.0,
+    365.0
+   ],
+   "quat": [
+    0.0,
+    0.0,
+    0.0,
+    1.0
+   ],
+   "scale": [
+    1.0,
+    1.0,
+    1.0
+   ]
+  },
+  {
+   "name": "Van_Stash",
+   "cls": "HHVanPoint",
+   "folder": "Gameplay",
+   "location": [
+    5075.0,
+    -5425.0,
+    345.0
+   ],
+   "quat": [
+    0.0,
+    0.0,
+    0.0,
+    1.0
+   ],
+   "scale": [
+    1.0,
+    1.0,
+    1.0
+   ],
+   "properties": {
+    "PointType": {
+     "enum": "EHHVanPointType",
+     "value": "Stash"
+    },
+    "InteractSound": {
+     "asset": "S_Bag_Zip_01"
+    },
+    "Prompt": {
+     "text": "Stash the loot in the van"
+    }
+   }
+  },
+  {
+   "name": "Van_Drive",
+   "cls": "HHVanPoint",
+   "folder": "Gameplay",
+   "location": [
+    4960.0,
+    -5800.0,
+    345.0
+   ],
+   "quat": [
+    0.0,
+    0.0,
+    0.0,
+    1.0
+   ],
+   "scale": [
+    1.0,
+    1.0,
+    1.0
+   ],
+   "properties": {
+    "PointType": {
+     "enum": "EHHVanPointType",
+     "value": "Drive"
+    },
+    "InteractSound": {
+     "asset": "S_Van_Engine_Start_01"
+    },
+    "Prompt": {
+     "text": "Drive away"
+    }
+   }
+  },
+  {
+   "name": "PlayerStart_0",
+   "cls": "PlayerStart",
+   "folder": "Gameplay",
+   "location": [
+    5305.0,
+    -5550.0,
+    352.0
+   ],
+   "quat": [
+    0.0,
+    0.0,
+    0.0,
+    1.0
+   ],
+   "scale": [
+    1.0,
+    1.0,
+    1.0
+   ],
+   "properties": {
+    "PlayerStartTag": "Crew0"
+   }
+  },
+  {
+   "name": "PlayerStart_1",
+   "cls": "PlayerStart",
+   "folder": "Gameplay",
+   "location": [
+    5305.0,
+    -5700.0,
+    352.0
+   ],
+   "quat": [
+    0.0,
+    0.0,
+    0.0,
+    1.0
+   ],
+   "scale": [
+    1.0,
+    1.0,
+    1.0
+   ],
+   "properties": {
+    "PlayerStartTag": "Crew1"
+   }
+  },
+  {
+   "name": "PlayerStart_2",
+   "cls": "PlayerStart",
+   "folder": "Gameplay",
+   "location": [
+    5305.0,
+    -5850.0,
+    352.0
+   ],
+   "quat": [
+    0.0,
+    0.0,
+    0.0,
+    1.0
+   ],
+   "scale": [
+    1.0,
+    1.0,
+    1.0
+   ],
+   "properties": {
+    "PlayerStartTag": "Crew2"
+   }
+  },
+  {
+   "name": "PlayerStart_3",
+   "cls": "PlayerStart",
+   "folder": "Gameplay",
+   "location": [
+    5415.0,
+    -5770.0,
+    352.0
+   ],
+   "quat": [
+    0.0,
+    0.0,
+    0.0,
+    1.0
+   ],
+   "scale": [
+    1.0,
+    1.0,
+    1.0
+   ],
+   "properties": {
+    "PlayerStartTag": "Crew3"
+   }
+  },
+  {
+   "name": "HH_WakePoint_1",
+   "cls": "TargetPoint",
+   "folder": "Gameplay",
+   "location": [
+    5380.0,
+    -5200.0,
+    270.0
+   ],
+   "quat": [
+    0.0,
+    0.0,
+    0.0,
+    1.0
+   ],
+   "scale": [
+    1.0,
+    1.0,
+    1.0
+   ],
+   "tags": [
+    "HH_WakePoint"
+   ]
+  },
+  {
+   "name": "HH_WakePoint_2",
+   "cls": "TargetPoint",
+   "folder": "Gameplay",
+   "location": [
+    5380.0,
+    -6100.0,
+    270.0
+   ],
+   "quat": [
+    0.0,
+    0.0,
+    0.0,
+    1.0
+   ],
+   "scale": [
+    1.0,
+    1.0,
+    1.0
+   ],
+   "tags": [
+    "HH_WakePoint"
+   ]
+  },
+  {
+   "name": "SM_Town_HideoutPlug_1",
+   "cls": "StaticMeshActor",
+   "folder": "Plug",
+   "mesh": "SM_Town_HideoutPlug",
+   "location": [
+    0.0,
+    -0.0,
+    0.0
+   ],
+   "quat": [
+    0.0,
+    0.0,
+    0.0,
+    1.0
+   ],
+   "scale": [
+    1.0,
+    1.0,
+    1.0
+   ]
+  },
+  {
+   "name": "SM_Door_Steel_6",
+   "cls": "StaticMeshActor",
+   "folder": "Plug",
+   "mesh": "SM_Door_Steel",
+   "location": [
+    595.0,
+    -512.5,
+    220.0
+   ],
+   "quat": [
+    0.0,
+    0.0,
+    0.0,
+    1.0
+   ],
+   "scale": [
+    1.0,
+    1.0,
+    1.0
+   ]
+  },
+  {
+   "name": "LevelEnvironment",
+   "cls": "HHEnvironment",
+   "folder": "Environment",
+   "location": [
+    0,
+    0,
+    0
+   ],
+   "quat": [
+    0,
+    0,
+    0,
+    1
+   ],
+   "scale": [
+    1,
+    1,
+    1
+   ],
+   "properties": {
+    "fog_density": 0.02,
+    "fog_height_falloff": 0.2,
+    "fog_color": [
+     0.05,
+     0.06,
+     0.075
+    ],
+    "volumetric_albedo": [
+     0.85,
+     0.85,
+     0.85
+    ],
+    "volumetric_extinction": 1.0,
+    "exposure_min": -0.5,
+    "exposure_max": 6.0,
+    "exposure_bias": 0.2,
+    "bloom": 0.5,
+    "vignette": 0.4,
+    "grain": 0.1,
+    "contrast": 1.05,
+    "saturation": 0.9,
+    "shadows_tint": [
+     0.92,
+     0.97,
+     1.04
+    ],
+    "highlights_tint": [
+     1.04,
+     1.0,
+     0.95
+    ],
+    "lens_dirt": "T_LensDirt",
+    "sky_light_intensity": 1.0
+   }
+  },
+  {
+   "name": "TimeOfDay",
+   "cls": "HHTimeOfDay",
+   "folder": "Environment",
+   "location": [
+    0.0,
+    -4000.0,
+    3000.0
+   ],
+   "quat": [
+    0.0,
+    0.0,
+    0.0,
+    1.0
+   ],
+   "scale": [
+    1.0,
+    1.0,
+    1.0
+   ],
+   "properties": {
+    "bNightMap": true,
+    "MapSpeed": 0.35,
+    "DarkHouseTags": [
+     "HH_House_Vance"
+    ]
+   }
+  }
+ ],
+ "kind": "persistent",
+ "streaming": [
+  "L_Town"
+ ],
+ "game_mode": "HHHeistGameMode"
+}

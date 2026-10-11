@@ -85,6 +85,13 @@ public:
 	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Mission")
 	FName PrimaryTargetItem;
 
+	/**
+	 * Actor tag of this job's house in the shared town level (doors, lights, haunt points).
+	 * Doors that carry a different house tag stay shut during this job.
+	 */
+	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Mission")
+	FName HouseTag;
+
 	/** Scales how fast the house turns hostile (1 = normal). */
 	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Haunting", meta = (ClampMin = 0.1))
 	float HauntAggression = 1.f;

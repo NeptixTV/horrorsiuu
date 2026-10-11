@@ -1,4 +1,4 @@
-"""Primary data assets: cosmetics, equipment, jobs, the character definition and DA_GameData."""
+"""Primary data assets: cosmetics, equipment, loot, jobs, the character definition and DA_GameData."""
 import unreal
 
 from . import util as U
@@ -74,9 +74,29 @@ def build_equipment(cat):
                  display_max=float(s['max']), lower_is_better=bool(s.get('lower_better')))
             stats.append(st)
         _set(a, slot=U.enum_value('EHHEquipmentSlot', e['slot']), stats=stats)
+        if e.get('tool'):
+            _set(a, tool_tag=unreal.Name(e['tool']))
         mesh = U.find(e.get('mesh'), required=False)
         if mesh is not None:
             _set(a, mesh=mesh)
+
+
+def build_loot(cat):
+    """DA_LT_*: things worth stealing on a job (value range, weight, how much the house minds)."""
+    folder = DATA + '/Loot'
+    for i, e in enumerate(cat.get('loot', [])):
+        a = _asset('DA_' + e['id'], folder, unreal.HHLootDefinition)
+        _item_common(a, dict(e, price=0, level=1, owned=False, order=i + 1), i)
+        _set(a, value_min=int(e['value'][0]), value_max=int(e['value'][1]), heavy=bool(e.get('heavy')),
+             haunt_anger=float(e.get('anger', 2.0)), cursed=bool(e.get('cursed')))
+        mesh = U.find(e.get('mesh'), required=False)
+        if mesh is not None:
+            _set(a, mesh=mesh)
+        else:
+            U.warn(f"DA_{e['id']}: mesh {e.get('mesh')} not imported")
+        sound = U.find(e.get('sound'), required=False)
+        if sound is not None:
+            _set(a, pickup_sound=sound)
 
 
 def build_missions(cat):
@@ -92,6 +112,16 @@ def build_missions(cat):
         photo = U.find(e.get('photo'), required=False)
         if photo is not None:
             _set(a, photo=photo)
+        # Job rules and where the van goes. An empty map keeps the job on the board as "being cased".
+        _set(a, available=bool(e.get('available', False)), requires_night=bool(e.get('night', True)),
+             minimum_haul=int(e.get('min_haul', 1500)), haunt_aggression=float(e.get('aggression', 1.0)),
+             primary_target_item=unreal.Name(e.get('target_item') or 'None'),
+             house_tag=unreal.Name(e.get('house') or 'None'))
+        if e.get('map'):
+            if U.EAL.does_asset_exist(e['map']):
+                _set(a, map=unreal.SoftObjectPath(e['map'] + '.' + e['map'].rsplit('/', 1)[1]))
+            else:
+                U.warn(f"{e['id']}: map {e['map']} does not exist yet (run the Level step, then Data again)")
 
 
 def build_character():
@@ -122,6 +152,10 @@ def build_game_data(cat, character):
         'ui_countdown_tick': 'UI_CountdownTick', 'ui_notify': 'UI_Notify', 'ui_level_up': 'UI_LevelUp',
         'flashlight_on': 'S_Flashlight_On', 'flashlight_off': 'S_Flashlight_Off',
         'interaction_highlight': 'M_HH_Highlight',
+        'ui_inventory_select': 'S_Inventory_Select', 'ui_objective_complete': 'S_Objective_Complete',
+        'haunt_drone': 'A_Haunt_Drone_Loop', 'heartbeat': 'S_Heartbeat_Loop', 'heist_ambience': 'A_Rain_Light_Loop',
+        'mission_complete_sting': 'M_Mission_Complete_Sting', 'mission_failed_sting': 'M_Mission_Failed_Sting',
+        'drive_away_sound': 'S_Van_Drive_Away_01',
     }
     for key, name in sounds.items():
         obj = U.find(name)
@@ -135,7 +169,8 @@ def build_game_data(cat, character):
     sets = []
     for surface, prefix, n, volume in ((1, 'S_Footstep_Concrete_', 6, 1.0), (2, 'S_Footstep_Wood_', 6, 1.0),
                                        (3, 'S_Footstep_Metal_', 6, 0.9), (4, 'S_Footstep_Fabric_', 4, 0.8),
-                                       (5, 'S_Footstep_Concrete_', 6, 1.1), (6, 'S_Footstep_Concrete_', 6, 1.0)):
+                                       (5, 'S_Footstep_Concrete_', 6, 1.1), (6, 'S_Footstep_Gravel_', 4, 1.0),
+                                       (7, 'S_Footstep_Grass_', 4, 0.9)):
         fs = unreal.HHFootstepSet()
         _set(fs, surface_type=surface, sounds=many(prefix, n), volume_multiplier=volume)
         sets.append(fs)
@@ -147,6 +182,7 @@ def build_all():
     cat = U.load_json('Data', 'catalog.json')
     build_cosmetics(cat)
     build_equipment(cat)
+    build_loot(cat)
     build_missions(cat)
     character = build_character()
     build_game_data(cat, character)

@@ -6,6 +6,8 @@
 #include "Player/HHPlayerState.h"
 #include "Player/HHInventoryComponent.h"
 #include "Data/HHEquipmentDefinition.h"
+#include "Data/HHItemRegistrySubsystem.h"
+#include "Data/HHMissionDefinition.h"
 #include "GameFramework/Pawn.h"
 #include "Components/StaticMeshComponent.h"
 #include "Kismet/GameplayStatics.h"
@@ -52,9 +54,25 @@ void AHHDoorActor::BeginPlay()
 	Hinge->SetRelativeRotation(FRotator(0.f, CurrentAngle, 0.f));
 }
 
-bool AHHDoorActor::IsOnJob() const
+bool AHHDoorActor::IsOnAnyJob() const
 {
 	return GetWorld() && GetWorld()->GetGameState<AHHHeistGameState>() != nullptr;
+}
+
+bool AHHDoorActor::IsOnJob() const
+{
+	const AHHHeistGameState* HeistState = GetWorld() ? GetWorld()->GetGameState<AHHHeistGameState>() : nullptr;
+	if (!HeistState)
+	{
+		return false;
+	}
+	if (HouseTag.IsNone())
+	{
+		return true;
+	}
+	const UHHItemRegistrySubsystem* Registry = UHHItemRegistrySubsystem::Get(this);
+	const UHHMissionDefinition* Mission = Registry ? Registry->FindMission(HeistState->GetSelectedMission()) : nullptr;
+	return Mission && Mission->HouseTag == HouseTag;
 }
 
 float AHHDoorActor::ToolSeconds(AActor* Interactor, FName ToolTag, float BaseSeconds, float ReferenceSpeed) const
@@ -136,7 +154,9 @@ FText AHHDoorActor::GetInteractionDetail(AActor* Interactor) const
 	case EHHDoorAction::CutGlass:	return LOCTEXT("CutDetail", "Hold  -  quiet");
 	case EHHDoorAction::Pry:		return LOCTEXT("PryDetail", "Hold  -  LOUD, the neighbours will hear it");
 	case EHHDoorAction::LockedOutsideJob:
-		return LOCTEXT("ComeBack", "Nobody lets you in. Come back with the crew after dark.");
+		return IsOnAnyJob()
+			? LOCTEXT("NotTonight", "Not tonight's job. Stick to the plan.")
+			: LOCTEXT("ComeBack", "Nobody lets you in. Come back with the crew after dark.");
 	case EHHDoorAction::Rattle:
 	{
 		TArray<FText> Ways;
@@ -253,7 +273,7 @@ void AHHDoorActor::Interact(AActor* Interactor)
 		if (PC)
 		{
 			PC->ClientNotify(Action == EHHDoorAction::LockedOutsideJob
-				? LOCTEXT("LockedHub", "Locked. Nobody's home to let you in - come back on a job.")
+				? FText::Format(LOCTEXT("LockedOther", "Locked. {0}"), GetInteractionDetail(Interactor))
 				: FText::Format(LOCTEXT("LockedJob", "Locked. {0}."), GetInteractionDetail(Interactor)), EHHNotifyType::Info);
 		}
 		if (Noise)

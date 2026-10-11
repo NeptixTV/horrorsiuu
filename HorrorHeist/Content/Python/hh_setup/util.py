@@ -139,6 +139,8 @@ def convert(value, current=None):
         if isinstance(current, unreal.Color):
             c = colour(value)
             return unreal.Color(r=int(c.r * 255), g=int(c.g * 255), b=int(c.b * 255), a=255)
+        if isinstance(current, unreal.Rotator) and len(value) == 3:
+            return unreal.Rotator(roll=float(value[0]), pitch=float(value[1]), yaw=float(value[2]))
         return [convert(v) for v in value]
     if isinstance(current, unreal.Text) and isinstance(value, str):
         return unreal.Text(value)

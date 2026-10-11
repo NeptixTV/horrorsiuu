@@ -18,9 +18,9 @@ def _add_menu():
     for name, label, tip, cmd in (
             ('HH_BuildAll', 'Build / Rebuild All Content', 'Import SourceArt, create materials, data and the hideout',
              'import hh_setup.run as r; r.run_all()'),
-            ('HH_Level', 'Rebuild Hideout Level Only', 'Re-place the hideout from SourceArt/Layout',
+            ('HH_Level', 'Rebuild Maps Only', 'Re-place hideout, town and job maps from SourceArt/Layout',
              'import hh_setup.run as r; r.run_step("Level")'),
-            ('HH_Data', 'Rebuild Data Assets Only', 'Cosmetics, equipment, jobs and DA_GameData',
+            ('HH_Data', 'Rebuild Data Assets Only', 'Cosmetics, equipment, loot, jobs and DA_GameData',
              'import hh_setup.run as r; r.run_step("Data")'),
             ('HH_Open', 'Open Hideout', 'Open L_Hideout',
              'import unreal; unreal.get_editor_subsystem(unreal.LevelEditorSubsystem).load_level("%s")' % MAP)):

@@ -378,27 +378,8 @@ def build_architecture():
     railing.tube([(p[0], p[1], p[2] - 0.45) for p in rail_pts], 0.012, 'MI_Metal_Black', segs=8, bend=0.1)
     static(register_unique(railing, collision='complex'), collection='Architecture')
 
-    # Outside: ramp up to the street, retaining walls, ground by the windows.
-    outside = Builder('SM_HO_Outside')
-    ground_z = 2.45
-    ramp_end = 12.0
-    for i in range(12):
-        ya = 5.6 + (ramp_end - 5.6) * i / 12
-        yb = 5.6 + (ramp_end - 5.6) * (i + 1) / 12
-        za = ground_z * i / 12
-        zb = ground_z * (i + 1) / 12
-        outside.box_minmax((-5.4, ya, -0.3), (-1.8, yb, (za + zb) / 2), 'MI_Asphalt_Wet')
-    outside.box_minmax((-5.4, ramp_end, -0.3), (-1.8, 18.0, ground_z), 'MI_Asphalt_Wet')
-    for x0, x1 in ((-5.65, -5.4), (-1.8, -1.55)):
-        outside.box_minmax((x0, 5.25, -0.3), (x1, ramp_end, ground_z + 0.4), 'MI_Concrete_Raw')
-    outside.box_minmax((-16.0, 5.25, -0.3), (-5.65, 18.0, ground_z), 'MI_Asphalt_Wet')
-    outside.box_minmax((-1.55, 5.25, -0.3), (16.0, 18.0, ground_z), 'MI_Asphalt_Wet')
-    outside.box_minmax((-16.0, -10.0, -0.3), (-7.6, 5.25, ground_z), 'MI_Asphalt_Wet')
-    # The building above grade: brick facades with the window and garage openings.
-    wall(outside, 'X', -7.6, 7.25, 5.25, 5.6, ground_z, 7.0, [GARAGE_DOOR, NORTH_WINDOW], lower='MI_Brick',
-         upper='MI_Brick')
-    wall(outside, 'Y', -10.0, 5.25, -7.6, -7.25, ground_z, 7.0, [WEST_WINDOW], lower='MI_Brick', upper='MI_Brick')
-    static(register_unique(outside, collision='complex', nanite=True), collection='Architecture')
+    # The street side (ramp, lot, facades, garage door, basement windows, street lamp) belongs to
+    # the town level: town.py builds it, so the job maps that stream the town are complete too.
 
     # Structure: beams, columns, ducts.
     for y in (-2.5, 0.0, 2.5):
@@ -427,14 +408,14 @@ def build_architecture():
         pipes.box((0.1, 0.1, 0.06), (x, y, 3.34), 'MI_Steel', bevel=0.005)
     static(register_unique(pipes, collision='none'), collection='Architecture')
 
-    # Doors, frames, windows.
-    static('SM_RollUpDoor', (-3.6, 5.0, 0), collection='Architecture')
-    static('SM_Window_Basement', (1.5, 5.125, 2.8), collection='Architecture')
-    static('SM_Window_Basement', (-7.125, 3.0, 2.8), rot=90, collection='Architecture')
+    # Door frames (the roll-up door and the basement windows are part of the town's street front).
     static('SM_DoorFrame', (6.4, 5.125, 2.2), collection='Architecture')
     static('SM_DoorFrame', (-6.15, -5.125, 0), collection='Architecture')
-    # The stair door stays shut (the shop upstairs is not ours tonight).
-    static('SM_Door_Steel', (5.95, 5.1, 2.2), collection='Architecture')
+    # The stair door opens onto the laundromat's lot and the town.
+    actor('HHDoorActor', mat((5.95, 5.125, 2.2)), 'Gameplay', mesh='SM_Door_Steel', mesh_component='DoorMesh',
+          properties={'OpenSound': asset('S_Door_Wood_Open'), 'CloseSound': asset('S_Door_Wood_Close'),
+                      'OpenAngle': 95.0, 'OpenPrompt': text('Go outside'), 'ClosePrompt': text('Close the door')},
+          name='StairDoor')
     tag_point('HH_StairDoor', (6.4, 4.9, 3.2))
     actor('HHDoorActor', mat((-6.6, -5.125, 0)), 'Gameplay', mesh='SM_Door_Wood', mesh_component='DoorMesh',
           properties={'OpenSound': asset('S_Door_Wood_Open'), 'CloseSound': asset('S_Door_Wood_Close'),
@@ -731,10 +712,6 @@ def main_lights():
         practical('spot', 'SM_Lamp_Industrial', loc, light_offset=(0, 0, -0.8), light_dir=(0, 0, -1), intensity=260,
                   temperature=2700, radius=1000, cone=(28, 62), source=4, flicker='Steady',
                   tags=['HH_MainLights', 'HH_Flickerable'], emissive=30, name=name, fixture_shadow=True)
-    # Outside: a sodium street lamp at the top of the ramp, seen through the garage-door windows.
-    practical('spot', 'SM_StreetLamp', (-0.9, 12.6, 2.45), rot=180, light_offset=(0.9, 0, 4.3), light_dir=(0.19, 0.81, -0.57),
-              intensity=1800, color=(1.0, 0.58, 0.25), radius=2600, cone=(35, 65), source=10, emissive=25,
-              name='Light_Street')
 
 
 def gameplay():
@@ -764,10 +741,42 @@ def gameplay():
                        location=[0, 0, 0], quat=[0, 0, 0, 1], scale=[1, 1, 1],
                        properties=dict(fog_density=0.025, fog_height_falloff=0.35, fog_color=[0.06, 0.07, 0.085],
                                        volumetric_albedo=[0.85, 0.85, 0.85], volumetric_extinction=1.2,
-                                       exposure_min=1.0, exposure_max=4.0, exposure_bias=0.3,
+                                       exposure_min=1.0, exposure_max=5.0, exposure_bias=0.3,
                                        bloom=0.55, vignette=0.45, grain=0.12, contrast=1.05,
                                        saturation=0.92, shadows_tint=[0.92, 0.97, 1.04], highlights_tint=[1.04, 1.0, 0.95],
                                        lens_dirt='T_LensDirt', sky_light_intensity=0.0)))
+
+
+def planning_table():
+    """The crew's planning table: the Vance blueprint, polaroids and a pendant lamp."""
+    table = mat((0.75, 1.35, 0), rot=8)
+    static('SM_Desk_Wood', parent=table, collection='Planning')
+    plan = Builder('SM_HO_PlanningSheets')
+    plan.plane(0.92, 0.62, (0, 0.0, 0), 'MI_Img_Blueprint_Vance', rot=(-90, 0, 0))
+    plan.box((0.95, 0.65, 0.002), (0, 0, -0.0015), 'MI_Paper')
+    for i, (x, y, r) in enumerate(((-0.55, 0.2, 12), (-0.6, -0.15, -8), (0.58, 0.18, 5))):
+        plan.box((0.09, 0.11, 0.002), (x, y, 0.001 + i * 0.0005), 'MI_Paper', rot=(0, 0, r))
+    top = 0.762
+    static(register_unique(plan, folder='Hideout', collision='none'), (0, 0, top + 0.002), parent=table,
+           collection='Planning', shadow=False)
+    static('SM_Mug', (0.42, -0.22, top), rot=30, parent=table, collection='Planning')
+    static('SM_EQ_Torch_Pocket', (-0.4, -0.25, top + 0.02), rot=75, parent=table, collection='Planning')
+    static('SM_Walkie', (0.3, 0.24, top), rot=-20, parent=table, collection='Planning')
+    for x in (-0.25, 0.4):
+        static('SM_Chair_Wood', (x, -0.75, 0), rot=180 + x * 30, parent=table, collection='Planning')
+    practical('spot', 'SM_Lamp_Industrial', (0.75, 1.35, CEIL), light_offset=(0, 0, -0.8), light_dir=(0, 0, -1),
+              intensity=150, temperature=2900, radius=600, cone=(24, 50), source=3, tags=['HH_MainLights'], emissive=25,
+              name='Light_Pendant_Planning', fixture_shadow=True)
+
+
+def machinery():
+    """Ventilation, electrics and the laundromat's machines above (spatial, on the Ambient class)."""
+    for x in (-3.0, 1.0):
+        emitter((x, 3.75, CEIL - 0.1), loop='A_Vent_Hum_Loop', name='VentHum', scatter=0, volume=(0.6, 0.7))
+    emitter((-5.2, -4.9, 1.6), loop='A_Electric_Buzz_Loop', name='BreakerBuzz', scatter=0, volume=(0.5, 0.6))
+    emitter((0.0, 0.0, CEIL + 0.1), loop='A_Machine_Hum_Loop', name='MachinesAbove', scatter=0, volume=(0.45, 0.55))
+    emitter((6.4, 4.6, 3.8), oneshots=['A_Wind_Gust_01', 'A_Wind_Gust_02'], interval=(30, 80), scatter=60,
+            caption='[Wind pushes against the stair door]', name='StairDoorWind')
 
 
 # =======================================================================================
@@ -825,8 +834,8 @@ def render_previews(fast=False):
         print('rendered', name, flush=True)
 
 
-def main():
-    H.reset()
+def build_all():
+    """The hideout's actors (into ACTORS). The town around it is built by build_world.py."""
     build_architecture()
     van_area()
     job_board()
@@ -837,13 +846,15 @@ def main():
     security_desk()
     boiler_room()
     main_lights()
+    planning_table()
+    machinery()
     gameplay()
-    if '--no-export' not in sys.argv:
-        export_all()
-    if '--render' in sys.argv:
-        render_previews(fast='--fast' in sys.argv)
-    if '--save' in sys.argv:
-        bpy.ops.wm.save_as_mainfile(filepath=os.path.join(H.PROJECT, 'SourceArt', 'Layout', 'Hideout.blend'))
+
+
+def main():
+    """The hideout is part of the world build now (the street front lives in the town level)."""
+    import build_world
+    build_world.main()
 
 
 if __name__ == '__main__':

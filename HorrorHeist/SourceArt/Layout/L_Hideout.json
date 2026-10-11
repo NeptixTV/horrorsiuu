@@ -135,28 +135,6 @@
    ]
   },
   {
-   "name": "SM_HO_Outside_1",
-   "cls": "StaticMeshActor",
-   "folder": "Architecture",
-   "mesh": "SM_HO_Outside",
-   "location": [
-    0.0,
-    -0.0,
-    0.0
-   ],
-   "quat": [
-    0.0,
-    0.0,
-    0.0,
-    1.0
-   ],
-   "scale": [
-    1.0,
-    1.0,
-    1.0
-   ]
-  },
-  {
    "name": "SM_IBeam_1",
    "cls": "StaticMeshActor",
    "folder": "Architecture",
@@ -355,72 +333,6 @@
    ]
   },
   {
-   "name": "SM_RollUpDoor_1",
-   "cls": "StaticMeshActor",
-   "folder": "Architecture",
-   "mesh": "SM_RollUpDoor",
-   "location": [
-    -360.0,
-    -500.0,
-    0.0
-   ],
-   "quat": [
-    0.0,
-    0.0,
-    0.0,
-    1.0
-   ],
-   "scale": [
-    1.0,
-    1.0,
-    1.0
-   ]
-  },
-  {
-   "name": "SM_Window_Basement_1",
-   "cls": "StaticMeshActor",
-   "folder": "Architecture",
-   "mesh": "SM_Window_Basement",
-   "location": [
-    150.0,
-    -512.5,
-    280.0
-   ],
-   "quat": [
-    0.0,
-    0.0,
-    0.0,
-    1.0
-   ],
-   "scale": [
-    1.0,
-    1.0,
-    1.0
-   ]
-  },
-  {
-   "name": "SM_Window_Basement_2",
-   "cls": "StaticMeshActor",
-   "folder": "Architecture",
-   "mesh": "SM_Window_Basement",
-   "location": [
-    -712.5,
-    -300.0,
-    280.0
-   ],
-   "quat": [
-    0.0,
-    0.0,
-    -0.707107,
-    0.707107
-   ],
-   "scale": [
-    1.0,
-    1.0,
-    1.0
-   ]
-  },
-  {
    "name": "SM_DoorFrame_1",
    "cls": "StaticMeshActor",
    "folder": "Architecture",
@@ -465,13 +377,12 @@
    ]
   },
   {
-   "name": "SM_Door_Steel_1",
-   "cls": "StaticMeshActor",
-   "folder": "Architecture",
-   "mesh": "SM_Door_Steel",
+   "name": "StairDoor",
+   "cls": "HHDoorActor",
+   "folder": "Gameplay",
    "location": [
     595.0,
-    -510.0,
+    -512.5,
     220.0
    ],
    "quat": [
@@ -484,7 +395,29 @@
     1.0,
     1.0,
     1.0
-   ]
+   ],
+   "properties": {
+    "OpenSound": {
+     "asset": "S_Door_Wood_Open"
+    },
+    "CloseSound": {
+     "asset": "S_Door_Wood_Close"
+    },
+    "OpenAngle": 95.0,
+    "OpenPrompt": {
+     "text": "Go outside"
+    },
+    "ClosePrompt": {
+     "text": "Close the door"
+    }
+   },
+   "components": {
+    "DoorMesh": {
+     "StaticMesh": {
+      "asset": "SM_Door_Steel"
+     }
+    }
+   }
   },
   {
    "name": "HH_StairDoor_1",
@@ -6775,19 +6708,174 @@
    ]
   },
   {
-   "name": "Light_Street",
-   "cls": "HHPracticalSpotLight",
-   "folder": "Lights",
+   "name": "SM_Desk_Wood_2",
+   "cls": "StaticMeshActor",
+   "folder": "Planning",
+   "mesh": "SM_Desk_Wood",
    "location": [
-    -90.0,
-    -1260.0,
-    245.0
+    75.0,
+    -135.0,
+    0.0
    ],
    "quat": [
     0.0,
     0.0,
+    -0.069757,
+    0.997564
+   ],
+   "scale": [
     1.0,
+    1.0,
+    1.0
+   ]
+  },
+  {
+   "name": "SM_HO_PlanningSheets_1",
+   "cls": "StaticMeshActor",
+   "folder": "Planning",
+   "mesh": "SM_HO_PlanningSheets",
+   "location": [
+    75.0,
+    -135.0,
+    76.4
+   ],
+   "quat": [
+    0.0,
+    0.0,
+    -0.069757,
+    0.997564
+   ],
+   "scale": [
+    1.0,
+    1.0,
+    1.0
+   ],
+   "cast_shadow": false
+  },
+  {
+   "name": "SM_Mug_4",
+   "cls": "StaticMeshActor",
+   "folder": "Planning",
+   "mesh": "SM_Mug",
+   "location": [
+    119.653,
+    -119.059,
+    76.2
+   ],
+   "quat": [
+    0.0,
+    0.0,
+    -0.325568,
+    0.945519
+   ],
+   "scale": [
+    1.0,
+    1.0,
+    1.0
+   ]
+  },
+  {
+   "name": "SM_EQ_Torch_Pocket_2",
+   "cls": "StaticMeshActor",
+   "folder": "Planning",
+   "mesh": "SM_EQ_Torch_Pocket",
+   "location": [
+    38.869,
+    -104.676,
+    78.2
+   ],
+   "quat": [
+    0.0,
+    0.0,
+    -0.66262,
+    0.748956
+   ],
+   "scale": [
+    1.0,
+    1.0,
+    1.0
+   ]
+  },
+  {
+   "name": "SM_Walkie_2",
+   "cls": "StaticMeshActor",
+   "folder": "Planning",
+   "mesh": "SM_Walkie",
+   "location": [
+    101.368,
+    -162.942,
+    76.2
+   ],
+   "quat": [
+    0.0,
+    0.0,
+    0.104528,
+    0.994522
+   ],
+   "scale": [
+    1.0,
+    1.0,
+    1.0
+   ]
+  },
+  {
+   "name": "SM_Chair_Wood_2",
+   "cls": "StaticMeshActor",
+   "folder": "Planning",
+   "mesh": "SM_Chair_Wood",
+   "location": [
+    60.681,
+    -57.251,
     0.0
+   ],
+   "quat": [
+    0.0,
+    0.0,
+    0.999991,
+    0.004363
+   ],
+   "scale": [
+    1.0,
+    1.0,
+    1.0
+   ]
+  },
+  {
+   "name": "SM_Chair_Wood_3",
+   "cls": "StaticMeshActor",
+   "folder": "Planning",
+   "mesh": "SM_Chair_Wood",
+   "location": [
+    125.049,
+    -66.297,
+    0.0
+   ],
+   "quat": [
+    0.0,
+    0.0,
+    0.984808,
+    0.173648
+   ],
+   "scale": [
+    1.0,
+    1.0,
+    1.0
+   ]
+  },
+  {
+   "name": "Light_Pendant_Planning",
+   "cls": "HHPracticalSpotLight",
+   "folder": "Lights",
+   "location": [
+    75.0,
+    -135.0,
+    340.0
+   ],
+   "quat": [
+    0.0,
+    0.0,
+    0.0,
+    1.0
    ],
    "scale": [
     1.0,
@@ -6805,39 +6893,226 @@
    "components": {
     "Light": {
      "RelativeLocation": [
-      90.0,
+      0.0,
       -0.0,
-      430.0
+      -80.0
      ],
-     "Intensity": 1800,
+     "Intensity": 150,
      "IntensityUnits": {
       "enum": "ELightUnits",
       "value": "Candelas"
      },
-     "bUseTemperature": false,
-     "Temperature": 2700.0,
-     "AttenuationRadius": 2600,
+     "bUseTemperature": true,
+     "Temperature": 2900.0,
+     "AttenuationRadius": 600,
      "CastShadows": true,
      "VolumetricScatteringIntensity": 1.0,
      "RelativeDirection": [
-      0.19,
-      -0.81,
-      -0.57
+      0,
+      0,
+      -1
      ],
-     "LightColor": [
-      1.0,
-      0.58,
-      0.25
-     ],
-     "InnerConeAngle": 35,
-     "OuterConeAngle": 65,
-     "SourceRadius": 10
+     "InnerConeAngle": 24,
+     "OuterConeAngle": 50,
+     "SourceRadius": 3
     },
     "Fixture": {
-     "CastShadow": false,
+     "CastShadow": true,
      "StaticMesh": {
-      "asset": "SM_StreetLamp"
+      "asset": "SM_Lamp_Industrial"
      }
+    }
+   },
+   "tags": [
+    "HH_MainLights"
+   ]
+  },
+  {
+   "name": "VentHum_1",
+   "cls": "HHAmbientEmitter",
+   "folder": "Audio",
+   "location": [
+    -300.0,
+    -375.0,
+    330.0
+   ],
+   "quat": [
+    0.0,
+    0.0,
+    0.0,
+    1.0
+   ],
+   "scale": [
+    1.0,
+    1.0,
+    1.0
+   ],
+   "properties": {
+    "MinInterval": 4.0,
+    "MaxInterval": 14.0,
+    "ScatterRadius": 0.0,
+    "VolumeRange": [
+     0.6,
+     0.7
+    ]
+   },
+   "components": {
+    "Loop": {
+     "Sound": {
+      "asset": "A_Vent_Hum_Loop"
+     }
+    }
+   }
+  },
+  {
+   "name": "VentHum_2",
+   "cls": "HHAmbientEmitter",
+   "folder": "Audio",
+   "location": [
+    100.0,
+    -375.0,
+    330.0
+   ],
+   "quat": [
+    0.0,
+    0.0,
+    0.0,
+    1.0
+   ],
+   "scale": [
+    1.0,
+    1.0,
+    1.0
+   ],
+   "properties": {
+    "MinInterval": 4.0,
+    "MaxInterval": 14.0,
+    "ScatterRadius": 0.0,
+    "VolumeRange": [
+     0.6,
+     0.7
+    ]
+   },
+   "components": {
+    "Loop": {
+     "Sound": {
+      "asset": "A_Vent_Hum_Loop"
+     }
+    }
+   }
+  },
+  {
+   "name": "BreakerBuzz_1",
+   "cls": "HHAmbientEmitter",
+   "folder": "Audio",
+   "location": [
+    -520.0,
+    490.0,
+    160.0
+   ],
+   "quat": [
+    0.0,
+    0.0,
+    0.0,
+    1.0
+   ],
+   "scale": [
+    1.0,
+    1.0,
+    1.0
+   ],
+   "properties": {
+    "MinInterval": 4.0,
+    "MaxInterval": 14.0,
+    "ScatterRadius": 0.0,
+    "VolumeRange": [
+     0.5,
+     0.6
+    ]
+   },
+   "components": {
+    "Loop": {
+     "Sound": {
+      "asset": "A_Electric_Buzz_Loop"
+     }
+    }
+   }
+  },
+  {
+   "name": "MachinesAbove_1",
+   "cls": "HHAmbientEmitter",
+   "folder": "Audio",
+   "location": [
+    0.0,
+    -0.0,
+    350.0
+   ],
+   "quat": [
+    0.0,
+    0.0,
+    0.0,
+    1.0
+   ],
+   "scale": [
+    1.0,
+    1.0,
+    1.0
+   ],
+   "properties": {
+    "MinInterval": 4.0,
+    "MaxInterval": 14.0,
+    "ScatterRadius": 0.0,
+    "VolumeRange": [
+     0.45,
+     0.55
+    ]
+   },
+   "components": {
+    "Loop": {
+     "Sound": {
+      "asset": "A_Machine_Hum_Loop"
+     }
+    }
+   }
+  },
+  {
+   "name": "StairDoorWind_1",
+   "cls": "HHAmbientEmitter",
+   "folder": "Audio",
+   "location": [
+    640.0,
+    -460.0,
+    380.0
+   ],
+   "quat": [
+    0.0,
+    0.0,
+    0.0,
+    1.0
+   ],
+   "scale": [
+    1.0,
+    1.0,
+    1.0
+   ],
+   "properties": {
+    "MinInterval": 30,
+    "MaxInterval": 80,
+    "ScatterRadius": 60.0,
+    "VolumeRange": [
+     0.5,
+     1.0
+    ],
+    "OneShots": [
+     {
+      "asset": "A_Wind_Gust_01"
+     },
+     {
+      "asset": "A_Wind_Gust_02"
+     }
+    ],
+    "Caption": {
+     "text": "[Wind pushes against the stair door]"
     }
    }
   },
@@ -7298,7 +7573,7 @@
     ],
     "volumetric_extinction": 1.2,
     "exposure_min": 1.0,
-    "exposure_max": 4.0,
+    "exposure_max": 5.0,
     "exposure_bias": 0.3,
     "bloom": 0.55,
     "vignette": 0.45,
@@ -7318,6 +7593,43 @@
     "lens_dirt": "T_LensDirt",
     "sky_light_intensity": 0.0
    }
+  },
+  {
+   "name": "TimeOfDay",
+   "cls": "HHTimeOfDay",
+   "folder": "Environment",
+   "location": [
+    0.0,
+    -4000.0,
+    3000.0
+   ],
+   "quat": [
+    0.0,
+    0.0,
+    0.0,
+    1.0
+   ],
+   "scale": [
+    1.0,
+    1.0,
+    1.0
+   ],
+   "properties": {
+    "bNightMap": false,
+    "MapSpeed": 1.0,
+    "DarkHouseTags": [],
+    "DayFogDensity": 0.016,
+    "NightFogDensity": 0.022,
+    "NightFogColor": [
+     0.03,
+     0.035,
+     0.045
+    ]
+   }
   }
+ ],
+ "kind": "persistent",
+ "streaming": [
+  "L_Town"
  ]
 }

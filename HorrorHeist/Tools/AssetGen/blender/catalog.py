@@ -206,6 +206,65 @@ MISSIONS = [
          rumor='The red light in the barn has been on since 1998.'),
 ]
 
+# Tool tags: which lock / interaction an item counts as when it sits in the 5-slot inventory on a job.
+TOOL_TAGS = {
+    'Light': 'Light', 'EQ_Entry_Lockpicks': 'Lockpick', 'EQ_Entry_Crowbar': 'Crowbar',
+    'EQ_Entry_GlassCutter': 'GlassCutter', 'EQ_Util_Walkie': 'Walkie', 'EQ_Util_Salt': 'Salt',
+    'EQ_Gadget_Camera': 'Camera', 'EQ_Gadget_NoiseMeter': 'NoiseMeter', 'Bag': 'Bag',
+}
+for _e in EQUIPMENT:
+    _e['tool'] = TOOL_TAGS.get(_e['id'], TOOL_TAGS.get(_e['slot'], ''))
+
+# Job maps and rules (the Vance job is released; Marrow and the rectory are prepared but closed).
+MAPS = '/Game/HorrorHeist/Maps/'
+for _m in MISSIONS:
+    _m.update({
+        'JOB_Vance': dict(map=MAPS + 'L_Job_Vance', available=True, night=True, min_haul=1500,
+                          target_item='LT_CoinCollection', aggression=1.0, house='HH_House_Vance'),
+        'JOB_Rectory': dict(map=MAPS + 'L_Job_Rectory', available=False, night=True, min_haul=3000,
+                            target_item='', aggression=1.3, house='HH_House_Rectory'),
+        'JOB_Marrow': dict(map=MAPS + 'L_Job_Marrow', available=False, night=True, min_haul=5000,
+                           target_item='', aggression=1.6, house='HH_House_Marrow'),
+    }.get(_m['id'], dict(map='', available=False, night=True, min_haul=8000, target_item='', aggression=2.0,
+                         house='')))
+
+
+def L(id_, name, mesh, lo, hi, anger=2.0, heavy=False, cursed=False, desc='', rarity='Common'):
+    return dict(id=id_, name=name, mesh=mesh, value=(lo, hi), anger=anger, heavy=heavy, cursed=cursed, desc=desc,
+                rarity=rarity, sound='S_Loot_Pickup_Heavy_01' if heavy else 'S_Loot_Pickup_Small_0%d' % (1 + len(name) % 3))
+
+
+# Things worth stealing. Values are what the fence pays; 'anger' is how much taking it upsets the house.
+LOOT = [
+    L('LT_TV', 'Flat-Screen TV', 'SM_Loot_TV', 300, 500, 4.0, heavy=True, desc='Heavy. Carry it with both hands.'),
+    L('LT_Laptop', 'Laptop', 'SM_Loot_Laptop', 250, 450, 2.0),
+    L('LT_JewelryBox', 'Jewellery Box', 'SM_Loot_JewelryBox', 400, 900, 4.0, rarity='Uncommon'),
+    L('LT_Watch', 'Gold Wristwatch', 'SM_Loot_Watch', 350, 800, 3.0, rarity='Uncommon'),
+    L('LT_Ring', 'Diamond Ring', 'SM_Loot_Ring', 500, 1200, 4.0, rarity='Rare'),
+    L('LT_Necklace', 'Pearl Necklace', 'SM_Loot_Necklace', 400, 900, 3.0, rarity='Uncommon'),
+    L('LT_Cash', 'Cash', 'SM_Loot_Cash', 300, 700, 2.0),
+    L('LT_Silverware', 'Silverware Case', 'SM_Loot_Silverware', 300, 600, 3.0),
+    L('LT_Vase', 'Porcelain Vase', 'SM_Loot_Vase', 150, 400, 2.0),
+    L('LT_Console', 'Game Console', 'SM_Loot_Console', 150, 300, 1.0),
+    L('LT_Tablet', 'Tablet', 'SM_Loot_Tablet', 120, 250, 1.0),
+    L('LT_Phone', 'Phone', 'SM_Loot_Phone', 80, 200, 1.0),
+    L('LT_Perfume', 'Perfume', 'SM_Loot_Perfume', 60, 150, 1.0),
+    L('LT_Whiskey', 'Aged Whiskey', 'SM_Loot_Whiskey', 80, 180, 1.0),
+    L('LT_Painting', 'Small Oil Painting', 'SM_Loot_Painting', 250, 700, 4.0, rarity='Uncommon'),
+    L('LT_Camera', 'Vintage Camera', 'SM_Loot_Camera', 120, 300, 2.0),
+    L('LT_Candlestick', 'Silver Candlestick', 'SM_Loot_Candlestick', 100, 250, 3.0),
+    L('LT_MusicBox', 'Music Box', 'SM_Loot_MusicBox', 150, 350, 8.0, desc='It was playing when you found it.',
+      rarity='Uncommon'),
+    L('LT_CoinJar', 'Coin Jar', 'SM_Loot_CoinJar', 40, 110, 1.0),
+    L('LT_MantelClock', 'Mantel Clock', 'SM_Loot_MantelClock', 150, 350, 3.0),
+    L('LT_Figurine', 'Porcelain Figurine', 'SM_Loot_Figurine', 80, 220, 3.0),
+    L('LT_Handbag', 'Designer Handbag', 'SM_Loot_Handbag', 200, 500, 2.0),
+    L('LT_Locket', 'Old Locket', 'SM_Loot_Locket', 600, 1400, 6.0, cursed=True,
+      desc='A portrait inside. You feel watched while you carry it.', rarity='Rare'),
+    L('LT_CoinCollection', 'Coin Collection', 'SM_Loot_CoinCollection', 1200, 2200, 10.0,
+      desc="The client's target. Twenty old coins under glass.", rarity='Rare'),
+]
+
 DEFAULTS = dict(
     cosmetics=dict(Body='CO_Skin_Fair', Hair='CO_Hair_Crop_Brown', Top='CO_Top_Tee_Ash', Pants='CO_Pants_Jeans',
                    Shoes='CO_Shoes_Sneakers_White'),
@@ -219,7 +278,8 @@ def write(path=None):
     path = path or os.path.join(here, '..', '..', '..', 'SourceArt', 'Data', 'catalog.json')
     os.makedirs(os.path.dirname(path), exist_ok=True)
     with open(path, 'w', encoding='utf-8') as fh:
-        json.dump(dict(cosmetics=COSMETICS, equipment=EQUIPMENT, missions=MISSIONS, defaults=DEFAULTS), fh, indent=1)
+        json.dump(dict(cosmetics=COSMETICS, equipment=EQUIPMENT, missions=MISSIONS, loot=LOOT, defaults=DEFAULTS), fh,
+                  indent=1)
     return path
 
 

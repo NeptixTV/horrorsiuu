@@ -214,6 +214,46 @@ def master_glass():
     return finish(mat)
 
 
+def master_apparition():
+    """The thing in the house: a translucent, unlit dark shape with a cold rim (Fresnel) and a slow
+    flicker. Used directly (no instance parameters needed) as MI_Apparition."""
+    mat, g = new_master('M_HH_Apparition', {
+        'blend_mode': unreal.BlendMode.BLEND_TRANSLUCENT,
+        'shading_model': unreal.MaterialShadingModel.MSM_UNLIT,
+        'two_sided': False})
+    fres = g.node(unreal.MaterialExpressionFresnel, -1100)
+    fres.set_editor_property('exponent', 2.6)
+    rim = g.vector('RimColor', (0.42, 0.52, 0.62))
+    glow = g.op(unreal.MaterialExpressionMultiply, rim, fres, x=-800)
+    time = g.node(unreal.MaterialExpressionTime, -1300)
+    sine = g.node(unreal.MaterialExpressionSine, -1100)
+    g.link(time, '', sine, 'Input')
+    flick = g.node(unreal.MaterialExpressionMultiply, -950)
+    g.link(sine, '', flick, 'A')
+    flick.set_editor_property('const_b', 0.12)
+    pulse = g.node(unreal.MaterialExpressionAdd, -800)
+    g.link(flick, '', pulse, 'A')
+    pulse.set_editor_property('const_b', 0.88)
+    emissive = g.op(unreal.MaterialExpressionMultiply, glow, pulse, x=-600)
+    strength = g.scalar('RimStrength', 2.0)
+    g.out(g.op(unreal.MaterialExpressionMultiply, emissive, strength, x=-400), '', MP.MP_EMISSIVE_COLOR)
+    base = g.scalar('Opacity', 0.55)
+    op = g.op(unreal.MaterialExpressionAdd, base, fres, x=-600)
+    clamp = g.node(unreal.MaterialExpressionClamp, -400)
+    g.link(op, '', clamp, 'Input')
+    g.out(clamp, '', MP.MP_OPACITY)
+    return finish(mat)
+
+
+def apparition_instance():
+    mi = U.create_or_load('MI_Apparition', INSTANCE_DIR, unreal.MaterialInstanceConstant,
+                          unreal.MaterialInstanceConstantFactoryNew())
+    master = MASTERS.get('Apparition')
+    if master is not None:
+        U.MEL.set_material_instance_parent(mi, master)
+        U.MEL.update_material_instance(mi)
+
+
 def master_image(masked):
     setup = {'blend_mode': unreal.BlendMode.BLEND_MASKED, 'two_sided': True} if masked else {}
     mat, g = new_master('M_HH_ImageMask' if masked else 'M_HH_Image', setup)
@@ -303,6 +343,7 @@ def build_masters():
         'Surface': master_surface(), 'Character': master_character(), 'Solid': master_solid(),
         'Emissive': master_emissive(), 'Glass': master_glass(), 'Image': master_image(False),
         'ImageMask': master_image(True), 'Screen': master_screen(), 'Decal': master_decal(),
+        'Apparition': master_apparition(),
     })
     master_highlight()
 
@@ -435,4 +476,5 @@ def _params(mi, spec):
 def build_all():
     build_masters()
     build_instances()
+    apparition_instance()
     U.refresh_index()

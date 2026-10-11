@@ -1,0 +1,514 @@
+{
+ "level": "L_Job_Marrow",
+ "units": "cm",
+ "actors": [
+  {
+   "name": "Marrow_HouseVolume",
+   "cls": "HHHouseVolume",
+   "folder": "Gameplay",
+   "location": [
+    -6700.0,
+    -8300.0,
+    560.0
+   ],
+   "quat": [
+    0.0,
+    0.0,
+    0.0,
+    1.0
+   ],
+   "scale": [
+    1.0,
+    1.0,
+    1.0
+   ],
+   "properties": {
+    "HouseTag": "HH_House_Marrow"
+   },
+   "components": {
+    "Box": {
+     "BoxExtent": [
+      510.0,
+      610.0,
+      400.0
+     ]
+    }
+   }
+  },
+  {
+   "name": "Marrow_Haunt",
+   "cls": "HHHauntDirector",
+   "folder": "Haunt",
+   "location": [
+    -6700.0,
+    -8300.0,
+    560.0
+   ],
+   "quat": [
+    0.0,
+    0.0,
+    0.0,
+    1.0
+   ],
+   "scale": [
+    1.0,
+    1.0,
+    1.0
+   ],
+   "properties": {
+    "HouseTag": "HH_House_Marrow"
+   }
+  },
+  {
+   "name": "SM_Van_Body_3",
+   "cls": "StaticMeshActor",
+   "folder": "Van",
+   "mesh": "SM_Van_Body",
+   "location": [
+    -5075.0,
+    -8300.0,
+    245.0
+   ],
+   "quat": [
+    0.0,
+    0.0,
+    1.0,
+    0.0
+   ],
+   "scale": [
+    1.0,
+    1.0,
+    1.0
+   ]
+  },
+  {
+   "name": "SM_Van_Wheel_9",
+   "cls": "StaticMeshActor",
+   "folder": "Van",
+   "mesh": "SM_Van_Wheel",
+   "location": [
+    -5163.0,
+    -8455.0,
+    282.5
+   ],
+   "quat": [
+    0.0,
+    0.0,
+    1.0,
+    0.0
+   ],
+   "scale": [
+    1.0,
+    1.0,
+    1.0
+   ]
+  },
+  {
+   "name": "SM_Van_Wheel_10",
+   "cls": "StaticMeshActor",
+   "folder": "Van",
+   "mesh": "SM_Van_Wheel",
+   "location": [
+    -4987.0,
+    -8455.0,
+    282.5
+   ],
+   "quat": [
+    0.0,
+    0.0,
+    -0.0,
+    1.0
+   ],
+   "scale": [
+    1.0,
+    1.0,
+    1.0
+   ]
+  },
+  {
+   "name": "SM_Van_Wheel_11",
+   "cls": "StaticMeshActor",
+   "folder": "Van",
+   "mesh": "SM_Van_Wheel",
+   "location": [
+    -5163.0,
+    -8155.0,
+    282.5
+   ],
+   "quat": [
+    0.0,
+    0.0,
+    1.0,
+    0.0
+   ],
+   "scale": [
+    1.0,
+    1.0,
+    1.0
+   ]
+  },
+  {
+   "name": "SM_Van_Wheel_12",
+   "cls": "StaticMeshActor",
+   "folder": "Van",
+   "mesh": "SM_Van_Wheel",
+   "location": [
+    -4987.0,
+    -8155.0,
+    282.5
+   ],
+   "quat": [
+    0.0,
+    0.0,
+    -0.0,
+    1.0
+   ],
+   "scale": [
+    1.0,
+    1.0,
+    1.0
+   ]
+  },
+  {
+   "name": "SM_Van_SlidingDoor_3",
+   "cls": "StaticMeshActor",
+   "folder": "Van",
+   "mesh": "SM_Van_SlidingDoor",
+   "location": [
+    -5174.0,
+    -8280.0,
+    365.0
+   ],
+   "quat": [
+    0.0,
+    0.0,
+    1.0,
+    0.0
+   ],
+   "scale": [
+    1.0,
+    1.0,
+    1.0
+   ]
+  },
+  {
+   "name": "Van_Stash",
+   "cls": "HHVanPoint",
+   "folder": "Gameplay",
+   "location": [
+    -5075.0,
+    -8575.0,
+    345.0
+   ],
+   "quat": [
+    0.0,
+    0.0,
+    1.0,
+    0.0
+   ],
+   "scale": [
+    1.0,
+    1.0,
+    1.0
+   ],
+   "properties": {
+    "PointType": {
+     "enum": "EHHVanPointType",
+     "value": "Stash"
+    },
+    "InteractSound": {
+     "asset": "S_Bag_Zip_01"
+    },
+    "Prompt": {
+     "text": "Stash the loot in the van"
+    }
+   }
+  },
+  {
+   "name": "Van_Drive",
+   "cls": "HHVanPoint",
+   "folder": "Gameplay",
+   "location": [
+    -4960.0,
+    -8200.0,
+    345.0
+   ],
+   "quat": [
+    0.0,
+    0.0,
+    1.0,
+    0.0
+   ],
+   "scale": [
+    1.0,
+    1.0,
+    1.0
+   ],
+   "properties": {
+    "PointType": {
+     "enum": "EHHVanPointType",
+     "value": "Drive"
+    },
+    "InteractSound": {
+     "asset": "S_Van_Engine_Start_01"
+    },
+    "Prompt": {
+     "text": "Drive away"
+    }
+   }
+  },
+  {
+   "name": "PlayerStart_0",
+   "cls": "PlayerStart",
+   "folder": "Gameplay",
+   "location": [
+    -5305.0,
+    -8450.0,
+    352.0
+   ],
+   "quat": [
+    0.0,
+    0.0,
+    1.0,
+    0.0
+   ],
+   "scale": [
+    1.0,
+    1.0,
+    1.0
+   ],
+   "properties": {
+    "PlayerStartTag": "Crew0"
+   }
+  },
+  {
+   "name": "PlayerStart_1",
+   "cls": "PlayerStart",
+   "folder": "Gameplay",
+   "location": [
+    -5305.0,
+    -8300.0,
+    352.0
+   ],
+   "quat": [
+    0.0,
+    0.0,
+    1.0,
+    0.0
+   ],
+   "scale": [
+    1.0,
+    1.0,
+    1.0
+   ],
+   "properties": {
+    "PlayerStartTag": "Crew1"
+   }
+  },
+  {
+   "name": "PlayerStart_2",
+   "cls": "PlayerStart",
+   "folder": "Gameplay",
+   "location": [
+    -5305.0,
+    -8150.0,
+    352.0
+   ],
+   "quat": [
+    0.0,
+    0.0,
+    1.0,
+    0.0
+   ],
+   "scale": [
+    1.0,
+    1.0,
+    1.0
+   ],
+   "properties": {
+    "PlayerStartTag": "Crew2"
+   }
+  },
+  {
+   "name": "PlayerStart_3",
+   "cls": "PlayerStart",
+   "folder": "Gameplay",
+   "location": [
+    -5415.0,
+    -8230.0,
+    352.0
+   ],
+   "quat": [
+    0.0,
+    0.0,
+    1.0,
+    0.0
+   ],
+   "scale": [
+    1.0,
+    1.0,
+    1.0
+   ],
+   "properties": {
+    "PlayerStartTag": "Crew3"
+   }
+  },
+  {
+   "name": "HH_WakePoint_3",
+   "cls": "TargetPoint",
+   "folder": "Gameplay",
+   "location": [
+    -5315.0,
+    -8700.0,
+    270.0
+   ],
+   "quat": [
+    0.0,
+    0.0,
+    0.0,
+    1.0
+   ],
+   "scale": [
+    1.0,
+    1.0,
+    1.0
+   ],
+   "tags": [
+    "HH_WakePoint"
+   ]
+  },
+  {
+   "name": "SM_Town_HideoutPlug_2",
+   "cls": "StaticMeshActor",
+   "folder": "Plug",
+   "mesh": "SM_Town_HideoutPlug",
+   "location": [
+    0.0,
+    -0.0,
+    0.0
+   ],
+   "quat": [
+    0.0,
+    0.0,
+    0.0,
+    1.0
+   ],
+   "scale": [
+    1.0,
+    1.0,
+    1.0
+   ]
+  },
+  {
+   "name": "SM_Door_Steel_7",
+   "cls": "StaticMeshActor",
+   "folder": "Plug",
+   "mesh": "SM_Door_Steel",
+   "location": [
+    595.0,
+    -512.5,
+    220.0
+   ],
+   "quat": [
+    0.0,
+    0.0,
+    0.0,
+    1.0
+   ],
+   "scale": [
+    1.0,
+    1.0,
+    1.0
+   ]
+  },
+  {
+   "name": "LevelEnvironment",
+   "cls": "HHEnvironment",
+   "folder": "Environment",
+   "location": [
+    0,
+    0,
+    0
+   ],
+   "quat": [
+    0,
+    0,
+    0,
+    1
+   ],
+   "scale": [
+    1,
+    1,
+    1
+   ],
+   "properties": {
+    "fog_density": 0.02,
+    "fog_height_falloff": 0.2,
+    "fog_color": [
+     0.05,
+     0.06,
+     0.075
+    ],
+    "volumetric_albedo": [
+     0.85,
+     0.85,
+     0.85
+    ],
+    "volumetric_extinction": 1.0,
+    "exposure_min": -0.5,
+    "exposure_max": 6.0,
+    "exposure_bias": 0.2,
+    "bloom": 0.5,
+    "vignette": 0.4,
+    "grain": 0.1,
+    "contrast": 1.05,
+    "saturation": 0.9,
+    "shadows_tint": [
+     0.92,
+     0.97,
+     1.04
+    ],
+    "highlights_tint": [
+     1.04,
+     1.0,
+     0.95
+    ],
+    "lens_dirt": "T_LensDirt",
+    "sky_light_intensity": 1.0
+   }
+  },
+  {
+   "name": "TimeOfDay",
+   "cls": "HHTimeOfDay",
+   "folder": "Environment",
+   "location": [
+    0.0,
+    -4000.0,
+    3000.0
+   ],
+   "quat": [
+    0.0,
+    0.0,
+    0.0,
+    1.0
+   ],
+   "scale": [
+    1.0,
+    1.0,
+    1.0
+   ],
+   "properties": {
+    "bNightMap": true,
+    "MapSpeed": 0.35,
+    "DarkHouseTags": [
+     "HH_House_Marrow"
+    ]
+   }
+  }
+ ],
+ "kind": "persistent",
+ "streaming": [
+  "L_Town"
+ ],
+ "game_mode": "HHHeistGameMode"
+}
