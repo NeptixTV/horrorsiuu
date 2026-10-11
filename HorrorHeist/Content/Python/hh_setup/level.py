@@ -240,7 +240,6 @@ def build_map(name, rebuild=True):
         return
     map_path = f'{MAPS_DIR}/{name}'
     les, eas = open_or_create(map_path, rebuild)
-    ensure_streaming(les, name, layout.get('streaming', []))
     set_game_mode(name, layout.get('game_mode'))
     prefix = map_path + '.'
     spawned = misplaced = 0
@@ -262,7 +261,12 @@ def build_map(name, rebuild=True):
                 U.warn(f'{name}/{e.get("name")}: {exc}')
     if misplaced:
         U.warn(f'{name}: {misplaced} actors were placed into a streamed sub-level instead of the map itself')
-    les.save_current_level()
+    # Stream the town in last: adding a level makes it the current one, and every actor above must
+    # land in this map (right after loading, the persistent level is current).
+    ensure_streaming(les, name, layout.get('streaming', []))
+    # Saves the map itself and its streaming setup (the current level may be the sub-level now).
+    if not les.save_all_dirty_levels():
+        les.save_current_level()
     U.log(f'{name}: {spawned} actors placed')
 
 

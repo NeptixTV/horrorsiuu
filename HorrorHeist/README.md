@@ -1,76 +1,117 @@
 # The Quiet Job – Koop-Horror-Heist (Unreal Engine 5)
 
-> Hollowmere, irgendwann im Oktober. Eine Crew aus bis zu vier Einbrechern plant ihre Jobs im Keller
-> unter „Brannigan & Sons Plumbing“. Die Häuser der Stadt sind nicht leer – und manche sind es nie gewesen.
+> Hollowmere, irgendwann im Oktober. Eine Crew aus bis zu vier Einbrechern plant ihre Jobs im Keller unter
+> **Marlowe's Waschsalon** (der Hehler betreibt nebenan „Brannigan & Sons Plumbing“ als Tarnung). Nachts fährt
+> der Van zu den Häusern der Stadt. Die Häuser sind nicht leer – und manche sind es nie gewesen.
 
-Dieser Ordner enthält **Meilenstein 1**: das spielbare, begehbare Versteck (Lobby) mit dem kompletten
-Menüsystem, Multiplayer-Grundlage, Charakter-Anpassung, Ausrüstung, Shop, Progression, Einstellungen und
-allen dafür nötigen Assets. Alle Modelle, Texturen, Sounds und Musikstücke wurden für dieses Projekt
-**selbst erzeugt** (prozedural bzw. per Skript). Die Schriften stehen unter der SIL Open Font License.
-
-| Hauptmenü | Jobboard (PLAY) | Werkbank (LOADOUT) |
+| Die Stadt (Draufsicht) | 14 Ashgrove Lane – das erste Ziel | Ashgrove Lane |
 |---|---|---|
-| ![](SourceArt/Previews/Hideout_MainMenu.jpg) | ![](SourceArt/Previews/Hideout_Play.jpg) | ![](SourceArt/Previews/Hideout_Loadout.jpg) |
+| ![](SourceArt/Previews/Town_Map.jpg) | ![](SourceArt/Previews/Town_Vance.jpg) | ![](SourceArt/Previews/Town_Ashgrove.jpg) |
 
-| Spiegel-Ecke (CUSTOMIZATION) | Der Hehler (STORE) | Überwachungs-Pult (SETTINGS) |
+| Wohnzimmer der Vances | Schlafzimmer (Ziel: Münzsammlung) | Das Marrow-Haus (vorbereitet) |
 |---|---|---|
-| ![](SourceArt/Previews/Hideout_Customization_Preview.jpg) | ![](SourceArt/Previews/Hideout_Store.jpg) | ![](SourceArt/Previews/Hideout_Settings.jpg) |
+| ![](SourceArt/Previews/Vance_Living.jpg) | ![](SourceArt/Previews/Vance_Master.jpg) | ![](SourceArt/Previews/Town_Marrow.jpg) |
 
-*(Vorschau-Renderings aus Blender/Cycles; im Spiel rendert Unreal mit Lumen, Volumetric Fog und eigenen Lichtern.)*
+*(Vorschau-Renderings aus Blender/Cycles mit einer Taschenlampe an der Kamera; im Spiel rendert Unreal mit Lumen,
+Volumetric Fog, eigenem Tag/Nacht-Himmel und den platzierten Lichtern.)*
+
+Alle Modelle, Texturen, Sounds und Musikstücke wurden für dieses Projekt **selbst erzeugt** (prozedural per
+Skript) – es gibt keine fremden Assets. Lizenzhinweise: `SourceArt/Audio/LICENSES_AUDIO.md`, Schriften unter
+der SIL Open Font License (`Content/Slate/Fonts/Licenses`).
 
 ---
 
 ## Schnellstart
 
-**Voraussetzungen:** Unreal Engine **5.5**, Visual Studio 2022 (17.8 oder neuer) mit den Workloads
-„Spieleentwicklung mit C++“, „Desktopentwicklung mit C++“ und „.NET-Desktopentwicklung“ (Windows).
+**Voraussetzungen:** Unreal Engine **5.5**, Visual Studio 2022 (17.8+) mit „Spieleentwicklung mit C++“,
+„Desktopentwicklung mit C++“ und „.NET-Desktopentwicklung“ (Windows).
 
-1. **`Build-HorrorHeist.bat`** doppelklicken. Das Skript findet UE 5.5 (oder bekommt den Pfad als Parameter),
-   erzeugt die Visual-Studio-2022-Projektdateien (`HorrorHeist.sln`) und kompiliert **HorrorHeistEditor**
-   (Win64, Development). Das komplette Protokoll steht danach in **`BuildLog.txt`**.
-   *(Manuell geht es auch: Rechtsklick auf `HorrorHeist.uproject` → **Generate Visual Studio project files**,
-   `HorrorHeist.sln` öffnen, Konfiguration **Development Editor / Win64**, **Erstellen → Projektmappe erstellen**.)*
-2. Beim **ersten Start** des Editors erscheint der Dialog *„The game content has not been built yet“* →
-   **Yes**. Das Setup-Skript (`Content/Python/hh_setup`) importiert dann automatisch alles aus `SourceArt/`:
-   ~155 Texturen, ~95 Sounds/Musikstücke, ~170 Meshes und 6 Animationen. Danach erstellt es
-   die Master-Materialien mit über 100 Material-Instanzen, alle Data Assets und baut die Map `L_Hideout`.
-   Das dauert einige Minuten. Danach öffnet sich das Versteck.
-   - Jederzeit erneut ausführbar über das Editor-Menü **The Quiet Job → Build / Rebuild All Content**.
-   - Nur das Level neu platzieren: **The Quiet Job → Rebuild Hideout Level Only**.
-3. **Play** drücken. Für Multiplayer im Editor: Play-Dropdown → *Number of Players* = 2–4,
-   *Net Mode* = **Play As Listen Server**.
-4. Im echten Spiel: Hauptmenü → **PLAY** → Reiter *CREW & SESSION* → **OPEN TO CREW** (hosten),
-   **FIND CREWS** (LAN-Suche) oder **JOIN BY IP** (Port 7777).
+1. **`Build-HorrorHeist.bat`** doppelklicken (findet UE 5.5, erzeugt `HorrorHeist.sln`, kompiliert
+   **HorrorHeistEditor** Win64 Development; Protokoll in **`BuildLog.txt`**).
+2. Editor öffnen. Beim **ersten Start** fragt ein Dialog nach dem Aufbau der Inhalte → **Yes**. Das Setup
+   (`Content/Python/hh_setup`) importiert alles aus `SourceArt/` (Texturen, ~175 Sounds, ~330 Meshes,
+   Animationen), erzeugt Materialien, baut **fünf Maps** (siehe unten) und danach alle Data Assets
+   (Kosmetik, Ausrüstung, 24 Beutestücke, Jobs). Das dauert je nach Rechner 10–20 Minuten.
+   - Am Ende erscheint eine Zusammenfassung; **jede Warnung** steht vollständig in
+     **`Saved/HHSetup_Report.txt`** (und im Output Log, Filter „HH Setup“).
+   - Jederzeit erneut ausführbar: Menü **The Quiet Job → Build / Rebuild All Content**. Ein erneuter Lauf
+     ersetzt nur die Actors, die das Skript selbst platziert hat (Tag `HH_Generated`) – und zwar nur in der
+     jeweiligen Map, nie in gestreamten Sub-Levels. Von Hand Hinzugefügtes bleibt erhalten, es entstehen keine
+     Duplikate. Teilschritte: **Rebuild Maps Only**, **Rebuild Data Assets Only**.
+3. **Play** (Map `L_Hideout`). Multiplayer im Editor: Play-Dropdown → *Number of Players* 2–4,
+   *Net Mode* **Play As Listen Server**.
 
-> Hinweis: Der Code wurde ohne installierte Unreal Engine entwickelt und gegen die UE-5.5-APIs und die
-> Build-Regeln von UE 5.5 geprüft (Variablen-Verdeckung = Fehler, explizite Includes, Format-Strings,
-> Modul-Abhängigkeiten), aber noch nicht mit einem echten Compiler übersetzt. Meldet der Build trotzdem einen
-> Fehler, steht die genaue Ursache in `BuildLog.txt` (bzw. `Saved/Logs/HorrorHeist.log`, wenn der Editor selbst
-> kompiliert hat). Das Setup-Skript protokolliert jede Warnung im Output Log (Filter „HH Setup“).
+> **Ehrlicher Hinweis:** Code und Setup-Skript wurden ohne installierte Unreal Engine geschrieben und gegen die
+> UE-5.5-APIs und Build-Regeln geprüft – aber **nicht mit einem echten Compiler übersetzt und nicht im Editor
+> gespielt**. Siehe Abschnitt *Stand & Grenzen*.
 
 ---
 
-## Was Meilenstein 1 enthält
+## Die Maps
 
-| Bereich | Umsetzung |
+| Map | Inhalt |
 |---|---|
-| **Versteck** | Begehbarer Keller (14 × 10 m) mit Van-Stellplatz, Rolltor, Treppe, Heizungsraum, Lounge, Werkbank, Hehler-Käfig, Überwachungs-Pult; 266 platzierte Actors, Decals, Rohre, Träger |
-| **Bewegung** | First-Person (Kopf-Bob, Lande-Dip, Ducken mit weichem Kamera-Übergang), optional Third-Person (`T`), Sprinten, Springen, Taschenlampe (`F`) |
-| **Multiplayer** | Listen-Server, Online Subsystem (Null/LAN, Steam/EOS per Config), Direkt-IP, Crew-Slots, Crew-Leader, Ready-Check mit Countdown, alle Zustände repliziert, Server-validierte RPCs |
-| **Hauptmenü** | PLAY / LOADOUT / CUSTOMIZATION / STORE / SETTINGS / QUIT – jede Seite gehört zu einer **physischen Station** im Versteck, die Kamera fährt dorthin |
-| **Einstellungen** | Grafik (Fenstermodus, Auflösung, Scalability-Gruppen, Auto-Detect, Render-Auflösung, AA, Upscaler wenn installiert, Volumetric Fog, Motion Blur, Grain, CA, FOV, Helligkeit, Gamma), Audio (7 Kanäle über Sound-Mix, Mikro, Push-to-Talk), Steuerung (Enhanced-Input-Tastenbelegung mit Tausch, Maus/Gamepad, Invert, Toggle), Gameplay, Barrierefreiheit (Farbenblind-Filter, Untertitel/Captions, weniger Bewegung, **kein Stroboskop**). Alles wird wirklich angewendet und gespeichert |
-| **Charakter** | Eigener Körper mit UE-Skelett-Namen, 6 Animationen (Idle, Gehen, Rennen, Ducken, Duck-Gehen, Fallen), distanz-synchronisiertes Blending ohne Anim-Blueprint, Blickneigung über die Wirbelsäule |
-| **Kosmetik** | 56 Items in 11 Slots (Hautton, Haare, Hüte, Masken, Oberteile, Jacken, Handschuhe, Hosen, Schuhe, Rucksäcke, Accessoires) – data-driven (Primary Data Assets), Farbvarianten über Tints |
-| **3D-Vorschau** | Mannequin vor dem Spiegel, Drehen per Ziehen, Zoom per Mausrad, Kamera fokussiert den gewählten Slot |
-| **Ausrüstung** | 13 Items in 5 Slots (Licht, Einstieg, Werkzeug, Gadget, Tasche) mit Werten; die Taschenlampe übernimmt Helligkeit/Reichweite/Kegel/Farbtemperatur direkt aus dem Item |
-| **Shop & Progression** | „The Fence“: Kaufen mit Bargeld, Level-Sperren, Seltenheiten; XP-Kurve bis Level 50 |
-| **Speichern** | Profil (Name, Geld, XP, Besitz, Loadouts) als SaveGame, Einstellungen in `GameUserSettings.ini` |
-| **Interaktion** | Blick-Sweep mit Prompt und Umriss-Highlight; Türen (schwingen vom Spieler weg), Sicherungskasten (Hauptlicht aus/an), Radio (2 Sender), Van-Schiebetür (= Ready), alle Stationen |
-| **Atmosphäre** | Flackernde Praxis-Lichter (Buzz, Dying, Fernseher, Glut), Gewitter mit Blitz durch die Fenster, Regen, Raumton, Tropfen, knarzende Rohre, ein **Ambience-Director** (Schritte von oben, Klopfen an der Treppentür, Flüstern, Störungen im Radio, eine Tür, die nur aufgeht, wenn niemand hinsieht) – Horror durch Unsicherheit, keine Jump-Scares |
+| `L_Hideout` | Persistente Hub-Map: das Versteck im Keller (Jobboard, Werkbank/Loadout, Spiegel/Kosmetik, Hehler-Shop, Überwachungs-Pult, **neuer Planungstisch** mit dem Grundriss des Vance-Hauses, Spinde, Van-Stellplatz), Uhr/Himmel, Licht. Streamt `L_Town`. |
+| `L_Town` | Die Stadt Hollowmere, als **always-loaded Streaming-Level** in jeder persistenten Map: Main Street mit Waschsalon (über dem Versteck), Brannigan & Sons, Diner, Kleiderladen, Eisenwarenladen, Museum (mit dem Gemälde „The Lantern Bearer“ hinter einem beleuchteten Schaufenster), öffentlicher Parkplatz; Ashgrove Lane, Marrow Street, Church Road mit St.-Agnes-Kirche und Friedhof, Founders' Park mit Pavillon; 9 Nachbarhäuser, die drei Job-Häuser, Laternen, Autos, Bäume, Zäune, Hecken, Hydranten, Briefkästen, Mülltonnen, Schilder, Pfützen/Laub-Decals, unsichtbare Begrenzungswände und Wald am Stadtrand. |
+| `L_Job_Vance` | **Erster Job, voll spielbar.** Heist-GameMode, Nacht-Uhr, Van am Bordstein vor 14 Ashgrove Lane, Crew-Startpunkte, 25 Beutestücke, durchsuchbare Behälter, Ersatzschlüssel, Spuk (Director, bewegliche Gegenstände, Geräte, Erscheinung). |
+| `L_Job_Marrow` | Vorbereitet (Van, Starts, Hausvolumen, Spuk-Director; noch keine Beute). Job auf dem Board als „wird ausgekundschaftet“ gesperrt. |
+| `L_Job_Rectory` | Vorbereitet wie Marrow. |
 
-Die vier Jobs auf dem Board (Vance-Haus, St.-Agnes-Pfarrhaus, Marrow-Haus, Whitlock-Farm) sind vollständig
-beschrieben und haben Fotos. Sie haben aber noch **keine Map**: Der Van meldet ehrlich „This job has no map
-assigned yet“. Die Häuser sind Meilenstein 2.
+**Nicht betretbare Gebäude sagen das ehrlich:** Läden sind nachts geschlossen (gemalte Inneneinrichtung hinter
+dem Glas), Nachbarhäuser haben zugezogene Vorhänge, abends erleuchtete Fenster und abgeschlossene Türen
+(„Nobody lets you in…“ bzw. auf einem Job „Not tonight's job“). Es gibt keine leeren, scheinbar betretbaren
+Hüllen.
+
+### Die Häuser
+
+* **A – 14 Ashgrove Lane (Familie Vance), spielbar:** zwei Etagen + Keller. Erdgeschoss: Diele mit Standuhr,
+  Wohnzimmer mit Kamin, Esszimmer, Arbeitszimmer, Küche mit Hintertür, Hinterflur; Obergeschoss: Elternschlafzimmer,
+  Gästezimmer, Kinderzimmer, Bad; Keller mit Ölheizung, Waschmaschine, Werkbank und einer alten Truhe.
+  Einstiege: **Vordertür** (Dietrich, leise, oder der **Ersatzschlüssel** unter dem Gartenzwerg), **Hintertür**
+  (klemmt: Brecheisen = **laut**, oder Glasschneider = leise). Von innen lassen sich die Türen aufschließen.
+* **B – Das Marrow-Haus (Marrow Street), vorbereitet:** viktorianisch, seit 1974 leer, vernagelte Fenster,
+  verwilderter Garten, Möbel unter Staubtüchern, Licht im Dachfenster. Erdgeschoss eingerichtet, Obergeschoss
+  im Rohbau.
+* **C – St.-Agnes-Pfarrhaus (Church Road), vorbereitet:** größeres Steinhaus hinter Eisenzaun und Hecke,
+  **besser gesichert** (Vordertür nur mit Schlüssel, Hintertür mit langem Dietrich-Vorgang). Erdgeschoss
+  eingerichtet, Obergeschoss im Rohbau.
+
+---
+
+## Ein Einbruch – der Ablauf
+
+1. **Jobboard (PLAY):** Der Crew-Leader pinnt *The Vance Residence*. Nicht freigegebene Jobs zeigen
+   „still being cased“ und lassen sich nicht pinnen. Jobs starten **nur nachts** (20:00–05:00); tagsüber
+   erscheint **WAIT UNTIL DARK** (Crew-Leader) und spult die Uhr bis zur Dämmerung vor.
+2. **Ready-Check** (Van-Schiebetür oder `R`) → Countdown → Server-Travel aller Spieler nach `L_Job_Vance`
+   (die Uhrzeit wird mitgenommen).
+3. **Einsteigen:** Ziele erscheinen oben links. Lärm (Brecheisen, Klappern an Türen, Rennen) erhöht die
+   **Nachbarschafts-Alarmstufe** (oben Mitte); bei 100 % ruft jemand die Polizei – danach läuft ein Countdown.
+4. **Beute:** **5 Inventarplätze pro Spieler, Werkzeuge eingeschlossen** (Licht, Einbruchwerkzeug, Utility,
+   Gadget). Platz schaffen = Gegenstand fallen lassen (`G`). Halten-Interaktionen (Dietrich, Durchsuchen, schwere
+   Beute) werden serverseitig validiert. Der Fernseher ist schwer (beide Hände, langsamer, kein Sprinten).
+   Der Wert jedes Gegenstands wird beim Jobstart auf dem Server ausgewürfelt und im HUD angezeigt.
+5. **Der Spuk eskaliert** – je länger die Crew im Haus ist, je mehr sie mitnimmt und je größer sie ist: erst
+   Knarren und ferne Geräusche, dann erlöschende Lichter, sich öffnende Türen, verstellte Gegenstände, ein
+   Bildschirm voller Rauschen, Flüstern, fallendes Glas, eine Gestalt am Ende des Flurs … und ganz am Ende die
+   Jagd. Verfluchte Beute (das Medaillon im Keller) beschleunigt das massiv. Psyche sinkt im Dunkeln und allein,
+   bei 0 wird man ohnmächtig, verliert die getragene Beute und wacht draußen am Van auf.
+6. **Abhauen:** Beute im Van verstauen (Heckklappe). Erst wenn **alle** am Van sind, kann gefahren werden
+   (Fahrertür, gedrückt halten). Ergebnis: *Success* (Mindestbeute erreicht), *Partial*, *Caught* (Polizei)
+   oder *Abandoned* (Crew-Leader bricht im Pausenmenü ab).
+7. **Auswertung:** Karte mit gesicherter/verlorener Beute, Anteil pro Spieler (+20 % mit dem Hauptziel),
+   XP, Dauer und Spukstufe → automatische Rückkehr ins Versteck (morgens), Geld und XP sind gespeichert;
+   im Versteck erscheint noch einmal eine kurze Nachbesprechung.
+
+---
+
+## Tag & Nacht
+
+`AHHTimeOfDay` (eine pro persistenter Map) treibt Sonne, Mond, Himmel (Sky Atmosphere), Skylight, Nebel,
+**Straßenlaternen**, **erleuchtete Fenster** und Tag/Nacht-Ambience (Vögel ↔ Grillen). Server-autoritativ:
+Es repliziert nur ein Anker (Uhrzeit + Server-Zeit + Rate), alle Clients rechnen selbst. Standard: ein Tag
+dauert 48 Minuten, das Spiel beginnt um 16:30; Jobs laufen mit 35 % Geschwindigkeit, damit die Nacht reicht.
+Tempo einstellbar unter *Settings → Gameplay → World → Time Speed*; Uhr im HUD oben rechts.
 
 ---
 
@@ -80,17 +121,37 @@ assigned yet“. Die Häuser sind Meilenstein 2.
 |---|---|---|
 | Bewegen / Umsehen | WASD / Maus | Linker / rechter Stick |
 | Sprinten / Ducken / Springen | Shift / Strg / Leertaste | L3 / B / A |
-| Interagieren | E | X |
+| Interagieren (Halten bei Dietrich, Durchsuchen …) | E | X |
+| Inventarplatz wählen | 1–5, Mausrad | Steuerkreuz ← / → |
+| Gegenstand fallen lassen | G | LB |
 | Taschenlampe | F | Steuerkreuz ↑ |
 | Push-to-Talk | V | RB |
 | Loadout / Jobboard / Ready | Tab / M / R | Y / View / Steuerkreuz ↓ |
 | Ich- ↔ Third-Person | T | R3 |
-| Menü / Zurück | Esc | Menu |
+| Menü / Pause | Esc | Menu |
 
 Alle Tastatur-Belegungen sind unter *Settings → Controls* änderbar.
 
-**Entwickler-Konsolenbefehle** (`~`): `HHGiveCash 5000`, `HHGiveXP 10000`, `HHUnlockAll`, `HHResetProfile`,
-`HHForceAmbientEvent 0..6` (Host), `hh.DebugNoise 1`.
+**Entwickler-Konsolenbefehle** (`~`, Host): `HHGiveCash 5000`, `HHGiveXP 10000`, `HHUnlockAll`,
+`HHResetProfile`, `HHForceAmbientEvent 0..6`, `HHSetTime 21.5`, `HHTimeSpeed 10`, `HHAddAnger 30`,
+`HHHauntEvent 0..11` (0 Settle, 1 DistantSound, 2 LightOut, 3 DoorOpen, 4 ObjectMoved, 5 DoorSlam,
+6 DeviceOn, 7 Flicker, 8 Whisper, 9 GlassFall, 10 Apparition, 11 Hunt), `HHEndJob 1..4`
+(Success/Partial/Caught/Abandoned), `hh.DebugNoise 1`.
+
+---
+
+## Testen im Editor (Checkliste)
+
+1. `L_Hideout` öffnen, Play (Listen Server, 2 Spieler). Erwartung: beide Spieler stehen sichtbar im Keller;
+   im Ich-Modus sieht man den eigenen Körper (Kopf ausgeblendet) und die Hand mit dem Licht; `T` zeigt den
+   ganzen Charakter. *Settings → Audio*: Master/Music/SFX/Ambient hörbar wirksam, Werte bleiben nach Neustart.
+2. Treppe hoch → **Stahltür „Go outside“** → Parkplatz des Waschsalons → Main Street → Ashgrove Lane.
+   Vance-Haustür: „Locked – Nobody lets you in. Come back with the crew after dark.“
+3. `HHTimeSpeed 30`: Dämmerung, Laternen und Fenster gehen an, Grillen ersetzen Vögel.
+4. Zurück zum Jobboard: Vance pinnen → **WAIT UNTIL DARK** → beide **Ready** → Reise nach `L_Job_Vance`.
+5. Im Job: Gartenzwerg durchsuchen → Schlüssel → Vordertür aufschließen; Beute aufheben (Slots füllen sich,
+   Wert im HUD), Kommode oben durchsuchen (Münzsammlung), mit `HHAddAnger 60` den Spuk vorspulen,
+   Beute am Van verstauen, alle zum Van, Fahrertür halten → Auswertung → Rückkehr ins Versteck.
 
 ---
 
@@ -99,56 +160,62 @@ Alle Tastatur-Belegungen sind unter *Settings → Controls* änderbar.
 ```
 HorrorHeist/
 ├─ Source/HorrorHeist/        C++ (ein Runtime-Modul, Präfix HH)
-│  ├─ Core/        Typen, GameInstance, GameData-Asset, Noise-Bus (Basis für KI-Hören)
-│  ├─ Data/        Item-/Kosmetik-/Ausrüstungs-/Missions-/Charakter-Definitionen + Registry
-│  ├─ Progression/ Profil-SaveGame, Geld, XP, Besitz, Loadouts
+│  ├─ Core/        Typen, GameInstance, GameData, GameModeBase (Spawn/Travel), Noise-Bus, Developer Settings
+│  ├─ Data/        Item-/Kosmetik-/Ausrüstungs-/Beute-/Missions-/Charakter-Definitionen + Registry
+│  ├─ Progression/ Profil-SaveGame, Geld, XP, Besitz, Loadouts, Job-Ergebnisse
 │  ├─ Settings/    GameUserSettings-Erweiterung, Enhanced-Input-Subsystem (Laufzeit-Actions)
-│  ├─ Audio/       Lautstärke-Routing, UI-Sounds, Musik, Untertitel/Captions
+│  ├─ Audio/       Lautstärke-Routing (Sound-Mix je Kategorie), UI-Sounds, Musik, Captions
 │  ├─ Online/      Sessions (Host/Suche/Beitritt/IP)
-│  ├─ Lobby/       GameMode (Regeln, Countdown, Abreise) und GameState (repliziert)
-│  ├─ Player/      Charakter, Controller, PlayerState, AnimInstance, Kosmetik, Interaktion, Schritte
-│  ├─ Interaction/ Interaktions-Interface, Stationen, Türen, Schalter, Radio, Van
-│  ├─ World/       Praxis-Lichter, Ambience-Director, Gewitter, Emitter, Vorschau-Mannequin
-│  └─ UI/          Slate-Stil + alle Menüs (keine UMG-Assets nötig)
-├─ Content/
-│  ├─ Python/      init_unreal.py + hh_setup (Import, Materialien, Data Assets, Level-Aufbau)
-│  └─ Slate/       Schriften + UI-Bilder, zur Laufzeit geladen
-├─ SourceArt/      Generierte Quell-Assets (FBX, PNG/JPG, WAV) + Layout-JSON + Katalog-JSON
-└─ Tools/AssetGen/ Generatoren: audio/ (numpy/scipy), textures/ (numpy/Pillow), blender/ (bpy)
+│  ├─ Lobby/       Hub-GameMode (Ready, Nacht-Prüfung, Abreise) und GameState
+│  ├─ Heist/       Heist-GameMode/-GameState (Regeln, Ziele, Alarm, Auszahlung), Beute, Behälter, Van,
+│  │               Hausvolumen, Begrenzung, Spuk-Director, Spuk-Requisiten/-Geräte, Erscheinung
+│  ├─ Player/      Charakter, Controller, PlayerState, Inventar (5 Plätze), AnimInstance (Kopf/Hand-IK),
+│  │               Kosmetik, Interaktion (Halten), Schritte
+│  ├─ Interaction/ Interaktions-Interface, Stationen, Türen mit Schlössern, Schalter, Radio, Van
+│  ├─ World/       Tageszeit, Praxis-Lichter, Ambience-Director, Gewitter, Emitter, Vorschau-Mannequin
+│  └─ UI/          Slate-Stil + alle Menüs und das Heist-HUD (keine UMG-Assets nötig)
+├─ Content/Python/ init_unreal.py + hh_setup (Import, Materialien, Maps, Data Assets, Bericht)
+├─ SourceArt/      Generierte Quell-Assets (FBX, PNG/JPG, WAV) + Layout-JSONs + Katalog-JSON
+└─ Tools/AssetGen/ Generatoren: audio/, textures/, blender/ (Props, Stadt, Häuser, Maps)
 ```
 
-**Architektur-Prinzipien:** kein „GameManager“-Monolith. Jedes System ist ein Subsystem oder eine Komponente
-mit klarer Zuständigkeit und kommuniziert über Delegates statt Tick-Polling (Tick nur, wo etwas animiert).
-Inhalte sind **data-driven**: Ein neues Item, ein neuer Job oder ein neuer Sound braucht kein C++, nur ein
-Data Asset bzw. einen Eintrag in `DA_GameData`. Der Server validiert alle Anfragen; Aussehen und Loadout
-jedes Spielers stehen repliziert im PlayerState.
+**Architektur:** kein GameManager-Monolith. Jedes System ist ein Subsystem, eine Komponente oder ein kleiner
+Actor mit klarer Aufgabe; Kommunikation über Delegates. Häuser und Jobs sind **daten- und tag-getrieben**: Ein
+neues Haus braucht kein C++ – nur einen Missions-Eintrag (Map, Haus-Tag, Mindestbeute, Hauptziel) und eine Map
+mit getaggten Actors (`HH_HouseLight`, `HH_HouseDoor`, `HH_HauntPoint`, `HH_ApparitionPoint`, `HH_WakePoint`,
+Hausvolumen, Van-Punkte). Der Server validiert alle Anfragen (Interaktionen, Haltezeiten, Inventar, Reisen).
 
-### Assets neu erzeugen (optional)
+### Inhalte neu erzeugen (optional)
 
-Alle Generatoren laufen mit Python 3.11+ (`pip install numpy scipy pillow bpy`; `bpy` = Blender 4.2+ als Modul):
+Python 3.11+ mit `numpy scipy pillow bpy` (bpy = Blender als Modul, getestet mit 5.2):
 
 ```bash
 cd HorrorHeist
-python Tools/AssetGen/audio/gen_sfx.py && python Tools/AssetGen/audio/gen_music.py
+python Tools/AssetGen/audio/gen_sfx.py && python Tools/AssetGen/audio/gen_music.py && python Tools/AssetGen/audio/gen_world_sfx.py
 python Tools/AssetGen/textures/gen_textures.py && python Tools/AssetGen/textures/gen_unique.py
+python Tools/AssetGen/textures/gen_world_textures.py && python Tools/AssetGen/textures/gen_world_images.py
+python Tools/AssetGen/textures/gen_blueprint.py
 python Tools/AssetGen/blender/catalog.py
-python Tools/AssetGen/blender/items.py
-python Tools/AssetGen/blender/build_hideout.py --render      # Versteck + Layout + Vorschaubilder
+python Tools/AssetGen/blender/items.py && python Tools/AssetGen/blender/render_loot_icons.py
+python Tools/AssetGen/blender/build_world.py [--render]      # Versteck + Stadt + Häuser + Job-Maps
 python Tools/AssetGen/blender/build_character.py --preview   # Körper, Animationen, Kosmetik, Icons
 ```
 
-Danach im Editor **The Quiet Job → Build / Rebuild All Content**.
+`build_world.py` ist deterministisch: ein zweiter Lauf ändert keine Datei (Meshes werden nur exportiert, wenn
+sich ihr Inhalts-Hash geändert hat). Danach im Editor **The Quiet Job → Build / Rebuild All Content**.
 
 ---
 
 ## Stand & Grenzen
 
-- **Ungetestet in der Engine:** C++ und Setup-Skript wurden sorgfältig gegen die UE-5.4/5.5-APIs geprüft und das
-  Python-Setup gegen eine Attrappe der Unreal-API durchlaufen, aber nicht in einem echten Editor ausgeführt.
-- **Lichtstärken / Belichtung** sind physikalisch gewählt (Candela, Auto-Exposure EV 1–4), werden aber im
-  Editor vermutlich noch etwas Feintuning brauchen.
-- **Upscaler** (DLSS/FSR/XeSS) erscheinen nur, wenn das jeweilige Plugin installiert ist.
-- **Voice-Chat** nutzt die VoIP-Schnittstelle des Online Subsystems (Push-to-Talk/Offenes Mikro); die
-  Mikrofon-Erkennung durch Geister folgt mit der KI in einem späteren Meilenstein (der Noise-Bus ist bereits da).
-- **Nächste Meilensteine:** erstes Haus (Vance) mit Bewohner-KI und Geräusch-Ausbreitung, Beute & Auszahlung,
-  danach Geister-KI mit Erinnerung an Spielerverhalten und die verfluchten Häuser.
+- **Implementiert:** alles oben Beschriebene (C++, Python-Setup, Assets, Maps-Layouts).
+- **Kompiliert:** *nein* – in dieser Umgebung gibt es keine Unreal Engine. Der Code wurde statisch geprüft
+  (Signaturen, Includes, Variablen-Verdeckung als Fehler, Unity-Build-Kollisionen), die Layouts automatisch gegen
+  die C++-Properties und Asset-Listen abgeglichen, und die Blender-Generatoren laufen hier vollständig durch.
+- **Im Spiel getestet:** *nein*. Nur die Blender-Vorschaubilder wurden geprüft. Belichtung, Lichtstärken,
+  Lautstärken, Spuk-Timing und Bewegungsgefühl werden im Editor Feintuning brauchen.
+- **Voice-Chat:** nutzt die VoIP-Schnittstelle des Online Subsystems (Push-to-Talk/Offenes Mikro, Lautstärke über
+  die Voice-Klasse) – ohne echte Mehrspieler-Sitzung ungetestet.
+- **Jobs 2 und 3** (Marrow, Pfarrhaus) haben Häuser und vorbereitete Maps, aber noch keine Beute/Spuk-Elemente;
+  sie sind auf dem Board bewusst gesperrt. Whitlock hat noch kein Haus.
+- **Upscaler** (DLSS/FSR/XeSS) erscheinen nur mit installiertem Plugin.
