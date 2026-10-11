@@ -1,0 +1,1751 @@
+{
+ "SM_Armchair_Wing": {
+  "collision": "box",
+  "file": "SourceArt/Meshes/Props/House/SM_Armchair_Wing.fbx",
+  "folder": "Props/House",
+  "kind": "static",
+  "materials": [
+   "MI_Wood_Dark",
+   "MI_Fabric_Sofa_Green"
+  ],
+  "nanite": false
+ },
+ "SM_Awning": {
+  "collision": "none",
+  "file": "SourceArt/Meshes/Props/Town/SM_Awning.fbx",
+  "folder": "Props/Town",
+  "kind": "static",
+  "materials": [
+   "MI_Fabric_Curtain",
+   "MI_Fabric_Olive",
+   "MI_Metal_Black"
+  ],
+  "nanite": false
+ },
+ "SM_Bathtub": {
+  "collision": "complex",
+  "file": "SourceArt/Meshes/Props/House/SM_Bathtub.fbx",
+  "folder": "Props/House",
+  "kind": "static",
+  "materials": [
+   "MI_Porcelain",
+   "MI_Brass",
+   "MI_Rubber_Black"
+  ],
+  "nanite": false
+ },
+ "SM_Bed_Double": {
+  "collision": "box",
+  "file": "SourceArt/Meshes/Props/House/SM_Bed_Double.fbx",
+  "folder": "Props/House",
+  "kind": "static",
+  "materials": [
+   "MI_Wood_Dark",
+   "MI_Wood_Raw",
+   "MI_Fabric_Shade",
+   "MI_Fabric_Bedding"
+  ],
+  "nanite": false
+ },
+ "SM_Bed_Single": {
+  "collision": "box",
+  "file": "SourceArt/Meshes/Props/House/SM_Bed_Single.fbx",
+  "folder": "Props/House",
+  "kind": "static",
+  "materials": [
+   "MI_Trim_White",
+   "MI_Wood_Raw",
+   "MI_Fabric_Shade",
+   "MI_Fabric_Curtain_Light",
+   "MI_Fabric_Sofa_Green",
+   "MI_Fabric_Curtain",
+   "MI_Velvet_Blue",
+   "MI_Fabric_Bedding"
+  ],
+  "nanite": false
+ },
+ "SM_Bench_Park": {
+  "collision": "box",
+  "file": "SourceArt/Meshes/Props/Town/SM_Bench_Park.fbx",
+  "folder": "Props/Town",
+  "kind": "static",
+  "materials": [
+   "MI_Metal_Black",
+   "MI_Wood_Planks"
+  ],
+  "nanite": false
+ },
+ "SM_Bin_Metal": {
+  "collision": "convex",
+  "file": "SourceArt/Meshes/Props/Town/SM_Bin_Metal.fbx",
+  "folder": "Props/Town",
+  "kind": "static",
+  "materials": [
+   "MI_Steel"
+  ],
+  "nanite": false
+ },
+ "SM_Bin_Wheelie": {
+  "collision": "box",
+  "file": "SourceArt/Meshes/Props/Town/SM_Bin_Wheelie.fbx",
+  "folder": "Props/Town",
+  "kind": "static",
+  "materials": [
+   "MI_Plastic_Black",
+   "MI_Paper",
+   "MI_Rubber_Black",
+   "MI_Plastic_Grey",
+   "MI_Steel"
+  ],
+  "nanite": false
+ },
+ "SM_Bollard": {
+  "collision": "convex",
+  "file": "SourceArt/Meshes/Props/Town/SM_Bollard.fbx",
+  "folder": "Props/Town",
+  "kind": "static",
+  "materials": [
+   "MI_Metal_Black",
+   "MI_Metal_Yellow"
+  ],
+  "nanite": false
+ },
+ "SM_Bookshelf_Tall": {
+  "collision": "box",
+  "file": "SourceArt/Meshes/Props/House/SM_Bookshelf_Tall.fbx",
+  "folder": "Props/House",
+  "kind": "static",
+  "materials": [
+   "MI_Wood_Dark",
+   "MI_Velvet_Blue",
+   "MI_Paper",
+   "MI_Fabric_Olive",
+   "MI_Fabric_Sofa_Green",
+   "MI_Fabric_Curtain",
+   "MI_Fabric_Navy",
+   "MI_Leather_Black",
+   "MI_Cardboard",
+   "MI_Fabric_Rug",
+   "MI_Fabric_Brown",
+   "MI_Leather"
+  ],
+  "nanite": false
+ },
+ "SM_BusStop": {
+  "collision": "complex",
+  "file": "SourceArt/Meshes/Props/Town/SM_BusStop.fbx",
+  "folder": "Props/Town",
+  "kind": "static",
+  "materials": [
+   "MI_Metal_Grey",
+   "MI_Glass_Dirty",
+   "MI_Img_PosterMuseum",
+   "MI_Plastic_White",
+   "MI_Steel",
+   "MI_Paper"
+  ],
+  "nanite": false
+ },
+ "SM_Bush_Round": {
+  "collision": "convex",
+  "file": "SourceArt/Meshes/Props/Town/SM_Bush_Round.fbx",
+  "folder": "Props/Town",
+  "kind": "static",
+  "materials": [
+   "MI_Hedge"
+  ],
+  "nanite": false
+ },
+ "SM_Bush_Small": {
+  "collision": "convex",
+  "file": "SourceArt/Meshes/Props/Town/SM_Bush_Small.fbx",
+  "folder": "Props/Town",
+  "kind": "static",
+  "materials": [
+   "MI_Hedge"
+  ],
+  "nanite": false
+ },
+ "SM_Car_Hatch_Blue": {
+  "collision": "box",
+  "file": "SourceArt/Meshes/Props/Town/SM_Car_Hatch_Blue.fbx",
+  "folder": "Props/Town",
+  "kind": "static",
+  "materials": [
+   "MI_Car_Paint_Blue",
+   "MI_Glass_Van",
+   "MI_Metal_Black",
+   "MI_Plastic_Black",
+   "MI_Tire",
+   "MI_Chrome",
+   "MI_Plastic_Grey",
+   "MI_Glass",
+   "MI_Emit_Amber",
+   "MI_Rubber_Black",
+   "MI_Plastic_White",
+   "MI_Plastic_Red",
+   "MI_Mirror"
+  ],
+  "nanite": false
+ },
+ "SM_Car_Hatch_Green": {
+  "collision": "box",
+  "file": "SourceArt/Meshes/Props/Town/SM_Car_Hatch_Green.fbx",
+  "folder": "Props/Town",
+  "kind": "static",
+  "materials": [
+   "MI_Car_Paint_Green",
+   "MI_Glass_Van",
+   "MI_Metal_Black",
+   "MI_Plastic_Black",
+   "MI_Tire",
+   "MI_Chrome",
+   "MI_Plastic_Grey",
+   "MI_Glass",
+   "MI_Emit_Amber",
+   "MI_Rubber_Black",
+   "MI_Plastic_White",
+   "MI_Plastic_Red",
+   "MI_Mirror"
+  ],
+  "nanite": false
+ },
+ "SM_Car_Pickup_Black": {
+  "collision": "box",
+  "file": "SourceArt/Meshes/Props/Town/SM_Car_Pickup_Black.fbx",
+  "folder": "Props/Town",
+  "kind": "static",
+  "materials": [
+   "MI_Car_Paint_Black",
+   "MI_Glass_Van",
+   "MI_Plastic_Black",
+   "MI_Metal_Black",
+   "MI_Tire",
+   "MI_Chrome",
+   "MI_Glass",
+   "MI_Emit_Amber",
+   "MI_Rubber_Black",
+   "MI_Plastic_White",
+   "MI_Plastic_Red",
+   "MI_Mirror"
+  ],
+  "nanite": false
+ },
+ "SM_Car_Sedan_Red": {
+  "collision": "box",
+  "file": "SourceArt/Meshes/Props/Town/SM_Car_Sedan_Red.fbx",
+  "folder": "Props/Town",
+  "kind": "static",
+  "materials": [
+   "MI_Car_Paint_Red",
+   "MI_Glass_Van",
+   "MI_Metal_Black",
+   "MI_Plastic_Black",
+   "MI_Tire",
+   "MI_Chrome",
+   "MI_Glass",
+   "MI_Emit_Amber",
+   "MI_Rubber_Black",
+   "MI_Plastic_White",
+   "MI_Plastic_Red",
+   "MI_Mirror"
+  ],
+  "nanite": false
+ },
+ "SM_Car_Sedan_Silver": {
+  "collision": "box",
+  "file": "SourceArt/Meshes/Props/Town/SM_Car_Sedan_Silver.fbx",
+  "folder": "Props/Town",
+  "kind": "static",
+  "materials": [
+   "MI_Car_Paint_Silver",
+   "MI_Glass_Van",
+   "MI_Metal_Black",
+   "MI_Plastic_Black",
+   "MI_Tire",
+   "MI_Chrome",
+   "MI_Glass",
+   "MI_Emit_Amber",
+   "MI_Rubber_Black",
+   "MI_Plastic_White",
+   "MI_Plastic_Red",
+   "MI_Mirror"
+  ],
+  "nanite": false
+ },
+ "SM_Ceiling_Light_Home": {
+  "collision": "none",
+  "file": "SourceArt/Meshes/Props/House/SM_Ceiling_Light_Home.fbx",
+  "folder": "Props/House",
+  "kind": "static",
+  "materials": [
+   "MI_Brass",
+   "MI_Glass_Dirty",
+   "MI_Emit_Shade",
+   "MI_Emit_Bulb"
+  ],
+  "nanite": false
+ },
+ "SM_Coat_Rack": {
+  "collision": "box",
+  "file": "SourceArt/Meshes/Props/House/SM_Coat_Rack.fbx",
+  "folder": "Props/House",
+  "kind": "static",
+  "materials": [
+   "MI_Wood_Dark",
+   "MI_Brass",
+   "MI_Fabric_Brown",
+   "MI_Fabric_Grey",
+   "MI_Leather_Black"
+  ],
+  "nanite": false
+ },
+ "SM_Curtains_Heavy": {
+  "collision": "none",
+  "file": "SourceArt/Meshes/Props/House/SM_Curtains_Heavy.fbx",
+  "folder": "Props/House",
+  "kind": "static",
+  "materials": [
+   "MI_Wood_Dark",
+   "MI_Fabric_Curtain",
+   "MI_Brass"
+  ],
+  "nanite": false
+ },
+ "SM_Curtains_Window": {
+  "collision": "none",
+  "file": "SourceArt/Meshes/Props/House/SM_Curtains_Window.fbx",
+  "folder": "Props/House",
+  "kind": "static",
+  "materials": [
+   "MI_Brass",
+   "MI_Fabric_Curtain_Light"
+  ],
+  "nanite": false
+ },
+ "SM_Desk_Home": {
+  "collision": "box",
+  "file": "SourceArt/Meshes/Props/House/SM_Desk_Home.fbx",
+  "folder": "Props/House",
+  "kind": "static",
+  "materials": [
+   "MI_Cabinet_Wood",
+   "MI_Leather",
+   "MI_Brass"
+  ],
+  "nanite": false
+ },
+ "SM_DiningChair": {
+  "collision": "box",
+  "file": "SourceArt/Meshes/Props/House/SM_DiningChair.fbx",
+  "folder": "Props/House",
+  "kind": "static",
+  "materials": [
+   "MI_Cabinet_Wood",
+   "MI_Fabric_Sofa"
+  ],
+  "nanite": false
+ },
+ "SM_DiningTable": {
+  "collision": "box",
+  "file": "SourceArt/Meshes/Props/House/SM_DiningTable.fbx",
+  "folder": "Props/House",
+  "kind": "static",
+  "materials": [
+   "MI_Wood_Raw",
+   "MI_Cabinet_Wood"
+  ],
+  "nanite": false
+ },
+ "SM_Doghouse": {
+  "collision": "complex",
+  "file": "SourceArt/Meshes/Props/Town/SM_Doghouse.fbx",
+  "folder": "Props/Town",
+  "kind": "static",
+  "materials": [
+   "MI_Wood_Dark",
+   "MI_Paint_Wood_Red",
+   "MI_Wood_Raw",
+   "MI_Roof_Shingles_Dark",
+   "MI_Steel",
+   "MI_Leather"
+  ],
+  "nanite": false
+ },
+ "SM_Doormat": {
+  "collision": "none",
+  "file": "SourceArt/Meshes/Props/House/SM_Doormat.fbx",
+  "folder": "Props/House",
+  "kind": "static",
+  "materials": [
+   "MI_Rubber_Black",
+   "MI_Fabric_Brown",
+   "MI_Leather_Black"
+  ],
+  "nanite": false
+ },
+ "SM_Dresser": {
+  "collision": "box",
+  "file": "SourceArt/Meshes/Props/House/SM_Dresser.fbx",
+  "folder": "Props/House",
+  "kind": "static",
+  "materials": [
+   "MI_Wood_Dark",
+   "MI_Brass"
+  ],
+  "nanite": false
+ },
+ "SM_Dryer": {
+  "collision": "box",
+  "file": "SourceArt/Meshes/Props/House/SM_Dryer.fbx",
+  "folder": "Props/House",
+  "kind": "static",
+  "materials": [
+   "MI_Porcelain",
+   "MI_Plastic_White",
+   "MI_Rubber_Black",
+   "MI_Plastic_Grey",
+   "MI_Plastic_Black",
+   "MI_Emit_Amber",
+   "MI_Glass_Van"
+  ],
+  "nanite": false
+ },
+ "SM_Fence_Chain": {
+  "collision": "box",
+  "file": "SourceArt/Meshes/Props/Town/SM_Fence_Chain.fbx",
+  "folder": "Props/Town",
+  "kind": "static",
+  "materials": [
+   "MI_Steel",
+   "MI_ChainLink"
+  ],
+  "nanite": false
+ },
+ "SM_Fence_Iron": {
+  "collision": "box",
+  "file": "SourceArt/Meshes/Props/Town/SM_Fence_Iron.fbx",
+  "folder": "Props/Town",
+  "kind": "static",
+  "materials": [
+   "MI_Stone_Wall",
+   "MI_Concrete_Raw",
+   "MI_Metal_Black"
+  ],
+  "nanite": false
+ },
+ "SM_Fence_Iron_Gate": {
+  "collision": "box",
+  "file": "SourceArt/Meshes/Props/Town/SM_Fence_Iron_Gate.fbx",
+  "folder": "Props/Town",
+  "kind": "static",
+  "materials": [
+   "MI_Metal_Black"
+  ],
+  "nanite": false
+ },
+ "SM_Fence_Picket": {
+  "collision": "box",
+  "file": "SourceArt/Meshes/Props/Town/SM_Fence_Picket.fbx",
+  "folder": "Props/Town",
+  "kind": "static",
+  "materials": [
+   "MI_Trim_White"
+  ],
+  "nanite": false
+ },
+ "SM_Fence_Picket_Gate": {
+  "collision": "box",
+  "file": "SourceArt/Meshes/Props/Town/SM_Fence_Picket_Gate.fbx",
+  "folder": "Props/Town",
+  "kind": "static",
+  "materials": [
+   "MI_Trim_White",
+   "MI_Metal_Black"
+  ],
+  "nanite": false
+ },
+ "SM_Fence_Privacy": {
+  "collision": "box",
+  "file": "SourceArt/Meshes/Props/Town/SM_Fence_Privacy.fbx",
+  "folder": "Props/Town",
+  "kind": "static",
+  "materials": [
+   "MI_Wood_Dark",
+   "MI_Wood_Raw"
+  ],
+  "nanite": false
+ },
+ "SM_Fireplace": {
+  "collision": "complex",
+  "file": "SourceArt/Meshes/Props/House/SM_Fireplace.fbx",
+  "folder": "Props/House",
+  "kind": "static",
+  "materials": [
+   "MI_Brick_Red",
+   "MI_Metal_Black",
+   "MI_Dirt",
+   "MI_Brass",
+   "MI_Bark",
+   "MI_Stone_Wall",
+   "MI_Wood_Dark"
+  ],
+  "nanite": false
+ },
+ "SM_Fridge": {
+  "collision": "box",
+  "file": "SourceArt/Meshes/Props/House/SM_Fridge.fbx",
+  "folder": "Props/House",
+  "kind": "static",
+  "materials": [
+   "MI_Metal_Cream",
+   "MI_Plastic_Black",
+   "MI_Metal_Black",
+   "MI_Rubber_Black",
+   "MI_Plastic_Grey",
+   "MI_Img_Photo_Family",
+   "MI_Img_Notes",
+   "MI_Plastic_Red",
+   "MI_Plastic_Yellow",
+   "MI_Metal_Blue",
+   "MI_Metal_Green"
+  ],
+  "nanite": false
+ },
+ "SM_Furnace": {
+  "collision": "box",
+  "file": "SourceArt/Meshes/Props/House/SM_Furnace.fbx",
+  "folder": "Props/House",
+  "kind": "static",
+  "materials": [
+   "MI_Metal_Cream",
+   "MI_Metal_Rust",
+   "MI_Metal_Black",
+   "MI_Paper",
+   "MI_Metal_Grey",
+   "MI_Metal_Red",
+   "MI_Emit_Ember",
+   "MI_Copper",
+   "MI_Steel"
+  ],
+  "nanite": false
+ },
+ "SM_Garden_Gnome": {
+  "collision": "convex",
+  "file": "SourceArt/Meshes/Props/Town/SM_Garden_Gnome.fbx",
+  "folder": "Props/Town",
+  "kind": "static",
+  "materials": [
+   "MI_Stone_Wall",
+   "MI_Plastic_Black",
+   "MI_Car_Paint_Blue",
+   "MI_Gold",
+   "MI_Ceramic",
+   "MI_Porcelain",
+   "MI_Paint_Wood_Red",
+   "MI_Plastic_Red"
+  ],
+  "nanite": false
+ },
+ "SM_GrandfatherClock": {
+  "collision": "box",
+  "file": "SourceArt/Meshes/Props/House/SM_GrandfatherClock.fbx",
+  "folder": "Props/House",
+  "kind": "static",
+  "materials": [
+   "MI_Wood_Dark",
+   "MI_Glass",
+   "MI_Brass",
+   "MI_Steel",
+   "MI_Img_ClockFace"
+  ],
+  "nanite": false
+ },
+ "SM_Grill_BBQ": {
+  "collision": "convex",
+  "file": "SourceArt/Meshes/Props/Town/SM_Grill_BBQ.fbx",
+  "folder": "Props/Town",
+  "kind": "static",
+  "materials": [
+   "MI_Metal_Black",
+   "MI_Steel",
+   "MI_Wood_Dark",
+   "MI_Rubber_Black"
+  ],
+  "nanite": false
+ },
+ "SM_Hedge_Box": {
+  "collision": "box",
+  "file": "SourceArt/Meshes/Props/Town/SM_Hedge_Box.fbx",
+  "folder": "Props/Town",
+  "kind": "static",
+  "materials": [
+   "MI_Hedge"
+  ],
+  "nanite": false
+ },
+ "SM_Hydrant": {
+  "collision": "convex",
+  "file": "SourceArt/Meshes/Props/Town/SM_Hydrant.fbx",
+  "folder": "Props/Town",
+  "kind": "static",
+  "materials": [
+   "MI_Metal_Red",
+   "MI_Steel",
+   "MI_Metal_Yellow"
+  ],
+  "nanite": false
+ },
+ "SM_Kitchen_Base": {
+  "collision": "box",
+  "file": "SourceArt/Meshes/Props/House/SM_Kitchen_Base.fbx",
+  "folder": "Props/House",
+  "kind": "static",
+  "materials": [
+   "MI_Cabinet_White",
+   "MI_Trim_Dark",
+   "MI_Countertop",
+   "MI_Chrome"
+  ],
+  "nanite": false
+ },
+ "SM_Kitchen_Base_Sink": {
+  "collision": "complex",
+  "file": "SourceArt/Meshes/Props/House/SM_Kitchen_Base_Sink.fbx",
+  "folder": "Props/House",
+  "kind": "static",
+  "materials": [
+   "MI_Cabinet_White",
+   "MI_Trim_Dark",
+   "MI_Countertop",
+   "MI_Steel",
+   "MI_Chrome",
+   "MI_Metal_Black",
+   "MI_Plastic_Red",
+   "MI_Metal_Blue"
+  ],
+  "nanite": false
+ },
+ "SM_Kitchen_Stove": {
+  "collision": "box",
+  "file": "SourceArt/Meshes/Props/House/SM_Kitchen_Stove.fbx",
+  "folder": "Props/House",
+  "kind": "static",
+  "materials": [
+   "MI_Porcelain",
+   "MI_Metal_Black",
+   "MI_Chrome",
+   "MI_Metal_Cream",
+   "MI_Plastic_Black",
+   "MI_Img_ClockFace",
+   "MI_Glass_Van"
+  ],
+  "nanite": false
+ },
+ "SM_Kitchen_Wall": {
+  "collision": "box",
+  "file": "SourceArt/Meshes/Props/House/SM_Kitchen_Wall.fbx",
+  "folder": "Props/House",
+  "kind": "static",
+  "materials": [
+   "MI_Cabinet_White",
+   "MI_Chrome"
+  ],
+  "nanite": false
+ },
+ "SM_Lamp_Table": {
+  "collision": "none",
+  "file": "SourceArt/Meshes/Props/House/SM_Lamp_Table.fbx",
+  "folder": "Props/House",
+  "kind": "static",
+  "materials": [
+   "MI_Ceramic",
+   "MI_Brass",
+   "MI_Emit_Bulb",
+   "MI_Fabric_Shade",
+   "MI_Emit_Shade",
+   "MI_Cable"
+  ],
+  "nanite": false
+ },
+ "SM_Loot_Camera": {
+  "collision": "box",
+  "file": "SourceArt/Meshes/Props/Loot/SM_Loot_Camera.fbx",
+  "folder": "Props/Loot",
+  "kind": "static",
+  "materials": [
+   "MI_Chrome",
+   "MI_Leather_Black",
+   "MI_Steel",
+   "MI_Glass_Van",
+   "MI_Plastic_Black",
+   "MI_Glass"
+  ],
+  "nanite": false
+ },
+ "SM_Loot_Candlestick": {
+  "collision": "convex",
+  "file": "SourceArt/Meshes/Props/Loot/SM_Loot_Candlestick.fbx",
+  "folder": "Props/Loot",
+  "kind": "static",
+  "materials": [
+   "MI_Silver",
+   "MI_Wax",
+   "MI_Cable"
+  ],
+  "nanite": false
+ },
+ "SM_Loot_Cash": {
+  "collision": "convex",
+  "file": "SourceArt/Meshes/Props/Loot/SM_Loot_Cash.fbx",
+  "folder": "Props/Loot",
+  "kind": "static",
+  "materials": [
+   "MI_Cash",
+   "MI_Metal_Green",
+   "MI_Paper",
+   "MI_Plastic_Yellow"
+  ],
+  "nanite": false
+ },
+ "SM_Loot_CoinCollection": {
+  "collision": "box",
+  "file": "SourceArt/Meshes/Props/Loot/SM_Loot_CoinCollection.fbx",
+  "folder": "Props/Loot",
+  "kind": "static",
+  "materials": [
+   "MI_Wood_Dark",
+   "MI_Velvet_Blue",
+   "MI_Silver",
+   "MI_Paper",
+   "MI_Gold",
+   "MI_Copper",
+   "MI_Glass",
+   "MI_Brass",
+   "MI_Plastic_Black"
+  ],
+  "nanite": false
+ },
+ "SM_Loot_CoinJar": {
+  "collision": "convex",
+  "file": "SourceArt/Meshes/Props/Loot/SM_Loot_CoinJar.fbx",
+  "folder": "Props/Loot",
+  "kind": "static",
+  "materials": [
+   "MI_Glass",
+   "MI_Metal_Black",
+   "MI_Copper",
+   "MI_Silver",
+   "MI_Brass"
+  ],
+  "nanite": false
+ },
+ "SM_Loot_Console": {
+  "collision": "box",
+  "file": "SourceArt/Meshes/Props/Loot/SM_Loot_Console.fbx",
+  "folder": "Props/Loot",
+  "kind": "static",
+  "materials": [
+   "MI_Plastic_Black",
+   "MI_Plastic_Laptop",
+   "MI_Plastic_Grey",
+   "MI_Rubber_Black",
+   "MI_Emit_Green",
+   "MI_Metal_Green",
+   "MI_Plastic_Red",
+   "MI_Metal_Blue",
+   "MI_Plastic_Yellow"
+  ],
+  "nanite": false
+ },
+ "SM_Loot_Figurine": {
+  "collision": "convex",
+  "file": "SourceArt/Meshes/Props/Loot/SM_Loot_Figurine.fbx",
+  "folder": "Props/Loot",
+  "kind": "static",
+  "materials": [
+   "MI_Porcelain",
+   "MI_Gold",
+   "MI_Car_Paint_Blue",
+   "MI_Bakelite",
+   "MI_Plastic_Black",
+   "MI_Plastic_Red",
+   "MI_Plastic_Yellow"
+  ],
+  "nanite": false
+ },
+ "SM_Loot_Handbag": {
+  "collision": "convex",
+  "file": "SourceArt/Meshes/Props/Loot/SM_Loot_Handbag.fbx",
+  "folder": "Props/Loot",
+  "kind": "static",
+  "materials": [
+   "MI_Leather",
+   "MI_Leather_Black",
+   "MI_Fabric_Shade",
+   "MI_Gold",
+   "MI_Plastic_Black"
+  ],
+  "nanite": false
+ },
+ "SM_Loot_JewelryBox": {
+  "collision": "convex",
+  "file": "SourceArt/Meshes/Props/Loot/SM_Loot_JewelryBox.fbx",
+  "folder": "Props/Loot",
+  "kind": "static",
+  "materials": [
+   "MI_Wood_Dark",
+   "MI_Velvet_Blue",
+   "MI_Gold",
+   "MI_Plastic_Red",
+   "MI_Porcelain",
+   "MI_Brass",
+   "MI_Plastic_Black"
+  ],
+  "nanite": false
+ },
+ "SM_Loot_Laptop": {
+  "collision": "box",
+  "file": "SourceArt/Meshes/Props/Loot/SM_Loot_Laptop.fbx",
+  "folder": "Props/Loot",
+  "kind": "static",
+  "materials": [
+   "MI_Plastic_Laptop",
+   "MI_Plastic_Black",
+   "MI_Aluminium",
+   "MI_Rubber_Black"
+  ],
+  "nanite": false
+ },
+ "SM_Loot_Locket": {
+  "collision": "convex",
+  "file": "SourceArt/Meshes/Props/Loot/SM_Loot_Locket.fbx",
+  "folder": "Props/Loot",
+  "kind": "static",
+  "materials": [
+   "MI_Fabric_Curtain",
+   "MI_Gold",
+   "MI_Img_Photo_Family",
+   "MI_Img_Painting_Lore",
+   "MI_Emit_Red"
+  ],
+  "nanite": false
+ },
+ "SM_Loot_MantelClock": {
+  "collision": "box",
+  "file": "SourceArt/Meshes/Props/Loot/SM_Loot_MantelClock.fbx",
+  "folder": "Props/Loot",
+  "kind": "static",
+  "materials": [
+   "MI_Brass",
+   "MI_Wood_Dark",
+   "MI_Img_ClockFace",
+   "MI_Glass"
+  ],
+  "nanite": false
+ },
+ "SM_Loot_MusicBox": {
+  "collision": "convex",
+  "file": "SourceArt/Meshes/Props/Loot/SM_Loot_MusicBox.fbx",
+  "folder": "Props/Loot",
+  "kind": "static",
+  "materials": [
+   "MI_Wood_Dark",
+   "MI_Brass",
+   "MI_Plastic_Black",
+   "MI_Fabric_Curtain",
+   "MI_Glass",
+   "MI_Steel",
+   "MI_Mirror",
+   "MI_Gold",
+   "MI_Porcelain",
+   "MI_Fabric_Bedding",
+   "MI_Bakelite"
+  ],
+  "nanite": false
+ },
+ "SM_Loot_Necklace": {
+  "collision": "convex",
+  "file": "SourceArt/Meshes/Props/Loot/SM_Loot_Necklace.fbx",
+  "folder": "Props/Loot",
+  "kind": "static",
+  "materials": [
+   "MI_Wood_Dark",
+   "MI_Velvet_Blue",
+   "MI_Porcelain",
+   "MI_Gold"
+  ],
+  "nanite": false
+ },
+ "SM_Loot_Painting": {
+  "collision": "box",
+  "file": "SourceArt/Meshes/Props/Loot/SM_Loot_Painting.fbx",
+  "folder": "Props/Loot",
+  "kind": "static",
+  "materials": [
+   "MI_Gold",
+   "MI_Img_Painting_Landscape",
+   "MI_Fabric_Shade",
+   "MI_Cardboard"
+  ],
+  "nanite": false
+ },
+ "SM_Loot_Perfume": {
+  "collision": "convex",
+  "file": "SourceArt/Meshes/Props/Loot/SM_Loot_Perfume.fbx",
+  "folder": "Props/Loot",
+  "kind": "static",
+  "materials": [
+   "MI_Glass",
+   "MI_Plastic_Yellow",
+   "MI_Gold",
+   "MI_Plastic_Black"
+  ],
+  "nanite": false
+ },
+ "SM_Loot_Phone": {
+  "collision": "box",
+  "file": "SourceArt/Meshes/Props/Loot/SM_Loot_Phone.fbx",
+  "folder": "Props/Loot",
+  "kind": "static",
+  "materials": [
+   "MI_Plastic_Laptop",
+   "MI_Plastic_Black",
+   "MI_Screen_Black",
+   "MI_Plastic_Grey",
+   "MI_Glass_Van"
+  ],
+  "nanite": false
+ },
+ "SM_Loot_Ring": {
+  "collision": "convex",
+  "file": "SourceArt/Meshes/Props/Loot/SM_Loot_Ring.fbx",
+  "folder": "Props/Loot",
+  "kind": "static",
+  "materials": [
+   "MI_Fabric_Curtain",
+   "MI_Fabric_Bedding",
+   "MI_Gold",
+   "MI_Silver",
+   "MI_Mirror"
+  ],
+  "nanite": false
+ },
+ "SM_Loot_Silverware": {
+  "collision": "convex",
+  "file": "SourceArt/Meshes/Props/Loot/SM_Loot_Silverware.fbx",
+  "folder": "Props/Loot",
+  "kind": "static",
+  "materials": [
+   "MI_Wood_Dark",
+   "MI_Fabric_Curtain",
+   "MI_Silver",
+   "MI_Brass",
+   "MI_Plastic_Black",
+   "MI_Leather"
+  ],
+  "nanite": false
+ },
+ "SM_Loot_TV": {
+  "collision": "box",
+  "file": "SourceArt/Meshes/Props/Loot/SM_Loot_TV.fbx",
+  "folder": "Props/Loot",
+  "kind": "static",
+  "materials": [
+   "MI_Plastic_Black",
+   "MI_Plastic_Grey",
+   "MI_Screen_Black",
+   "MI_Chrome",
+   "MI_Emit_Red"
+  ],
+  "nanite": false
+ },
+ "SM_Loot_Tablet": {
+  "collision": "box",
+  "file": "SourceArt/Meshes/Props/Loot/SM_Loot_Tablet.fbx",
+  "folder": "Props/Loot",
+  "kind": "static",
+  "materials": [
+   "MI_Aluminium",
+   "MI_Plastic_Black",
+   "MI_Screen_Black",
+   "MI_Glass_Van"
+  ],
+  "nanite": false
+ },
+ "SM_Loot_Vase": {
+  "collision": "convex",
+  "file": "SourceArt/Meshes/Props/Loot/SM_Loot_Vase.fbx",
+  "folder": "Props/Loot",
+  "kind": "static",
+  "materials": [
+   "MI_Ceramic",
+   "MI_Gold",
+   "MI_Car_Paint_Blue"
+  ],
+  "nanite": false
+ },
+ "SM_Loot_Watch": {
+  "collision": "convex",
+  "file": "SourceArt/Meshes/Props/Loot/SM_Loot_Watch.fbx",
+  "folder": "Props/Loot",
+  "kind": "static",
+  "materials": [
+   "MI_Leather_Black",
+   "MI_Velvet_Blue",
+   "MI_Gold",
+   "MI_Leather",
+   "MI_Img_ClockFace",
+   "MI_Glass"
+  ],
+  "nanite": false
+ },
+ "SM_Loot_Whiskey": {
+  "collision": "convex",
+  "file": "SourceArt/Meshes/Props/Loot/SM_Loot_Whiskey.fbx",
+  "folder": "Props/Loot",
+  "kind": "static",
+  "materials": [
+   "MI_Bakelite",
+   "MI_Glass",
+   "MI_Paper",
+   "MI_Gold",
+   "MI_Plastic_Black",
+   "MI_Plastic_Red",
+   "MI_Wood_Dark"
+  ],
+  "nanite": false
+ },
+ "SM_Mailbox_Post": {
+  "collision": "box",
+  "file": "SourceArt/Meshes/Props/Town/SM_Mailbox_Post.fbx",
+  "folder": "Props/Town",
+  "kind": "static",
+  "materials": [
+   "MI_Wood_Raw",
+   "MI_Metal_Black",
+   "MI_Steel",
+   "MI_Metal_Red",
+   "MI_Paper"
+  ],
+  "nanite": false
+ },
+ "SM_Mailbox_Public": {
+  "collision": "box",
+  "file": "SourceArt/Meshes/Props/Town/SM_Mailbox_Public.fbx",
+  "folder": "Props/Town",
+  "kind": "static",
+  "materials": [
+   "MI_Metal_Blue",
+   "MI_Metal_Black",
+   "MI_Paper",
+   "MI_Plastic_White",
+   "MI_Chrome"
+  ],
+  "nanite": false
+ },
+ "SM_Manhole": {
+  "collision": "none",
+  "file": "SourceArt/Meshes/Props/Town/SM_Manhole.fbx",
+  "folder": "Props/Town",
+  "kind": "static",
+  "materials": [
+   "MI_Metal_Rust",
+   "MI_Metal_Black",
+   "MI_Plastic_Black"
+  ],
+  "nanite": false
+ },
+ "SM_Medicine_Cabinet": {
+  "collision": "box",
+  "file": "SourceArt/Meshes/Props/House/SM_Medicine_Cabinet.fbx",
+  "folder": "Props/House",
+  "kind": "static",
+  "materials": [
+   "MI_Cabinet_White",
+   "MI_Chrome",
+   "MI_Mirror"
+  ],
+  "nanite": false
+ },
+ "SM_Microwave": {
+  "collision": "box",
+  "file": "SourceArt/Meshes/Props/House/SM_Microwave.fbx",
+  "folder": "Props/House",
+  "kind": "static",
+  "materials": [
+   "MI_Plastic_White",
+   "MI_Rubber_Black",
+   "MI_Glass_Van",
+   "MI_Plastic_Grey",
+   "MI_Screen_Black",
+   "MI_Emit_Green"
+  ],
+  "nanite": false
+ },
+ "SM_Mirror_Wall": {
+  "collision": "box",
+  "file": "SourceArt/Meshes/Props/House/SM_Mirror_Wall.fbx",
+  "folder": "Props/House",
+  "kind": "static",
+  "materials": [
+   "MI_Wood_Dark",
+   "MI_Gold",
+   "MI_Mirror"
+  ],
+  "nanite": false
+ },
+ "SM_Monitor_Flat": {
+  "collision": "box",
+  "file": "SourceArt/Meshes/Props/House/SM_Monitor_Flat.fbx",
+  "folder": "Props/House",
+  "kind": "static",
+  "materials": [
+   "MI_Plastic_Black",
+   "MI_Screen_Black",
+   "MI_Emit_Green",
+   "MI_Plastic_Grey"
+  ],
+  "nanite": false
+ },
+ "SM_Newspaper_Box": {
+  "collision": "box",
+  "file": "SourceArt/Meshes/Props/Town/SM_Newspaper_Box.fbx",
+  "folder": "Props/Town",
+  "kind": "static",
+  "materials": [
+   "MI_Metal_Black",
+   "MI_Metal_Red",
+   "MI_Img_Newspaper",
+   "MI_Glass",
+   "MI_Chrome",
+   "MI_Steel",
+   "MI_Plastic_Black",
+   "MI_Plastic_White"
+  ],
+  "nanite": false
+ },
+ "SM_Nightstand": {
+  "collision": "box",
+  "file": "SourceArt/Meshes/Props/House/SM_Nightstand.fbx",
+  "folder": "Props/House",
+  "kind": "static",
+  "materials": [
+   "MI_Cabinet_Wood",
+   "MI_Brass",
+   "MI_Leather",
+   "MI_Fabric_Rug",
+   "MI_Fabric_Sofa_Green"
+  ],
+  "nanite": false
+ },
+ "SM_OfficeChair": {
+  "collision": "box",
+  "file": "SourceArt/Meshes/Props/House/SM_OfficeChair.fbx",
+  "folder": "Props/House",
+  "kind": "static",
+  "materials": [
+   "MI_Plastic_Black",
+   "MI_Chrome",
+   "MI_Fabric_Navy"
+  ],
+  "nanite": false
+ },
+ "SM_Painting_Large": {
+  "collision": "box",
+  "file": "SourceArt/Meshes/Props/House/SM_Painting_Large.fbx",
+  "folder": "Props/House",
+  "kind": "static",
+  "materials": [
+   "MI_Wood_Dark",
+   "MI_Gold",
+   "MI_Img_Painting_Landscape",
+   "MI_Fabric_Shade"
+  ],
+  "nanite": false
+ },
+ "SM_Painting_Lore": {
+  "collision": "box",
+  "file": "SourceArt/Meshes/Props/House/SM_Painting_Lore.fbx",
+  "folder": "Props/House",
+  "kind": "static",
+  "materials": [
+   "MI_Gold",
+   "MI_Img_Painting_Lore",
+   "MI_Fabric_Shade"
+  ],
+  "nanite": false
+ },
+ "SM_Patio_Chair": {
+  "collision": "box",
+  "file": "SourceArt/Meshes/Props/Town/SM_Patio_Chair.fbx",
+  "folder": "Props/Town",
+  "kind": "static",
+  "materials": [
+   "MI_Plastic_White"
+  ],
+  "nanite": false
+ },
+ "SM_Patio_Table": {
+  "collision": "box",
+  "file": "SourceArt/Meshes/Props/Town/SM_Patio_Table.fbx",
+  "folder": "Props/Town",
+  "kind": "static",
+  "materials": [
+   "MI_Plastic_White",
+   "MI_Plastic_Grey"
+  ],
+  "nanite": false
+ },
+ "SM_Piano_Upright": {
+  "collision": "box",
+  "file": "SourceArt/Meshes/Props/House/SM_Piano_Upright.fbx",
+  "folder": "Props/House",
+  "kind": "static",
+  "materials": [
+   "MI_Wood_Dark",
+   "MI_Ceramic",
+   "MI_Plastic_Black",
+   "MI_Img_Notes",
+   "MI_Paper",
+   "MI_Brass",
+   "MI_Wax"
+  ],
+  "nanite": false
+ },
+ "SM_Picture_Frame": {
+  "collision": "none",
+  "file": "SourceArt/Meshes/Props/House/SM_Picture_Frame.fbx",
+  "folder": "Props/House",
+  "kind": "static",
+  "materials": [
+   "MI_Wood_Dark",
+   "MI_Gold",
+   "MI_Img_Photo_Family",
+   "MI_Cardboard"
+  ],
+  "nanite": false
+ },
+ "SM_Plant_Pot": {
+  "collision": "convex",
+  "file": "SourceArt/Meshes/Props/House/SM_Plant_Pot.fbx",
+  "folder": "Props/House",
+  "kind": "static",
+  "materials": [
+   "MI_Ceramic",
+   "MI_Car_Paint_Blue",
+   "MI_Dirt",
+   "MI_Wood_Dark",
+   "MI_Hedge"
+  ],
+  "nanite": false
+ },
+ "SM_Planter_Box": {
+  "collision": "box",
+  "file": "SourceArt/Meshes/Props/Town/SM_Planter_Box.fbx",
+  "folder": "Props/Town",
+  "kind": "static",
+  "materials": [
+   "MI_Wood_Raw",
+   "MI_Dirt",
+   "MI_Hedge",
+   "MI_Plastic_Red",
+   "MI_Plastic_Yellow",
+   "MI_Porcelain"
+  ],
+  "nanite": false
+ },
+ "SM_Plate_Stack": {
+  "collision": "none",
+  "file": "SourceArt/Meshes/Props/House/SM_Plate_Stack.fbx",
+  "folder": "Props/House",
+  "kind": "static",
+  "materials": [
+   "MI_Porcelain",
+   "MI_Car_Paint_Blue"
+  ],
+  "nanite": false
+ },
+ "SM_Pot_Cooking": {
+  "collision": "none",
+  "file": "SourceArt/Meshes/Props/House/SM_Pot_Cooking.fbx",
+  "folder": "Props/House",
+  "kind": "static",
+  "materials": [
+   "MI_Steel",
+   "MI_Plastic_Black"
+  ],
+  "nanite": false
+ },
+ "SM_RockingChair": {
+  "collision": "box",
+  "file": "SourceArt/Meshes/Props/House/SM_RockingChair.fbx",
+  "folder": "Props/House",
+  "kind": "static",
+  "materials": [
+   "MI_Wood_Dark",
+   "MI_Fabric_Sofa"
+  ],
+  "nanite": false
+ },
+ "SM_Rug_Large": {
+  "collision": "none",
+  "file": "SourceArt/Meshes/Props/House/SM_Rug_Large.fbx",
+  "folder": "Props/House",
+  "kind": "static",
+  "materials": [
+   "MI_Fabric_Rug",
+   "MI_Fabric_Navy",
+   "MI_Fabric_Shade"
+  ],
+  "nanite": false
+ },
+ "SM_Shed_Small": {
+  "collision": "complex",
+  "file": "SourceArt/Meshes/Props/Town/SM_Shed_Small.fbx",
+  "folder": "Props/Town",
+  "kind": "static",
+  "materials": [
+   "MI_Wood_Dark",
+   "MI_Siding_Worn",
+   "MI_Trim_White",
+   "MI_Glass_Dirty",
+   "MI_Wood_Planks",
+   "MI_Wood_Raw",
+   "MI_Metal_Black",
+   "MI_Steel",
+   "MI_Brass",
+   "MI_Roof_Shingles_Brown",
+   "MI_Trim_Dark"
+  ],
+  "nanite": false
+ },
+ "SM_Shelf_Wood": {
+  "collision": "box",
+  "file": "SourceArt/Meshes/Props/House/SM_Shelf_Wood.fbx",
+  "folder": "Props/House",
+  "kind": "static",
+  "materials": [
+   "MI_Wood_Raw",
+   "MI_Glass",
+   "MI_Fabric_Olive",
+   "MI_Brass",
+   "MI_Plastic_Yellow",
+   "MI_Cardboard",
+   "MI_Plastic_Beige",
+   "MI_Steel",
+   "MI_Paper",
+   "MI_Leather",
+   "MI_Metal_Cream",
+   "MI_Bakelite",
+   "MI_Metal_Blue",
+   "MI_Metal_Green",
+   "MI_Plastic_Red"
+  ],
+  "nanite": false
+ },
+ "SM_ShowerCurtain": {
+  "collision": "none",
+  "file": "SourceArt/Meshes/Props/House/SM_ShowerCurtain.fbx",
+  "folder": "Props/House",
+  "kind": "static",
+  "materials": [
+   "MI_Chrome",
+   "MI_Plastic_White",
+   "MI_Fabric_Curtain_Light"
+  ],
+  "nanite": false
+ },
+ "SM_SideTable": {
+  "collision": "box",
+  "file": "SourceArt/Meshes/Props/House/SM_SideTable.fbx",
+  "folder": "Props/House",
+  "kind": "static",
+  "materials": [
+   "MI_Cabinet_Wood",
+   "MI_Brass"
+  ],
+  "nanite": false
+ },
+ "SM_Sign_Brannigan": {
+  "collision": "box",
+  "file": "SourceArt/Meshes/Props/Town/SM_Sign_Brannigan.fbx",
+  "folder": "Props/Town",
+  "kind": "static",
+  "materials": [
+   "MI_Wood_Dark",
+   "MI_Trim_Dark",
+   "MI_Img_Sign_Brannigan",
+   "MI_Steel"
+  ],
+  "nanite": false
+ },
+ "SM_Sign_Clothing": {
+  "collision": "box",
+  "file": "SourceArt/Meshes/Props/Town/SM_Sign_Clothing.fbx",
+  "folder": "Props/Town",
+  "kind": "static",
+  "materials": [
+   "MI_Wood_Dark",
+   "MI_Trim_White",
+   "MI_Img_Sign_Clothing",
+   "MI_Steel"
+  ],
+  "nanite": false
+ },
+ "SM_Sign_Diner": {
+  "collision": "box",
+  "file": "SourceArt/Meshes/Props/Town/SM_Sign_Diner.fbx",
+  "folder": "Props/Town",
+  "kind": "static",
+  "materials": [
+   "MI_Wood_Dark",
+   "MI_Paint_Wood_Red",
+   "MI_Img_Sign_Diner",
+   "MI_Steel"
+  ],
+  "nanite": false
+ },
+ "SM_Sign_Hardware": {
+  "collision": "box",
+  "file": "SourceArt/Meshes/Props/Town/SM_Sign_Hardware.fbx",
+  "folder": "Props/Town",
+  "kind": "static",
+  "materials": [
+   "MI_Wood_Dark",
+   "MI_Trim_Dark",
+   "MI_Img_Sign_Hardware",
+   "MI_Steel"
+  ],
+  "nanite": false
+ },
+ "SM_Sign_Museum": {
+  "collision": "box",
+  "file": "SourceArt/Meshes/Props/Town/SM_Sign_Museum.fbx",
+  "folder": "Props/Town",
+  "kind": "static",
+  "materials": [
+   "MI_Stone_Wall",
+   "MI_Brass",
+   "MI_Img_Sign_Museum"
+  ],
+  "nanite": false
+ },
+ "SM_Sign_Parking": {
+  "collision": "box",
+  "file": "SourceArt/Meshes/Props/Town/SM_Sign_Parking.fbx",
+  "folder": "Props/Town",
+  "kind": "static",
+  "materials": [
+   "MI_Steel",
+   "MI_Metal_Black",
+   "MI_Aluminium",
+   "MI_Img_Sign_Parking"
+  ],
+  "nanite": false
+ },
+ "SM_Sign_Speed": {
+  "collision": "box",
+  "file": "SourceArt/Meshes/Props/Town/SM_Sign_Speed.fbx",
+  "folder": "Props/Town",
+  "kind": "static",
+  "materials": [
+   "MI_Steel",
+   "MI_Metal_Black",
+   "MI_Aluminium",
+   "MI_Img_Sign_Speed"
+  ],
+  "nanite": false
+ },
+ "SM_Sign_Stop": {
+  "collision": "box",
+  "file": "SourceArt/Meshes/Props/Town/SM_Sign_Stop.fbx",
+  "folder": "Props/Town",
+  "kind": "static",
+  "materials": [
+   "MI_Steel",
+   "MI_Metal_Black",
+   "MI_Aluminium",
+   "MI_Img_Sign_Stop"
+  ],
+  "nanite": false
+ },
+ "SM_Sign_Street_Ashgrove": {
+  "collision": "box",
+  "file": "SourceArt/Meshes/Props/Town/SM_Sign_Street_Ashgrove.fbx",
+  "folder": "Props/Town",
+  "kind": "static",
+  "materials": [
+   "MI_Metal_Green",
+   "MI_Steel",
+   "MI_Aluminium",
+   "MI_Img_Sign_Street"
+  ],
+  "nanite": false
+ },
+ "SM_Sign_Street_Church": {
+  "collision": "box",
+  "file": "SourceArt/Meshes/Props/Town/SM_Sign_Street_Church.fbx",
+  "folder": "Props/Town",
+  "kind": "static",
+  "materials": [
+   "MI_Metal_Green",
+   "MI_Steel",
+   "MI_Aluminium",
+   "MI_Img_Sign_Street"
+  ],
+  "nanite": false
+ },
+ "SM_Sign_Street_Marrow": {
+  "collision": "box",
+  "file": "SourceArt/Meshes/Props/Town/SM_Sign_Street_Marrow.fbx",
+  "folder": "Props/Town",
+  "kind": "static",
+  "materials": [
+   "MI_Metal_Green",
+   "MI_Steel",
+   "MI_Aluminium",
+   "MI_Img_Sign_Street"
+  ],
+  "nanite": false
+ },
+ "SM_Sink_Pedestal": {
+  "collision": "convex",
+  "file": "SourceArt/Meshes/Props/House/SM_Sink_Pedestal.fbx",
+  "folder": "Props/House",
+  "kind": "static",
+  "materials": [
+   "MI_Porcelain",
+   "MI_Chrome",
+   "MI_Plastic_Red",
+   "MI_Metal_Blue",
+   "MI_Metal_Black"
+  ],
+  "nanite": false
+ },
+ "SM_Sofa_3Seat": {
+  "collision": "box",
+  "file": "SourceArt/Meshes/Props/House/SM_Sofa_3Seat.fbx",
+  "folder": "Props/House",
+  "kind": "static",
+  "materials": [
+   "MI_Wood_Dark",
+   "MI_Brass",
+   "MI_Fabric_Sofa",
+   "MI_Fabric_Sofa_Green"
+  ],
+  "nanite": false
+ },
+ "SM_Storm_Drain": {
+  "collision": "none",
+  "file": "SourceArt/Meshes/Props/Town/SM_Storm_Drain.fbx",
+  "folder": "Props/Town",
+  "kind": "static",
+  "materials": [
+   "MI_Plastic_Black",
+   "MI_Metal_Black",
+   "MI_Dirt"
+  ],
+  "nanite": false
+ },
+ "SM_Swing_Rusty": {
+  "collision": "complex",
+  "file": "SourceArt/Meshes/Props/Town/SM_Swing_Rusty.fbx",
+  "folder": "Props/Town",
+  "kind": "static",
+  "materials": [
+   "MI_Metal_Rust",
+   "MI_Steel",
+   "MI_Rubber_Black"
+  ],
+  "nanite": false
+ },
+ "SM_TVStand_Low": {
+  "collision": "box",
+  "file": "SourceArt/Meshes/Props/House/SM_TVStand_Low.fbx",
+  "folder": "Props/House",
+  "kind": "static",
+  "materials": [
+   "MI_Cabinet_Wood",
+   "MI_Wood_Dark",
+   "MI_Brass",
+   "MI_Plastic_Black",
+   "MI_Plastic_Grey",
+   "MI_Emit_Green",
+   "MI_Paper"
+  ],
+  "nanite": false
+ },
+ "SM_Teddy": {
+  "collision": "none",
+  "file": "SourceArt/Meshes/Props/House/SM_Teddy.fbx",
+  "folder": "Props/House",
+  "kind": "static",
+  "materials": [
+   "MI_Fabric_Brown",
+   "MI_Fabric_Shade",
+   "MI_Plastic_Black",
+   "MI_Cable",
+   "MI_Fabric_Olive",
+   "MI_Fabric_Curtain"
+  ],
+  "nanite": false
+ },
+ "SM_Toilet": {
+  "collision": "convex",
+  "file": "SourceArt/Meshes/Props/House/SM_Toilet.fbx",
+  "folder": "Props/House",
+  "kind": "static",
+  "materials": [
+   "MI_Porcelain",
+   "MI_Chrome",
+   "MI_Plastic_White"
+  ],
+  "nanite": false
+ },
+ "SM_Towel_Rack": {
+  "collision": "none",
+  "file": "SourceArt/Meshes/Props/House/SM_Towel_Rack.fbx",
+  "folder": "Props/House",
+  "kind": "static",
+  "materials": [
+   "MI_Chrome",
+   "MI_Fabric_Sofa_Green",
+   "MI_Fabric_Bedding"
+  ],
+  "nanite": false
+ },
+ "SM_Traffic_Cone": {
+  "collision": "convex",
+  "file": "SourceArt/Meshes/Props/Town/SM_Traffic_Cone.fbx",
+  "folder": "Props/Town",
+  "kind": "static",
+  "materials": [
+   "MI_Rubber_Black",
+   "MI_Plastic_Red",
+   "MI_Plastic_White"
+  ],
+  "nanite": false
+ },
+ "SM_Tree_Dead": {
+  "collision": "complex",
+  "file": "SourceArt/Meshes/Props/Town/SM_Tree_Dead.fbx",
+  "folder": "Props/Town",
+  "kind": "static",
+  "materials": [
+   "MI_Bark"
+  ],
+  "nanite": false
+ },
+ "SM_Tree_Maple": {
+  "collision": "complex",
+  "file": "SourceArt/Meshes/Props/Town/SM_Tree_Maple.fbx",
+  "folder": "Props/Town",
+  "kind": "static",
+  "materials": [
+   "MI_Bark",
+   "MI_Tree_Leaves"
+  ],
+  "nanite": false
+ },
+ "SM_Tree_Oak": {
+  "collision": "complex",
+  "file": "SourceArt/Meshes/Props/Town/SM_Tree_Oak.fbx",
+  "folder": "Props/Town",
+  "kind": "static",
+  "materials": [
+   "MI_Bark",
+   "MI_Tree_Leaves"
+  ],
+  "nanite": false
+ },
+ "SM_Tree_Pine": {
+  "collision": "complex",
+  "file": "SourceArt/Meshes/Props/Town/SM_Tree_Pine.fbx",
+  "folder": "Props/Town",
+  "kind": "static",
+  "materials": [
+   "MI_Bark",
+   "MI_Tree_Leaves"
+  ],
+  "nanite": false
+ },
+ "SM_UtilityPole": {
+  "collision": "complex",
+  "file": "SourceArt/Meshes/Props/Town/SM_UtilityPole.fbx",
+  "folder": "Props/Town",
+  "kind": "static",
+  "materials": [
+   "MI_Wood_Dark",
+   "MI_Steel",
+   "MI_Glass_Bottle",
+   "MI_Metal_Grey",
+   "MI_Porcelain",
+   "MI_Cable",
+   "MI_Paper",
+   "MI_Copper",
+   "MI_Aluminium",
+   "MI_Plastic_Black"
+  ],
+  "nanite": false
+ },
+ "SM_Wall_Sconce": {
+  "collision": "none",
+  "file": "SourceArt/Meshes/Props/House/SM_Wall_Sconce.fbx",
+  "folder": "Props/House",
+  "kind": "static",
+  "materials": [
+   "MI_Brass",
+   "MI_Emit_Bulb",
+   "MI_Fabric_Shade",
+   "MI_Emit_Shade"
+  ],
+  "nanite": false
+ },
+ "SM_Wardrobe": {
+  "collision": "box",
+  "file": "SourceArt/Meshes/Props/House/SM_Wardrobe.fbx",
+  "folder": "Props/House",
+  "kind": "static",
+  "materials": [
+   "MI_Wood_Dark",
+   "MI_Brass",
+   "MI_Fabric_Navy",
+   "MI_Fabric_Brown",
+   "MI_Plastic_Black"
+  ],
+  "nanite": false
+ },
+ "SM_Washer": {
+  "collision": "box",
+  "file": "SourceArt/Meshes/Props/House/SM_Washer.fbx",
+  "folder": "Props/House",
+  "kind": "static",
+  "materials": [
+   "MI_Porcelain",
+   "MI_Plastic_White",
+   "MI_Rubber_Black",
+   "MI_Plastic_Grey",
+   "MI_Screen_Black",
+   "MI_Emit_Green",
+   "MI_Chrome",
+   "MI_Plastic_Black",
+   "MI_Glass_Van"
+  ],
+  "nanite": false
+ },
+ "SM_Wheelbarrow": {
+  "collision": "convex",
+  "file": "SourceArt/Meshes/Props/Town/SM_Wheelbarrow.fbx",
+  "folder": "Props/Town",
+  "kind": "static",
+  "materials": [
+   "MI_Metal_Green",
+   "MI_Wood_Raw",
+   "MI_Rubber_Black",
+   "MI_Tire",
+   "MI_Steel"
+  ],
+  "nanite": false
+ }
+}
