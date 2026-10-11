@@ -663,6 +663,15 @@ TSharedRef<SWidget> SHHSettingsPanel::BuildGameplay()
 			[](UHHGameUserSettings& S, bool b) { S.bShowCrewHUD = b; })
 	];
 
+	Box->AddSlot().AutoHeight()[Section(LOCTEXT("World", "WORLD"))];
+	Box->AddSlot().AutoHeight()
+	[
+		Slider(LOCTEXT("TimeSpeed", "Time Speed"), LOCTEXT("TimeSpeedTip", "How fast the clock runs in Hollowmere (1x = one day in 48 minutes). The host's setting is used for the whole crew; 0 stops the clock."),
+			0.f, 4.f, 0.25f, 1.f, 2, LOCTEXT("TimesSuffix", "x"),
+			[](const UHHGameUserSettings& S) { return S.TimeSpeed; },
+			[](UHHGameUserSettings& S, float V) { S.TimeSpeed = V; })
+	];
+
 	Box->AddSlot().AutoHeight()[Section(LOCTEXT("Camera", "CAMERA"))];
 	Box->AddSlot().AutoHeight()
 	[

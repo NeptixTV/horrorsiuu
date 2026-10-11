@@ -6,6 +6,7 @@
 #include "HHPlayerState.generated.h"
 
 class AHHPlayerState;
+class UHHInventoryComponent;
 
 DECLARE_MULTICAST_DELEGATE_OneParam(FHHOnPlayerStateEvent, AHHPlayerState* /*PlayerState*/);
 
@@ -35,6 +36,14 @@ public:
 	bool IsCrewLeader() const { return bCrewLeader; }
 	int32 GetCrewSlot() const { return CrewSlot; }
 	FLinearColor GetCrewColor() const;
+	UHHInventoryComponent* GetInventory() const { return Inventory; }
+
+	// --- Job state (replicated, written by the heist rules) ---
+	/** 0..100. Drops in the dark and when the house shows itself; recovers near the crew / van. */
+	float GetPsyche() const { return Psyche; }
+	bool IsInsideHouse() const { return bInsideHouse; }
+	/** Total value this player stashed in the van on this job (summary). */
+	int32 GetStashedValue() const { return StashedValue; }
 
 	// --- Server-only mutators ---
 	void SetReady(bool bNewReady);
@@ -43,6 +52,9 @@ public:
 	void SetPlayerLevel(int32 NewLevel);
 	void SetCrewLeader(bool bNewLeader);
 	void SetCrewSlot(int32 NewSlot);
+	void SetPsyche(float NewPsyche);
+	void SetInsideHouse(bool bNewInside);
+	void AddStashedValue(int32 Amount);
 
 	/** Fired on every machine when this player's cosmetics change (character re-dresses). */
 	FHHOnPlayerStateEvent OnCosmeticsChanged;
@@ -84,4 +96,16 @@ private:
 
 	UPROPERTY(ReplicatedUsing = OnRep_CrewInfo)
 	int32 CrewSlot = 0;
+
+	UPROPERTY(VisibleAnywhere, Category = "Job")
+	TObjectPtr<UHHInventoryComponent> Inventory;
+
+	UPROPERTY(Replicated)
+	float Psyche = 100.f;
+
+	UPROPERTY(Replicated)
+	bool bInsideHouse = false;
+
+	UPROPERTY(Replicated)
+	int32 StashedValue = 0;
 };

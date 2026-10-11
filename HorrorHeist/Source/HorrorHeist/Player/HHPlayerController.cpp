@@ -2,6 +2,9 @@
 #include "Player/HHPlayerState.h"
 #include "Lobby/HHLobbyGameMode.h"
 #include "Lobby/HHLobbyGameState.h"
+#include "Heist/HHHeistGameMode.h"
+#include "Heist/HHHauntDirector.h"
+#include "World/HHTimeOfDay.h"
 #include "UI/HHLobbyHUD.h"
 #include "World/HHAmbienceDirector.h"
 #include "Core/HHGameInstance.h"
@@ -289,6 +292,11 @@ void AHHPlayerController::ServerSetProfile_Implementation(const FString& InPlaye
 			GameMode->HandleProfileReceived(this);
 		}
 	}
+	// On a job the loadout becomes the inventory (once, when the first profile arrives).
+	if (AHHHeistGameMode* HeistMode = GetWorld()->GetAuthGameMode<AHHHeistGameMode>())
+	{
+		HeistMode->HandleProfileReceived(this);
+	}
 }
 
 void AHHPlayerController::ServerSetReady_Implementation(bool bNewReady)
@@ -311,6 +319,52 @@ void AHHPlayerController::ServerSelectMission_Implementation(FName MissionId)
 	if (AHHLobbyGameMode* GameMode = GetWorld()->GetAuthGameMode<AHHLobbyGameMode>())
 	{
 		GameMode->HandleMissionRequest(this, MissionId);
+	}
+}
+
+void AHHPlayerController::RequestWaitForNight()
+{
+	ServerWaitForNight();
+}
+
+void AHHPlayerController::RequestAbandonJob()
+{
+	ServerAbandonJob();
+}
+
+void AHHPlayerController::ServerWaitForNight_Implementation()
+{
+	if (AHHLobbyGameMode* GameMode = GetWorld()->GetAuthGameMode<AHHLobbyGameMode>())
+	{
+		GameMode->HandleWaitForNight(this);
+	}
+}
+
+void AHHPlayerController::ServerAbandonJob_Implementation()
+{
+	if (AHHHeistGameMode* HeistMode = GetWorld()->GetAuthGameMode<AHHHeistGameMode>())
+	{
+		HeistMode->HandleAbandon(this);
+	}
+}
+
+void AHHPlayerController::ClientMissionReward_Implementation(const FHHMissionSummary& Summary)
+{
+	if (UHHProfileSubsystem* Profile = UHHProfileSubsystem::Get(this))
+	{
+		Profile->RecordJob(Summary);
+	}
+	if (AHHLobbyHUD* LobbyHUD = GetLobbyHUD())
+	{
+		LobbyHUD->ShowMissionSummary(Summary);
+	}
+}
+
+void AHHPlayerController::ClientBlackout_Implementation(bool bCaughtByEntity)
+{
+	if (AHHLobbyHUD* LobbyHUD = GetLobbyHUD())
+	{
+		LobbyHUD->PlayBlackout(bCaughtByEntity);
 	}
 }
 
@@ -501,6 +555,56 @@ void AHHPlayerController::HHForceAmbientEvent(int32 EventIndex)
 	{
 		It->TriggerEvent(EventIndex);
 		return;
+	}
+}
+
+void AHHPlayerController::HHSetTime(float Hours)
+{
+	AHHTimeOfDay* Clock = AHHTimeOfDay::Get(this);
+	if (!HasAuthority() || !Clock)
+	{
+		ClientNotify(LOCTEXT("HostOnlyTime", "Only the host can change the time (and the map needs a time-of-day actor)."), EHHNotifyType::Warning);
+		return;
+	}
+	Clock->SkipTo(Hours);
+}
+
+void AHHPlayerController::HHTimeSpeed(float Multiplier)
+{
+	AHHTimeOfDay* Clock = AHHTimeOfDay::Get(this);
+	if (HasAuthority() && Clock)
+	{
+		Clock->SetSpeed(Multiplier);
+	}
+}
+
+void AHHPlayerController::HHAddAnger(float Amount)
+{
+	AHHHauntDirector* Director = AHHHauntDirector::Get(this);
+	if (HasAuthority() && Director)
+	{
+		Director->AddAnger(Amount);
+	}
+}
+
+void AHHPlayerController::HHHauntEvent(int32 EventIndex)
+{
+	AHHHauntDirector* Director = AHHHauntDirector::Get(this);
+	if (HasAuthority() && Director && EventIndex >= 0 && EventIndex < static_cast<int32>(EHHHauntEvent::MAX))
+	{
+		if (!Director->TriggerEvent(static_cast<EHHHauntEvent>(EventIndex)))
+		{
+			ClientNotify(LOCTEXT("NoTarget", "That event has no valid target right now (nobody inside, nothing suitable nearby)."), EHHNotifyType::Info);
+		}
+	}
+}
+
+void AHHPlayerController::HHEndJob(int32 Outcome)
+{
+	AHHHeistGameMode* HeistMode = GetWorld()->GetAuthGameMode<AHHHeistGameMode>();
+	if (HasAuthority() && HeistMode)
+	{
+		HeistMode->DebugEnd(static_cast<EHHMissionOutcome>(FMath::Clamp(Outcome, 1, 4)));
 	}
 }
 

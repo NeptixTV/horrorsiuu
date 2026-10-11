@@ -60,11 +60,43 @@ class Graph:
             self.link(b, b_pin, e, 'B')
         return e
 
+    @staticmethod
+    def input_candidates(b, b_pin):
+        """Input names to try for `b_pin`, as MaterialEditingLibrary sees them.
+
+        UE 5.5 reports the main input of single-input nodes (Floor, Frac, Sine, ComponentMask, ...) and
+        the first input of Clamp with an *empty* name, not with the C++ property name 'Input'. Passing
+        'Input' therefore fails silently (connect returns False). Resolve the name from the expression
+        itself so every connection is really made.
+        """
+        names = None
+        try:
+            names = [str(n) for n in U.MEL.get_material_expression_input_names(b)]
+        except Exception:  # noqa: BLE001 - older API without the query; fall back to known spellings
+            names = None
+        out = []
+        if names is not None:
+            if b_pin in names:
+                out.append(b_pin)
+            lowered = [n.lower() for n in names]
+            if b_pin.lower() in lowered:
+                out.append(names[lowered.index(b_pin.lower())])
+            if b_pin in ('', 'Input') and names:
+                out.append('' if '' in names else names[0])
+        out += [b_pin, '' if b_pin == 'Input' else b_pin]
+        seen = []
+        for n in out:
+            if n not in seen:
+                seen.append(n)
+        return seen
+
     def link(self, a, a_pin, b, b_pin):
         if isinstance(a, (int, float)):
             return
-        if not U.MEL.connect_material_expressions(a, a_pin, b, b_pin):
-            U.warn(f'{self.mat.get_name()}: could not connect {a.get_name()}.{a_pin} -> {b.get_name()}.{b_pin}')
+        for pin in self.input_candidates(b, b_pin):
+            if U.MEL.connect_material_expressions(a, a_pin, b, pin):
+                return
+        U.warn(f'{self.mat.get_name()}: could not connect {a.get_name()}.{a_pin} -> {b.get_name()}.{b_pin}')
 
     def out(self, e, pin, prop):
         if not U.MEL.connect_material_property(e, pin, prop):
@@ -278,7 +310,7 @@ def build_masters():
 # ---------------------------------------------------------------------------------------------
 # Physical materials
 
-SURFACES = {'PM_Concrete': 1, 'PM_Wood': 2, 'PM_Metal': 3, 'PM_Fabric': 4, 'PM_Water': 5, 'PM_Gravel': 6}
+SURFACES = {'PM_Concrete': 1, 'PM_Wood': 2, 'PM_Metal': 3, 'PM_Fabric': 4, 'PM_Water': 5, 'PM_Gravel': 6, 'PM_Grass': 7}
 
 
 def build_physical():
@@ -296,13 +328,17 @@ def build_physical():
 
 def surface_for(name):
     n = name.lower()
-    if any(k in n for k in ('concrete', 'block', 'brick', 'plaster', 'asphalt')):
+    if any(k in n for k in ('grass', 'hedge', 'foliage', 'dirt', 'leaves', 'mud')):
+        return 'PM_Grass'
+    if 'gravel' in n:
+        return 'PM_Gravel'
+    if any(k in n for k in ('concrete', 'block', 'brick', 'plaster', 'asphalt', 'sidewalk', 'stone', 'tiles', 'porcelain')):
         return 'PM_Concrete'
-    if any(k in n for k in ('wood', 'pegboard', 'cork', 'cardboard')):
+    if any(k in n for k in ('wood', 'pegboard', 'cork', 'cardboard', 'siding', 'shingle', 'parquet')):
         return 'PM_Wood'
     if any(k in n for k in ('metal', 'steel', 'chrome', 'van_paint', 'chainlink', 'aluminium', 'brass', 'copper')):
         return 'PM_Metal'
-    if any(k in n for k in ('fabric', 'leather', 'nylon', 'rubber', 'tire', 'rug')):
+    if any(k in n for k in ('fabric', 'leather', 'nylon', 'rubber', 'tire', 'rug', 'carpet')):
         return 'PM_Fabric'
     return None
 

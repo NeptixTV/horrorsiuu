@@ -307,6 +307,47 @@ int32 UHHProfileSubsystem::GetJobsCompleted() const
 	return Profile ? Profile->JobsCompleted : 0;
 }
 
+void UHHProfileSubsystem::RecordJob(const FHHMissionSummary& Summary)
+{
+	LastJob = Summary;
+	bHasLastJob = true;
+	if (!Profile)
+	{
+		return;
+	}
+	const int32 OldLevel = GetLevel();
+	if (Summary.PayoutPerPlayer > 0)
+	{
+		Profile->Cash += Summary.PayoutPerPlayer;
+		Profile->LifetimeEarnings += Summary.PayoutPerPlayer;
+	}
+	if (Summary.XPPerPlayer > 0)
+	{
+		Profile->TotalXP += Summary.XPPerPlayer;
+	}
+	if (Summary.Outcome == EHHMissionOutcome::Success || Summary.Outcome == EHHMissionOutcome::Partial)
+	{
+		++Profile->JobsCompleted;
+	}
+	NotifyChanged();
+	const int32 NewLevel = GetLevel();
+	if (NewLevel > OldLevel)
+	{
+		OnLevelUp.Broadcast(NewLevel);
+	}
+}
+
+bool UHHProfileSubsystem::ConsumeLastJobSummary(FHHMissionSummary& OutSummary)
+{
+	if (!bHasLastJob)
+	{
+		return false;
+	}
+	OutSummary = LastJob;
+	bHasLastJob = false;
+	return true;
+}
+
 // ---------------------------------------------------------------------------------------
 // Ownership
 

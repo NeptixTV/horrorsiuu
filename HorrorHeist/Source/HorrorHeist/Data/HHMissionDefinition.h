@@ -66,11 +66,36 @@ public:
 	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Travel")
 	TSoftObjectPtr<UWorld> Map;
 
+	/**
+	 * False while the house exists (map prepared) but its job is not finished: the board shows
+	 * "being cased" and the van will not leave. Lets level designers walk the map early.
+	 */
+	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Travel")
+	bool bAvailable = true;
+
+	/** The van only leaves for this job after dark (see Project Settings > Horror Heist). */
+	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Travel")
+	bool bRequiresNight = true;
+
+	/** Value the crew must stash in the van for a clean result ("Success" instead of "Partial"). */
+	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Economy", meta = (ClampMin = 0))
+	int32 MinimumHaul = 1500;
+
+	/** Loot id of PrimaryTarget (optional objective; stashing it adds a bonus to the payout). */
+	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Mission")
+	FName PrimaryTargetItem;
+
+	/** Scales how fast the house turns hostile (1 = normal). */
+	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Haunting", meta = (ClampMin = 0.1))
+	float HauntAggression = 1.f;
+
 	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Mission")
 	int32 SortOrder = 0;
 
 	FName GetMissionId() const { return MissionId.IsNone() ? GetFName() : MissionId; }
-	bool IsPlayable() const { return !Map.IsNull(); }
+	bool IsPlayable() const { return !Map.IsNull() && bAvailable; }
+	/** Map exists but the job is not released yet. */
+	bool IsPrepared() const { return !Map.IsNull() && !bAvailable; }
 
 	virtual FPrimaryAssetId GetPrimaryAssetId() const override
 	{

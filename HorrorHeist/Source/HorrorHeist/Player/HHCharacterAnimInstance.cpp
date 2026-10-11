@@ -1,9 +1,12 @@
 #include "Player/HHCharacterAnimInstance.h"
+#include "Player/HHCharacter.h"
 #include "Data/HHCharacterDefinition.h"
 #include "Animation/AnimNodeBase.h"
 #include "Animation/AnimSequence.h"
 #include "Animation/AnimationPoseData.h"
 #include "AnimationRuntime.h"
+#include "BonePose.h"
+#include "Components/SkeletalMeshComponent.h"
 #include "Algo/Sort.h"
 #include "GameFramework/Character.h"
 #include "GameFramework/CharacterMovementComponent.h"
@@ -153,6 +156,24 @@ void UHHCharacterAnimInstance::NativeUpdateAnimation(float DeltaSeconds)
 	Proxy.AimPitch = AimPitch;
 	Proxy.AimBones = AimBones;
 	Proxy.AimWeights = AimWeights;
+
+	// First-person body and the hand on the held item (the preview mannequin has neither).
+	Proxy.bHideHead = false;
+	Proxy.HandIKAlpha = 0.f;
+	if (const AHHCharacter* Character = Cast<AHHCharacter>(TryGetPawnOwner()))
+	{
+		Proxy.bHideHead = !bPreviewMode && Character->ShouldHideHead();
+		FVector HandWorld;
+		float Alpha = 0.f;
+		if (!bPreviewMode && Character->GetHandTarget(HandWorld, Alpha))
+		{
+			if (const USkeletalMeshComponent* MeshComponent = GetSkelMeshComponent())
+			{
+				Proxy.HandTargetCS = MeshComponent->GetComponentTransform().InverseTransformPosition(HandWorld);
+				Proxy.HandIKAlpha = Alpha;
+			}
+		}
+	}
 }
 
 // ---------------------------------------------------------------------------------------
@@ -205,7 +226,100 @@ bool FHHAnimInstanceProxy::Evaluate(FPoseContext& Output)
 	}
 
 	ApplyAimPitch(Output);
+	ApplyHandIK(Output);
+	ApplyHeadHide(Output);
 	return true;
+}
+
+namespace HHAnim
+{
+	static FCompactPoseBoneIndex FindCompact(const FBoneContainer& Bones, FName Name)
+	{
+		const int32 SkeletonIndex = Bones.GetReferenceSkeleton().FindBoneIndex(Name);
+		return SkeletonIndex == INDEX_NONE ? FCompactPoseBoneIndex(INDEX_NONE) : Bones.MakeCompactPoseIndex(FMeshPoseBoneIndex(SkeletonIndex));
+	}
+}
+
+void FHHAnimInstanceProxy::ApplyHeadHide(FPoseContext& Output) const
+{
+	if (!bHideHead)
+	{
+		return;
+	}
+	const FCompactPoseBoneIndex Head = HHAnim::FindCompact(Output.Pose.GetBoneContainer(), TEXT("head"));
+	if (Head.IsValid())
+	{
+		// Scaling the head bone collapses the skull, hair and anything skinned to it for this
+		// client only; everyone else sees the full head (this pose is per machine).
+		Output.Pose[Head].SetScale3D(FVector(0.02f));
+	}
+}
+
+void FHHAnimInstanceProxy::ApplyHandIK(FPoseContext& Output) const
+{
+	if (HandIKAlpha <= 0.01f)
+	{
+		return;
+	}
+	const FBoneContainer& Bones = Output.Pose.GetBoneContainer();
+	const FCompactPoseBoneIndex Upper = HHAnim::FindCompact(Bones, TEXT("upperarm_r"));
+	const FCompactPoseBoneIndex Lower = HHAnim::FindCompact(Bones, TEXT("lowerarm_r"));
+	const FCompactPoseBoneIndex Hand = HHAnim::FindCompact(Bones, TEXT("hand_r"));
+	if (!Upper.IsValid() || !Lower.IsValid() || !Hand.IsValid())
+	{
+		return;
+	}
+
+	FCSPose<FCompactPose> CSPose;
+	CSPose.InitPose(Output.Pose);
+	FTransform UpperCS = CSPose.GetComponentSpaceTransform(Upper);
+	FTransform LowerCS = CSPose.GetComponentSpaceTransform(Lower);
+	FTransform HandCS = CSPose.GetComponentSpaceTransform(Hand);
+
+	const FVector Root = UpperCS.GetLocation();
+	const FVector Joint = LowerCS.GetLocation();
+	const FVector End = HandCS.GetLocation();
+	const float UpperLength = FVector::Dist(Root, Joint);
+	const float LowerLength = FVector::Dist(Joint, End);
+	if (UpperLength < 1.f || LowerLength < 1.f)
+	{
+		return;
+	}
+
+	// Analytic two-bone IK. The elbow bends down and outwards (the body faces +Y in mesh
+	// space, the right side is -X).
+	const FVector Target = FMath::Lerp(End, HandTargetCS, FMath::Clamp(HandIKAlpha, 0.f, 1.f));
+	const FVector ToTarget = Target - Root;
+	const float Reach = FMath::Clamp(static_cast<float>(ToTarget.Size()), 1.f, (UpperLength + LowerLength) * 0.999f);
+	const FVector Direction = ToTarget.GetSafeNormal();
+	FVector Pole = (Root + FVector(-25.f, -8.f, -35.f)) - Root;
+	Pole = (Pole - Direction * FVector::DotProduct(Pole, Direction)).GetSafeNormal();
+	if (Pole.IsNearlyZero())
+	{
+		Pole = FVector(0.f, 0.f, -1.f);
+	}
+	const float CosAngle = FMath::Clamp((UpperLength * UpperLength + Reach * Reach - LowerLength * LowerLength) / (2.f * UpperLength * Reach), -1.f, 1.f);
+	const float Angle = FMath::Acos(CosAngle);
+	const FVector NewJoint = Root + (Direction * FMath::Cos(Angle) + Pole * FMath::Sin(Angle)) * UpperLength;
+	const FVector NewEnd = Root + Direction * Reach;
+
+	const FQuat UpperDelta = FQuat::FindBetweenNormals((Joint - Root).GetSafeNormal(), (NewJoint - Root).GetSafeNormal());
+	const FVector RotatedLowerDir = UpperDelta.RotateVector((End - Joint).GetSafeNormal());
+	const FQuat LowerDelta = FQuat::FindBetweenNormals(RotatedLowerDir, (NewEnd - NewJoint).GetSafeNormal());
+
+	UpperCS.SetRotation((UpperDelta * UpperCS.GetRotation()).GetNormalized());
+	LowerCS.SetLocation(NewJoint);
+	LowerCS.SetRotation((LowerDelta * UpperDelta * LowerCS.GetRotation()).GetNormalized());
+	// The hand keeps its pose relative to the forearm (a fist around the grip).
+	HandCS.SetLocation(NewEnd);
+	HandCS.SetRotation((LowerDelta * UpperDelta * HandCS.GetRotation()).GetNormalized());
+
+	TArray<FBoneTransform> Transforms;
+	Transforms.Add(FBoneTransform(Upper, UpperCS));
+	Transforms.Add(FBoneTransform(Lower, LowerCS));
+	Transforms.Add(FBoneTransform(Hand, HandCS));
+	CSPose.LocalBlendCSBoneTransforms(Transforms, 1.f);
+	FCSPose<FCompactPose>::ConvertComponentPosesToLocalPoses(MoveTemp(CSPose), Output.Pose);
 }
 
 void FHHAnimInstanceProxy::ApplyAimPitch(FPoseContext& Output) const

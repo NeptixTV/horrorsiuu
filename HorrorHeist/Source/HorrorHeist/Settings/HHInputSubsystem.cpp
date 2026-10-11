@@ -42,6 +42,12 @@ const TArray<FHHBindingInfo>& UHHInputSubsystem::GetRebindableBindings()
 		MakeBinding(TEXT("Map"),			LOCTEXT("Map", "Map / Job Board"),			EHHInputAction::Map,		EKeys::M),
 		MakeBinding(TEXT("Ready"),			LOCTEXT("Ready", "Toggle Ready"),			EHHInputAction::Ready,		EKeys::R),
 		MakeBinding(TEXT("ToggleView"),		LOCTEXT("ToggleView", "First / Third Person"), EHHInputAction::ToggleView, EKeys::T),
+		MakeBinding(TEXT("Drop"),			LOCTEXT("Drop", "Drop Item"),				EHHInputAction::Drop,		EKeys::G),
+		MakeBinding(TEXT("Slot1"),			LOCTEXT("Slot1", "Inventory Slot 1"),		EHHInputAction::Slot1,		EKeys::One),
+		MakeBinding(TEXT("Slot2"),			LOCTEXT("Slot2", "Inventory Slot 2"),		EHHInputAction::Slot2,		EKeys::Two),
+		MakeBinding(TEXT("Slot3"),			LOCTEXT("Slot3", "Inventory Slot 3"),		EHHInputAction::Slot3,		EKeys::Three),
+		MakeBinding(TEXT("Slot4"),			LOCTEXT("Slot4", "Inventory Slot 4"),		EHHInputAction::Slot4,		EKeys::Four),
+		MakeBinding(TEXT("Slot5"),			LOCTEXT("Slot5", "Inventory Slot 5"),		EHHInputAction::Slot5,		EKeys::Five),
 	};
 	return Bindings;
 }
@@ -108,6 +114,8 @@ void UHHInputSubsystem::BuildKeyboardContext()
 	// Fixed, non-rebindable mappings.
 	KeyboardContext->MapKey(GetAction(EHHInputAction::Look), EKeys::Mouse2D);
 	KeyboardContext->MapKey(GetAction(EHHInputAction::Menu), EKeys::Escape);
+	KeyboardContext->MapKey(GetAction(EHHInputAction::SlotNext), EKeys::MouseScrollDown);
+	KeyboardContext->MapKey(GetAction(EHHInputAction::SlotPrev), EKeys::MouseScrollUp);
 
 	for (const FHHBindingInfo& Binding : GetRebindableBindings())
 	{
@@ -162,6 +170,9 @@ void UHHInputSubsystem::BuildGamepadContext()
 	GamepadContext->MapKey(GetAction(EHHInputAction::PushToTalk), EKeys::Gamepad_RightShoulder);
 	GamepadContext->MapKey(GetAction(EHHInputAction::Map), EKeys::Gamepad_Special_Left);
 	GamepadContext->MapKey(GetAction(EHHInputAction::Menu), EKeys::Gamepad_Special_Right);
+	GamepadContext->MapKey(GetAction(EHHInputAction::SlotNext), EKeys::Gamepad_DPad_Right);
+	GamepadContext->MapKey(GetAction(EHHInputAction::SlotPrev), EKeys::Gamepad_DPad_Left);
+	GamepadContext->MapKey(GetAction(EHHInputAction::Drop), EKeys::Gamepad_LeftShoulder);
 }
 
 void UHHInputSubsystem::ApplyMappings()

@@ -81,6 +81,11 @@ public:
 
 	int32 GetJobsCompleted() const;
 
+	/** Books a finished job: payout, XP, job counter (one save). */
+	void RecordJob(const FHHMissionSummary& Summary);
+	/** Summary of the last job of this session, shown once back in the hideout. */
+	bool ConsumeLastJobSummary(FHHMissionSummary& OutSummary);
+
 	// --- Persistence / development ---
 	void Save();
 	void ResetProfile();
@@ -99,4 +104,7 @@ private:
 
 	UPROPERTY(Transient)
 	TObjectPtr<UHHProfileSaveGame> Profile;
+
+	FHHMissionSummary LastJob;
+	bool bHasLastJob = false;
 };

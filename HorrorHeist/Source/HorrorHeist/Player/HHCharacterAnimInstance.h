@@ -34,12 +34,20 @@ struct FHHAnimInstanceProxy : public FAnimInstanceProxy
 	TArray<FName> AimBones;
 	TArray<float> AimWeights;
 
+	/** True first person: collapse the head so the camera sees out, not into the skull. */
+	bool bHideHead = false;
+	/** Right hand reaching for the held item (component space of the body mesh). */
+	float HandIKAlpha = 0.f;
+	FVector HandTargetCS = FVector::ZeroVector;
+
 protected:
 	virtual void PreUpdate(UAnimInstance* InAnimInstance, float DeltaSeconds) override;
 	virtual bool Evaluate(FPoseContext& Output) override;
 
 private:
 	void ApplyAimPitch(FPoseContext& Output) const;
+	void ApplyHandIK(FPoseContext& Output) const;
+	void ApplyHeadHide(FPoseContext& Output) const;
 };
 
 UCLASS(Transient, NotBlueprintable)

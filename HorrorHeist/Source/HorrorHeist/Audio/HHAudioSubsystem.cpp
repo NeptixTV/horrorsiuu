@@ -2,6 +2,7 @@
 #include "Core/HHGameData.h"
 #include "Core/HHGameInstance.h"
 #include "Settings/HHGameUserSettings.h"
+#include "HorrorHeist.h"
 #include "Components/AudioComponent.h"
 #include "Engine/Engine.h"
 #include "Engine/GameInstance.h"
@@ -11,6 +12,7 @@
 #include "Sound/SoundBase.h"
 #include "Sound/SoundClass.h"
 #include "Sound/SoundMix.h"
+#include "UObject/UObjectGlobals.h"
 
 UHHAudioSubsystem* UHHAudioSubsystem::Get(const UObject* WorldContextObject)
 {
@@ -23,11 +25,13 @@ void UHHAudioSubsystem::Initialize(FSubsystemCollectionBase& Collection)
 {
 	Super::Initialize(Collection);
 	SettingsHandle = UHHGameUserSettings::OnSettingsApplied().AddUObject(this, &UHHAudioSubsystem::ApplyVolumes);
+	PostLoadMapHandle = FCoreUObjectDelegates::PostLoadMapWithWorld.AddUObject(this, &UHHAudioSubsystem::HandlePostLoadMap);
 }
 
 void UHHAudioSubsystem::Deinitialize()
 {
 	UHHGameUserSettings::OnSettingsApplied().Remove(SettingsHandle);
+	FCoreUObjectDelegates::PostLoadMapWithWorld.Remove(PostLoadMapHandle);
 	Super::Deinitialize();
 }
 
@@ -36,39 +40,145 @@ UWorld* UHHAudioSubsystem::GetAudioWorld() const
 	return GetGameInstance() ? GetGameInstance()->GetWorld() : nullptr;
 }
 
+void UHHAudioSubsystem::HandlePostLoadMap(UWorld* LoadedWorld)
+{
+	// Map travel flushes the audio device (mix modifiers and class overrides included):
+	// push the settings mix again for the new world.
+	if (LoadedWorld && LoadedWorld == GetAudioWorld())
+	{
+		MixPushedWorld.Reset();
+		bLoggedRouting = false;
+		ApplyVolumes();
+	}
+}
+
+namespace HHAudio
+{
+	static const TCHAR* ClassFolder = TEXT("/Game/HorrorHeist/Audio/Classes/");
+}
+
+USoundClass* UHHAudioSubsystem::ResolveClass(const TSoftObjectPtr<USoundClass>& FromGameData, const TCHAR* AssetName)
+{
+	USoundClass* SoundClass = FromGameData.IsNull() ? nullptr : FromGameData.LoadSynchronous();
+	if (!SoundClass)
+	{
+		// DA_GameData not wired (older content build): use the asset the content builder creates.
+		const FString Path = FString::Printf(TEXT("%s%s.%s"), HHAudio::ClassFolder, AssetName, AssetName);
+		SoundClass = LoadObject<USoundClass>(nullptr, *Path, nullptr, LOAD_NoWarn | LOAD_Quiet);
+	}
+	if (SoundClass)
+	{
+		ResolvedClasses.AddUnique(SoundClass);
+	}
+	return SoundClass;
+}
+
+USoundMix* UHHAudioSubsystem::ResolveMix()
+{
+	if (SettingsMix)
+	{
+		return SettingsMix;
+	}
+
+	const UHHGameData* GameData = UHHGameData::Get(GetAudioWorld());
+	if (GameData && !GameData->SettingsMix.IsNull())
+	{
+		SettingsMix = GameData->SettingsMix.LoadSynchronous();
+	}
+	if (!SettingsMix)
+	{
+		const FString Path = FString::Printf(TEXT("%sSM_HH_Settings.SM_HH_Settings"), HHAudio::ClassFolder);
+		SettingsMix = LoadObject<USoundMix>(nullptr, *Path, nullptr, LOAD_NoWarn | LOAD_Quiet);
+	}
+	if (!SettingsMix)
+	{
+		// Last resort: a mix that only exists at runtime. Class overrides add their adjusters to it.
+		UE_LOG(LogHorrorHeist, Warning, TEXT("Audio: SM_HH_Settings not found, using a transient settings mix. Run 'The Quiet Job > Build / Rebuild All Content'."));
+		SettingsMix = NewObject<USoundMix>(this, TEXT("SM_HH_Settings_Runtime"), RF_Transient);
+		SettingsMix->Duration = -1.f;
+		SettingsMix->FadeInTime = 0.f;
+	}
+	return SettingsMix;
+}
+
 void UHHAudioSubsystem::ApplyVolumes()
 {
 	UWorld* World = GetAudioWorld();
-	const UHHGameData* GameData = UHHGameData::Get(World);
 	const UHHGameUserSettings* Settings = UHHGameUserSettings::Get();
-	if (!World || !GameData || !Settings)
+	if (!World || !Settings || World->GetNetMode() == NM_DedicatedServer)
 	{
 		return;
 	}
 
-	USoundMix* Mix = GameData->SettingsMix.LoadSynchronous();
+	USoundMix* Mix = ResolveMix();
 	if (!Mix)
 	{
 		return;
 	}
 
+	const UHHGameData* GameData = UHHGameData::Get(World);
+	static const TSoftObjectPtr<USoundClass> NoClass;
+
+	// Sliders are 0..1. Master scales every category; categories are independent of each other.
 	const float Master = FMath::Clamp(Settings->MasterVolume, 0.f, 1.f);
-	auto Apply = [World, Mix](const TSoftObjectPtr<USoundClass>& ClassPtr, float Volume)
+	struct FRoute { const TSoftObjectPtr<USoundClass>& Ptr; const TCHAR* Name; float Volume; };
+	const FRoute Routes[] =
 	{
-		if (USoundClass* SoundClass = ClassPtr.LoadSynchronous())
-		{
-			UGameplayStatics::SetSoundMixClassOverride(World, Mix, SoundClass, FMath::Clamp(Volume, 0.f, 1.f), 1.f, 0.f, true);
-		}
+		{ GameData ? GameData->MusicClass : NoClass,		TEXT("SC_Music"),		Settings->MusicVolume },
+		{ GameData ? GameData->SfxClass : NoClass,			TEXT("SC_SFX"),			Settings->SfxVolume },
+		{ GameData ? GameData->AmbientClass : NoClass,		TEXT("SC_Ambient"),		Settings->AmbientVolume },
+		{ GameData ? GameData->DialogueClass : NoClass,		TEXT("SC_Dialogue"),	Settings->DialogueVolume },
+		{ GameData ? GameData->UiClass : NoClass,			TEXT("SC_UI"),			Settings->UiVolume },
+		{ GameData ? GameData->VoiceChatClass : NoClass,	TEXT("SC_VoiceChat"),	Settings->bVoiceChatEnabled ? Settings->VoiceChatVolume : 0.f },
 	};
 
-	Apply(GameData->MusicClass, Master * Settings->MusicVolume);
-	Apply(GameData->SfxClass, Master * Settings->SfxVolume);
-	Apply(GameData->AmbientClass, Master * Settings->AmbientVolume);
-	Apply(GameData->DialogueClass, Master * Settings->DialogueVolume);
-	Apply(GameData->UiClass, Master * Settings->UiVolume);
-	Apply(GameData->VoiceChatClass, Settings->bVoiceChatEnabled ? Master * Settings->VoiceChatVolume : 0.f);
+	TArray<FString> Missing;
+	for (const FRoute& Route : Routes)
+	{
+		if (USoundClass* SoundClass = ResolveClass(Route.Ptr, Route.Name))
+		{
+			// Fade 0 = immediate, so dragging a slider is audible right away. Children follow
+			// (e.g. a designer-made SC_Music_Radio under SC_Music).
+			UGameplayStatics::SetSoundMixClassOverride(World, Mix, SoundClass, Master * FMath::Clamp(Route.Volume, 0.f, 1.f), 1.f, 0.f, true);
+		}
+		else
+		{
+			Missing.Add(Route.Name);
+		}
+	}
 
-	UGameplayStatics::PushSoundMixModifier(World, Mix);
+	if (MixPushedWorld.Get() != World)
+	{
+		UGameplayStatics::PushSoundMixModifier(World, Mix);
+		MixPushedWorld = World;
+	}
+
+	if (!bLoggedRouting)
+	{
+		bLoggedRouting = true;
+		UE_LOG(LogHorrorHeist, Log, TEXT("Audio routing: %s"), *DescribeRouting());
+		if (Missing.Num() > 0)
+		{
+			UE_LOG(LogHorrorHeist, Warning, TEXT("Audio: sound classes missing (%s). Their volume slider has no effect until the content is rebuilt."), *FString::Join(Missing, TEXT(", ")));
+		}
+	}
+}
+
+FString UHHAudioSubsystem::DescribeRouting() const
+{
+	const UHHGameUserSettings* Settings = UHHGameUserSettings::Get();
+	FString Out = FString::Printf(TEXT("mix=%s"), SettingsMix ? *SettingsMix->GetName() : TEXT("<none>"));
+	for (const TObjectPtr<USoundClass>& SoundClass : ResolvedClasses)
+	{
+		Out += FString::Printf(TEXT(", %s"), SoundClass ? *SoundClass->GetName() : TEXT("<null>"));
+	}
+	if (Settings)
+	{
+		Out += FString::Printf(TEXT(" | master %.2f music %.2f sfx %.2f ambient %.2f dialogue %.2f ui %.2f voice %.2f"),
+			Settings->MasterVolume, Settings->MusicVolume, Settings->SfxVolume, Settings->AmbientVolume,
+			Settings->DialogueVolume, Settings->UiVolume, Settings->VoiceChatVolume);
+	}
+	return Out;
 }
 
 USoundBase* UHHAudioSubsystem::ResolveUISound(EHHUISound Sound)
@@ -95,6 +205,8 @@ USoundBase* UHHAudioSubsystem::ResolveUISound(EHHUISound Sound)
 	case EHHUISound::CountdownTick:	Ptr = &GameData->UiCountdownTick; break;
 	case EHHUISound::Notify:		Ptr = &GameData->UiNotify; break;
 	case EHHUISound::LevelUp:		Ptr = &GameData->UiLevelUp; break;
+	case EHHUISound::InventorySelect:	Ptr = &GameData->UiInventorySelect; break;
+	case EHHUISound::ObjectiveComplete:	Ptr = &GameData->UiObjectiveComplete; break;
 	default: break;
 	}
 

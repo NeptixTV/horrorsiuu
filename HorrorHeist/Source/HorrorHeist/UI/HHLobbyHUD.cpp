@@ -6,6 +6,7 @@
 #include "Interaction/HHStationActor.h"
 #include "Interaction/HHPreviewStation.h"
 #include "Lobby/HHLobbyGameState.h"
+#include "Heist/HHHeistGameState.h"
 #include "Player/HHPlayerController.h"
 #include "Player/HHCharacter.h"
 #include "Player/HHInteractionComponent.h"
@@ -14,7 +15,12 @@
 #include "Progression/HHProfileSubsystem.h"
 #include "Audio/HHAudioSubsystem.h"
 #include "Online/HHSessionSubsystem.h"
+#include "Player/HHPlayerState.h"
+#include "Core/HHDeveloperSettings.h"
 #include "Camera/PlayerCameraManager.h"
+#include "Components/AudioComponent.h"
+#include "Kismet/GameplayStatics.h"
+#include "TimerManager.h"
 #include "Engine/GameViewportClient.h"
 #include "Engine/LocalPlayer.h"
 #include "Engine/World.h"
@@ -38,6 +44,16 @@ AHHPlayerController* AHHLobbyHUD::GetHHController() const
 AHHLobbyGameState* AHHLobbyHUD::GetLobbyState() const
 {
 	return GetWorld() ? GetWorld()->GetGameState<AHHLobbyGameState>() : nullptr;
+}
+
+AHHHeistGameState* AHHLobbyHUD::GetHeistState() const
+{
+	return GetWorld() ? GetWorld()->GetGameState<AHHHeistGameState>() : nullptr;
+}
+
+bool AHHLobbyHUD::IsOnJob() const
+{
+	return GetHeistState() != nullptr;
 }
 
 UHHInteractionComponent* AHHLobbyHUD::GetInteraction() const
@@ -90,10 +106,20 @@ void AHHLobbyHUD::BeginPlay()
 
 	Root->FadeFromBlack(2.5f);
 
+	UHHGameInstance* GameInstance = GetGameInstance<UHHGameInstance>();
+	if (IsOnJob())
+	{
+		// Arriving at the house: straight into first person, no menus.
+		Root->FadeFromBlack(4.f);
+		OpenScreen(EHHLobbyScreen::None);
+		if (GameInstance)
+		{
+			GameInstance->MarkTitleShown();
+		}
+	}
 	// First launch of the application: title card. Afterwards (returning from a job,
 	// hosting, joining) go straight to the menu.
-	UHHGameInstance* GameInstance = GetGameInstance<UHHGameInstance>();
-	if (GameInstance && !GameInstance->HasShownTitle())
+	else if (GameInstance && !GameInstance->HasShownTitle())
 	{
 		GameInstance->MarkTitleShown();
 		bTitleShowing = true;
@@ -118,10 +144,22 @@ void AHHLobbyHUD::BeginPlay()
 	{
 		ShowMessage(Title, Body);
 	}
+
+	// Back from a job: a short debrief on top of the hideout menu.
+	FHHMissionSummary LastJob;
+	UHHProfileSubsystem* ProfileSubsystem = UHHProfileSubsystem::Get(this);
+	if (!IsOnJob() && ProfileSubsystem && ProfileSubsystem->ConsumeLastJobSummary(LastJob))
+	{
+		ShowMessage(FText::Format(LOCTEXT("DebriefTitle", "BACK HOME  -  {0}"), HHText::OutcomeName(LastJob.Outcome).ToUpper()),
+			FText::Format(LOCTEXT("DebriefBody", "{0} made it into the van. Your cut: {1}, +{2} XP.\nThe crew sleeps until the afternoon; the next job leaves after dark."),
+				HHText::Money(LastJob.SecuredValue), HHText::Money(LastJob.PayoutPerPlayer), FText::AsNumber(LastJob.XPPerPlayer)));
+	}
 }
 
 void AHHLobbyHUD::EndPlay(const EEndPlayReason::Type EndPlayReason)
 {
+	StopJobAudio();
+	GetWorldTimerManager().ClearTimer(BlackoutTimer);
 	if (UHHProfileSubsystem* Profile = UHHProfileSubsystem::Get(this))
 	{
 		Profile->OnLevelUp.Remove(LevelUpHandle);
@@ -318,6 +356,16 @@ void AHHLobbyHUD::Tick(float DeltaSeconds)
 	}
 
 	TryBindGameState();
+	UpdateJobAudio(DeltaSeconds);
+
+	// Joined late / missed the reward RPC: still show the summary once the job has ended.
+	if (const AHHHeistGameState* HeistState = GetHeistState())
+	{
+		if (!bShowedSummary && HeistState->GetHeistPhase() == EHHHeistPhase::Ended && HeistState->GetSummary().Outcome != EHHMissionOutcome::None)
+		{
+			ShowMissionSummary(HeistState->GetSummary());
+		}
+	}
 
 	// Possession / restarts reset the view target to the pawn; re-assert ours.
 	ViewTargetRetry -= DeltaSeconds;
@@ -468,6 +516,173 @@ void AHHLobbyHUD::ShowAddressEntry()
 		})
 		.OnCancel(FSimpleDelegate::CreateLambda([WeakRoot]() { if (TSharedPtr<SHHLobbyRoot> Pinned = WeakRoot.Pin()) { Pinned->CloseModal(); } })),
 		FSimpleDelegate::CreateLambda([WeakRoot]() { if (TSharedPtr<SHHLobbyRoot> Pinned = WeakRoot.Pin()) { Pinned->CloseModal(); } }));
+}
+
+void AHHLobbyHUD::RequestAbandonJob()
+{
+	TWeakObjectPtr<AHHLobbyHUD> WeakThis(this);
+	ShowConfirm(
+		LOCTEXT("AbandonTitle", "CALL THE JOB OFF?"),
+		LOCTEXT("AbandonBody", "The crew leaves empty-handed: nothing is paid out and the house keeps everything. Only the crew leader can do this."),
+		LOCTEXT("AbandonConfirm", "CALL IT OFF"),
+		[WeakThis]()
+		{
+			if (AHHLobbyHUD* HUD = WeakThis.Get())
+			{
+				if (AHHPlayerController* PC = HUD->GetHHController())
+				{
+					PC->RequestAbandonJob();
+				}
+				HUD->CloseMenu();
+			}
+		});
+}
+
+void AHHLobbyHUD::RequestWaitForNight()
+{
+	if (AHHPlayerController* PC = GetHHController())
+	{
+		PC->RequestWaitForNight();
+	}
+}
+
+void AHHLobbyHUD::ShowMissionSummary(const FHHMissionSummary& Summary)
+{
+	if (!Root.IsValid() || bShowedSummary)
+	{
+		return;
+	}
+	bShowedSummary = true;
+	CloseMenu();
+	if (UHHInteractionComponent* Interaction = GetInteraction())
+	{
+		Interaction->SetSuspended(true);
+	}
+	Root->ShowSummary(Summary);
+
+	StopJobAudio();
+	if (const UHHGameData* GameData = UHHGameData::Get(this))
+	{
+		if (UHHAudioSubsystem* Audio = UHHAudioSubsystem::Get(this))
+		{
+			const bool bGood = Summary.Outcome == EHHMissionOutcome::Success || Summary.Outcome == EHHMissionOutcome::Partial;
+			Audio->PlaySting((bGood ? GameData->MissionCompleteSting : GameData->MissionFailedSting).LoadSynchronous());
+			if (bGood)
+			{
+				Audio->PlaySting(GameData->DriveAwaySound.LoadSynchronous());
+			}
+		}
+	}
+	// Fade out shortly before the crew travels back.
+	const float FadeAt = FMath::Max(1.f, UHHDeveloperSettings::Get()->SummarySeconds - 2.f);
+	TWeakObjectPtr<AHHLobbyHUD> WeakThis(this);
+	FTimerHandle FadeTimer;
+	GetWorldTimerManager().SetTimer(FadeTimer, FTimerDelegate::CreateLambda([WeakThis]()
+	{
+		if (AHHLobbyHUD* HUD = WeakThis.Get())
+		{
+			if (HUD->Root.IsValid())
+			{
+				HUD->Root->FadeToBlack(1.5f);
+			}
+		}
+	}), FadeAt, false);
+}
+
+void AHHLobbyHUD::PlayBlackout(bool bCaughtByEntity)
+{
+	if (!Root.IsValid())
+	{
+		return;
+	}
+	Root->FadeToBlack(0.15f);
+	if (UHHAudioSubsystem* Audio = UHHAudioSubsystem::Get(this))
+	{
+		Audio->ShowCaption(bCaughtByEntity ? LOCTEXT("Caught", "[Something grabs you. Everything goes black.]") : LOCTEXT("Faint", "[Your heart races. Everything goes black.]"), 4.f, true);
+	}
+	TWeakObjectPtr<AHHLobbyHUD> WeakThis(this);
+	GetWorldTimerManager().SetTimer(BlackoutTimer, FTimerDelegate::CreateLambda([WeakThis]()
+	{
+		if (AHHLobbyHUD* HUD = WeakThis.Get())
+		{
+			if (HUD->Root.IsValid())
+			{
+				HUD->Root->FadeFromBlack(3.f);
+			}
+		}
+	}), 2.2f, false);
+}
+
+void AHHLobbyHUD::UpdateJobAudio(float DeltaSeconds)
+{
+	const AHHHeistGameState* HeistState = GetHeistState();
+	if (!HeistState || bShowedSummary || GetNetMode() == NM_DedicatedServer)
+	{
+		return;
+	}
+	const UHHGameData* GameData = UHHGameData::Get(this);
+	if (!GameData)
+	{
+		return;
+	}
+
+	// Lazily create the 2D layers (they follow the Music / SFX / Ambient sliders via their classes).
+	auto Ensure = [this](TObjectPtr<UAudioComponent>& Component, const TSoftObjectPtr<USoundBase>& Sound)
+	{
+		if (!Component && !Sound.IsNull())
+		{
+			if (USoundBase* Loaded = Sound.LoadSynchronous())
+			{
+				Component = UGameplayStatics::CreateSound2D(this, Loaded, 1.f, 1.f, 0.f, nullptr, false, false);
+				if (Component)
+				{
+					Component->SetVolumeMultiplier(0.001f);
+					Component->Play();
+				}
+			}
+		}
+	};
+	Ensure(DroneAudio, GameData->HauntDrone);
+	Ensure(HeartbeatAudio, GameData->Heartbeat);
+	Ensure(NightAudio, GameData->HeistAmbience);
+
+	// The drone creeps in with the haunting; the heartbeat with low psyche.
+	const float Haunt = FMath::Clamp((HeistState->GetHauntLevel() - 8.f) / 80.f, 0.f, 1.f);
+	DroneLevel = FMath::FInterpTo(DroneLevel, Haunt * Haunt * 0.9f + (HeistState->GetHauntStage() >= 4 ? 0.1f : 0.f), DeltaSeconds, 0.5f);
+	const AHHPlayerController* PC = GetHHController();
+	const AHHPlayerState* MyState = PC ? PC->GetHHPlayerState() : nullptr;
+	const float Psyche = MyState ? MyState->GetPsyche() : 100.f;
+	HeartLevel = FMath::FInterpTo(HeartLevel, FMath::Clamp((35.f - Psyche) / 30.f, 0.f, 1.f), DeltaSeconds, 1.5f);
+
+	if (DroneAudio)
+	{
+		DroneAudio->SetVolumeMultiplier(FMath::Max(DroneLevel, 0.001f));
+	}
+	if (HeartbeatAudio)
+	{
+		HeartbeatAudio->SetVolumeMultiplier(FMath::Max(HeartLevel, 0.001f));
+		HeartbeatAudio->SetPitchMultiplier(1.f + HeartLevel * 0.25f);
+	}
+	if (NightAudio)
+	{
+		// The street bed fades while inside the house.
+		const bool bInside = MyState && MyState->IsInsideHouse();
+		NightAudio->SetVolumeMultiplier(FMath::FInterpTo(NightAudio->VolumeMultiplier, bInside ? 0.25f : 0.8f, DeltaSeconds, 1.f));
+	}
+}
+
+void AHHLobbyHUD::StopJobAudio()
+{
+	for (UAudioComponent* Component : { DroneAudio.Get(), HeartbeatAudio.Get(), NightAudio.Get() })
+	{
+		if (Component)
+		{
+			Component->FadeOut(1.f, 0.f);
+		}
+	}
+	DroneAudio = nullptr;
+	HeartbeatAudio = nullptr;
+	NightAudio = nullptr;
 }
 
 void AHHLobbyHUD::RequestQuit()

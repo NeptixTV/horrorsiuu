@@ -22,6 +22,10 @@ public:
 	virtual void BeginPlay() override;
 	virtual void EndPlay(const EEndPlayReason::Type EndPlayReason) override;
 
+	/** Local: fade the loop and one-shots in or out (day/night beds, area changes). */
+	void SetEmitterActive(bool bActive);
+	bool IsEmitterActive() const { return bEmitterActive; }
+
 protected:
 	void ScheduleNext();
 	void PlayOneShot();
@@ -53,4 +57,5 @@ protected:
 
 	FTimerHandle Timer;
 	int32 LastIndex = INDEX_NONE;
+	bool bEmitterActive = true;
 };

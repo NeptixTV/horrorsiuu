@@ -605,6 +605,55 @@ def icons():
     d.ellipse([S * 0.6, S * 0.48, S * 0.68, S * 0.56], fill=W)
     finish(img, 'Door')
 
+    # --- Job HUD ----------------------------------------------------------------------
+    img, d = canvas()  # Moon (crescent)
+    d.ellipse([S * 0.14, S * 0.14, S * 0.86, S * 0.86], fill=W)
+    d.ellipse([S * 0.34, S * 0.04, S * 1.02, S * 0.72], fill=(0, 0, 0, 0))
+    finish(img, 'Moon')
+
+    img, d = canvas()  # Sun
+    d.ellipse([S * 0.32, S * 0.32, S * 0.68, S * 0.68], fill=W)
+    for i in range(8):
+        ang = i * math.pi / 4
+        d.line([S * 0.5 + math.cos(ang) * S * 0.26, S * 0.5 + math.sin(ang) * S * 0.26,
+                S * 0.5 + math.cos(ang) * S * 0.42, S * 0.5 + math.sin(ang) * S * 0.42], fill=W, width=lw)
+    finish(img, 'Sun')
+
+    img, d = canvas()  # Brain (psyche): lumpy side-view silhouette with fold lines
+    for cx, cy, r in ((0.3, 0.42, 0.2), (0.5, 0.33, 0.21), (0.7, 0.42, 0.2), (0.36, 0.6, 0.18), (0.62, 0.6, 0.19),
+                      (0.8, 0.58, 0.12)):
+        d.ellipse([S * (cx - r), S * (cy - r), S * (cx + r), S * (cy + r)], fill=W)
+    d.rounded_rectangle([S * 0.56, S * 0.66, S * 0.7, S * 0.9], radius=S * 0.05, fill=W)
+    clear = (0, 0, 0, 0)
+    fw = int(lw * 0.6)
+    d.arc([S * 0.2, S * 0.3, S * 0.46, S * 0.56], 200, 330, fill=clear, width=fw)
+    d.arc([S * 0.42, S * 0.2, S * 0.66, S * 0.44], 210, 340, fill=clear, width=fw)
+    d.arc([S * 0.5, S * 0.44, S * 0.8, S * 0.7], 190, 320, fill=clear, width=fw)
+    d.line([S * 0.3, S * 0.62, S * 0.48, S * 0.56], fill=clear, width=fw)
+    finish(img, 'Brain')
+
+    img, d = canvas()  # Bag (duffel)
+    d.rounded_rectangle([S * 0.1, S * 0.36, S * 0.9, S * 0.82], radius=S * 0.16, fill=W)
+    d.arc([S * 0.3, S * 0.14, S * 0.7, S * 0.56], 180, 360, fill=W, width=lw)
+    finish(img, 'Bag')
+
+    img, d = canvas()  # Eye
+    d.chord([S * 0.06, S * 0.24, S * 0.94, S * 0.96], 200, 340, fill=W)
+    d.chord([S * 0.06, S * 0.04, S * 0.94, S * 0.76], 20, 160, fill=W)
+    d.ellipse([S * 0.36, S * 0.36, S * 0.64, S * 0.64], fill=(0, 0, 0, 0))
+    d.ellipse([S * 0.43, S * 0.43, S * 0.57, S * 0.57], fill=W)
+    finish(img, 'Eye')
+
+    img, d = canvas()  # Siren (police)
+    d.pieslice([S * 0.22, S * 0.22, S * 0.78, S * 0.86], 180, 360, fill=W)
+    d.rectangle([S * 0.22, S * 0.54, S * 0.78, S * 0.66], fill=W)
+    d.rectangle([S * 0.14, S * 0.72, S * 0.86, S * 0.84], fill=W)
+    for ang in (-150, -90, -30):
+        a = math.radians(ang)
+        d.line([S * 0.5 + math.cos(a) * S * 0.38, S * 0.5 + math.sin(a) * S * 0.38,
+                S * 0.5 + math.cos(a) * S * 0.48, S * 0.5 + math.sin(a) * S * 0.48], fill=W, width=lw)
+    finish(img, 'Siren')
+
 
 # =======================================================================================
 # Chain-link, clock face

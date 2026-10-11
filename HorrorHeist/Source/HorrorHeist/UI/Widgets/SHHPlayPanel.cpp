@@ -10,6 +10,7 @@
 #include "Data/HHMissionDefinition.h"
 #include "Progression/HHProfileSubsystem.h"
 #include "Core/HHDeveloperSettings.h"
+#include "World/HHTimeOfDay.h"
 #include "Engine/Texture2D.h"
 #include "Engine/World.h"
 #include "Widgets/Images/SImage.h"
@@ -383,9 +384,9 @@ void SHHPlayPanel::RebuildDossier()
 			+ SVerticalBox::Slot().AutoHeight().Padding(0.f, 26.f, 0.f, 4.f).HAlign(HAlign_Left)
 			[
 				SNew(SBox)
-				.Visibility_Lambda([this, Id, bLocked]()
+				.Visibility_Lambda([this, Id, bLocked, Mission]()
 				{
-					return IsLeader() && !bLocked && GetPinnedMission() != Id ? EVisibility::Visible : EVisibility::Collapsed;
+					return IsLeader() && !bLocked && Mission->IsPlayable() && GetPinnedMission() != Id ? EVisibility::Visible : EVisibility::Collapsed;
 				})
 				[
 					SNew(SHHActionButton)
@@ -414,17 +415,52 @@ void SHHPlayPanel::RebuildDossier()
 					{
 						return FText::Format(LOCTEXT("NeedLevel", "Nobody hires you for this one before level {0}."), FText::AsNumber(Mission->UnlockLevel));
 					}
+					if (!Mission->IsPlayable())
+					{
+						return Mission->IsPrepared()
+							? LOCTEXT("Prepared", "Still being cased: the house is on the map, but this job is not open yet.")
+							: LOCTEXT("NoMap", "Still being cased: this job is not available yet.");
+					}
 					if (GetPinnedMission() == Id)
 					{
-						return Mission->IsPlayable()
-							? LOCTEXT("IsPinned", "Pinned. Ready up when the crew is set.")
-							: LOCTEXT("IsPinnedNoMap", "Pinned. Note: this job has no level assigned yet, the van will not leave.");
+						const AHHTimeOfDay* Clock = HUD.IsValid() ? AHHTimeOfDay::Get(HUD.Get()) : nullptr;
+						if (Mission->bRequiresNight && Clock && !Clock->IsNight())
+						{
+							return FText::Format(LOCTEXT("PinnedDay", "Pinned. It's {0} - the van leaves after dark ({1})."),
+								HHText::ClockTime(Clock->GetTimeOfDay()), HHText::ClockTime(UHHDeveloperSettings::Get()->NightStartHour));
+						}
+						return LOCTEXT("IsPinned", "Pinned. Ready up when the crew is set.");
 					}
 					return IsLeader() ? FText::GetEmpty() : LOCTEXT("NotLeader", "Only the crew leader can pin a job.");
 				})
 				.AutoWrapText(true)
 				.Font(FHHStyle::Font(EHHFont::Body, 13.f))
 				.ColorAndOpacity(FSlateColor(FHHStyle::TextDim()))
+			]
+			// Pinned night job during the day: the leader can skip ahead to nightfall.
+			+ SVerticalBox::Slot().AutoHeight().Padding(0.f, 12.f, 0.f, 4.f).HAlign(HAlign_Left)
+			[
+				SNew(SBox)
+				.Visibility_Lambda([this, Id, Mission]()
+				{
+					const AHHTimeOfDay* Clock = HUD.IsValid() ? AHHTimeOfDay::Get(HUD.Get()) : nullptr;
+					const bool bShow = IsLeader() && GetPinnedMission() == Id && Mission->IsPlayable() && Mission->bRequiresNight && Clock && !Clock->IsNight();
+					return bShow ? EVisibility::Visible : EVisibility::Collapsed;
+				})
+				[
+					SNew(SHHActionButton)
+					.Text(LOCTEXT("WaitDark", "WAIT UNTIL DARK"))
+					.Kind(EHHButtonKind::Secondary)
+					.MinWidth(200.f)
+					.ClickSound(EHHUISound::Confirm)
+					.OnClicked_Lambda([WeakHUD]()
+					{
+						if (AHHLobbyHUD* LobbyHUD = WeakHUD.Get())
+						{
+							LobbyHUD->RequestWaitForNight();
+						}
+					})
+				]
 			]
 		]);
 }

@@ -1,9 +1,11 @@
 #include "Player/HHPlayerState.h"
+#include "Player/HHInventoryComponent.h"
 #include "Net/UnrealNetwork.h"
 
 AHHPlayerState::AHHPlayerState()
 {
 	// Changes call ForceNetUpdate(), so the low default update frequency is fine.
+	Inventory = CreateDefaultSubobject<UHHInventoryComponent>(TEXT("Inventory"));
 }
 
 void AHHPlayerState::GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& OutLifetimeProps) const
@@ -16,6 +18,9 @@ void AHHPlayerState::GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& OutLi
 	DOREPLIFETIME(AHHPlayerState, PlayerLevel);
 	DOREPLIFETIME(AHHPlayerState, bCrewLeader);
 	DOREPLIFETIME(AHHPlayerState, CrewSlot);
+	DOREPLIFETIME(AHHPlayerState, Psyche);
+	DOREPLIFETIME(AHHPlayerState, bInsideHouse);
+	DOREPLIFETIME(AHHPlayerState, StashedValue);
 }
 
 FHHOnPlayerStateEvent& AHHPlayerState::OnAnyCrewChange()
@@ -116,6 +121,33 @@ void AHHPlayerState::SetCrewSlot(int32 NewSlot)
 	{
 		CrewSlot = NewSlot;
 		OnRep_CrewInfo();
+	}
+}
+
+void AHHPlayerState::SetPsyche(float NewPsyche)
+{
+	const float Clamped = FMath::Clamp(NewPsyche, 0.f, 100.f);
+	if (HasAuthority() && !FMath::IsNearlyEqual(Clamped, Psyche, 0.05f))
+	{
+		Psyche = Clamped;
+	}
+}
+
+void AHHPlayerState::SetInsideHouse(bool bNewInside)
+{
+	if (HasAuthority() && bInsideHouse != bNewInside)
+	{
+		bInsideHouse = bNewInside;
+		ForceNetUpdate();
+	}
+}
+
+void AHHPlayerState::AddStashedValue(int32 Amount)
+{
+	if (HasAuthority() && Amount != 0)
+	{
+		StashedValue += Amount;
+		ForceNetUpdate();
 	}
 }
 

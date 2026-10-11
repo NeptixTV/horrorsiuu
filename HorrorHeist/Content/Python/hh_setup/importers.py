@@ -86,16 +86,50 @@ CLASS_FOR_CATEGORY = {'Ambient': 'SC_Ambient', 'SFX': 'SC_SFX', 'UI': 'SC_UI', '
                       'Dialogue': 'SC_Dialogue'}
 
 
+SOUND_CLASSES = ('SC_Master', 'SC_Music', 'SC_SFX', 'SC_Ambient', 'SC_Dialogue', 'SC_UI', 'SC_VoiceChat')
+
+
 def create_sound_classes():
+    """SC_Master with one child per volume slider, plus the settings mix that carries one adjuster per class.
+
+    The runtime (UHHAudioSubsystem::ApplyVolumes) overrides these adjusters with the slider values; having
+    them in the asset means the overrides hit existing entries instead of relying on runtime-added ones.
+    Safe to re-run: classes and the mix are loaded and updated in place.
+    """
     folder = AUDIO_ROOT + '/Classes'
     classes = {}
-    for name in ('SC_Master', 'SC_Music', 'SC_SFX', 'SC_Ambient', 'SC_Dialogue', 'SC_UI', 'SC_VoiceChat'):
+    for name in SOUND_CLASSES:
         classes[name] = U.create_or_load(name, folder, unreal.SoundClass, unreal.SoundClassFactory())
+    master = classes['SC_Master']
+    children = [c for n, c in classes.items() if n != 'SC_Master']
+    # Both directions of the hierarchy: ParentClass on every child and ChildClasses on the master.
+    for child in children:
+        try:
+            child.set_editor_property('parent_class', master)
+        except Exception as exc:  # noqa: BLE001 - property not editable in this engine version
+            U.log(f'{child.get_name()}.parent_class: {exc}')
     try:
-        classes['SC_Master'].set_editor_property('child_classes', [c for n, c in classes.items() if n != 'SC_Master'])
+        master.set_editor_property('child_classes', children)
     except Exception as exc:  # noqa: BLE001
-        U.log(f'Sound class hierarchy left flat ({exc})')
-    U.create_or_load('SM_HH_Settings', folder, unreal.SoundMix, unreal.SoundMixFactory())
+        U.warn(f'SC_Master.child_classes: {exc}')
+
+    mix = U.create_or_load('SM_HH_Settings', folder, unreal.SoundMix, unreal.SoundMixFactory())
+    adjusters = []
+    for child in children:
+        adj = unreal.SoundClassAdjuster()
+        for key, value in (('sound_class_object', child), ('volume_adjuster', 1.0), ('pitch_adjuster', 1.0),
+                           ('apply_to_children', True)):
+            try:
+                adj.set_editor_property(key, value)
+            except Exception as exc:  # noqa: BLE001
+                U.warn(f'SoundClassAdjuster.{key}: {exc}')
+        adjusters.append(adj)
+    for key, value in (('sound_class_effects', adjusters), ('fade_in_time', 0.0), ('fade_out_time', 0.0),
+                       ('duration', -1.0), ('initial_delay', 0.0)):
+        try:
+            mix.set_editor_property(key, value)
+        except Exception as exc:  # noqa: BLE001
+            U.warn(f'SM_HH_Settings.{key}: {exc}')
     return classes
 
 
@@ -159,6 +193,12 @@ def import_audio():
                 wave.set_editor_property('virtualization_mode', unreal.VirtualizationMode.PLAY_WHEN_SILENT)
         except Exception as exc:  # noqa: BLE001
             U.warn(f'{name}: {exc}')
+        # Every wave must sit in a slider class, otherwise its volume cannot be changed in game.
+        try:
+            if wave.get_editor_property('sound_class_object') is None:
+                U.warn(f'{name}: no sound class assigned')
+        except Exception:  # noqa: BLE001
+            pass
 
 
 # =============================================================================================

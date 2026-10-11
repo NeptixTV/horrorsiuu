@@ -4,6 +4,9 @@
 #include "UObject/Interface.h"
 #include "HHInteractable.generated.h"
 
+class UTexture2D;
+class USoundBase;
+
 UINTERFACE(MinimalAPI, meta = (CannotImplementInterfaceInBlueprint))
 class UHHInteractable : public UInterface
 {
@@ -32,4 +35,16 @@ public:
 
 	/** Local highlight while the player looks at it. */
 	virtual void SetInteractionFocus(bool bFocused) {}
+
+	/** Seconds the interact key must be held (0 = instant). Validated again on the server. */
+	virtual float GetInteractDuration(AActor* Interactor) const { return 0.f; }
+
+	/** Optional second line under the prompt: "$450  -  Heavy", "Needs lockpicks". */
+	virtual FText GetInteractionDetail(AActor* Interactor) const { return FText::GetEmpty(); }
+
+	/** Optional icon for the focus card (loot, equipment). */
+	virtual UTexture2D* GetInteractionIcon() const { return nullptr; }
+
+	/** Optional loop played for the holder while a timed interaction runs (lockpicking...). */
+	virtual USoundBase* GetHoldSound(AActor* Interactor) const { return nullptr; }
 };

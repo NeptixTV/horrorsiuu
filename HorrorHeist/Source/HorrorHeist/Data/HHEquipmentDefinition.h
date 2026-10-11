@@ -48,6 +48,13 @@ public:
 	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Equipment")
 	TSoftObjectPtr<UStaticMesh> Mesh;
 
+	/**
+	 * What gameplay treats this as on a job: "Light", "Lockpick", "Crowbar", "GlassCutter",
+	 * "Walkie", "Salt", "Camera", "NoiseMeter", "Bag". Doors and windows ask for tool tags.
+	 */
+	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Equipment")
+	FName ToolTag;
+
 	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Equipment")
 	TArray<FHHItemStat> Stats;
 

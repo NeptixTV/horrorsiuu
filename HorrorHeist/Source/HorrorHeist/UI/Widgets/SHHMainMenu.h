@@ -6,7 +6,11 @@
 
 class AHHLobbyHUD;
 
-/** The hideout's main menu: navigation on the left, you and your crew on the right. */
+/**
+ * The hideout's main menu: navigation on the left, you and your crew on the right. On a job
+ * the same screen is the pause menu (resume, settings, call the job off, quit) - the game keeps
+ * running for the crew.
+ */
 class SHHMainMenu : public SCompoundWidget
 {
 public:
@@ -17,6 +21,8 @@ public:
 	void Construct(const FArguments& InArgs);
 
 private:
+	TSharedRef<SWidget> BuildNavigation();
+	TSharedRef<SWidget> BuildJobNavigation();
 	TSharedRef<SWidget> BuildPlayerCard();
 	TSharedRef<SWidget> BuildJobSummary();
 	FText GetNetworkStatus() const;

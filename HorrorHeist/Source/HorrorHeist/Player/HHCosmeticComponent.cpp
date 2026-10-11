@@ -260,11 +260,19 @@ void UHHCosmeticComponent::ApplySkinTone(const UHHCosmeticDefinition* Item)
 void UHHCosmeticComponent::SetHiddenForOwner(bool bHidden)
 {
 	bHiddenForOwner = bHidden;
-	for (UPrimitiveComponent* Part : Parts)
+	// True first person: the owner sees their own arms, jacket, legs and shoes. Only what sits on
+	// the head (hair, hat, mask, glasses) would fill the camera, so only that is hidden.
+	static const FName HeadBone(TEXT("head"));
+	for (int32 Index = 0; Index < Parts.Num(); ++Index)
 	{
-		if (Part)
+		UPrimitiveComponent* Part = Parts[Index];
+		if (!Part)
 		{
-			Part->SetOwnerNoSee(bHidden);
+			continue;
 		}
+		const EHHCosmeticSlot Slot = static_cast<EHHCosmeticSlot>(Index);
+		const bool bHeadPart = Slot == EHHCosmeticSlot::Hair || Slot == EHHCosmeticSlot::Hat || Slot == EHHCosmeticSlot::Mask
+			|| Part->GetAttachSocketName() == HeadBone;
+		Part->SetOwnerNoSee(bHidden && bHeadPart);
 	}
 }

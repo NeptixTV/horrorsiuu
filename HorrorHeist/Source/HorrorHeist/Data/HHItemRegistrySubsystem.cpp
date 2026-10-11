@@ -1,6 +1,7 @@
 #include "Data/HHItemRegistrySubsystem.h"
 #include "Data/HHCosmeticDefinition.h"
 #include "Data/HHEquipmentDefinition.h"
+#include "Data/HHLootDefinition.h"
 #include "Data/HHMissionDefinition.h"
 #include "HorrorHeist.h"
 #include "Algo/Sort.h"
@@ -69,11 +70,13 @@ void UHHItemRegistrySubsystem::Reload()
 	Cosmetics.Reset();
 	Equipment.Reset();
 	Missions.Reset();
+	Loot.Reset();
 	ItemsById.Reset();
 
 	GatherAssets<UHHCosmeticDefinition>(TEXT("HHCosmetic"), Cosmetics);
 	GatherAssets<UHHEquipmentDefinition>(TEXT("HHEquipment"), Equipment);
 	GatherAssets<UHHMissionDefinition>(TEXT("HHMission"), Missions);
+	GatherAssets<UHHLootDefinition>(TEXT("HHLoot"), Loot);
 
 	auto ByOrder = [](const auto& A, const auto& B)
 	{
@@ -106,9 +109,13 @@ void UHHItemRegistrySubsystem::Reload()
 	{
 		Register(Item);
 	}
+	for (UHHLootDefinition* Item : Loot)
+	{
+		Register(Item);
+	}
 
-	UE_LOG(LogHorrorHeist, Log, TEXT("Item registry: %d cosmetics, %d equipment, %d missions."),
-		Cosmetics.Num(), Equipment.Num(), Missions.Num());
+	UE_LOG(LogHorrorHeist, Log, TEXT("Item registry: %d cosmetics, %d equipment, %d loot, %d missions."),
+		Cosmetics.Num(), Equipment.Num(), Loot.Num(), Missions.Num());
 }
 
 const UHHItemDefinition* UHHItemRegistrySubsystem::FindItem(FName ItemId) const
@@ -129,6 +136,11 @@ const UHHCosmeticDefinition* UHHItemRegistrySubsystem::FindCosmetic(FName ItemId
 const UHHEquipmentDefinition* UHHItemRegistrySubsystem::FindEquipment(FName ItemId) const
 {
 	return Cast<UHHEquipmentDefinition>(FindItem(ItemId));
+}
+
+const UHHLootDefinition* UHHItemRegistrySubsystem::FindLoot(FName ItemId) const
+{
+	return Cast<UHHLootDefinition>(FindItem(ItemId));
 }
 
 const UHHMissionDefinition* UHHItemRegistrySubsystem::FindMission(FName MissionId) const

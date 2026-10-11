@@ -26,17 +26,6 @@ void SHHMainMenu::Construct(const FArguments& InArgs)
 	HUD = InArgs._HUD;
 	TWeakObjectPtr<AHHLobbyHUD> WeakHUD = HUD;
 
-	auto Open = [WeakHUD](EHHLobbyScreen Screen)
-	{
-		return FSimpleDelegate::CreateLambda([WeakHUD, Screen]()
-		{
-			if (AHHLobbyHUD* LobbyHUD = WeakHUD.Get())
-			{
-				LobbyHUD->OpenScreen(Screen);
-			}
-		});
-	};
-
 	ChildSlot
 	[
 		SNew(SOverlay)
@@ -67,40 +56,24 @@ void SHHMainMenu::Construct(const FArguments& InArgs)
 			+ SVerticalBox::Slot().AutoHeight().Padding(2.f, 2.f, 0.f, 0.f)
 			[
 				SNew(STextBlock)
-				.Text(LOCTEXT("Subtitle", "the hideout under Marlowe's Laundromat"))
+				.Text_Lambda([WeakHUD]()
+				{
+					const AHHLobbyHUD* LobbyHUD = WeakHUD.Get();
+					if (LobbyHUD && LobbyHUD->IsOnJob())
+					{
+						const AHHLobbyGameState* State = LobbyHUD->GetLobbyState();
+						const UHHItemRegistrySubsystem* Registry = UHHItemRegistrySubsystem::Get(LobbyHUD);
+						const UHHMissionDefinition* Job = State && Registry ? Registry->FindMission(State->GetSelectedMission()) : nullptr;
+						return Job ? FText::Format(LOCTEXT("OnJobSub", "on the job  -  {0}, {1}"), Job->DisplayName, Job->Address) : LOCTEXT("OnJobPlain", "on the job");
+					}
+					return LOCTEXT("Subtitle", "the hideout under Marlowe's Laundromat");
+				})
 				.Font(FHHStyle::Font(EHHFont::Typewriter, 14.f))
 				.ColorAndOpacity(FSlateColor(FHHStyle::TextDim()))
 			]
 			+ SVerticalBox::Slot().AutoHeight().Padding(0.f, 54.f, 0.f, 0.f)
 			[
-				SNew(SHHNavButton).Index(FText::FromString(TEXT("01"))).Label(LOCTEXT("Play", "PLAY")).OnClicked(Open(EHHLobbyScreen::Play))
-			]
-			+ SVerticalBox::Slot().AutoHeight()
-			[
-				SNew(SHHNavButton).Index(FText::FromString(TEXT("02"))).Label(LOCTEXT("Loadout", "LOADOUT")).OnClicked(Open(EHHLobbyScreen::Loadout))
-			]
-			+ SVerticalBox::Slot().AutoHeight()
-			[
-				SNew(SHHNavButton).Index(FText::FromString(TEXT("03"))).Label(LOCTEXT("Customize", "CUSTOMIZE")).OnClicked(Open(EHHLobbyScreen::Customization))
-			]
-			+ SVerticalBox::Slot().AutoHeight()
-			[
-				SNew(SHHNavButton).Index(FText::FromString(TEXT("04"))).Label(LOCTEXT("Store", "STORE")).OnClicked(Open(EHHLobbyScreen::Store))
-			]
-			+ SVerticalBox::Slot().AutoHeight()
-			[
-				SNew(SHHNavButton).Index(FText::FromString(TEXT("05"))).Label(LOCTEXT("Settings", "SETTINGS")).OnClicked(Open(EHHLobbyScreen::Settings))
-			]
-			+ SVerticalBox::Slot().AutoHeight()
-			[
-				SNew(SHHNavButton).Index(FText::FromString(TEXT("06"))).Label(LOCTEXT("Quit", "QUIT"))
-				.OnClicked(FSimpleDelegate::CreateLambda([WeakHUD]()
-				{
-					if (AHHLobbyHUD* LobbyHUD = WeakHUD.Get())
-					{
-						LobbyHUD->RequestQuit();
-					}
-				}))
+				(HUD.IsValid() && HUD->IsOnJob()) ? BuildJobNavigation() : BuildNavigation()
 			]
 			+ SVerticalBox::Slot().AutoHeight().Padding(0.f, 44.f, 0.f, 0.f)
 			[
@@ -120,7 +93,11 @@ void SHHMainMenu::Construct(const FArguments& InArgs)
 				[
 					SNew(SHHKeyHint)
 					.Key(LOCTEXT("EscKey", "ESC"))
-					.Label(LOCTEXT("Explore", "Walk around the hideout"))
+					.Label_Lambda([WeakHUD]()
+					{
+						const AHHLobbyHUD* LobbyHUD = WeakHUD.Get();
+						return LobbyHUD && LobbyHUD->IsOnJob() ? LOCTEXT("BackToJob", "Back to the job") : LOCTEXT("Explore", "Walk around the hideout");
+					})
 				]
 			]
 		]
@@ -164,6 +141,104 @@ void SHHMainMenu::Construct(const FArguments& InArgs)
 			]
 		]
 	];
+}
+
+TSharedRef<SWidget> SHHMainMenu::BuildNavigation()
+{
+	TWeakObjectPtr<AHHLobbyHUD> WeakHUD = HUD;
+	auto Open = [WeakHUD](EHHLobbyScreen Screen)
+	{
+		return FSimpleDelegate::CreateLambda([WeakHUD, Screen]()
+		{
+			if (AHHLobbyHUD* LobbyHUD = WeakHUD.Get())
+			{
+				LobbyHUD->OpenScreen(Screen);
+			}
+		});
+	};
+
+	return SNew(SVerticalBox)
+		+ SVerticalBox::Slot().AutoHeight()
+		[
+			SNew(SHHNavButton).Index(FText::FromString(TEXT("01"))).Label(LOCTEXT("Play", "PLAY")).OnClicked(Open(EHHLobbyScreen::Play))
+		]
+		+ SVerticalBox::Slot().AutoHeight()
+		[
+			SNew(SHHNavButton).Index(FText::FromString(TEXT("02"))).Label(LOCTEXT("Loadout", "LOADOUT")).OnClicked(Open(EHHLobbyScreen::Loadout))
+		]
+		+ SVerticalBox::Slot().AutoHeight()
+		[
+			SNew(SHHNavButton).Index(FText::FromString(TEXT("03"))).Label(LOCTEXT("Customize", "CUSTOMIZE")).OnClicked(Open(EHHLobbyScreen::Customization))
+		]
+		+ SVerticalBox::Slot().AutoHeight()
+		[
+			SNew(SHHNavButton).Index(FText::FromString(TEXT("04"))).Label(LOCTEXT("Store", "STORE")).OnClicked(Open(EHHLobbyScreen::Store))
+		]
+		+ SVerticalBox::Slot().AutoHeight()
+		[
+			SNew(SHHNavButton).Index(FText::FromString(TEXT("05"))).Label(LOCTEXT("Settings", "SETTINGS")).OnClicked(Open(EHHLobbyScreen::Settings))
+		]
+		+ SVerticalBox::Slot().AutoHeight()
+		[
+			SNew(SHHNavButton).Index(FText::FromString(TEXT("06"))).Label(LOCTEXT("Quit", "QUIT"))
+			.OnClicked(FSimpleDelegate::CreateLambda([WeakHUD]()
+			{
+				if (AHHLobbyHUD* LobbyHUD = WeakHUD.Get())
+				{
+					LobbyHUD->RequestQuit();
+				}
+			}))
+		];
+}
+
+TSharedRef<SWidget> SHHMainMenu::BuildJobNavigation()
+{
+	TWeakObjectPtr<AHHLobbyHUD> WeakHUD = HUD;
+	return SNew(SVerticalBox)
+		+ SVerticalBox::Slot().AutoHeight()
+		[
+			SNew(SHHNavButton).Index(FText::FromString(TEXT("01"))).Label(LOCTEXT("Resume", "RESUME"))
+			.OnClicked(FSimpleDelegate::CreateLambda([WeakHUD]()
+			{
+				if (AHHLobbyHUD* LobbyHUD = WeakHUD.Get())
+				{
+					LobbyHUD->CloseMenu();
+				}
+			}))
+		]
+		+ SVerticalBox::Slot().AutoHeight()
+		[
+			SNew(SHHNavButton).Index(FText::FromString(TEXT("02"))).Label(LOCTEXT("SettingsJob", "SETTINGS"))
+			.OnClicked(FSimpleDelegate::CreateLambda([WeakHUD]()
+			{
+				if (AHHLobbyHUD* LobbyHUD = WeakHUD.Get())
+				{
+					LobbyHUD->OpenScreen(EHHLobbyScreen::Settings);
+				}
+			}))
+		]
+		+ SVerticalBox::Slot().AutoHeight()
+		[
+			SNew(SHHNavButton).Index(FText::FromString(TEXT("03"))).Label(LOCTEXT("Abandon", "CALL THE JOB OFF"))
+			.OnClicked(FSimpleDelegate::CreateLambda([WeakHUD]()
+			{
+				if (AHHLobbyHUD* LobbyHUD = WeakHUD.Get())
+				{
+					LobbyHUD->RequestAbandonJob();
+				}
+			}))
+		]
+		+ SVerticalBox::Slot().AutoHeight()
+		[
+			SNew(SHHNavButton).Index(FText::FromString(TEXT("04"))).Label(LOCTEXT("QuitJob", "QUIT GAME"))
+			.OnClicked(FSimpleDelegate::CreateLambda([WeakHUD]()
+			{
+				if (AHHLobbyHUD* LobbyHUD = WeakHUD.Get())
+				{
+					LobbyHUD->RequestQuit();
+				}
+			}))
+		];
 }
 
 TSharedRef<SWidget> SHHMainMenu::BuildPlayerCard()

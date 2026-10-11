@@ -161,7 +161,8 @@ TSharedRef<FSlateStyleSet> FHHStyle::Create()
 	const TCHAR* Icons[] = {
 		TEXT("Mic"), TEXT("Lock"), TEXT("Check"), TEXT("Crown"), TEXT("ChevronLeft"), TEXT("ChevronRight"),
 		TEXT("Dot"), TEXT("Cash"), TEXT("Person"), TEXT("Signal"), TEXT("Warning"), TEXT("Info"), TEXT("Close"),
-		TEXT("Rotate"), TEXT("Zoom"), TEXT("Star"), TEXT("Pin"), TEXT("Van"), TEXT("Gear"), TEXT("Door")
+		TEXT("Rotate"), TEXT("Zoom"), TEXT("Star"), TEXT("Pin"), TEXT("Van"), TEXT("Gear"), TEXT("Door"),
+		TEXT("Moon"), TEXT("Sun"), TEXT("Brain"), TEXT("Bag"), TEXT("Eye"), TEXT("Siren")
 	};
 	for (const TCHAR* Icon : Icons)
 	{

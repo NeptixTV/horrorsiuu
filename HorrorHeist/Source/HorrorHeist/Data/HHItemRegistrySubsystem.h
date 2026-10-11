@@ -8,6 +8,7 @@
 class UHHItemDefinition;
 class UHHCosmeticDefinition;
 class UHHEquipmentDefinition;
+class UHHLootDefinition;
 class UHHMissionDefinition;
 class UTexture2D;
 
@@ -33,6 +34,7 @@ public:
 	const UHHItemDefinition* FindItem(FName ItemId) const;
 	const UHHCosmeticDefinition* FindCosmetic(FName ItemId) const;
 	const UHHEquipmentDefinition* FindEquipment(FName ItemId) const;
+	const UHHLootDefinition* FindLoot(FName ItemId) const;
 	const UHHMissionDefinition* FindMission(FName MissionId) const;
 
 	TArray<const UHHCosmeticDefinition*> GetCosmeticsForSlot(EHHCosmeticSlot Slot) const;
@@ -62,6 +64,9 @@ private:
 
 	UPROPERTY(Transient)
 	TArray<TObjectPtr<UHHMissionDefinition>> Missions;
+
+	UPROPERTY(Transient)
+	TArray<TObjectPtr<UHHLootDefinition>> Loot;
 
 	UPROPERTY(Transient)
 	TMap<FName, TObjectPtr<UHHItemDefinition>> ItemsById;

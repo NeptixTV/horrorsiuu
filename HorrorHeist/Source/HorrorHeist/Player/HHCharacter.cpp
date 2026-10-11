@@ -5,6 +5,7 @@
 #include "Player/HHFootstepComponent.h"
 #include "Player/HHCharacterAnimInstance.h"
 #include "Player/HHPlayerController.h"
+#include "Player/HHInventoryComponent.h"
 #include "Core/HHGameData.h"
 #include "Data/HHCharacterDefinition.h"
 #include "Data/HHEquipmentDefinition.h"
@@ -13,9 +14,14 @@
 #include "Settings/HHInputSubsystem.h"
 #include "HorrorHeist.h"
 #include "Camera/CameraComponent.h"
+#include "Camera/PlayerCameraManager.h"
 #include "Components/CapsuleComponent.h"
 #include "Components/SkeletalMeshComponent.h"
 #include "Components/SpotLightComponent.h"
+#include "Components/StaticMeshComponent.h"
+#include "Data/HHLootDefinition.h"
+#include "Engine/Engine.h"
+#include "Engine/StaticMesh.h"
 #include "Engine/SkeletalMesh.h"
 #include "Engine/World.h"
 #include "EnhancedInputComponent.h"
@@ -25,6 +31,7 @@
 #include "Kismet/GameplayStatics.h"
 #include "Net/UnrealNetwork.h"
 #include "Sound/SoundBase.h"
+#include "UObject/ConstructorHelpers.h"
 
 #define LOCTEXT_NAMESPACE "HHCharacter"
 
@@ -58,7 +65,7 @@ AHHCharacter::AHHCharacter(const FObjectInitializer& ObjectInitializer)
 
 	FirstPersonCamera = CreateDefaultSubobject<UCameraComponent>(TEXT("FirstPersonCamera"));
 	FirstPersonCamera->SetupAttachment(GetCapsuleComponent());
-	FirstPersonCamera->SetRelativeLocation(FVector(0.f, 0.f, StandingEyeZ));
+	FirstPersonCamera->SetRelativeLocation(FVector(EyeForward, 0.f, StandingEyeZ));
 	FirstPersonCamera->bUsePawnControlRotation = true;
 	FirstPersonCamera->SetFieldOfView(90.f);
 
@@ -93,6 +100,26 @@ AHHCharacter::AHHCharacter(const FObjectInitializer& ObjectInitializer)
 	Flashlight->VolumetricScatteringIntensity = 0.7f;
 	Flashlight->SourceRadius = 1.5f;
 	Flashlight->SetVisibility(false);
+
+	HeldItem = CreateDefaultSubobject<UStaticMeshComponent>(TEXT("HeldItem"));
+	HeldItem->SetupAttachment(FlashlightPivot);
+	HeldItem->SetCollisionEnabled(ECollisionEnabled::NoCollision);
+	HeldItem->SetGenerateOverlapEvents(false);
+	HeldItem->SetCastShadow(true);
+	HeldItem->SetVisibility(false);
+
+	// Only used if the body mesh is missing (content not built): a plain stand-in so the
+	// player is never invisible. The engine's basic shapes always exist.
+	FallbackBody = CreateDefaultSubobject<UStaticMeshComponent>(TEXT("FallbackBody"));
+	FallbackBody->SetupAttachment(GetCapsuleComponent());
+	FallbackBody->SetCollisionEnabled(ECollisionEnabled::NoCollision);
+	FallbackBody->SetRelativeScale3D(FVector(0.6f, 0.6f, 1.75f));
+	FallbackBody->SetVisibility(false);
+	static ConstructorHelpers::FObjectFinder<UStaticMesh> Cylinder(TEXT("/Engine/BasicShapes/Cylinder.Cylinder"));
+	if (Cylinder.Succeeded())
+	{
+		FallbackBody->SetStaticMesh(Cylinder.Object);
+	}
 
 	Cosmetics = CreateDefaultSubobject<UHHCosmeticComponent>(TEXT("Cosmetics"));
 	Interaction = CreateDefaultSubobject<UHHInteractionComponent>(TEXT("Interaction"));
@@ -138,13 +165,33 @@ void AHHCharacter::HandleSettingsApplied()
 	}
 }
 
+void AHHCharacter::ReportMissingBody(const FString& Reason)
+{
+	FallbackBody->SetVisibility(true);
+	if (bReportedMissingBody)
+	{
+		return;
+	}
+	bReportedMissingBody = true;
+	UE_LOG(LogHorrorHeist, Error, TEXT("%s has no body: %s Showing a stand-in. Fix: 'The Quiet Job > Build / Rebuild All Content' in the editor."), *GetName(), *Reason);
+	if (GEngine && IsLocallyControlled())
+	{
+		GEngine->AddOnScreenDebugMessage(-1, 20.f, FColor::Orange, FString::Printf(TEXT("The Quiet Job: character body missing (%s). Run 'The Quiet Job > Build / Rebuild All Content'."), *Reason));
+	}
+}
+
 void AHHCharacter::ApplyCharacterDefinition()
 {
 	const UHHGameData* GameData = UHHGameData::Get(this);
-	const UHHCharacterDefinition* Definition = GameData ? GameData->DefaultCharacter.LoadSynchronous() : nullptr;
+	if (!GameData)
+	{
+		ReportMissingBody(TEXT("DA_GameData was not found (Project Settings > Horror Heist > Game Data)."));
+		return;
+	}
+	const UHHCharacterDefinition* Definition = GameData->DefaultCharacter.LoadSynchronous();
 	if (!Definition)
 	{
-		UE_LOG(LogHorrorHeist, Warning, TEXT("%s: no character definition (DA_GameData.DefaultCharacter)."), *GetName());
+		ReportMissingBody(TEXT("DA_GameData.DefaultCharacter is empty."));
 		return;
 	}
 
@@ -152,6 +199,11 @@ void AHHCharacter::ApplyCharacterDefinition()
 	if (USkeletalMesh* BodyMesh = Definition->BodyMesh.LoadSynchronous())
 	{
 		Body->SetSkeletalMeshAsset(BodyMesh);
+		FallbackBody->SetVisibility(false);
+	}
+	else
+	{
+		ReportMissingBody(TEXT("DA_Character_Default.BodyMesh (SK_HH_Body) could not be loaded."));
 	}
 
 	Body->SetRelativeRotation(FRotator(0.f, Definition->MeshYawOffset, 0.f));
@@ -213,8 +265,13 @@ void AHHCharacter::BindToPlayerState()
 	BoundPlayerState = State;
 	CosmeticsHandle = State->OnCosmeticsChanged.AddUObject(this, &AHHCharacter::HandleCosmeticsChanged);
 	EquipmentHandle = State->OnEquipmentChanged.AddUObject(this, &AHHCharacter::HandleEquipmentChanged);
+	if (UHHInventoryComponent* Inventory = State->GetInventory())
+	{
+		InventoryHandle = Inventory->OnInventoryChanged.AddUObject(this, &AHHCharacter::HandleInventoryChanged);
+	}
 	HandleCosmeticsChanged(State);
 	HandleEquipmentChanged(State);
+	HandleInventoryChanged(State->GetInventory());
 }
 
 void AHHCharacter::UnbindFromPlayerState()
@@ -223,6 +280,10 @@ void AHHCharacter::UnbindFromPlayerState()
 	{
 		State->OnCosmeticsChanged.Remove(CosmeticsHandle);
 		State->OnEquipmentChanged.Remove(EquipmentHandle);
+		if (UHHInventoryComponent* Inventory = State->GetInventory())
+		{
+			Inventory->OnInventoryChanged.Remove(InventoryHandle);
+		}
 	}
 	BoundPlayerState.Reset();
 }
@@ -239,13 +300,97 @@ void AHHCharacter::HandleCosmeticsChanged(AHHPlayerState* State)
 void AHHCharacter::HandleEquipmentChanged(AHHPlayerState* State)
 {
 	UpdateFlashlightFromLoadout();
+	UpdateHeldItem();
+}
+
+void AHHCharacter::HandleInventoryChanged(UHHInventoryComponent* Inventory)
+{
+	UpdateFlashlightFromLoadout();
+	UpdateHeldItem();
+	// Dropped the only light: it goes dark.
+	if (bFlashlightOn && GetUsableLightId().IsNone() && HasAuthority())
+	{
+		bFlashlightOn = false;
+		OnRep_Flashlight();
+	}
+}
+
+FName AHHCharacter::GetUsableLightId() const
+{
+	const AHHPlayerState* State = BoundPlayerState.Get();
+	if (!State)
+	{
+		return NAME_None;
+	}
+	const UHHInventoryComponent* Inventory = State->GetInventory();
+	if (Inventory && Inventory->IsEnabled())
+	{
+		const UHHEquipmentDefinition* Light = Inventory->FindTool(TEXT("Light"));
+		return Light ? Light->GetItemId() : NAME_None;
+	}
+	return State->GetEquipment().Get(EHHEquipmentSlot::Light);
+}
+
+void AHHCharacter::UpdateHeldItem()
+{
+	UStaticMesh* MeshToHold = nullptr;
+	bool bLoot = false;
+	bool bHeavy = false;
+	bCarryingHeavy = false;
+
+	const AHHPlayerState* State = BoundPlayerState.Get();
+	const UHHInventoryComponent* Inventory = State ? State->GetInventory() : nullptr;
+	const UHHItemRegistrySubsystem* Registry = UHHItemRegistrySubsystem::Get(this);
+	if (Inventory && Inventory->IsEnabled())
+	{
+		// On a job: whatever is selected in the hotbar.
+		const FHHInventorySlot& Slot = Inventory->GetSelected();
+		MeshToHold = Inventory->GetSlotMesh(Inventory->GetSelectedIndex());
+		bLoot = Slot.IsLoot();
+		const UHHLootDefinition* Loot = bLoot && Registry ? Registry->FindLoot(Slot.ItemId) : nullptr;
+		bHeavy = Loot && Loot->bHeavy;
+		bCarryingHeavy = Inventory->IsCarryingHeavy();
+	}
+	else if (bFlashlightOn && Registry)
+	{
+		// Hideout / town: the torch is in the hand while it is on.
+		if (const UHHEquipmentDefinition* Light = Registry->FindEquipment(GetUsableLightId()))
+		{
+			MeshToHold = Light->Mesh.LoadSynchronous();
+		}
+	}
+
+	HeldItem->SetStaticMesh(MeshToHold);
+	HeldItem->SetVisibility(MeshToHold != nullptr);
+	if (bLoot)
+	{
+		// Loot is modelled facing -Y (Blender); turn its front towards the player. Bulky
+		// things are carried low and centred, small ones sit in the hand.
+		HeldItem->SetRelativeLocationAndRotation(bHeavy ? FVector(26.f, -16.f, -34.f) : FVector(14.f, -1.f, -7.f), FRotator(0.f, 90.f, 0.f));
+	}
+	else
+	{
+		// Equipment is modelled along +X (torch lens forward), its axis ~2.5 cm above the origin.
+		HeldItem->SetRelativeLocationAndRotation(FVector(4.f, 0.f, -2.5f), FRotator::ZeroRotator);
+	}
+	if (MeshToHold)
+	{
+		UpdateFlashlightAim();
+	}
+	ApplyMovementSpeed();
+}
+
+bool AHHCharacter::GetHandTarget(FVector& OutWorldLocation, float& OutAlpha) const
+{
+	OutWorldLocation = HeldItem->GetComponentLocation();
+	OutAlpha = HandAlpha;
+	return HandAlpha > 0.01f;
 }
 
 void AHHCharacter::UpdateFlashlightFromLoadout()
 {
-	const AHHPlayerState* State = BoundPlayerState.Get();
 	const UHHItemRegistrySubsystem* Registry = UHHItemRegistrySubsystem::Get(this);
-	const UHHEquipmentDefinition* Light = State && Registry ? Registry->FindEquipment(State->GetEquipment().Get(EHHEquipmentSlot::Light)) : nullptr;
+	const UHHEquipmentDefinition* Light = Registry ? Registry->FindEquipment(GetUsableLightId()) : nullptr;
 	if (!Light)
 	{
 		return;
@@ -263,11 +408,24 @@ void AHHCharacter::UpdateFlashlightFromLoadout()
 
 void AHHCharacter::UpdateLocalVisibility()
 {
-	// First person: the owner does not see their own body but still sees its shadow.
-	const bool bHideForOwner = IsLocallyControlled() && !bThirdPerson;
-	GetMesh()->SetOwnerNoSee(bHideForOwner);
-	Cosmetics->SetHiddenForOwner(bHideForOwner);
+	// True first person: while the local player looks through these eyes, only the head is
+	// collapsed (anim instance) and head-worn cosmetics are hidden; the rest of the body stays
+	// visible. Looking through a station camera or in third person shows everything.
+	bool bFirstPersonView = false;
+	if (IsLocallyControlled() && !bThirdPerson)
+	{
+		const APlayerController* PC = Cast<APlayerController>(GetController());
+		const APlayerCameraManager* CameraManager = PC ? PC->PlayerCameraManager.Get() : nullptr;
+		const AActor* ViewTarget = CameraManager ? CameraManager->GetViewTarget() : this;
+		const AActor* Pending = CameraManager ? CameraManager->PendingViewTarget.Target.Get() : nullptr;
+		bFirstPersonView = ViewTarget == this && (Pending == nullptr || Pending == this);
+	}
+
+	bHeadHidden = bFirstPersonView;
+	GetMesh()->SetOwnerNoSee(false);
+	Cosmetics->SetHiddenForOwner(bFirstPersonView);
 	GetMesh()->SetVisibility(!bLocallyHidden, true);
+	FallbackBody->SetOwnerNoSee(bFirstPersonView);
 }
 
 void AHHCharacter::SetLocallyHidden(bool bInHidden)
@@ -314,6 +472,15 @@ void AHHCharacter::SetupPlayerInputComponent(UInputComponent* PlayerInputCompone
 	Input->BindAction(Actions->GetAction(EHHInputAction::Crouch), ETriggerEvent::Started, this, &AHHCharacter::Input_CrouchStarted);
 	Input->BindAction(Actions->GetAction(EHHInputAction::Crouch), ETriggerEvent::Completed, this, &AHHCharacter::Input_CrouchCompleted);
 	Input->BindAction(Actions->GetAction(EHHInputAction::Interact), ETriggerEvent::Started, this, &AHHCharacter::Input_Interact);
+	Input->BindAction(Actions->GetAction(EHHInputAction::Interact), ETriggerEvent::Completed, this, &AHHCharacter::Input_InteractReleased);
+	Input->BindAction(Actions->GetAction(EHHInputAction::Slot1), ETriggerEvent::Started, this, &AHHCharacter::Input_Slot1);
+	Input->BindAction(Actions->GetAction(EHHInputAction::Slot2), ETriggerEvent::Started, this, &AHHCharacter::Input_Slot2);
+	Input->BindAction(Actions->GetAction(EHHInputAction::Slot3), ETriggerEvent::Started, this, &AHHCharacter::Input_Slot3);
+	Input->BindAction(Actions->GetAction(EHHInputAction::Slot4), ETriggerEvent::Started, this, &AHHCharacter::Input_Slot4);
+	Input->BindAction(Actions->GetAction(EHHInputAction::Slot5), ETriggerEvent::Started, this, &AHHCharacter::Input_Slot5);
+	Input->BindAction(Actions->GetAction(EHHInputAction::SlotNext), ETriggerEvent::Started, this, &AHHCharacter::Input_SlotNext);
+	Input->BindAction(Actions->GetAction(EHHInputAction::SlotPrev), ETriggerEvent::Started, this, &AHHCharacter::Input_SlotPrev);
+	Input->BindAction(Actions->GetAction(EHHInputAction::Drop), ETriggerEvent::Started, this, &AHHCharacter::Input_Drop);
 	Input->BindAction(Actions->GetAction(EHHInputAction::Flashlight), ETriggerEvent::Started, this, &AHHCharacter::Input_Flashlight);
 	Input->BindAction(Actions->GetAction(EHHInputAction::ToggleView), ETriggerEvent::Started, this, &AHHCharacter::Input_ToggleView);
 }
@@ -436,14 +603,74 @@ void AHHCharacter::Input_Interact()
 	Interaction->TryInteract();
 }
 
-void AHHCharacter::Input_Flashlight()
+void AHHCharacter::Input_InteractReleased()
+{
+	Interaction->StopInteract();
+}
+
+void AHHCharacter::SelectSlot(int32 Index)
 {
 	const AHHPlayerState* State = BoundPlayerState.Get();
-	if (!State || State->GetEquipment().Get(EHHEquipmentSlot::Light).IsNone())
+	UHHInventoryComponent* Inventory = State ? State->GetInventory() : nullptr;
+	if (Inventory && Inventory->IsEnabled() && Index != Inventory->GetSelectedIndex())
+	{
+		Interaction->StopInteract();
+		Inventory->RequestSelect(Index);
+		if (UHHAudioSubsystem* Audio = UHHAudioSubsystem::Get(this))
+		{
+			Audio->PlayUI(EHHUISound::InventorySelect);
+		}
+	}
+}
+
+void AHHCharacter::Input_Slot1() { SelectSlot(0); }
+void AHHCharacter::Input_Slot2() { SelectSlot(1); }
+void AHHCharacter::Input_Slot3() { SelectSlot(2); }
+void AHHCharacter::Input_Slot4() { SelectSlot(3); }
+void AHHCharacter::Input_Slot5() { SelectSlot(4); }
+
+void AHHCharacter::Input_SlotNext()
+{
+	const AHHPlayerState* State = BoundPlayerState.Get();
+	const UHHInventoryComponent* Inventory = State ? State->GetInventory() : nullptr;
+	if (Inventory)
+	{
+		SelectSlot((Inventory->GetSelectedIndex() + 1) % UHHInventoryComponent::NumSlots);
+	}
+}
+
+void AHHCharacter::Input_SlotPrev()
+{
+	const AHHPlayerState* State = BoundPlayerState.Get();
+	const UHHInventoryComponent* Inventory = State ? State->GetInventory() : nullptr;
+	if (Inventory)
+	{
+		SelectSlot((Inventory->GetSelectedIndex() + UHHInventoryComponent::NumSlots - 1) % UHHInventoryComponent::NumSlots);
+	}
+}
+
+void AHHCharacter::Input_Drop()
+{
+	const AHHPlayerState* State = BoundPlayerState.Get();
+	UHHInventoryComponent* Inventory = State ? State->GetInventory() : nullptr;
+	if (Inventory && Inventory->IsEnabled() && !Inventory->GetSelected().IsEmpty())
+	{
+		Interaction->StopInteract();
+		Inventory->RequestDrop();
+	}
+}
+
+void AHHCharacter::Input_Flashlight()
+{
+	if (GetUsableLightId().IsNone())
 	{
 		if (AHHPlayerController* PC = Cast<AHHPlayerController>(GetController()))
 		{
-			PC->ClientNotify(LOCTEXT("NoLight", "No light in your loadout. Pick one at the equipment locker."), EHHNotifyType::Warning);
+			const AHHPlayerState* State = BoundPlayerState.Get();
+			const bool bOnJob = State && State->GetInventory() && State->GetInventory()->IsEnabled();
+			PC->ClientNotify(bOnJob
+				? LOCTEXT("NoLightJob", "You are not carrying a light.")
+				: LOCTEXT("NoLight", "No light in your loadout. Pick one at the equipment locker."), EHHNotifyType::Warning);
 		}
 		return;
 	}
@@ -485,7 +712,10 @@ void AHHCharacter::SetSprinting(bool bNewSprinting)
 
 void AHHCharacter::ApplyMovementSpeed()
 {
-	GetCharacterMovement()->MaxWalkSpeed = bSprinting ? SprintSpeed : WalkSpeed;
+	// Bulky loot: slower, and no sprinting with a TV in your arms.
+	const float CarryFactor = bCarryingHeavy ? HeavyCarrySpeedFactor : 1.f;
+	GetCharacterMovement()->MaxWalkSpeed = (bSprinting && !bCarryingHeavy ? SprintSpeed : WalkSpeed) * CarryFactor;
+	GetCharacterMovement()->MaxWalkSpeedCrouched = CrouchSpeed * CarryFactor;
 }
 
 void AHHCharacter::ServerSetSprinting_Implementation(bool bNewSprinting)
@@ -512,6 +742,7 @@ void AHHCharacter::OnRep_Flashlight()
 {
 	Flashlight->SetVisibility(bFlashlightOn);
 	UpdateFlashlightAim();
+	UpdateHeldItem();
 
 	if (const UHHGameData* GameData = UHHGameData::Get(this))
 	{
@@ -526,6 +757,11 @@ void AHHCharacter::OnRep_Flashlight()
 void AHHCharacter::ServerInteract_Implementation(AActor* Target)
 {
 	Interaction->ExecuteInteraction(Target);
+}
+
+void AHHCharacter::ServerBeginHold_Implementation(AActor* Target)
+{
+	Interaction->BeginServerHold(Target);
 }
 
 void AHHCharacter::OnStartCrouch(float HalfHeightAdjust, float ScaledHalfHeightAdjust)
@@ -565,8 +801,18 @@ void AHHCharacter::Tick(float DeltaSeconds)
 	if (IsLocallyControlled())
 	{
 		UpdateCamera(DeltaSeconds);
+		// The HUD moves the camera between the eyes and station cameras: follow it.
+		const bool bWasHidden = bHeadHidden;
+		UpdateLocalVisibility();
+		if (bWasHidden != bHeadHidden)
+		{
+			UpdateFlashlightAim();
+		}
 	}
-	if (bFlashlightOn)
+
+	const bool bHolding = HeldItem->IsVisible();
+	HandAlpha = FMath::FInterpTo(HandAlpha, bHolding ? 1.f : 0.f, DeltaSeconds, 8.f);
+	if (bFlashlightOn || bHolding)
 	{
 		UpdateFlashlightAim();
 	}
@@ -594,7 +840,7 @@ void AHHCharacter::UpdateCamera(float DeltaSeconds)
 	const float Cadence = FMath::Lerp(1.7f, 2.7f, MoveAlpha);
 	BobPhase = FMath::Fmod(BobPhase + DeltaSeconds * Cadence * UE_PI, 2.f * UE_PI);
 
-	FVector Offset(0.f, 0.f, CameraZ - LandingDip);
+	FVector Offset(EyeForward, 0.f, CameraZ - LandingDip);
 	if (bAllowBob)
 	{
 		const float Amp = BobBlend * (bIsCrouched ? 0.6f : 1.f);

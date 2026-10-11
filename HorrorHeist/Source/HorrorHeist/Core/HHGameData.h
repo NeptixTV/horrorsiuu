@@ -137,6 +137,35 @@ public:
 	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Audio|UI")
 	TSoftObjectPtr<USoundBase> UiLevelUp;
 
+	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Audio|UI")
+	TSoftObjectPtr<USoundBase> UiInventorySelect;
+
+	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Audio|UI")
+	TSoftObjectPtr<USoundBase> UiObjectiveComplete;
+
+	// ---- Jobs --------------------------------------------------------------------------
+
+	/** Low dread bed faded in with the haunting (Music class). */
+	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Audio|Heist")
+	TSoftObjectPtr<USoundBase> HauntDrone;
+
+	/** Heartbeat while psyche is low (SFX class). */
+	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Audio|Heist")
+	TSoftObjectPtr<USoundBase> Heartbeat;
+
+	/** Night ambience bed on jobs (wind, distant traffic) - 2D, Ambient class. */
+	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Audio|Heist")
+	TSoftObjectPtr<USoundBase> HeistAmbience;
+
+	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Audio|Heist")
+	TSoftObjectPtr<USoundBase> MissionCompleteSting;
+
+	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Audio|Heist")
+	TSoftObjectPtr<USoundBase> MissionFailedSting;
+
+	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Audio|Heist")
+	TSoftObjectPtr<USoundBase> DriveAwaySound;
+
 	// ---- Character sounds --------------------------------------------------------------
 
 	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Audio|Character")

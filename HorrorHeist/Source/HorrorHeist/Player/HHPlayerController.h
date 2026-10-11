@@ -48,6 +48,18 @@ public:
 	UFUNCTION(Client, Reliable)
 	void ClientNotify(const FText& Message, EHHNotifyType Type);
 
+	/** The job is over: book payout/XP in the local profile and show the summary. */
+	UFUNCTION(Client, Reliable)
+	void ClientMissionReward(const FHHMissionSummary& Summary);
+
+	/** Psyche gave out / the house got you: screen goes black, you wake up outside. */
+	UFUNCTION(Client, Reliable)
+	void ClientBlackout(bool bCaughtByEntity);
+
+	/** Crew leader: wait for nightfall (hub) / call the job off (heist). */
+	void RequestWaitForNight();
+	void RequestAbandonJob();
+
 	// ---- Server RPCs ------------------------------------------------------------------
 
 	UFUNCTION(Server, Reliable)
@@ -58,6 +70,12 @@ public:
 
 	UFUNCTION(Server, Reliable)
 	void ServerSelectMission(FName MissionId);
+
+	UFUNCTION(Server, Reliable)
+	void ServerWaitForNight();
+
+	UFUNCTION(Server, Reliable)
+	void ServerAbandonJob();
 
 	// ---- Development commands (console: ~) -------------------------------------------
 
@@ -75,6 +93,26 @@ public:
 
 	UFUNCTION(Exec)
 	void HHForceAmbientEvent(int32 EventIndex);
+
+	/** Set the clock, e.g. "HHSetTime 21.5" (host). */
+	UFUNCTION(Exec)
+	void HHSetTime(float Hours);
+
+	/** Clock speed multiplier, e.g. "HHTimeSpeed 10" (host). */
+	UFUNCTION(Exec)
+	void HHTimeSpeed(float Multiplier);
+
+	/** Make the house angrier, e.g. "HHAddAnger 30" (host, on a job). */
+	UFUNCTION(Exec)
+	void HHAddAnger(float Amount);
+
+	/** Run a haunt event now: 0 settle .. 10 apparition, 11 hunt (host, on a job). */
+	UFUNCTION(Exec)
+	void HHHauntEvent(int32 EventIndex);
+
+	/** End the job: 1 success, 2 partial, 3 caught, 4 abandoned (host, on a job). */
+	UFUNCTION(Exec)
+	void HHEndJob(int32 Outcome);
 
 protected:
 	void HandleMenuAction();

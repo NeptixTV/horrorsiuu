@@ -29,7 +29,7 @@ public:
 	void ApplyLoadout(const FHHCosmeticLoadout& Loadout);
 	const FHHCosmeticLoadout& GetAppliedLoadout() const { return Applied; }
 
-	/** First person: the owner sees only the shadow of their own outfit. */
+	/** First person: hide head-worn parts (hair, hat, mask, glasses) for the owner only. */
 	void SetHiddenForOwner(bool bHidden);
 
 protected:

@@ -33,6 +33,34 @@ void AHHAmbientEmitter::EndPlay(const EEndPlayReason::Type EndPlayReason)
 	Super::EndPlay(EndPlayReason);
 }
 
+void AHHAmbientEmitter::SetEmitterActive(bool bActive)
+{
+	if (bEmitterActive == bActive || GetNetMode() == NM_DedicatedServer)
+	{
+		return;
+	}
+	bEmitterActive = bActive;
+	if (bActive)
+	{
+		if (Loop->Sound)
+		{
+			Loop->FadeIn(4.f, 1.f);
+		}
+		if (OneShots.Num() > 0)
+		{
+			ScheduleNext();
+		}
+	}
+	else
+	{
+		if (Loop->IsPlaying())
+		{
+			Loop->FadeOut(4.f, 0.f);
+		}
+		GetWorldTimerManager().ClearTimer(Timer);
+	}
+}
+
 void AHHAmbientEmitter::ScheduleNext()
 {
 	const float Delay = FMath::FRandRange(FMath::Max(0.2f, MinInterval), FMath::Max(MinInterval, MaxInterval));
@@ -41,6 +69,10 @@ void AHHAmbientEmitter::ScheduleNext()
 
 void AHHAmbientEmitter::PlayOneShot()
 {
+	if (!bEmitterActive)
+	{
+		return;
+	}
 	if (OneShots.Num() > 0)
 	{
 		int32 Index = FMath::RandRange(0, OneShots.Num() - 1);

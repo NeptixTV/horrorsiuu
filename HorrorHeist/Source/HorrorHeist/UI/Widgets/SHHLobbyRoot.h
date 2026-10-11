@@ -42,6 +42,9 @@ public:
 	void FadeFromBlack(float Seconds);
 	void FadeToBlack(float Seconds);
 
+	/** End-of-job card over everything but modals. */
+	void ShowSummary(const FHHMissionSummary& Summary);
+
 private:
 	TSharedRef<SWidget> BuildExplorationHud();
 	TSharedRef<SWidget> BuildFeedbackLayer();
@@ -50,7 +53,10 @@ private:
 	TSharedRef<SWidget> BuildCrewStrip();
 
 	bool IsExploring() const;
+	bool IsOnJob() const;
 	FText GetInteractKeyText() const;
+	TSharedRef<SWidget> BuildHubKeyHints();
+	TSharedRef<SWidget> BuildJobKeyHints();
 
 	TWeakObjectPtr<AHHLobbyHUD> HUD;
 
@@ -59,6 +65,10 @@ private:
 	TSharedPtr<SOverlay> ModalLayer;
 	TSharedPtr<SVerticalBox> ToastBox;
 	TSharedPtr<SVerticalBox> CrewStripBox;
+	TSharedPtr<SBox> SummaryHost;
+	TSharedPtr<FSlateBrush> FocusIconBrush;
+	TWeakObjectPtr<class UTexture2D> FocusIconTexture;
+	bool bSummaryVisible = false;
 
 	EHHLobbyScreen CurrentScreen = EHHLobbyScreen::None;
 	FCurveSequence PanelIntro;

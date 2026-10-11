@@ -96,6 +96,7 @@ void UHHGameUserSettings::ResetExtrasToDefaults()
 	SubtitleSize = 1;
 	SubtitleBackgroundOpacity = 0.55f;
 	bShowCrewHUD = true;
+	TimeSpeed = 1.f;
 
 	ColorBlindMode = 0;
 	ColorBlindStrength = 6;

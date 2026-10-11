@@ -96,6 +96,27 @@ namespace HHText
 			? FText::Format(LOCTEXT("MoneyNegative", "-${0}"), Number)
 			: FText::Format(LOCTEXT("Money", "${0}"), Number);
 	}
+
+	FText OutcomeName(EHHMissionOutcome Outcome)
+	{
+		switch (Outcome)
+		{
+		case EHHMissionOutcome::Success:	return LOCTEXT("OutcomeSuccess", "Clean getaway");
+		case EHHMissionOutcome::Partial:	return LOCTEXT("OutcomePartial", "Got away light");
+		case EHHMissionOutcome::Caught:		return LOCTEXT("OutcomeCaught", "Caught");
+		case EHHMissionOutcome::Abandoned:	return LOCTEXT("OutcomeAbandoned", "Job abandoned");
+		default:							return FText::GetEmpty();
+		}
+	}
+
+	FText ClockTime(float Hours)
+	{
+		const float Wrapped = FMath::Fmod(FMath::Fmod(Hours, 24.f) + 24.f, 24.f);
+		const int32 TotalMinutes = FMath::FloorToInt(Wrapped * 60.f);
+		const int32 Hour = (TotalMinutes / 60) % 24;
+		const int32 Minute = TotalMinutes % 60;
+		return FText::FromString(FString::Printf(TEXT("%02d:%02d"), Hour, Minute));
+	}
 }
 
 #undef LOCTEXT_NAMESPACE

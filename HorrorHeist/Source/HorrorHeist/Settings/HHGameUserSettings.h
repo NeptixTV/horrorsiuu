@@ -95,6 +95,8 @@ public:
 	UPROPERTY(Config) int32 SubtitleSize;
 	UPROPERTY(Config) float SubtitleBackgroundOpacity;
 	UPROPERTY(Config) bool bShowCrewHUD;
+	/** In-game clock speed multiplier (host decides for the whole crew). */
+	UPROPERTY(Config) float TimeSpeed;
 
 	// ---- Accessibility ----------------------------------------------------------------
 

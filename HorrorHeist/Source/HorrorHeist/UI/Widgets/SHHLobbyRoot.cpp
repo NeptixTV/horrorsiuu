@@ -6,12 +6,15 @@
 #include "UI/Widgets/SHHCustomizationPanel.h"
 #include "UI/Widgets/SHHStorePanel.h"
 #include "UI/Widgets/SHHSettingsPanel.h"
+#include "UI/Widgets/SHHHeistHud.h"
 #include "UI/HHLobbyHUD.h"
 #include "UI/HHStyle.h"
 #include "Lobby/HHLobbyGameState.h"
 #include "Player/HHPlayerController.h"
 #include "Player/HHPlayerState.h"
 #include "Player/HHInteractionComponent.h"
+#include "World/HHTimeOfDay.h"
+#include "Engine/Texture2D.h"
 #include "Settings/HHGameUserSettings.h"
 #include "Settings/HHInputSubsystem.h"
 #include "Framework/Application/SlateApplication.h"
@@ -56,6 +59,16 @@ void SHHLobbyRoot::Construct(const FArguments& InArgs)
 			]
 		]
 
+		// On-the-job HUD (objectives, clock, haul, psyche, inventory).
+		+ SOverlay::Slot()
+		[
+			SNew(SBox)
+			.Visibility_Lambda([this]() { return IsOnJob() && IsExploring() && !bSummaryVisible ? EVisibility::SelfHitTestInvisible : EVisibility::Collapsed; })
+			[
+				SNew(SHHHeistHud).HUD(HUD)
+			]
+		]
+
 		// Main menu (left column).
 		+ SOverlay::Slot()
 		[
@@ -95,6 +108,13 @@ void SHHLobbyRoot::Construct(const FArguments& InArgs)
 			BuildTitle()
 		]
 
+		// End-of-job summary.
+		+ SOverlay::Slot()
+		[
+			SAssignNew(SummaryHost, SBox)
+			.Visibility_Lambda([this]() { return bSummaryVisible ? EVisibility::HitTestInvisible : EVisibility::Collapsed; })
+		]
+
 		// Modals.
 		+ SOverlay::Slot()
 		[
@@ -118,6 +138,21 @@ void SHHLobbyRoot::Construct(const FArguments& InArgs)
 bool SHHLobbyRoot::IsExploring() const
 {
 	return CurrentScreen == EHHLobbyScreen::None && !bTitleVisible;
+}
+
+bool SHHLobbyRoot::IsOnJob() const
+{
+	const AHHLobbyHUD* LobbyHUD = HUD.Get();
+	return LobbyHUD && LobbyHUD->IsOnJob();
+}
+
+void SHHLobbyRoot::ShowSummary(const FHHMissionSummary& Summary)
+{
+	if (SummaryHost.IsValid())
+	{
+		SummaryHost->SetContent(SHHHeistHud::MakeSummary(Summary, HUD));
+		bSummaryVisible = true;
+	}
 }
 
 // ---------------------------------------------------------------------------------------
@@ -438,6 +473,201 @@ TSharedRef<SWidget> SHHLobbyRoot::BuildExplorationHud()
 		return Interaction && Interaction->GetFocusedActor() != nullptr && !Interaction->GetFocusedPrompt().IsEmpty();
 	};
 
+	return SNew(SOverlay)
+
+		// Centre dot
+		+ SOverlay::Slot().HAlign(HAlign_Center).VAlign(VAlign_Center)
+		[
+			SNew(SImage)
+			.Image(FHHStyle::Brush("HH.Icon.Dot"))
+			.DesiredSizeOverride_Lambda([Focused]() { return TOptional<FVector2D>(Focused() ? FVector2D(8.0, 8.0) : FVector2D(4.0, 4.0)); })
+			.ColorAndOpacity_Lambda([Focused]() { return FSlateColor(Focused() ? FHHStyle::Accent() : FLinearColor(1.f, 1.f, 1.f, 0.28f)); })
+		]
+
+		// Interaction prompt (+ item card and hold progress)
+		+ SOverlay::Slot().HAlign(HAlign_Center).VAlign(VAlign_Bottom).Padding(TAttribute<FMargin>::CreateLambda([this]() { return FMargin(0.f, 0.f, 0.f, IsOnJob() ? 178.f : 96.f); }))
+		[
+			SNew(SVerticalBox)
+			.Visibility_Lambda([Focused]()
+			{
+				const UHHGameUserSettings* Settings = UHHGameUserSettings::Get();
+				const bool bAllowed = !Settings || Settings->bShowInteractionPrompts;
+				return bAllowed && Focused() ? EVisibility::HitTestInvisible : EVisibility::Collapsed;
+			})
+			+ SVerticalBox::Slot().AutoHeight().HAlign(HAlign_Center)
+			[
+				SNew(SHorizontalBox)
+				+ SHorizontalBox::Slot().AutoWidth().VAlign(VAlign_Center).Padding(0.f, 0.f, 12.f, 0.f)
+				[
+					SNew(SBox)
+					.WidthOverride(44.f)
+					.HeightOverride(44.f)
+					.Visibility_Lambda([this]() { return FocusIconBrush.IsValid() ? EVisibility::HitTestInvisible : EVisibility::Collapsed; })
+					[
+						SNew(SBorder)
+						.BorderImage(FHHStyle::Brush("HH.Card"))
+						.Padding(FMargin(3.f))
+						[
+							SNew(SImage).Image_Lambda([this]() { return FocusIconBrush.IsValid() ? FocusIconBrush.Get() : nullptr; })
+						]
+					]
+				]
+				+ SHorizontalBox::Slot().AutoWidth().VAlign(VAlign_Center)
+				[
+					SNew(SBorder)
+					.BorderImage(FHHStyle::Brush("HH.KeyCap"))
+					.Padding(FMargin(9.f, 3.f))
+					[
+						SNew(STextBlock)
+						.Text_Lambda([this]() { return GetInteractKeyText(); })
+						.Font(FHHStyle::Font(EHHFont::MonoMedium, 13.f))
+						.ColorAndOpacity(FSlateColor(FHHStyle::Text()))
+					]
+				]
+				+ SHorizontalBox::Slot().AutoWidth().VAlign(VAlign_Center).Padding(12.f, 0.f, 0.f, 0.f)
+				[
+					SNew(SVerticalBox)
+					+ SVerticalBox::Slot().AutoHeight()
+					[
+						SNew(STextBlock)
+						.Text_Lambda([this]()
+						{
+							const AHHLobbyHUD* LobbyHUD = HUD.Get();
+							const UHHInteractionComponent* Interaction = LobbyHUD ? LobbyHUD->GetInteraction() : nullptr;
+							return Interaction ? Interaction->GetFocusedPrompt() : FText::GetEmpty();
+						})
+						.Font(FHHStyle::Font(EHHFont::BodyMedium, 17.f))
+						.ShadowOffset(FVector2D(0.0, 1.0))
+						.ShadowColorAndOpacity(FLinearColor(0.f, 0.f, 0.f, 0.8f))
+						.ColorAndOpacity_Lambda([this]()
+						{
+							const AHHLobbyHUD* LobbyHUD = HUD.Get();
+							const UHHInteractionComponent* Interaction = LobbyHUD ? LobbyHUD->GetInteraction() : nullptr;
+							return FSlateColor(Interaction && Interaction->CanInteractWithFocus() ? FHHStyle::Text() : FHHStyle::TextFaint());
+						})
+					]
+					+ SVerticalBox::Slot().AutoHeight()
+					[
+						SNew(STextBlock)
+						.Text_Lambda([this]()
+						{
+							const AHHLobbyHUD* LobbyHUD = HUD.Get();
+							const UHHInteractionComponent* Interaction = LobbyHUD ? LobbyHUD->GetInteraction() : nullptr;
+							return Interaction ? Interaction->GetFocusedDetail() : FText::GetEmpty();
+						})
+						.Visibility_Lambda([this]()
+						{
+							const AHHLobbyHUD* LobbyHUD = HUD.Get();
+							const UHHInteractionComponent* Interaction = LobbyHUD ? LobbyHUD->GetInteraction() : nullptr;
+							return Interaction && !Interaction->GetFocusedDetail().IsEmpty() ? EVisibility::HitTestInvisible : EVisibility::Collapsed;
+						})
+						.Font(FHHStyle::Font(EHHFont::Mono, 12.f))
+						.ColorAndOpacity(FSlateColor(FHHStyle::Accent()))
+						.ShadowOffset(FVector2D(0.0, 1.0))
+						.ShadowColorAndOpacity(FLinearColor(0.f, 0.f, 0.f, 0.8f))
+					]
+				]
+			]
+			// Hold progress (lockpicking, searching, lifting)
+			+ SVerticalBox::Slot().AutoHeight().HAlign(HAlign_Center).Padding(0.f, 10.f, 0.f, 0.f)
+			[
+				SNew(SBox)
+				.WidthOverride(200.f)
+				.HeightOverride(3.f)
+				.Visibility_Lambda([this]()
+				{
+					const AHHLobbyHUD* LobbyHUD = HUD.Get();
+					const UHHInteractionComponent* Interaction = LobbyHUD ? LobbyHUD->GetInteraction() : nullptr;
+					return Interaction && (Interaction->IsHolding() || Interaction->GetFocusedDuration() > 0.f) ? EVisibility::HitTestInvisible : EVisibility::Collapsed;
+				})
+				[
+					SNew(SHorizontalBox)
+					+ SHorizontalBox::Slot().FillWidth(TAttribute<float>::CreateLambda([this]()
+					{
+						const AHHLobbyHUD* LobbyHUD = HUD.Get();
+						const UHHInteractionComponent* Interaction = LobbyHUD ? LobbyHUD->GetInteraction() : nullptr;
+						return FMath::Max(Interaction ? Interaction->GetHoldProgress() : 0.f, 0.001f);
+					}))
+					[
+						SNew(SImage).Image(FHHStyle::Brush("HH.White")).ColorAndOpacity(FSlateColor(FHHStyle::Accent()))
+					]
+					+ SHorizontalBox::Slot().FillWidth(TAttribute<float>::CreateLambda([this]()
+					{
+						const AHHLobbyHUD* LobbyHUD = HUD.Get();
+						const UHHInteractionComponent* Interaction = LobbyHUD ? LobbyHUD->GetInteraction() : nullptr;
+						return FMath::Max(1.f - (Interaction ? Interaction->GetHoldProgress() : 0.f), 0.001f);
+					}))
+					[
+						SNew(SImage).Image(FHHStyle::Brush("HH.White")).ColorAndOpacity(FSlateColor(FLinearColor(1.f, 1.f, 1.f, 0.15f)))
+					]
+				]
+			]
+		]
+
+		// Crew strip (top left)
+		+ SOverlay::Slot().HAlign(HAlign_Left).VAlign(VAlign_Top).Padding(FMargin(36.f, 32.f, 0.f, 0.f))
+		[
+			BuildCrewStrip()
+		]
+
+		// Key hints (bottom left in the hub, bottom right on a job)
+		+ SOverlay::Slot().HAlign(HAlign_Left).VAlign(VAlign_Bottom).Padding(FMargin(36.f, 0.f, 0.f, 32.f))
+		[
+			SNew(SBox)
+			.Visibility_Lambda([this]() { return IsOnJob() ? EVisibility::Collapsed : EVisibility::SelfHitTestInvisible; })
+			[
+				BuildHubKeyHints()
+			]
+		]
+		+ SOverlay::Slot().HAlign(HAlign_Right).VAlign(VAlign_Bottom).Padding(FMargin(0.f, 0.f, 36.f, 34.f))
+		[
+			SNew(SBox)
+			.Visibility_Lambda([this]() { return IsOnJob() ? EVisibility::SelfHitTestInvisible : EVisibility::Collapsed; })
+			[
+				BuildJobKeyHints()
+			]
+		]
+
+		// Clock (hub, top right)
+		+ SOverlay::Slot().HAlign(HAlign_Right).VAlign(VAlign_Top).Padding(FMargin(0.f, 32.f, 36.f, 0.f))
+		[
+			SNew(SHorizontalBox)
+			.Visibility_Lambda([this]()
+			{
+				const AHHLobbyHUD* LobbyHUD = HUD.Get();
+				return LobbyHUD && !IsOnJob() && AHHTimeOfDay::Get(LobbyHUD) ? EVisibility::HitTestInvisible : EVisibility::Collapsed;
+			})
+			+ SHorizontalBox::Slot().AutoWidth().VAlign(VAlign_Center)
+			[
+				SNew(SImage)
+				.Image_Lambda([this]()
+				{
+					const AHHLobbyHUD* LobbyHUD = HUD.Get();
+					const AHHTimeOfDay* Clock = LobbyHUD ? AHHTimeOfDay::Get(LobbyHUD) : nullptr;
+					return FHHStyle::Brush(Clock && Clock->GetDaylight() > 0.4f ? "HH.Icon.Sun" : "HH.Icon.Moon");
+				})
+				.DesiredSizeOverride(FVector2D(16.0, 16.0))
+				.ColorAndOpacity(FSlateColor(FHHStyle::TextDim()))
+			]
+			+ SHorizontalBox::Slot().AutoWidth().VAlign(VAlign_Center).Padding(8.f, 0.f, 0.f, 0.f)
+			[
+				SNew(STextBlock)
+				.Text_Lambda([this]()
+				{
+					const AHHLobbyHUD* LobbyHUD = HUD.Get();
+					const AHHTimeOfDay* Clock = LobbyHUD ? AHHTimeOfDay::Get(LobbyHUD) : nullptr;
+					return Clock ? HHText::ClockTime(Clock->GetTimeOfDay()) : FText::GetEmpty();
+				})
+				.Font(FHHStyle::Font(EHHFont::MonoMedium, 17.f))
+				.ColorAndOpacity(FSlateColor(FHHStyle::Text()))
+				.ShadowOffset(FVector2D(0.0, 1.0))
+				.ShadowColorAndOpacity(FLinearColor(0.f, 0.f, 0.f, 0.8f))
+			]
+		];
+}
+
+TSharedRef<SWidget> SHHLobbyRoot::BuildHubKeyHints()
+{
 	auto KeyText = [this](const TCHAR* Binding) -> TAttribute<FText>
 	{
 		const FName BindingName(Binding);
@@ -450,105 +680,83 @@ TSharedRef<SWidget> SHHLobbyRoot::BuildExplorationHud()
 		});
 	};
 
-	return SNew(SOverlay)
-
-		// Centre dot
-		+ SOverlay::Slot().HAlign(HAlign_Center).VAlign(VAlign_Center)
+	return SNew(SHorizontalBox)
+		.Visibility_Lambda([]()
+		{
+			const UHHGameUserSettings* Settings = UHHGameUserSettings::Get();
+			return !Settings || Settings->bShowCrewHUD ? EVisibility::HitTestInvisible : EVisibility::Collapsed;
+		})
+		+ SHorizontalBox::Slot().AutoWidth().Padding(0.f, 0.f, 22.f, 0.f)
 		[
-			SNew(SImage)
-			.Image(FHHStyle::Brush("HH.Icon.Dot"))
-			.DesiredSizeOverride_Lambda([Focused]() { return TOptional<FVector2D>(Focused() ? FVector2D(8.0, 8.0) : FVector2D(4.0, 4.0)); })
-			.ColorAndOpacity_Lambda([Focused]() { return FSlateColor(Focused() ? FHHStyle::Accent() : FLinearColor(1.f, 1.f, 1.f, 0.28f)); })
+			SNew(SHHKeyHint).Key(LOCTEXT("EscKey", "ESC")).Label(LOCTEXT("Menu", "Menu"))
 		]
-
-		// Interaction prompt
-		+ SOverlay::Slot().HAlign(HAlign_Center).VAlign(VAlign_Bottom).Padding(FMargin(0.f, 0.f, 0.f, 96.f))
+		+ SHorizontalBox::Slot().AutoWidth().Padding(0.f, 0.f, 22.f, 0.f)
 		[
-			SNew(SHorizontalBox)
-			.Visibility_Lambda([Focused]()
-			{
-				const UHHGameUserSettings* Settings = UHHGameUserSettings::Get();
-				const bool bAllowed = !Settings || Settings->bShowInteractionPrompts;
-				return bAllowed && Focused() ? EVisibility::HitTestInvisible : EVisibility::Collapsed;
-			})
-			+ SHorizontalBox::Slot().AutoWidth().VAlign(VAlign_Center)
-			[
-				SNew(SBorder)
-				.BorderImage(FHHStyle::Brush("HH.KeyCap"))
-				.Padding(FMargin(9.f, 3.f))
-				[
-					SNew(STextBlock)
-					.Text_Lambda([this]() { return GetInteractKeyText(); })
-					.Font(FHHStyle::Font(EHHFont::MonoMedium, 13.f))
-					.ColorAndOpacity(FSlateColor(FHHStyle::Text()))
-				]
-			]
-			+ SHorizontalBox::Slot().AutoWidth().VAlign(VAlign_Center).Padding(12.f, 0.f, 0.f, 0.f)
-			[
-				SNew(STextBlock)
-				.Text_Lambda([this]()
-				{
-					const AHHLobbyHUD* LobbyHUD = HUD.Get();
-					const UHHInteractionComponent* Interaction = LobbyHUD ? LobbyHUD->GetInteraction() : nullptr;
-					return Interaction ? Interaction->GetFocusedPrompt() : FText::GetEmpty();
-				})
-				.Font(FHHStyle::Font(EHHFont::BodyMedium, 17.f))
-				.ShadowOffset(FVector2D(0.0, 1.0))
-				.ShadowColorAndOpacity(FLinearColor(0.f, 0.f, 0.f, 0.8f))
-				.ColorAndOpacity_Lambda([this]()
-				{
-					const AHHLobbyHUD* LobbyHUD = HUD.Get();
-					const UHHInteractionComponent* Interaction = LobbyHUD ? LobbyHUD->GetInteraction() : nullptr;
-					return FSlateColor(Interaction && Interaction->CanInteractWithFocus() ? FHHStyle::Text() : FHHStyle::TextFaint());
-				})
-			]
+			SNew(SHHKeyHint).Key(KeyText(TEXT("Map"))).Label(LOCTEXT("JobBoard", "Job board"))
 		]
-
-		// Crew strip (top left)
-		+ SOverlay::Slot().HAlign(HAlign_Left).VAlign(VAlign_Top).Padding(FMargin(36.f, 32.f, 0.f, 0.f))
+		+ SHorizontalBox::Slot().AutoWidth().Padding(0.f, 0.f, 22.f, 0.f)
 		[
-			BuildCrewStrip()
+			SNew(SHHKeyHint).Key(KeyText(TEXT("Inventory"))).Label(LOCTEXT("Loadout", "Loadout"))
 		]
-
-		// Key hints (bottom left)
-		+ SOverlay::Slot().HAlign(HAlign_Left).VAlign(VAlign_Bottom).Padding(FMargin(36.f, 0.f, 0.f, 32.f))
+		+ SHorizontalBox::Slot().AutoWidth().Padding(0.f, 0.f, 22.f, 0.f)
 		[
-			SNew(SHorizontalBox)
-			.Visibility_Lambda([]()
-			{
-				const UHHGameUserSettings* Settings = UHHGameUserSettings::Get();
-				return !Settings || Settings->bShowCrewHUD ? EVisibility::HitTestInvisible : EVisibility::Collapsed;
-			})
-			+ SHorizontalBox::Slot().AutoWidth().Padding(0.f, 0.f, 22.f, 0.f)
-			[
-				SNew(SHHKeyHint).Key(LOCTEXT("EscKey", "ESC")).Label(LOCTEXT("Menu", "Menu"))
-			]
-			+ SHorizontalBox::Slot().AutoWidth().Padding(0.f, 0.f, 22.f, 0.f)
-			[
-				SNew(SHHKeyHint).Key(KeyText(TEXT("Map"))).Label(LOCTEXT("JobBoard", "Job board"))
-			]
-			+ SHorizontalBox::Slot().AutoWidth().Padding(0.f, 0.f, 22.f, 0.f)
-			[
-				SNew(SHHKeyHint).Key(KeyText(TEXT("Inventory"))).Label(LOCTEXT("Loadout", "Loadout"))
-			]
-			+ SHorizontalBox::Slot().AutoWidth().Padding(0.f, 0.f, 22.f, 0.f)
-			[
-				SNew(SHHKeyHint).Key(KeyText(TEXT("Ready"))).Label(LOCTEXT("Ready", "Ready"))
-			]
-			+ SHorizontalBox::Slot().AutoWidth()
-			[
-				SNew(SHHKeyHint).Key(KeyText(TEXT("Flashlight"))).Label(LOCTEXT("Flashlight", "Flashlight"))
-			]
+			SNew(SHHKeyHint).Key(KeyText(TEXT("Ready"))).Label(LOCTEXT("Ready", "Ready"))
+		]
+		+ SHorizontalBox::Slot().AutoWidth().Padding(0.f, 0.f, 22.f, 0.f)
+		[
+			SNew(SHHKeyHint).Key(KeyText(TEXT("Flashlight"))).Label(LOCTEXT("Flashlight", "Flashlight"))
+		]
+		+ SHorizontalBox::Slot().AutoWidth()
+		[
+			SNew(SHHKeyHint).Key(KeyText(TEXT("ToggleView"))).Label(LOCTEXT("View", "1st / 3rd person"))
+		];
+}
+
+TSharedRef<SWidget> SHHLobbyRoot::BuildJobKeyHints()
+{
+	auto KeyText = [this](const TCHAR* Binding) -> TAttribute<FText>
+	{
+		const FName BindingName(Binding);
+		return TAttribute<FText>::CreateLambda([this, BindingName]()
+		{
+			const AHHLobbyHUD* LobbyHUD = HUD.Get();
+			const AHHPlayerController* PC = LobbyHUD ? LobbyHUD->GetHHController() : nullptr;
+			const UHHInputSubsystem* Input = PC ? UHHInputSubsystem::Get(PC) : nullptr;
+			return Input ? Input->GetKeyDisplayText(BindingName) : FText::GetEmpty();
+		});
+	};
+
+	return SNew(SVerticalBox)
+		.Visibility_Lambda([]()
+		{
+			const UHHGameUserSettings* Settings = UHHGameUserSettings::Get();
+			return !Settings || Settings->bShowCrewHUD ? EVisibility::HitTestInvisible : EVisibility::Collapsed;
+		})
+		+ SVerticalBox::Slot().AutoHeight().HAlign(HAlign_Right).Padding(0.f, 0.f, 0.f, 6.f)
+		[
+			SNew(SHHKeyHint).Key(LOCTEXT("SlotsKey", "1-5")).Label(LOCTEXT("Items", "Select item"))
+		]
+		+ SVerticalBox::Slot().AutoHeight().HAlign(HAlign_Right).Padding(0.f, 0.f, 0.f, 6.f)
+		[
+			SNew(SHHKeyHint).Key(KeyText(TEXT("Drop"))).Label(LOCTEXT("DropHint", "Drop item"))
+		]
+		+ SVerticalBox::Slot().AutoHeight().HAlign(HAlign_Right).Padding(0.f, 0.f, 0.f, 6.f)
+		[
+			SNew(SHHKeyHint).Key(KeyText(TEXT("Flashlight"))).Label(LOCTEXT("FlashlightJob", "Flashlight"))
+		]
+		+ SVerticalBox::Slot().AutoHeight().HAlign(HAlign_Right)
+		[
+			SNew(SHHKeyHint).Key(LOCTEXT("EscKeyJob", "ESC")).Label(LOCTEXT("PauseHint", "Menu"))
 		];
 }
 
 TSharedRef<SWidget> SHHLobbyRoot::BuildCrewStrip()
 {
 	return SNew(SBox)
-		.Visibility_Lambda([]()
+		.Visibility_Lambda([this]()
 		{
 			const UHHGameUserSettings* Settings = UHHGameUserSettings::Get();
-			return !Settings || Settings->bShowCrewHUD ? EVisibility::HitTestInvisible : EVisibility::Collapsed;
+			return (!Settings || Settings->bShowCrewHUD) && !IsOnJob() ? EVisibility::HitTestInvisible : EVisibility::Collapsed;
 		})
 		[
 			SAssignNew(CrewStripBox, SVerticalBox)
@@ -695,6 +903,18 @@ void SHHLobbyRoot::Tick(const FGeometry& AllottedGeometry, const double InCurren
 	Now = InCurrentTime;
 
 	Fade = FMath::FInterpConstantTo(Fade, FadeTarget, InDeltaTime, FadeSpeed);
+
+	// Icon of the focused pick-up (kept alive here, Slate brushes need an owner).
+	{
+		const AHHLobbyHUD* FocusHUD = HUD.Get();
+		const UHHInteractionComponent* Interaction = FocusHUD ? FocusHUD->GetInteraction() : nullptr;
+		UTexture2D* Icon = Interaction ? Interaction->GetFocusedIcon() : nullptr;
+		if (Icon != FocusIconTexture.Get())
+		{
+			FocusIconTexture = Icon;
+			FocusIconBrush = Icon ? HHUI::MakeTextureBrush(Icon, FVector2D(38.0, 38.0)) : nullptr;
+		}
+	}
 
 	// Expire toasts.
 	for (int32 Index = Toasts.Num() - 1; Index >= 0; --Index)

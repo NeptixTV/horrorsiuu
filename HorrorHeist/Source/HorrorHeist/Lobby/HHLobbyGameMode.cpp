@@ -7,22 +7,17 @@
 #include "Core/HHDeveloperSettings.h"
 #include "Data/HHItemRegistrySubsystem.h"
 #include "Data/HHMissionDefinition.h"
+#include "Core/HHGameInstance.h"
+#include "World/HHTimeOfDay.h"
 #include "HorrorHeist.h"
 #include "Engine/World.h"
-#include "EngineUtils.h"
-#include "GameFramework/PlayerStart.h"
 #include "TimerManager.h"
 
 #define LOCTEXT_NAMESPACE "HHLobbyGameMode"
 
 AHHLobbyGameMode::AHHLobbyGameMode()
 {
-	DefaultPawnClass = AHHCharacter::StaticClass();
-	PlayerControllerClass = AHHPlayerController::StaticClass();
-	PlayerStateClass = AHHPlayerState::StaticClass();
 	GameStateClass = AHHLobbyGameState::StaticClass();
-	HUDClass = AHHLobbyHUD::StaticClass();
-	bUseSeamlessTravel = false;
 }
 
 AHHLobbyGameState* AHHLobbyGameMode::GetLobbyState() const
@@ -42,7 +37,7 @@ void AHHLobbyGameMode::BeginPlay()
 			const TArray<const UHHMissionDefinition*> Missions = Registry->GetMissions();
 			for (const UHHMissionDefinition* Mission : Missions)
 			{
-				if (Mission->UnlockLevel <= 1)
+				if (Mission->UnlockLevel <= 1 && Mission->IsPlayable())
 				{
 					LobbyState->SetSelectedMission(Mission->GetMissionId());
 					break;
@@ -75,36 +70,9 @@ void AHHLobbyGameMode::PreLogin(const FString& Options, const FString& Address, 
 	}
 }
 
-int32 AHHLobbyGameMode::FindFreeCrewSlot() const
-{
-	TSet<int32> Used;
-	if (const AHHLobbyGameState* LobbyState = GetLobbyState())
-	{
-		for (const APlayerState* PlayerState : LobbyState->PlayerArray)
-		{
-			if (const AHHPlayerState* HHPlayerState = Cast<AHHPlayerState>(PlayerState))
-			{
-				Used.Add(HHPlayerState->GetCrewSlot());
-			}
-		}
-	}
-	int32 Slot = 0;
-	while (Used.Contains(Slot))
-	{
-		++Slot;
-	}
-	return Slot;
-}
-
 void AHHLobbyGameMode::PostLogin(APlayerController* NewPlayer)
 {
-	// Assign the slot before Super spawns the pawn so colours are right from the start.
-	if (AHHPlayerState* PlayerState = NewPlayer ? NewPlayer->GetPlayerState<AHHPlayerState>() : nullptr)
-	{
-		PlayerState->SetCrewSlot(FindFreeCrewSlot());
-		PlayerState->SetCrewLeader(NewPlayer->IsLocalController());
-	}
-
+	// Crew slot + leader are assigned by AHHGameModeBase before the pawn spawns.
 	Super::PostLogin(NewPlayer);
 
 	// A new arrival resets the countdown.
@@ -149,42 +117,6 @@ void AHHLobbyGameMode::Logout(AController* Exiting)
 	GetWorldTimerManager().SetTimerForNextTick(this, &AHHLobbyGameMode::EvaluateDeparture);
 }
 
-AActor* AHHLobbyGameMode::ChoosePlayerStart_Implementation(AController* Player)
-{
-	// Prefer starts nobody is standing on.
-	TArray<APlayerStart*> Free;
-	TArray<APlayerStart*> All;
-	for (TActorIterator<APlayerStart> It(GetWorld()); It; ++It)
-	{
-		APlayerStart* Start = *It;
-		All.Add(Start);
-
-		bool bOccupied = false;
-		for (TActorIterator<APawn> PawnIt(GetWorld()); PawnIt; ++PawnIt)
-		{
-			if (FVector::DistSquared2D(PawnIt->GetActorLocation(), Start->GetActorLocation()) < FMath::Square(80.f))
-			{
-				bOccupied = true;
-				break;
-			}
-		}
-		if (!bOccupied)
-		{
-			Free.Add(Start);
-		}
-	}
-
-	if (Free.Num() > 0)
-	{
-		return Free[FMath::RandRange(0, Free.Num() - 1)];
-	}
-	if (All.Num() > 0)
-	{
-		return All[FMath::RandRange(0, All.Num() - 1)];
-	}
-	return Super::ChoosePlayerStart_Implementation(Player);
-}
-
 void AHHLobbyGameMode::HandleReadyChanged(AHHPlayerState* PlayerState)
 {
 	EvaluateDeparture();
@@ -212,6 +144,11 @@ void AHHLobbyGameMode::HandleMissionRequest(AHHPlayerController* Requester, FNam
 	}
 	if (LobbyState->GetPhase() == EHHLobbyPhase::Departing)
 	{
+		return;
+	}
+	if (!Mission->IsPlayable())
+	{
+		Requester->ClientNotify(FText::Format(LOCTEXT("NotOpen", "{0} is still being cased - pick another job."), Mission->DisplayName), EHHNotifyType::Warning);
 		return;
 	}
 
@@ -293,19 +230,67 @@ void AHHLobbyGameMode::CountdownTick()
 	}
 }
 
+FText AHHLobbyGameMode::GetDepartureBlocker(const UHHMissionDefinition* Mission) const
+{
+	if (!Mission)
+	{
+		return LOCTEXT("NoJob", "No job is pinned to the board.");
+	}
+	if (!Mission->IsPlayable())
+	{
+		// The job exists on the board but its house is not ready yet. Say so honestly.
+		return FText::Format(LOCTEXT("NotPlayable", "{0} is still being cased - this job is not available yet."), Mission->DisplayName);
+	}
+	if (Mission->bRequiresNight)
+	{
+		const AHHTimeOfDay* Clock = AHHTimeOfDay::Get(this);
+		if (Clock && !Clock->IsNight())
+		{
+			return FText::Format(LOCTEXT("NotNight", "It's {0}. Jobs start after dark ({1}). Wait for nightfall or use 'Wait until dark' on the job board."),
+				HHText::ClockTime(Clock->GetTimeOfDay()), HHText::ClockTime(UHHDeveloperSettings::Get()->NightStartHour));
+		}
+	}
+	return FText::GetEmpty();
+}
+
+void AHHLobbyGameMode::HandleWaitForNight(AHHPlayerController* Requester)
+{
+	AHHLobbyGameState* LobbyState = GetLobbyState();
+	const AHHPlayerState* PlayerState = Requester ? Requester->GetPlayerState<AHHPlayerState>() : nullptr;
+	AHHTimeOfDay* Clock = AHHTimeOfDay::Get(this);
+	if (!LobbyState || !PlayerState || !Clock)
+	{
+		return;
+	}
+	if (!PlayerState->IsCrewLeader())
+	{
+		Requester->ClientNotify(LOCTEXT("NotLeaderWait", "Only the crew leader decides when to head out."), EHHNotifyType::Warning);
+		return;
+	}
+	if (Clock->IsNight())
+	{
+		Requester->ClientNotify(LOCTEXT("AlreadyNight", "It is already dark outside."), EHHNotifyType::Info);
+		return;
+	}
+	Clock->SkipTo(UHHDeveloperSettings::Get()->NightStartHour + 0.25f);
+	LobbyState->MulticastCrewMessage(FText::Format(LOCTEXT("Waited", "The crew waits for nightfall. It's {0}."), HHText::ClockTime(Clock->GetTimeOfDay())), EHHNotifyType::Info);
+}
+
 void AHHLobbyGameMode::Depart()
 {
 	AHHLobbyGameState* LobbyState = GetLobbyState();
 	const UHHItemRegistrySubsystem* Registry = UHHItemRegistrySubsystem::Get(this);
 	const UHHMissionDefinition* Mission = Registry && LobbyState ? Registry->FindMission(LobbyState->GetSelectedMission()) : nullptr;
-
-	if (!Mission || !Mission->IsPlayable())
+	if (!LobbyState)
 	{
-		// The job exists on the board but has no level yet (milestone 1). Say so honestly.
+		return;
+	}
+
+	const FText Blocker = GetDepartureBlocker(Mission);
+	if (!Blocker.IsEmpty())
+	{
 		LobbyState->SetPhase(EHHLobbyPhase::Gathering);
-		LobbyState->MulticastCrewMessage(
-			LOCTEXT("NotPlayable", "The van won't start. This job has no map assigned yet (set Map on the mission data asset)."),
-			EHHNotifyType::Warning);
+		LobbyState->MulticastCrewMessage(Blocker, EHHNotifyType::Warning);
 		ResetReadyStates();
 		return;
 	}
@@ -313,9 +298,19 @@ void AHHLobbyGameMode::Depart()
 	LobbyState->SetPhase(EHHLobbyPhase::Departing);
 	LobbyState->MulticastCrewMessage(FText::Format(LOCTEXT("Departing", "Heading out to {0}."), Mission->Address), EHHNotifyType::Info);
 
+	if (UHHGameInstance* GameInstance = GetGameInstance<UHHGameInstance>())
+	{
+		GameInstance->SetActiveMission(Mission->GetMissionId());
+	}
+
 	const FString MapPath = Mission->Map.ToSoftObjectPath().GetLongPackageName();
 	UE_LOG(LogHorrorHeist, Log, TEXT("Departing to %s"), *MapPath);
-	GetWorld()->ServerTravel(MapPath + TEXT("?listen"), true);
+	if (!TravelCrewTo(MapPath, FString::Printf(TEXT("?Mission=%s"), *Mission->GetMissionId().ToString())))
+	{
+		LobbyState->SetPhase(EHHLobbyPhase::Gathering);
+		LobbyState->MulticastCrewMessage(LOCTEXT("TravelFailed", "The van would not start (travel failed, see the log)."), EHHNotifyType::Error);
+		ResetReadyStates();
+	}
 }
 
 #undef LOCTEXT_NAMESPACE

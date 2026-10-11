@@ -11,12 +11,16 @@ class AHHStationActor;
 class AHHPreviewStation;
 class AHHPlayerController;
 class AHHLobbyGameState;
+class AHHHeistGameState;
 class UHHInteractionComponent;
+class UAudioComponent;
 
 /**
- * Owns the lobby UI (Slate) for one local player and the "physical menu": every screen is
- * tied to a station in the hideout, and switching screens blends the camera there.
- * Exploring = no screen = first-person control.
+ * Owns the game UI (Slate) for one local player. In the hideout it is the "physical menu":
+ * every screen is tied to a station, and switching screens blends the camera there.
+ * Exploring = no screen = first-person control. On a job the same HUD shows the heist layer
+ * (objectives, inventory, psyche...), the main menu becomes the pause menu and it runs the
+ * local dread soundscape (drone with the haunting, heartbeat at low psyche).
  */
 UCLASS()
 class HORRORHEIST_API AHHLobbyHUD : public AHUD
@@ -50,6 +54,18 @@ public:
 
 	AHHPlayerController* GetHHController() const;
 	AHHLobbyGameState* GetLobbyState() const;
+	AHHHeistGameState* GetHeistState() const;
+	/** True in a job map (heist rules), false in the hideout / town hub. */
+	bool IsOnJob() const;
+
+	/** Pause menu: confirm, then ask the server to call the job off (crew leader only). */
+	void RequestAbandonJob();
+	/** Hub: crew leader skips ahead to nightfall. */
+	void RequestWaitForNight();
+	/** End of a job: the summary card. */
+	void ShowMissionSummary(const FHHMissionSummary& Summary);
+	/** Psyche gave out / caught: black, a beat, waking up outside. */
+	void PlayBlackout(bool bCaughtByEntity);
 	AHHPreviewStation* GetPreviewStation() const;
 	UHHInteractionComponent* GetInteraction() const;
 
@@ -66,6 +82,8 @@ private:
 	void HandleLevelUp(int32 NewLevel);
 	void HandleCaption(const FText& Text, float Duration, bool bIsSoundCaption);
 	void HandleSessionStatus(bool bSuccess, const FText& Message);
+	void UpdateJobAudio(float DeltaSeconds);
+	void StopJobAudio();
 
 	TSharedPtr<SHHLobbyRoot> Root;
 
@@ -84,4 +102,18 @@ private:
 	FDelegateHandle CrewMessageHandle;
 	FDelegateHandle PhaseHandle;
 	FDelegateHandle MissionHandle;
+
+	UPROPERTY(Transient)
+	TObjectPtr<UAudioComponent> DroneAudio;
+
+	UPROPERTY(Transient)
+	TObjectPtr<UAudioComponent> HeartbeatAudio;
+
+	UPROPERTY(Transient)
+	TObjectPtr<UAudioComponent> NightAudio;
+
+	FTimerHandle BlackoutTimer;
+	float DroneLevel = 0.f;
+	float HeartLevel = 0.f;
+	bool bShowedSummary = false;
 };

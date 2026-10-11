@@ -31,6 +31,17 @@ public:
 	bool HasShownTitle() const { return bTitleShown; }
 	void MarkTitleShown() { bTitleShown = true; }
 
+	/** Job the crew is travelling to / playing (also passed as ?Mission= on the travel URL). */
+	void SetActiveMission(FName MissionId) { ActiveMission = MissionId; }
+	FName GetActiveMission() const { return ActiveMission; }
+
+	/**
+	 * In-game clock carried across map loads (hub -> job -> hub). Negative = not set yet,
+	 * the time-of-day actor then starts at its configured hour.
+	 */
+	void SetCarriedTimeOfDay(float Hours) { CarriedTimeOfDay = Hours; }
+	float GetCarriedTimeOfDay() const { return CarriedTimeOfDay; }
+
 private:
 	void HandleNetworkFailure(UWorld* World, UNetDriver* NetDriver, ENetworkFailure::Type FailureType, const FString& ErrorString);
 	void HandleTravelFailure(UWorld* World, ETravelFailure::Type FailureType, const FString& ErrorString);
@@ -42,4 +53,6 @@ private:
 	FText PendingBody;
 	bool bHasPendingMessage = false;
 	bool bTitleShown = false;
+	FName ActiveMission;
+	float CarriedTimeOfDay = -1.f;
 };

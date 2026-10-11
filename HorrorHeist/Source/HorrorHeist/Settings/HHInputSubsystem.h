@@ -26,6 +26,14 @@ enum class EHHInputAction : uint8
 	Menu,
 	Ready,
 	ToggleView,
+	Slot1,
+	Slot2,
+	Slot3,
+	Slot4,
+	Slot5,
+	SlotNext,
+	SlotPrev,
+	Drop,
 	MAX UMETA(Hidden)
 };
 

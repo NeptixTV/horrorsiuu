@@ -958,5 +958,795 @@
   "caption": "",
   "volume": 1.0,
   "seconds": 0.35
+ },
+ {
+  "file": "SourceArt/Audio/Ambience/A_Vent_Hum_Loop.wav",
+  "category": "Ambient",
+  "loop": true,
+  "spatial": true,
+  "radius": 900,
+  "caption": "",
+  "volume": 1.0,
+  "seconds": 8.0
+ },
+ {
+  "file": "SourceArt/Audio/Ambience/A_Machine_Hum_Loop.wav",
+  "category": "Ambient",
+  "loop": true,
+  "spatial": true,
+  "radius": 800,
+  "caption": "",
+  "volume": 1.0,
+  "seconds": 8.0
+ },
+ {
+  "file": "SourceArt/Audio/Ambience/A_Electric_Buzz_Loop.wav",
+  "category": "Ambient",
+  "loop": true,
+  "spatial": true,
+  "radius": 500,
+  "caption": "",
+  "volume": 1.0,
+  "seconds": 6.0
+ },
+ {
+  "file": "SourceArt/Audio/Ambience/A_Town_Wind_Loop.wav",
+  "category": "Ambient",
+  "loop": true,
+  "spatial": false,
+  "radius": 0,
+  "caption": "",
+  "volume": 1.0,
+  "seconds": 20.0
+ },
+ {
+  "file": "SourceArt/Audio/Ambience/A_Town_Traffic_Distant_Loop.wav",
+  "category": "Ambient",
+  "loop": true,
+  "spatial": true,
+  "radius": 6000,
+  "caption": "",
+  "volume": 1.0,
+  "seconds": 20.0
+ },
+ {
+  "file": "SourceArt/Audio/Ambience/A_Town_Birds_Day_Loop.wav",
+  "category": "Ambient",
+  "loop": true,
+  "spatial": true,
+  "radius": 3000,
+  "caption": "",
+  "volume": 1.0,
+  "seconds": 20.0
+ },
+ {
+  "file": "SourceArt/Audio/Ambience/A_Town_Crickets_Night_Loop.wav",
+  "category": "Ambient",
+  "loop": true,
+  "spatial": true,
+  "radius": 2500,
+  "caption": "",
+  "volume": 1.0,
+  "seconds": 12.0
+ },
+ {
+  "file": "SourceArt/Audio/Ambience/A_Rain_Light_Loop.wav",
+  "category": "Ambient",
+  "loop": true,
+  "spatial": false,
+  "radius": 0,
+  "caption": "",
+  "volume": 1.0,
+  "seconds": 16.0
+ },
+ {
+  "file": "SourceArt/Audio/Ambience/A_Dog_Bark_Distant_01.wav",
+  "category": "Ambient",
+  "loop": false,
+  "spatial": true,
+  "radius": 6000,
+  "caption": "[A dog barks in the distance]",
+  "volume": 1.0,
+  "seconds": 2.3
+ },
+ {
+  "file": "SourceArt/Audio/Ambience/A_Dog_Bark_Distant_02.wav",
+  "category": "Ambient",
+  "loop": false,
+  "spatial": true,
+  "radius": 6000,
+  "caption": "[A dog barks in the distance]",
+  "volume": 1.0,
+  "seconds": 2.3
+ },
+ {
+  "file": "SourceArt/Audio/Ambience/A_Dog_Bark_Distant_03.wav",
+  "category": "Ambient",
+  "loop": false,
+  "spatial": true,
+  "radius": 6000,
+  "caption": "[A dog barks in the distance]",
+  "volume": 1.0,
+  "seconds": 2.3
+ },
+ {
+  "file": "SourceArt/Audio/Ambience/A_Car_Pass_Distant_01.wav",
+  "category": "Ambient",
+  "loop": false,
+  "spatial": true,
+  "radius": 5000,
+  "caption": "",
+  "volume": 1.0,
+  "seconds": 6.0
+ },
+ {
+  "file": "SourceArt/Audio/Ambience/A_Car_Pass_Distant_02.wav",
+  "category": "Ambient",
+  "loop": false,
+  "spatial": true,
+  "radius": 5000,
+  "caption": "",
+  "volume": 1.0,
+  "seconds": 6.0
+ },
+ {
+  "file": "SourceArt/Audio/Ambience/A_Car_Pass_Distant_03.wav",
+  "category": "Ambient",
+  "loop": false,
+  "spatial": true,
+  "radius": 5000,
+  "caption": "",
+  "volume": 1.0,
+  "seconds": 6.0
+ },
+ {
+  "file": "SourceArt/Audio/Ambience/A_Siren_Distant_01.wav",
+  "category": "Ambient",
+  "loop": false,
+  "spatial": true,
+  "radius": 8000,
+  "caption": "[A siren wails far away]",
+  "volume": 1.0,
+  "seconds": 8.6
+ },
+ {
+  "file": "SourceArt/Audio/Ambience/A_Wind_Chime_01.wav",
+  "category": "Ambient",
+  "loop": false,
+  "spatial": true,
+  "radius": 1200,
+  "caption": "",
+  "volume": 1.0,
+  "seconds": 4.4
+ },
+ {
+  "file": "SourceArt/Audio/Ambience/A_Wind_Chime_02.wav",
+  "category": "Ambient",
+  "loop": false,
+  "spatial": true,
+  "radius": 1200,
+  "caption": "",
+  "volume": 1.0,
+  "seconds": 4.4
+ },
+ {
+  "file": "SourceArt/Audio/Ambience/A_Church_Bell_Distant_01.wav",
+  "category": "Ambient",
+  "loop": false,
+  "spatial": true,
+  "radius": 12000,
+  "caption": "[A church bell tolls]",
+  "volume": 1.0,
+  "seconds": 9.5
+ },
+ {
+  "file": "SourceArt/Audio/Ambience/A_Owl_01.wav",
+  "category": "Ambient",
+  "loop": false,
+  "spatial": true,
+  "radius": 4000,
+  "caption": "",
+  "volume": 1.0,
+  "seconds": 2.6
+ },
+ {
+  "file": "SourceArt/Audio/Ambience/A_Owl_02.wav",
+  "category": "Ambient",
+  "loop": false,
+  "spatial": true,
+  "radius": 4000,
+  "caption": "",
+  "volume": 1.0,
+  "seconds": 2.6
+ },
+ {
+  "file": "SourceArt/Audio/Ambience/A_House_RoomTone_Loop.wav",
+  "category": "Ambient",
+  "loop": true,
+  "spatial": false,
+  "radius": 0,
+  "caption": "",
+  "volume": 1.0,
+  "seconds": 12.0
+ },
+ {
+  "file": "SourceArt/Audio/Ambience/A_Fridge_Hum_Loop.wav",
+  "category": "Ambient",
+  "loop": true,
+  "spatial": true,
+  "radius": 600,
+  "caption": "",
+  "volume": 1.0,
+  "seconds": 8.0
+ },
+ {
+  "file": "SourceArt/Audio/Ambience/A_House_Settle_01.wav",
+  "category": "Ambient",
+  "loop": false,
+  "spatial": true,
+  "radius": 2500,
+  "caption": "[The house creaks]",
+  "volume": 1.0,
+  "seconds": 1.7
+ },
+ {
+  "file": "SourceArt/Audio/Ambience/A_House_Settle_02.wav",
+  "category": "Ambient",
+  "loop": false,
+  "spatial": true,
+  "radius": 2500,
+  "caption": "[The house creaks]",
+  "volume": 1.0,
+  "seconds": 1.7
+ },
+ {
+  "file": "SourceArt/Audio/Ambience/A_House_Settle_03.wav",
+  "category": "Ambient",
+  "loop": false,
+  "spatial": true,
+  "radius": 2500,
+  "caption": "[The house creaks]",
+  "volume": 1.0,
+  "seconds": 1.7
+ },
+ {
+  "file": "SourceArt/Audio/Ambience/A_House_Settle_04.wav",
+  "category": "Ambient",
+  "loop": false,
+  "spatial": true,
+  "radius": 2500,
+  "caption": "[The house creaks]",
+  "volume": 1.0,
+  "seconds": 1.7
+ },
+ {
+  "file": "SourceArt/Audio/Ambience/A_Haunt_Door_Slam_01.wav",
+  "category": "Ambient",
+  "loop": false,
+  "spatial": true,
+  "radius": 4000,
+  "caption": "[A door slams]",
+  "volume": 1.0,
+  "seconds": 2.6
+ },
+ {
+  "file": "SourceArt/Audio/Ambience/A_Haunt_Door_Slam_02.wav",
+  "category": "Ambient",
+  "loop": false,
+  "spatial": true,
+  "radius": 4000,
+  "caption": "[A door slams]",
+  "volume": 1.0,
+  "seconds": 2.6
+ },
+ {
+  "file": "SourceArt/Audio/Ambience/A_Haunt_Drag_01.wav",
+  "category": "Ambient",
+  "loop": false,
+  "spatial": true,
+  "radius": 2500,
+  "caption": "[Something is dragged across the floor]",
+  "volume": 1.0,
+  "seconds": 3.4
+ },
+ {
+  "file": "SourceArt/Audio/Ambience/A_Haunt_Drag_02.wav",
+  "category": "Ambient",
+  "loop": false,
+  "spatial": true,
+  "radius": 2500,
+  "caption": "[Something is dragged across the floor]",
+  "volume": 1.0,
+  "seconds": 3.4
+ },
+ {
+  "file": "SourceArt/Audio/Ambience/A_Haunt_Knock_Wall_01.wav",
+  "category": "Ambient",
+  "loop": false,
+  "spatial": true,
+  "radius": 2000,
+  "caption": "[Knocking inside the walls]",
+  "volume": 1.0,
+  "seconds": 2.6
+ },
+ {
+  "file": "SourceArt/Audio/Ambience/A_Haunt_Knock_Wall_02.wav",
+  "category": "Ambient",
+  "loop": false,
+  "spatial": true,
+  "radius": 2000,
+  "caption": "[Knocking inside the walls]",
+  "volume": 1.0,
+  "seconds": 2.6
+ },
+ {
+  "file": "SourceArt/Audio/Ambience/A_Haunt_Footsteps_Run_01.wav",
+  "category": "Ambient",
+  "loop": false,
+  "spatial": true,
+  "radius": 3000,
+  "caption": "[Running footsteps upstairs]",
+  "volume": 1.0,
+  "seconds": 3.2
+ },
+ {
+  "file": "SourceArt/Audio/Ambience/A_Haunt_MusicBox_01.wav",
+  "category": "Ambient",
+  "loop": false,
+  "spatial": true,
+  "radius": 1500,
+  "caption": "[A music box plays]",
+  "volume": 1.0,
+  "seconds": 10.6
+ },
+ {
+  "file": "SourceArt/Audio/Ambience/A_Haunt_Glass_Fall_01.wav",
+  "category": "Ambient",
+  "loop": false,
+  "spatial": true,
+  "radius": 2500,
+  "caption": "[Glass shatters]",
+  "volume": 1.0,
+  "seconds": 2.3
+ },
+ {
+  "file": "SourceArt/Audio/Ambience/A_Haunt_Glass_Fall_02.wav",
+  "category": "Ambient",
+  "loop": false,
+  "spatial": true,
+  "radius": 2500,
+  "caption": "[Glass shatters]",
+  "volume": 1.0,
+  "seconds": 2.3
+ },
+ {
+  "file": "SourceArt/Audio/Ambience/A_Haunt_Bang_01.wav",
+  "category": "Ambient",
+  "loop": false,
+  "spatial": true,
+  "radius": 4000,
+  "caption": "[A loud bang]",
+  "volume": 1.0,
+  "seconds": 2.8
+ },
+ {
+  "file": "SourceArt/Audio/Ambience/A_Haunt_Breath_01.wav",
+  "category": "Dialogue",
+  "loop": false,
+  "spatial": true,
+  "radius": 600,
+  "caption": "[Breathing close by]",
+  "volume": 1.0,
+  "seconds": 3.2
+ },
+ {
+  "file": "SourceArt/Audio/Ambience/A_Haunt_Breath_02.wav",
+  "category": "Dialogue",
+  "loop": false,
+  "spatial": true,
+  "radius": 600,
+  "caption": "[Breathing close by]",
+  "volume": 1.0,
+  "seconds": 3.2
+ },
+ {
+  "file": "SourceArt/Audio/Music/A_Haunt_Drone_Loop.wav",
+  "category": "Music",
+  "loop": true,
+  "spatial": false,
+  "radius": 0,
+  "caption": "",
+  "volume": 1.0,
+  "seconds": 30.0
+ },
+ {
+  "file": "SourceArt/Audio/Music/M_Haunt_Stinger_01.wav",
+  "category": "Music",
+  "loop": false,
+  "spatial": false,
+  "radius": 0,
+  "caption": "",
+  "volume": 1.0,
+  "seconds": 3.6
+ },
+ {
+  "file": "SourceArt/Audio/Music/M_Haunt_Stinger_02.wav",
+  "category": "Music",
+  "loop": false,
+  "spatial": false,
+  "radius": 0,
+  "caption": "",
+  "volume": 1.0,
+  "seconds": 3.6
+ },
+ {
+  "file": "SourceArt/Audio/SFX/S_Heartbeat_Loop.wav",
+  "category": "SFX",
+  "loop": true,
+  "spatial": false,
+  "radius": 0,
+  "caption": "",
+  "volume": 1.0,
+  "seconds": 3.2
+ },
+ {
+  "file": "SourceArt/Audio/SFX/S_Light_Bulb_Pop.wav",
+  "category": "SFX",
+  "loop": false,
+  "spatial": true,
+  "radius": 1500,
+  "caption": "[A light bulb pops]",
+  "volume": 1.0,
+  "seconds": 1.1
+ },
+ {
+  "file": "SourceArt/Audio/SFX/S_Light_Buzz_On.wav",
+  "category": "SFX",
+  "loop": false,
+  "spatial": true,
+  "radius": 1200,
+  "caption": "",
+  "volume": 1.0,
+  "seconds": 1.15
+ },
+ {
+  "file": "SourceArt/Audio/SFX/S_TV_Power_On.wav",
+  "category": "SFX",
+  "loop": false,
+  "spatial": true,
+  "radius": 1500,
+  "caption": "[A television switches on]",
+  "volume": 1.0,
+  "seconds": 1.6
+ },
+ {
+  "file": "SourceArt/Audio/SFX/S_Loot_Pickup_Small_01.wav",
+  "category": "SFX",
+  "loop": false,
+  "spatial": true,
+  "radius": 800,
+  "caption": "",
+  "volume": 1.0,
+  "seconds": 0.55
+ },
+ {
+  "file": "SourceArt/Audio/SFX/S_Loot_Pickup_Small_02.wav",
+  "category": "SFX",
+  "loop": false,
+  "spatial": true,
+  "radius": 800,
+  "caption": "",
+  "volume": 1.0,
+  "seconds": 0.55
+ },
+ {
+  "file": "SourceArt/Audio/SFX/S_Loot_Pickup_Small_03.wav",
+  "category": "SFX",
+  "loop": false,
+  "spatial": true,
+  "radius": 800,
+  "caption": "",
+  "volume": 1.0,
+  "seconds": 0.55
+ },
+ {
+  "file": "SourceArt/Audio/SFX/S_Loot_Pickup_Heavy_01.wav",
+  "category": "SFX",
+  "loop": false,
+  "spatial": true,
+  "radius": 1200,
+  "caption": "",
+  "volume": 1.0,
+  "seconds": 0.9
+ },
+ {
+  "file": "SourceArt/Audio/SFX/S_Loot_Drop_01.wav",
+  "category": "SFX",
+  "loop": false,
+  "spatial": true,
+  "radius": 1500,
+  "caption": "",
+  "volume": 1.0,
+  "seconds": 0.65
+ },
+ {
+  "file": "SourceArt/Audio/SFX/S_Loot_Drop_02.wav",
+  "category": "SFX",
+  "loop": false,
+  "spatial": true,
+  "radius": 1500,
+  "caption": "",
+  "volume": 1.0,
+  "seconds": 0.65
+ },
+ {
+  "file": "SourceArt/Audio/SFX/S_Bag_Zip_01.wav",
+  "category": "SFX",
+  "loop": false,
+  "spatial": true,
+  "radius": 800,
+  "caption": "",
+  "volume": 1.0,
+  "seconds": 1.05
+ },
+ {
+  "file": "SourceArt/Audio/SFX/S_Lockpick_Loop.wav",
+  "category": "SFX",
+  "loop": true,
+  "spatial": true,
+  "radius": 600,
+  "caption": "",
+  "volume": 1.0,
+  "seconds": 2.0
+ },
+ {
+  "file": "SourceArt/Audio/SFX/S_Lockpick_Success_01.wav",
+  "category": "SFX",
+  "loop": false,
+  "spatial": true,
+  "radius": 800,
+  "caption": "",
+  "volume": 1.0,
+  "seconds": 0.65
+ },
+ {
+  "file": "SourceArt/Audio/SFX/S_Crowbar_Pry_01.wav",
+  "category": "SFX",
+  "loop": false,
+  "spatial": true,
+  "radius": 3500,
+  "caption": "[Wood cracks loudly]",
+  "volume": 1.0,
+  "seconds": 2.8
+ },
+ {
+  "file": "SourceArt/Audio/SFX/S_Door_Locked_Rattle_01.wav",
+  "category": "SFX",
+  "loop": false,
+  "spatial": true,
+  "radius": 1200,
+  "caption": "[The door is locked]",
+  "volume": 1.0,
+  "seconds": 0.85
+ },
+ {
+  "file": "SourceArt/Audio/SFX/S_Key_Pickup_01.wav",
+  "category": "SFX",
+  "loop": false,
+  "spatial": true,
+  "radius": 600,
+  "caption": "",
+  "volume": 1.0,
+  "seconds": 0.55
+ },
+ {
+  "file": "SourceArt/Audio/SFX/S_Window_Slide_01.wav",
+  "category": "SFX",
+  "loop": false,
+  "spatial": true,
+  "radius": 1500,
+  "caption": "",
+  "volume": 1.0,
+  "seconds": 1.8
+ },
+ {
+  "file": "SourceArt/Audio/SFX/S_Glass_Cut_01.wav",
+  "category": "SFX",
+  "loop": false,
+  "spatial": true,
+  "radius": 1200,
+  "caption": "",
+  "volume": 1.0,
+  "seconds": 2.2
+ },
+ {
+  "file": "SourceArt/Audio/SFX/S_Drawer_Open_01.wav",
+  "category": "SFX",
+  "loop": false,
+  "spatial": true,
+  "radius": 900,
+  "caption": "",
+  "volume": 1.0,
+  "seconds": 0.65
+ },
+ {
+  "file": "SourceArt/Audio/SFX/S_Drawer_Open_02.wav",
+  "category": "SFX",
+  "loop": false,
+  "spatial": true,
+  "radius": 900,
+  "caption": "",
+  "volume": 1.0,
+  "seconds": 0.65
+ },
+ {
+  "file": "SourceArt/Audio/SFX/S_Drawer_Close_01.wav",
+  "category": "SFX",
+  "loop": false,
+  "spatial": true,
+  "radius": 900,
+  "caption": "",
+  "volume": 1.0,
+  "seconds": 0.65
+ },
+ {
+  "file": "SourceArt/Audio/SFX/S_Cabinet_Open_01.wav",
+  "category": "SFX",
+  "loop": false,
+  "spatial": true,
+  "radius": 900,
+  "caption": "",
+  "volume": 1.0,
+  "seconds": 0.7
+ },
+ {
+  "file": "SourceArt/Audio/SFX/S_Van_Engine_Start_01.wav",
+  "category": "SFX",
+  "loop": false,
+  "spatial": true,
+  "radius": 3000,
+  "caption": "[The van's engine starts]",
+  "volume": 1.0,
+  "seconds": 3.4
+ },
+ {
+  "file": "SourceArt/Audio/SFX/S_Van_Drive_Away_01.wav",
+  "category": "SFX",
+  "loop": false,
+  "spatial": false,
+  "radius": 0,
+  "caption": "",
+  "volume": 1.0,
+  "seconds": 7.4
+ },
+ {
+  "file": "SourceArt/Audio/SFX/S_Car_Door_Close_01.wav",
+  "category": "SFX",
+  "loop": false,
+  "spatial": true,
+  "radius": 1500,
+  "caption": "",
+  "volume": 1.0,
+  "seconds": 0.8
+ },
+ {
+  "file": "SourceArt/Audio/UI/S_Inventory_Select.wav",
+  "category": "UI",
+  "loop": false,
+  "spatial": false,
+  "radius": 0,
+  "caption": "",
+  "volume": 1.0,
+  "seconds": 0.15
+ },
+ {
+  "file": "SourceArt/Audio/UI/S_Objective_Complete.wav",
+  "category": "UI",
+  "loop": false,
+  "spatial": false,
+  "radius": 0,
+  "caption": "",
+  "volume": 1.0,
+  "seconds": 1.3
+ },
+ {
+  "file": "SourceArt/Audio/Footsteps/S_Footstep_Grass_01.wav",
+  "category": "SFX",
+  "loop": false,
+  "spatial": true,
+  "radius": 1200,
+  "caption": "",
+  "volume": 1.0,
+  "seconds": 0.45
+ },
+ {
+  "file": "SourceArt/Audio/Footsteps/S_Footstep_Grass_02.wav",
+  "category": "SFX",
+  "loop": false,
+  "spatial": true,
+  "radius": 1200,
+  "caption": "",
+  "volume": 1.0,
+  "seconds": 0.45
+ },
+ {
+  "file": "SourceArt/Audio/Footsteps/S_Footstep_Grass_03.wav",
+  "category": "SFX",
+  "loop": false,
+  "spatial": true,
+  "radius": 1200,
+  "caption": "",
+  "volume": 1.0,
+  "seconds": 0.45
+ },
+ {
+  "file": "SourceArt/Audio/Footsteps/S_Footstep_Grass_04.wav",
+  "category": "SFX",
+  "loop": false,
+  "spatial": true,
+  "radius": 1200,
+  "caption": "",
+  "volume": 1.0,
+  "seconds": 0.45
+ },
+ {
+  "file": "SourceArt/Audio/Footsteps/S_Footstep_Gravel_01.wav",
+  "category": "SFX",
+  "loop": false,
+  "spatial": true,
+  "radius": 1400,
+  "caption": "",
+  "volume": 1.0,
+  "seconds": 0.45
+ },
+ {
+  "file": "SourceArt/Audio/Footsteps/S_Footstep_Gravel_02.wav",
+  "category": "SFX",
+  "loop": false,
+  "spatial": true,
+  "radius": 1400,
+  "caption": "",
+  "volume": 1.0,
+  "seconds": 0.45
+ },
+ {
+  "file": "SourceArt/Audio/Footsteps/S_Footstep_Gravel_03.wav",
+  "category": "SFX",
+  "loop": false,
+  "spatial": true,
+  "radius": 1400,
+  "caption": "",
+  "volume": 1.0,
+  "seconds": 0.45
+ },
+ {
+  "file": "SourceArt/Audio/Footsteps/S_Footstep_Gravel_04.wav",
+  "category": "SFX",
+  "loop": false,
+  "spatial": true,
+  "radius": 1400,
+  "caption": "",
+  "volume": 1.0,
+  "seconds": 0.45
+ },
+ {
+  "file": "SourceArt/Audio/Music/M_Mission_Complete_Sting.wav",
+  "category": "Music",
+  "loop": false,
+  "spatial": false,
+  "radius": 0,
+  "caption": "",
+  "volume": 1.0,
+  "seconds": 6.6
+ },
+ {
+  "file": "SourceArt/Audio/Music/M_Mission_Failed_Sting.wav",
+  "category": "Music",
+  "loop": false,
+  "spatial": false,
+  "radius": 0,
+  "caption": "",
+  "volume": 1.0,
+  "seconds": 6.6
  }
 ]
