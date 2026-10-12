@@ -10,6 +10,7 @@ class AHHLobbyHUD;
 class SBox;
 class SOverlay;
 class SVerticalBox;
+struct FSlateBrush;
 
 /**
  * Root of the lobby UI. Layers, bottom to top: vignette, exploration HUD, main menu,

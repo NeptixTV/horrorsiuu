@@ -55,8 +55,8 @@ AHHTimeOfDay::AHHTimeOfDay()
 	Sun->Intensity = 30.f;
 	Sun->bUseTemperature = true;
 	Sun->Temperature = 5600.f;
-	Sun->bAtmosphereSunLight = true;
-	Sun->AtmosphereSunLightIndex = 0;
+	Sun->SetAtmosphereSunLight(true);
+	Sun->SetAtmosphereSunLightIndex(0);
 	Sun->VolumetricScatteringIntensity = 0.6f;
 
 	Moon = CreateDefaultSubobject<UDirectionalLightComponent>(TEXT("Moon"));
@@ -64,8 +64,8 @@ AHHTimeOfDay::AHHTimeOfDay()
 	Moon->Mobility = EComponentMobility::Movable;
 	Moon->Intensity = 0.3f;
 	Moon->LightColor = FColor(170, 190, 255);
-	Moon->bAtmosphereSunLight = true;
-	Moon->AtmosphereSunLightIndex = 1;
+	Moon->SetAtmosphereSunLight(true);
+	Moon->SetAtmosphereSunLightIndex(1);
 	Moon->VolumetricScatteringIntensity = 1.2f;
 
 	Atmosphere = CreateDefaultSubobject<USkyAtmosphereComponent>(TEXT("Atmosphere"));

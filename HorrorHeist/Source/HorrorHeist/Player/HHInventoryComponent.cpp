@@ -4,6 +4,7 @@
 #include "Data/HHLootDefinition.h"
 #include "Heist/HHLootActor.h"
 #include "HorrorHeist.h"
+#include "CollisionQueryParams.h"
 #include "Engine/StaticMesh.h"
 #include "Engine/Texture2D.h"
 #include "Engine/World.h"

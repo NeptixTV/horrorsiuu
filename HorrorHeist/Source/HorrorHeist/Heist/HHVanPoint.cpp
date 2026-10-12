@@ -4,6 +4,7 @@
 #include "Player/HHPlayerState.h"
 #include "Player/HHInventoryComponent.h"
 #include "Components/BoxComponent.h"
+#include "Components/StaticMeshComponent.h"
 #include "Engine/World.h"
 #include "GameFramework/Pawn.h"
 
@@ -57,7 +58,7 @@ FText AHHVanPoint::GetInteractionDetail(AActor* Interactor) const
 		{
 			return LOCTEXT("NothingToStash", "You are not carrying any loot");
 		}
-		return FText::Format(LOCTEXT("StashDetail", "{0} {0}|plural(one=item,other=items)  -  {1}"), FText::AsNumber(Count), HHText::Money(Inventory->GetCarriedLootValue()));
+		return FText::Format(LOCTEXT("StashDetail", "{0} {0}|plural(one=item,other=items)  -  {1}"), Count, HHText::Money(Inventory->GetCarriedLootValue()));
 	}
 
 	if (State->GetCrewAtVan() < State->GetCrewTotal())

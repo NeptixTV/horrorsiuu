@@ -6,6 +6,7 @@
 #include "Player/HHCharacterAnimInstance.h"
 #include "Player/HHPlayerController.h"
 #include "Player/HHInventoryComponent.h"
+#include "Audio/HHAudioSubsystem.h"
 #include "Core/HHGameData.h"
 #include "Data/HHCharacterDefinition.h"
 #include "Data/HHEquipmentDefinition.h"

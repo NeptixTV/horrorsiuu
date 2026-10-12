@@ -23,6 +23,7 @@
 #include "GameFramework/PlayerStart.h"
 #include "Kismet/GameplayStatics.h"
 #include "TimerManager.h"
+#include "UObject/Package.h"
 
 #define LOCTEXT_NAMESPACE "HHHeist"
 
@@ -590,7 +591,7 @@ void AHHHeistGameMode::HandleStash(AController* By, USoundBase* Sound, const FVe
 	}
 	if (AHHPlayerController* PC = Cast<AHHPlayerController>(By))
 	{
-		PC->ClientNotify(FText::Format(LOCTEXT("Stashed", "Stashed {0} {0}|plural(one=item,other=items) worth {1}."), FText::AsNumber(Items.Num()), HHText::Money(Added)), EHHNotifyType::Success);
+		PC->ClientNotify(FText::Format(LOCTEXT("Stashed", "Stashed {0} {0}|plural(one=item,other=items) worth {1}."), Items.Num(), HHText::Money(Added)), EHHNotifyType::Success);
 	}
 
 	if (Total >= MinimumHaul && HeistState->GetHeistPhase() != EHHHeistPhase::Escape)
