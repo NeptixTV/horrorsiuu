@@ -16,7 +16,7 @@ import placement as PL
 import town as T
 import worldkit as K
 from hhblend import Builder
-from worldkit import T_EXT, T_INT, TRIM
+from worldkit import T_EXT
 
 MARROW = T.HOUSE_TAGS['marrow']
 RECTORY = T.HOUSE_TAGS['rectory']

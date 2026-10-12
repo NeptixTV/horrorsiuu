@@ -6,7 +6,6 @@ door at the bottom), with the crew's handwritten notes.
   python3 Tools/AssetGen/textures/gen_blueprint.py
 """
 import os
-import sys
 
 import numpy as np
 from PIL import Image, ImageDraw, ImageFilter, ImageFont

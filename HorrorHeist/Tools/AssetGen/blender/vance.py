@@ -24,7 +24,6 @@ import hhblend as H
 import houses as HS
 import placement as PL
 import worldkit as K
-from hhblend import Builder
 from worldkit import T_EXT, T_INT, TRIM
 import town as T
 
@@ -117,7 +116,6 @@ def build_house():
     h.shell.box_minmax((XI0, YI0, B - 0.3), (XI1, YI1, B), 'MI_Concrete_Floor')
 
     # --- Partitions ----------------------------------------------------------------------------
-    ho = []                                                     # interior openings
     def opening(kind, a0, a1, z0, h_):
         return dict(kind=kind, a0=a0, a1=a1, z0=z0, z1=z0 + h_)
     # Ground floor.

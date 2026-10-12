@@ -14,7 +14,6 @@ Conventions
 """
 import math
 
-import bmesh
 from mathutils import Euler, Matrix, Vector
 
 from hhblend import Builder, _box_uv

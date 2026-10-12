@@ -24,7 +24,6 @@ import sys
 sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
 
 import bpy  # noqa: E402
-from mathutils import Vector  # noqa: E402
 
 import hhblend as H  # noqa: E402
 import build_hideout as BH  # noqa: E402
@@ -62,6 +61,16 @@ def time_of_day(night=False, speed=1.0, dark_houses=(), **props):
     p = {'bNightMap': bool(night), 'MapSpeed': float(speed), 'DarkHouseTags': list(dark_houses)}
     p.update(props)
     BH.actor('HHTimeOfDay', K.mat((0, 40, 30)), 'Environment', properties=p, name='TimeOfDay')
+
+
+def cull_town_lights(distance=5000.0, fade=1000.0):
+    """Town lights fade out beyond 50 m (dozens of shadowed street and house lights would otherwise
+    all render at once; fog hides the far ones anyway)."""
+    for entry in BH.ACTORS:
+        if entry['cls'].startswith('HHPractical'):
+            light = entry.setdefault('components', {}).setdefault('Light', {})
+            light['MaxDrawDistance'] = distance
+            light['MaxDistanceFadeRange'] = fade
 
 
 def hideout_plug():
@@ -281,6 +290,7 @@ def main():
     T.build()
     V.build()
     PR.build()
+    cull_town_lights()
     # --- Jobs ----------------------------------------------------------------------------------
     level('L_Job_Vance', kind='persistent', streaming=['L_Town'], game_mode='HHHeistGameMode')
     V.job_layout()

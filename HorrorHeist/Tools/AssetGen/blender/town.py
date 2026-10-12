@@ -22,7 +22,7 @@ import houses as HS
 import placement as PL
 import worldkit as K
 from hhblend import Builder
-from worldkit import T_EXT, TRIM
+from worldkit import TRIM
 
 TZ = 2.45                 # road surface
 CURB = 0.15
@@ -384,7 +384,7 @@ def brannigan():
     w, d = 18.0, 14.0
     M = K.mat((-29.0, MAIN[0] - WALK, SW), 180)     # front on the sidewalk, facing north
     bld = K.Building('Town_Brannigan', M)
-    b, t = bld.shell, bld.trim
+    b = bld.shell
     top = 5.2
     front = [dict(kind='shop', a0=-8.0, a1=-1.5, z0=0.15, z1=3.6, mullions=2, door=(-2.6, -1.6)),
              dict(kind='garage', a0=0.5, a1=4.3, z0=0.0, z1=3.4),
@@ -932,6 +932,36 @@ def ambience():
     BH.emitter((0.0, 0.0, 5.0), loop='A_Machine_Hum_Loop', name='Laundromat_Machines', scatter=0, volume=(0.4, 0.6))
 
 
+def decals():
+    """Puddles on the asphalt, wet leaves on sidewalks and yards, mud by the old houses."""
+    r = random.Random(1031)
+    spots = []
+    for _ in range(18):                                   # Main Street and its gutters
+        spots.append(('MI_Decal_Puddle', (r.uniform(XMIN + 8, XMAX - 8), r.choice((MAIN[0] + 0.9, MAIN[1] - 0.9,
+                                                                            r.uniform(*MAIN))), TZ), r.uniform(1.2, 3.2)))
+    for x0, x1 in (ASH, MAR):                              # side streets
+        for _ in range(7):
+            spots.append(('MI_Decal_Puddle', (r.uniform(x0 + 0.6, x1 - 0.6), r.uniform(MAIN[1] + 4, CHURCH[0] - 2), TZ),
+                          r.uniform(1.0, 2.6)))
+    for _ in range(8):                                    # the laundromat lot and the municipal lot
+        spots.append(('MI_Decal_Puddle', (r.uniform(-15, 15), r.uniform(-13, 13), TZ), r.uniform(1.2, 3.0)))
+        spots.append(('MI_Decal_Puddle', (r.uniform(19, 39), r.uniform(-5, 13), TZ), r.uniform(1.2, 2.8)))
+    for _ in range(22):                                   # leaves on sidewalks
+        side = r.random()
+        if side < 0.5:
+            p = (r.uniform(XMIN + 6, XMAX - 6), r.choice((MAIN[0] - 1.2, MAIN[1] + 1.2)), SW)
+        else:
+            p = (r.choice((ASH[0] - 1.2, ASH[1] + 1.2, MAR[0] - 1.2, MAR[1] + 1.2)), r.uniform(28, 96), SW)
+        spots.append(('MI_Decal_Leaves', p, r.uniform(1.5, 3.0)))
+    for _ in range(10):                                   # the park
+        spots.append(('MI_Decal_Leaves', (r.uniform(-19, 17), r.uniform(53, 93), SW + 0.03), r.uniform(2.0, 4.0)))
+    for x, y in ((-60.0, 76.0), (-58.0, 90.0), (-26.0, 120.0), (-40.0, 128.0)):
+        spots.append(('MI_Decal_Mud', (x, y, SW), r.uniform(2.0, 3.5)))
+    for mat_name, (x, y, z), size in spots:
+        BH.decal(mat_name, (x, y, z + 0.02), (size, size * r.uniform(0.6, 1.0)), rot=(0, 0, r.uniform(0, 360)),
+                 depth=0.4, name=mat_name.replace('MI_Decal_', 'Decal_'))
+
+
 def build():
     streets()
     south_side()
@@ -941,4 +971,5 @@ def build():
     park()
     street_furniture()
     edges()
+    decals()
     ambience()

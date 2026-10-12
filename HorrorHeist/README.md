@@ -29,8 +29,8 @@ der SIL Open Font License (`Content/Slate/Fonts/Licenses`).
 1. **`Build-HorrorHeist.bat`** doppelklicken (findet UE 5.5, erzeugt `HorrorHeist.sln`, kompiliert
    **HorrorHeistEditor** Win64 Development; Protokoll in **`BuildLog.txt`**).
 2. Editor öffnen. Beim **ersten Start** fragt ein Dialog nach dem Aufbau der Inhalte → **Yes**. Das Setup
-   (`Content/Python/hh_setup`) importiert alles aus `SourceArt/` (Texturen, ~175 Sounds, ~330 Meshes,
-   Animationen), erzeugt Materialien, baut **fünf Maps** (siehe unten) und danach alle Data Assets
+   (`Content/Python/hh_setup`) importiert alles aus `SourceArt/` (~256 Texturen, 175 Sounds, ~355 statische
+   Meshes, 18 Skeletal-Meshes, 6 Animationen), erzeugt Materialien, baut **fünf Maps** (siehe unten) und danach alle Data Assets
    (Kosmetik, Ausrüstung, 24 Beutestücke, Jobs). Das dauert je nach Rechner 10–20 Minuten.
    - Am Ende erscheint eine Zusammenfassung; **jede Warnung** steht vollständig in
      **`Saved/HHSetup_Report.txt`** (und im Output Log, Filter „HH Setup“).

@@ -99,6 +99,18 @@ def build_loot(cat):
             _set(a, pickup_sound=sound)
 
 
+def _set_map(asset, package):
+    """Point a mission's soft world reference at a map (soft path first, the loaded world as fallback)."""
+    path = package + '.' + package.rsplit('/', 1)[1]
+    for value in (lambda: unreal.SoftObjectPath(path), lambda: U.EAL.load_asset(package)):
+        try:
+            asset.set_editor_property('map', value())
+            return
+        except Exception:  # noqa: BLE001 - try the next representation
+            continue
+    U.warn(f'{asset.get_name()}: could not assign map {package}')
+
+
 def build_missions(cat):
     folder = DATA + '/Missions'
     for e in cat['missions']:
@@ -119,7 +131,7 @@ def build_missions(cat):
              house_tag=unreal.Name(e.get('house') or 'None'))
         if e.get('map'):
             if U.EAL.does_asset_exist(e['map']):
-                _set(a, map=unreal.SoftObjectPath(e['map'] + '.' + e['map'].rsplit('/', 1)[1]))
+                _set_map(a, e['map'])
             else:
                 U.warn(f"{e['id']}: map {e['map']} does not exist yet (run the Level step, then Data again)")
 

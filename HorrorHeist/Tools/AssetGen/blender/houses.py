@@ -8,8 +8,6 @@ Local frame: front facade on y = 0 facing -Y, the house extends to +Y (depth d),
 w/2, z = 0 at yard level. Floor i (0 = ground) is at base + i * fh; the basement floor at
 base - basement_h.
 """
-import math
-
 import worldkit as K
 from worldkit import T_EXT, T_INT, TRIM
 

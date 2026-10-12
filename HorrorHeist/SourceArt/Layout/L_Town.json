@@ -799,7 +799,9 @@
      ],
      "InnerConeAngle": 30,
      "OuterConeAngle": 55,
-     "SourceRadius": 4
+     "SourceRadius": 4,
+     "MaxDrawDistance": 5000.0,
+     "MaxDistanceFadeRange": 1000.0
     }
    },
    "tags": [
@@ -857,7 +859,9 @@
      ],
      "InnerConeAngle": 30,
      "OuterConeAngle": 55,
-     "SourceRadius": 4
+     "SourceRadius": 4,
+     "MaxDrawDistance": 5000.0,
+     "MaxDistanceFadeRange": 1000.0
     }
    },
    "tags": [
@@ -915,7 +919,9 @@
      ],
      "InnerConeAngle": 30,
      "OuterConeAngle": 55,
-     "SourceRadius": 4
+     "SourceRadius": 4,
+     "MaxDrawDistance": 5000.0,
+     "MaxDistanceFadeRange": 1000.0
     }
    },
    "tags": [
@@ -1084,7 +1090,9 @@
      ],
      "InnerConeAngle": 40,
      "OuterConeAngle": 70,
-     "SourceRadius": 3
+     "SourceRadius": 3,
+     "MaxDrawDistance": 5000.0,
+     "MaxDistanceFadeRange": 1000.0
     },
     "Fixture": {
      "CastShadow": false,
@@ -1962,7 +1970,9 @@
      ],
      "InnerConeAngle": 50,
      "OuterConeAngle": 80,
-     "SourceRadius": 10
+     "SourceRadius": 10,
+     "MaxDrawDistance": 5000.0,
+     "MaxDistanceFadeRange": 1000.0
     }
    },
    "tags": [
@@ -2018,7 +2028,9 @@
       0.3,
       0.25
      ],
-     "SourceRadius": 3.0
+     "SourceRadius": 3.0,
+     "MaxDrawDistance": 5000.0,
+     "MaxDistanceFadeRange": 1000.0
     }
    },
    "tags": [
@@ -2386,7 +2398,9 @@
      ],
      "InnerConeAngle": 50,
      "OuterConeAngle": 80,
-     "SourceRadius": 10
+     "SourceRadius": 10,
+     "MaxDrawDistance": 5000.0,
+     "MaxDistanceFadeRange": 1000.0
     }
    },
    "tags": [
@@ -2732,7 +2746,9 @@
      ],
      "InnerConeAngle": 50,
      "OuterConeAngle": 80,
-     "SourceRadius": 10
+     "SourceRadius": 10,
+     "MaxDrawDistance": 5000.0,
+     "MaxDistanceFadeRange": 1000.0
     }
    },
    "tags": [
@@ -2856,7 +2872,9 @@
      ],
      "InnerConeAngle": 18,
      "OuterConeAngle": 32,
-     "SourceRadius": 2
+     "SourceRadius": 2,
+     "MaxDrawDistance": 5000.0,
+     "MaxDistanceFadeRange": 1000.0
     }
    }
   },
@@ -2971,7 +2989,9 @@
      "AttenuationRadius": 500,
      "CastShadows": true,
      "VolumetricScatteringIntensity": 1.0,
-     "SourceRadius": 2
+     "SourceRadius": 2,
+     "MaxDrawDistance": 5000.0,
+     "MaxDistanceFadeRange": 1000.0
     },
     "Fixture": {
      "CastShadow": false,
@@ -3029,7 +3049,9 @@
      "AttenuationRadius": 500,
      "CastShadows": true,
      "VolumetricScatteringIntensity": 1.0,
-     "SourceRadius": 2
+     "SourceRadius": 2,
+     "MaxDrawDistance": 5000.0,
+     "MaxDistanceFadeRange": 1000.0
     },
     "Fixture": {
      "CastShadow": false,
@@ -3395,7 +3417,9 @@
       0.7,
       0.4
      ],
-     "SourceRadius": 3.0
+     "SourceRadius": 3.0,
+     "MaxDrawDistance": 5000.0,
+     "MaxDistanceFadeRange": 1000.0
     }
    }
   },
@@ -3451,7 +3475,9 @@
      ],
      "InnerConeAngle": 40,
      "OuterConeAngle": 70,
-     "SourceRadius": 3
+     "SourceRadius": 3,
+     "MaxDrawDistance": 5000.0,
+     "MaxDistanceFadeRange": 1000.0
     },
     "Fixture": {
      "CastShadow": false,
@@ -4454,7 +4480,9 @@
      "AttenuationRadius": 600,
      "CastShadows": true,
      "VolumetricScatteringIntensity": 1.0,
-     "SourceRadius": 2
+     "SourceRadius": 2,
+     "MaxDrawDistance": 5000.0,
+     "MaxDistanceFadeRange": 1000.0
     },
     "Fixture": {
      "CastShadow": false,
@@ -5409,7 +5437,9 @@
      "AttenuationRadius": 600,
      "CastShadows": true,
      "VolumetricScatteringIntensity": 1.0,
-     "SourceRadius": 2
+     "SourceRadius": 2,
+     "MaxDrawDistance": 5000.0,
+     "MaxDistanceFadeRange": 1000.0
     },
     "Fixture": {
      "CastShadow": false,
@@ -6531,7 +6561,9 @@
      "AttenuationRadius": 600,
      "CastShadows": true,
      "VolumetricScatteringIntensity": 1.0,
-     "SourceRadius": 2
+     "SourceRadius": 2,
+     "MaxDrawDistance": 5000.0,
+     "MaxDistanceFadeRange": 1000.0
     },
     "Fixture": {
      "CastShadow": false,
@@ -7486,7 +7518,9 @@
      "AttenuationRadius": 600,
      "CastShadows": true,
      "VolumetricScatteringIntensity": 1.0,
-     "SourceRadius": 2
+     "SourceRadius": 2,
+     "MaxDrawDistance": 5000.0,
+     "MaxDistanceFadeRange": 1000.0
     },
     "Fixture": {
      "CastShadow": false,
@@ -8608,7 +8642,9 @@
      "AttenuationRadius": 600,
      "CastShadows": true,
      "VolumetricScatteringIntensity": 1.0,
-     "SourceRadius": 2
+     "SourceRadius": 2,
+     "MaxDrawDistance": 5000.0,
+     "MaxDistanceFadeRange": 1000.0
     },
     "Fixture": {
      "CastShadow": false,
@@ -9752,7 +9788,9 @@
      "AttenuationRadius": 600,
      "CastShadows": true,
      "VolumetricScatteringIntensity": 1.0,
-     "SourceRadius": 2
+     "SourceRadius": 2,
+     "MaxDrawDistance": 5000.0,
+     "MaxDistanceFadeRange": 1000.0
     },
     "Fixture": {
      "CastShadow": false,
@@ -10874,7 +10912,9 @@
      "AttenuationRadius": 600,
      "CastShadows": true,
      "VolumetricScatteringIntensity": 1.0,
-     "SourceRadius": 2
+     "SourceRadius": 2,
+     "MaxDrawDistance": 5000.0,
+     "MaxDistanceFadeRange": 1000.0
     },
     "Fixture": {
      "CastShadow": false,
@@ -11996,7 +12036,9 @@
      "AttenuationRadius": 600,
      "CastShadows": true,
      "VolumetricScatteringIntensity": 1.0,
-     "SourceRadius": 2
+     "SourceRadius": 2,
+     "MaxDrawDistance": 5000.0,
+     "MaxDistanceFadeRange": 1000.0
     },
     "Fixture": {
      "CastShadow": false,
@@ -12951,7 +12993,9 @@
      "AttenuationRadius": 600,
      "CastShadows": true,
      "VolumetricScatteringIntensity": 1.0,
-     "SourceRadius": 2
+     "SourceRadius": 2,
+     "MaxDrawDistance": 5000.0,
+     "MaxDistanceFadeRange": 1000.0
     },
     "Fixture": {
      "CastShadow": false,
@@ -13901,7 +13945,9 @@
      ],
      "InnerConeAngle": 42,
      "OuterConeAngle": 72,
-     "SourceRadius": 10
+     "SourceRadius": 10,
+     "MaxDrawDistance": 5000.0,
+     "MaxDistanceFadeRange": 1000.0
     },
     "Fixture": {
      "CastShadow": false,
@@ -13971,7 +14017,9 @@
      ],
      "InnerConeAngle": 42,
      "OuterConeAngle": 72,
-     "SourceRadius": 10
+     "SourceRadius": 10,
+     "MaxDrawDistance": 5000.0,
+     "MaxDistanceFadeRange": 1000.0
     },
     "Fixture": {
      "CastShadow": false,
@@ -14393,7 +14441,9 @@
      ],
      "InnerConeAngle": 42,
      "OuterConeAngle": 72,
-     "SourceRadius": 10
+     "SourceRadius": 10,
+     "MaxDrawDistance": 5000.0,
+     "MaxDistanceFadeRange": 1000.0
     },
     "Fixture": {
      "CastShadow": false,
@@ -14463,7 +14513,9 @@
      ],
      "InnerConeAngle": 42,
      "OuterConeAngle": 72,
-     "SourceRadius": 10
+     "SourceRadius": 10,
+     "MaxDrawDistance": 5000.0,
+     "MaxDistanceFadeRange": 1000.0
     },
     "Fixture": {
      "CastShadow": false,
@@ -14533,7 +14585,9 @@
      ],
      "InnerConeAngle": 42,
      "OuterConeAngle": 72,
-     "SourceRadius": 10
+     "SourceRadius": 10,
+     "MaxDrawDistance": 5000.0,
+     "MaxDistanceFadeRange": 1000.0
     },
     "Fixture": {
      "CastShadow": false,
@@ -14603,7 +14657,9 @@
      ],
      "InnerConeAngle": 42,
      "OuterConeAngle": 72,
-     "SourceRadius": 10
+     "SourceRadius": 10,
+     "MaxDrawDistance": 5000.0,
+     "MaxDistanceFadeRange": 1000.0
     },
     "Fixture": {
      "CastShadow": false,
@@ -14673,7 +14729,9 @@
      ],
      "InnerConeAngle": 42,
      "OuterConeAngle": 72,
-     "SourceRadius": 10
+     "SourceRadius": 10,
+     "MaxDrawDistance": 5000.0,
+     "MaxDistanceFadeRange": 1000.0
     },
     "Fixture": {
      "CastShadow": false,
@@ -14743,7 +14801,9 @@
      ],
      "InnerConeAngle": 42,
      "OuterConeAngle": 72,
-     "SourceRadius": 10
+     "SourceRadius": 10,
+     "MaxDrawDistance": 5000.0,
+     "MaxDistanceFadeRange": 1000.0
     },
     "Fixture": {
      "CastShadow": false,
@@ -14813,7 +14873,9 @@
      ],
      "InnerConeAngle": 42,
      "OuterConeAngle": 72,
-     "SourceRadius": 10
+     "SourceRadius": 10,
+     "MaxDrawDistance": 5000.0,
+     "MaxDistanceFadeRange": 1000.0
     },
     "Fixture": {
      "CastShadow": false,
@@ -14883,7 +14945,9 @@
      ],
      "InnerConeAngle": 42,
      "OuterConeAngle": 72,
-     "SourceRadius": 10
+     "SourceRadius": 10,
+     "MaxDrawDistance": 5000.0,
+     "MaxDistanceFadeRange": 1000.0
     },
     "Fixture": {
      "CastShadow": false,
@@ -14953,7 +15017,9 @@
      ],
      "InnerConeAngle": 42,
      "OuterConeAngle": 72,
-     "SourceRadius": 10
+     "SourceRadius": 10,
+     "MaxDrawDistance": 5000.0,
+     "MaxDistanceFadeRange": 1000.0
     },
     "Fixture": {
      "CastShadow": false,
@@ -15023,7 +15089,9 @@
      ],
      "InnerConeAngle": 42,
      "OuterConeAngle": 72,
-     "SourceRadius": 10
+     "SourceRadius": 10,
+     "MaxDrawDistance": 5000.0,
+     "MaxDistanceFadeRange": 1000.0
     },
     "Fixture": {
      "CastShadow": false,
@@ -15093,7 +15161,9 @@
      ],
      "InnerConeAngle": 42,
      "OuterConeAngle": 72,
-     "SourceRadius": 10
+     "SourceRadius": 10,
+     "MaxDrawDistance": 5000.0,
+     "MaxDistanceFadeRange": 1000.0
     },
     "Fixture": {
      "CastShadow": false,
@@ -15163,7 +15233,9 @@
      ],
      "InnerConeAngle": 42,
      "OuterConeAngle": 72,
-     "SourceRadius": 10
+     "SourceRadius": 10,
+     "MaxDrawDistance": 5000.0,
+     "MaxDistanceFadeRange": 1000.0
     },
     "Fixture": {
      "CastShadow": false,
@@ -15233,7 +15305,9 @@
      ],
      "InnerConeAngle": 42,
      "OuterConeAngle": 72,
-     "SourceRadius": 10
+     "SourceRadius": 10,
+     "MaxDrawDistance": 5000.0,
+     "MaxDistanceFadeRange": 1000.0
     },
     "Fixture": {
      "CastShadow": false,
@@ -15303,7 +15377,9 @@
      ],
      "InnerConeAngle": 42,
      "OuterConeAngle": 72,
-     "SourceRadius": 10
+     "SourceRadius": 10,
+     "MaxDrawDistance": 5000.0,
+     "MaxDistanceFadeRange": 1000.0
     },
     "Fixture": {
      "CastShadow": false,
@@ -15373,7 +15449,9 @@
      ],
      "InnerConeAngle": 42,
      "OuterConeAngle": 72,
-     "SourceRadius": 10
+     "SourceRadius": 10,
+     "MaxDrawDistance": 5000.0,
+     "MaxDistanceFadeRange": 1000.0
     },
     "Fixture": {
      "CastShadow": false,
@@ -15443,7 +15521,9 @@
      ],
      "InnerConeAngle": 42,
      "OuterConeAngle": 72,
-     "SourceRadius": 10
+     "SourceRadius": 10,
+     "MaxDrawDistance": 5000.0,
+     "MaxDistanceFadeRange": 1000.0
     },
     "Fixture": {
      "CastShadow": false,
@@ -15513,7 +15593,9 @@
      ],
      "InnerConeAngle": 42,
      "OuterConeAngle": 72,
-     "SourceRadius": 10
+     "SourceRadius": 10,
+     "MaxDrawDistance": 5000.0,
+     "MaxDistanceFadeRange": 1000.0
     },
     "Fixture": {
      "CastShadow": false,
@@ -15583,7 +15665,9 @@
      ],
      "InnerConeAngle": 42,
      "OuterConeAngle": 72,
-     "SourceRadius": 10
+     "SourceRadius": 10,
+     "MaxDrawDistance": 5000.0,
+     "MaxDistanceFadeRange": 1000.0
     },
     "Fixture": {
      "CastShadow": false,
@@ -15653,7 +15737,9 @@
      ],
      "InnerConeAngle": 42,
      "OuterConeAngle": 72,
-     "SourceRadius": 10
+     "SourceRadius": 10,
+     "MaxDrawDistance": 5000.0,
+     "MaxDistanceFadeRange": 1000.0
     },
     "Fixture": {
      "CastShadow": false,
@@ -15723,7 +15809,9 @@
      ],
      "InnerConeAngle": 42,
      "OuterConeAngle": 72,
-     "SourceRadius": 10
+     "SourceRadius": 10,
+     "MaxDrawDistance": 5000.0,
+     "MaxDistanceFadeRange": 1000.0
     },
     "Fixture": {
      "CastShadow": false,
@@ -15793,7 +15881,9 @@
      ],
      "InnerConeAngle": 42,
      "OuterConeAngle": 72,
-     "SourceRadius": 10
+     "SourceRadius": 10,
+     "MaxDrawDistance": 5000.0,
+     "MaxDistanceFadeRange": 1000.0
     },
     "Fixture": {
      "CastShadow": false,
@@ -15863,7 +15953,9 @@
      ],
      "InnerConeAngle": 42,
      "OuterConeAngle": 72,
-     "SourceRadius": 10
+     "SourceRadius": 10,
+     "MaxDrawDistance": 5000.0,
+     "MaxDistanceFadeRange": 1000.0
     },
     "Fixture": {
      "CastShadow": false,
@@ -15933,7 +16025,9 @@
      ],
      "InnerConeAngle": 42,
      "OuterConeAngle": 72,
-     "SourceRadius": 10
+     "SourceRadius": 10,
+     "MaxDrawDistance": 5000.0,
+     "MaxDistanceFadeRange": 1000.0
     },
     "Fixture": {
      "CastShadow": false,
@@ -16003,7 +16097,9 @@
      ],
      "InnerConeAngle": 42,
      "OuterConeAngle": 72,
-     "SourceRadius": 10
+     "SourceRadius": 10,
+     "MaxDrawDistance": 5000.0,
+     "MaxDistanceFadeRange": 1000.0
     },
     "Fixture": {
      "CastShadow": false,
@@ -16073,7 +16169,9 @@
      ],
      "InnerConeAngle": 42,
      "OuterConeAngle": 72,
-     "SourceRadius": 10
+     "SourceRadius": 10,
+     "MaxDrawDistance": 5000.0,
+     "MaxDistanceFadeRange": 1000.0
     },
     "Fixture": {
      "CastShadow": false,
@@ -16143,7 +16241,9 @@
      ],
      "InnerConeAngle": 42,
      "OuterConeAngle": 72,
-     "SourceRadius": 10
+     "SourceRadius": 10,
+     "MaxDrawDistance": 5000.0,
+     "MaxDistanceFadeRange": 1000.0
     },
     "Fixture": {
      "CastShadow": false,
@@ -16213,7 +16313,9 @@
      ],
      "InnerConeAngle": 42,
      "OuterConeAngle": 72,
-     "SourceRadius": 10
+     "SourceRadius": 10,
+     "MaxDrawDistance": 5000.0,
+     "MaxDistanceFadeRange": 1000.0
     },
     "Fixture": {
      "CastShadow": false,
@@ -16283,7 +16385,9 @@
      ],
      "InnerConeAngle": 42,
      "OuterConeAngle": 72,
-     "SourceRadius": 10
+     "SourceRadius": 10,
+     "MaxDrawDistance": 5000.0,
+     "MaxDistanceFadeRange": 1000.0
     },
     "Fixture": {
      "CastShadow": false,
@@ -16353,7 +16457,9 @@
      ],
      "InnerConeAngle": 42,
      "OuterConeAngle": 72,
-     "SourceRadius": 10
+     "SourceRadius": 10,
+     "MaxDrawDistance": 5000.0,
+     "MaxDistanceFadeRange": 1000.0
     },
     "Fixture": {
      "CastShadow": false,
@@ -16423,7 +16529,9 @@
      ],
      "InnerConeAngle": 42,
      "OuterConeAngle": 72,
-     "SourceRadius": 10
+     "SourceRadius": 10,
+     "MaxDrawDistance": 5000.0,
+     "MaxDistanceFadeRange": 1000.0
     },
     "Fixture": {
      "CastShadow": false,
@@ -16493,7 +16601,9 @@
      ],
      "InnerConeAngle": 42,
      "OuterConeAngle": 72,
-     "SourceRadius": 10
+     "SourceRadius": 10,
+     "MaxDrawDistance": 5000.0,
+     "MaxDistanceFadeRange": 1000.0
     },
     "Fixture": {
      "CastShadow": false,
@@ -16563,7 +16673,9 @@
      ],
      "InnerConeAngle": 42,
      "OuterConeAngle": 72,
-     "SourceRadius": 10
+     "SourceRadius": 10,
+     "MaxDrawDistance": 5000.0,
+     "MaxDistanceFadeRange": 1000.0
     },
     "Fixture": {
      "CastShadow": false,
@@ -16633,7 +16745,9 @@
      ],
      "InnerConeAngle": 42,
      "OuterConeAngle": 72,
-     "SourceRadius": 10
+     "SourceRadius": 10,
+     "MaxDrawDistance": 5000.0,
+     "MaxDistanceFadeRange": 1000.0
     },
     "Fixture": {
      "CastShadow": false,
@@ -16703,7 +16817,9 @@
      ],
      "InnerConeAngle": 42,
      "OuterConeAngle": 72,
-     "SourceRadius": 10
+     "SourceRadius": 10,
+     "MaxDrawDistance": 5000.0,
+     "MaxDistanceFadeRange": 1000.0
     },
     "Fixture": {
      "CastShadow": false,
@@ -16773,7 +16889,9 @@
      ],
      "InnerConeAngle": 42,
      "OuterConeAngle": 72,
-     "SourceRadius": 10
+     "SourceRadius": 10,
+     "MaxDrawDistance": 5000.0,
+     "MaxDistanceFadeRange": 1000.0
     },
     "Fixture": {
      "CastShadow": false,
@@ -16843,7 +16961,9 @@
      ],
      "InnerConeAngle": 35,
      "OuterConeAngle": 65,
-     "SourceRadius": 10
+     "SourceRadius": 10,
+     "MaxDrawDistance": 5000.0,
+     "MaxDistanceFadeRange": 1000.0
     },
     "Fixture": {
      "CastShadow": false,
@@ -22323,6 +22443,2946 @@
    }
   },
   {
+   "name": "Decal_Puddle_1",
+   "cls": "DecalActor",
+   "folder": "Decals",
+   "location": [
+    3214.545,
+    -1740.0,
+    247.0
+   ],
+   "quat": [
+    0.600237,
+    0.373786,
+    -0.600237,
+    0.373786
+   ],
+   "scale": [
+    1.0,
+    1.0,
+    1.0
+   ],
+   "properties": {
+    "DecalMaterial": {
+     "asset": "MI_Decal_Puddle"
+    }
+   },
+   "components": {
+    "Decal": {
+     "DecalSize": [
+      20.0,
+      144.77997928665886,
+      99.50331673675828
+     ]
+    }
+   }
+  },
+  {
+   "name": "Decal_Puddle_2",
+   "cls": "DecalActor",
+   "folder": "Decals",
+   "location": [
+    -2975.707,
+    -2360.0,
+    247.0
+   ],
+   "quat": [
+    0.536568,
+    0.460538,
+    -0.536568,
+    0.460538
+   ],
+   "scale": [
+    1.0,
+    1.0,
+    1.0
+   ],
+   "properties": {
+    "DecalMaterial": {
+     "asset": "MI_Decal_Puddle"
+    }
+   },
+   "components": {
+    "Decal": {
+     "DecalSize": [
+      20.0,
+      122.91434602901785,
+      106.32394490969845
+     ]
+    }
+   }
+  },
+  {
+   "name": "Decal_Puddle_3",
+   "cls": "DecalActor",
+   "folder": "Decals",
+   "location": [
+    6752.245,
+    -2360.0,
+    247.0
+   ],
+   "quat": [
+    -0.705794,
+    0.043071,
+    0.705794,
+    0.043071
+   ],
+   "scale": [
+    1.0,
+    1.0,
+    1.0
+   ],
+   "properties": {
+    "DecalMaterial": {
+     "asset": "MI_Decal_Puddle"
+    }
+   },
+   "components": {
+    "Decal": {
+     "DecalSize": [
+      20.0,
+      105.52328162980236,
+      89.06368830528353
+     ]
+    }
+   }
+  },
+  {
+   "name": "Decal_Puddle_4",
+   "cls": "DecalActor",
+   "folder": "Decals",
+   "location": [
+    7600.603,
+    -1740.0,
+    247.0
+   ],
+   "quat": [
+    -0.37982,
+    0.596437,
+    0.37982,
+    0.596437
+   ],
+   "scale": [
+    1.0,
+    1.0,
+    1.0
+   ],
+   "properties": {
+    "DecalMaterial": {
+     "asset": "MI_Decal_Puddle"
+    }
+   },
+   "components": {
+    "Decal": {
+     "DecalSize": [
+      20.0,
+      60.929667762344465,
+      53.515955221013925
+     ]
+    }
+   }
+  },
+  {
+   "name": "Decal_Puddle_5",
+   "cls": "DecalActor",
+   "folder": "Decals",
+   "location": [
+    5094.518,
+    -1808.423,
+    247.0
+   ],
+   "quat": [
+    -0.639768,
+    0.301159,
+    0.639768,
+    0.301159
+   ],
+   "scale": [
+    1.0,
+    1.0,
+    1.0
+   ],
+   "properties": {
+    "DecalMaterial": {
+     "asset": "MI_Decal_Puddle"
+    }
+   },
+   "components": {
+    "Decal": {
+     "DecalSize": [
+      20.0,
+      118.033406013552,
+      71.81572592589227
+     ]
+    }
+   }
+  },
+  {
+   "name": "Decal_Puddle_6",
+   "cls": "DecalActor",
+   "folder": "Decals",
+   "location": [
+    1248.479,
+    -1740.0,
+    247.0
+   ],
+   "quat": [
+    -0.441789,
+    0.552107,
+    0.441789,
+    0.552107
+   ],
+   "scale": [
+    1.0,
+    1.0,
+    1.0
+   ],
+   "properties": {
+    "DecalMaterial": {
+     "asset": "MI_Decal_Puddle"
+    }
+   },
+   "components": {
+    "Decal": {
+     "DecalSize": [
+      20.0,
+      129.08930392146604,
+      123.46043865832807
+     ]
+    }
+   }
+  },
+  {
+   "name": "Decal_Puddle_7",
+   "cls": "DecalActor",
+   "folder": "Decals",
+   "location": [
+    1774.043,
+    -1740.0,
+    247.0
+   ],
+   "quat": [
+    0.688863,
+    0.159584,
+    -0.688863,
+    0.159584
+   ],
+   "scale": [
+    1.0,
+    1.0,
+    1.0
+   ],
+   "properties": {
+    "DecalMaterial": {
+     "asset": "MI_Decal_Puddle"
+    }
+   },
+   "components": {
+    "Decal": {
+     "DecalSize": [
+      20.0,
+      113.00796859590925,
+      74.17596641810985
+     ]
+    }
+   }
+  },
+  {
+   "name": "Decal_Puddle_8",
+   "cls": "DecalActor",
+   "folder": "Decals",
+   "location": [
+    2059.418,
+    -2444.755,
+    247.0
+   ],
+   "quat": [
+    -0.565979,
+    0.423873,
+    0.565979,
+    0.423873
+   ],
+   "scale": [
+    1.0,
+    1.0,
+    1.0
+   ],
+   "properties": {
+    "DecalMaterial": {
+     "asset": "MI_Decal_Puddle"
+    }
+   },
+   "components": {
+    "Decal": {
+     "DecalSize": [
+      20.0,
+      118.70367915292674,
+      101.84868055946288
+     ]
+    }
+   }
+  },
+  {
+   "name": "Decal_Puddle_9",
+   "cls": "DecalActor",
+   "folder": "Decals",
+   "location": [
+    -5347.023,
+    -2360.0,
+    247.0
+   ],
+   "quat": [
+    0.688638,
+    0.160553,
+    -0.688638,
+    0.160553
+   ],
+   "scale": [
+    1.0,
+    1.0,
+    1.0
+   ],
+   "properties": {
+    "DecalMaterial": {
+     "asset": "MI_Decal_Puddle"
+    }
+   },
+   "components": {
+    "Decal": {
+     "DecalSize": [
+      20.0,
+      78.91788611801877,
+      60.92022451806274
+     ]
+    }
+   }
+  },
+  {
+   "name": "Decal_Puddle_10",
+   "cls": "DecalActor",
+   "folder": "Decals",
+   "location": [
+    1409.073,
+    -1740.0,
+    247.0
+   ],
+   "quat": [
+    0.452245,
+    0.543575,
+    -0.452245,
+    0.543575
+   ],
+   "scale": [
+    1.0,
+    1.0,
+    1.0
+   ],
+   "properties": {
+    "DecalMaterial": {
+     "asset": "MI_Decal_Puddle"
+    }
+   },
+   "components": {
+    "Decal": {
+     "DecalSize": [
+      20.0,
+      106.71970531325661,
+      83.35987438753095
+     ]
+    }
+   }
+  },
+  {
+   "name": "Decal_Puddle_11",
+   "cls": "DecalActor",
+   "folder": "Decals",
+   "location": [
+    -6147.016,
+    -2360.0,
+    247.0
+   ],
+   "quat": [
+    -0.695575,
+    0.127181,
+    0.695575,
+    0.127181
+   ],
+   "scale": [
+    1.0,
+    1.0,
+    1.0
+   ],
+   "properties": {
+    "DecalMaterial": {
+     "asset": "MI_Decal_Puddle"
+    }
+   },
+   "components": {
+    "Decal": {
+     "DecalSize": [
+      20.0,
+      94.66803866801861,
+      82.83047231509218
+     ]
+    }
+   }
+  },
+  {
+   "name": "Decal_Puddle_12",
+   "cls": "DecalActor",
+   "folder": "Decals",
+   "location": [
+    849.979,
+    -2360.0,
+    247.0
+   ],
+   "quat": [
+    0.217248,
+    0.672906,
+    -0.217248,
+    0.672906
+   ],
+   "scale": [
+    1.0,
+    1.0,
+    1.0
+   ],
+   "properties": {
+    "DecalMaterial": {
+     "asset": "MI_Decal_Puddle"
+    }
+   },
+   "components": {
+    "Decal": {
+     "DecalSize": [
+      20.0,
+      72.33773301519666,
+      47.39599376494585
+     ]
+    }
+   }
+  },
+  {
+   "name": "Decal_Puddle_13",
+   "cls": "DecalActor",
+   "folder": "Decals",
+   "location": [
+    -4649.697,
+    -2059.034,
+    247.0
+   ],
+   "quat": [
+    -0.45603,
+    0.540404,
+    0.45603,
+    0.540404
+   ],
+   "scale": [
+    1.0,
+    1.0,
+    1.0
+   ],
+   "properties": {
+    "DecalMaterial": {
+     "asset": "MI_Decal_Puddle"
+    }
+   },
+   "components": {
+    "Decal": {
+     "DecalSize": [
+      20.0,
+      118.46299698428722,
+      104.513711463908
+     ]
+    }
+   }
+  },
+  {
+   "name": "Decal_Puddle_14",
+   "cls": "DecalActor",
+   "folder": "Decals",
+   "location": [
+    3505.689,
+    -2360.0,
+    247.0
+   ],
+   "quat": [
+    0.373909,
+    0.60016,
+    -0.373909,
+    0.60016
+   ],
+   "scale": [
+    1.0,
+    1.0,
+    1.0
+   ],
+   "properties": {
+    "DecalMaterial": {
+     "asset": "MI_Decal_Puddle"
+    }
+   },
+   "components": {
+    "Decal": {
+     "DecalSize": [
+      20.0,
+      125.39990516458053,
+      118.58383400815828
+     ]
+    }
+   }
+  },
+  {
+   "name": "Decal_Puddle_15",
+   "cls": "DecalActor",
+   "folder": "Decals",
+   "location": [
+    -5502.707,
+    -2101.36,
+    247.0
+   ],
+   "quat": [
+    0.584016,
+    0.398655,
+    -0.584016,
+    0.398655
+   ],
+   "scale": [
+    1.0,
+    1.0,
+    1.0
+   ],
+   "properties": {
+    "DecalMaterial": {
+     "asset": "MI_Decal_Puddle"
+    }
+   },
+   "components": {
+    "Decal": {
+     "DecalSize": [
+      20.0,
+      76.19345266003236,
+      56.8956321221969
+     ]
+    }
+   }
+  },
+  {
+   "name": "Decal_Puddle_16",
+   "cls": "DecalActor",
+   "folder": "Decals",
+   "location": [
+    -5559.368,
+    -2360.0,
+    247.0
+   ],
+   "quat": [
+    0.548476,
+    0.446289,
+    -0.548476,
+    0.446289
+   ],
+   "scale": [
+    1.0,
+    1.0,
+    1.0
+   ],
+   "properties": {
+    "DecalMaterial": {
+     "asset": "MI_Decal_Puddle"
+    }
+   },
+   "components": {
+    "Decal": {
+     "DecalSize": [
+      20.0,
+      156.03216152677294,
+      95.6059553122973
+     ]
+    }
+   }
+  },
+  {
+   "name": "Decal_Puddle_17",
+   "cls": "DecalActor",
+   "folder": "Decals",
+   "location": [
+    -3123.357,
+    -1740.0,
+    247.0
+   ],
+   "quat": [
+    0.173868,
+    0.685398,
+    -0.173868,
+    0.685398
+   ],
+   "scale": [
+    1.0,
+    1.0,
+    1.0
+   ],
+   "properties": {
+    "DecalMaterial": {
+     "asset": "MI_Decal_Puddle"
+    }
+   },
+   "components": {
+    "Decal": {
+     "DecalSize": [
+      20.0,
+      126.8217209731431,
+      106.42120902444722
+     ]
+    }
+   }
+  },
+  {
+   "name": "Decal_Puddle_18",
+   "cls": "DecalActor",
+   "folder": "Decals",
+   "location": [
+    6212.406,
+    -2360.0,
+    247.0
+   ],
+   "quat": [
+    0.431573,
+    0.560129,
+    -0.431573,
+    0.560129
+   ],
+   "scale": [
+    1.0,
+    1.0,
+    1.0
+   ],
+   "properties": {
+    "DecalMaterial": {
+     "asset": "MI_Decal_Puddle"
+    }
+   },
+   "components": {
+    "Decal": {
+     "DecalSize": [
+      20.0,
+      86.8961729220502,
+      52.77761836716309
+     ]
+    }
+   }
+  },
+  {
+   "name": "Decal_Puddle_19",
+   "cls": "DecalActor",
+   "folder": "Decals",
+   "location": [
+    5068.335,
+    -7914.718,
+    247.0
+   ],
+   "quat": [
+    0.131821,
+    0.694711,
+    -0.131821,
+    0.694711
+   ],
+   "scale": [
+    1.0,
+    1.0,
+    1.0
+   ],
+   "properties": {
+    "DecalMaterial": {
+     "asset": "MI_Decal_Puddle"
+    }
+   },
+   "components": {
+    "Decal": {
+     "DecalSize": [
+      20.0,
+      62.872337160325564,
+      54.265456885221944
+     ]
+    }
+   }
+  },
+  {
+   "name": "Decal_Puddle_20",
+   "cls": "DecalActor",
+   "folder": "Decals",
+   "location": [
+    4640.007,
+    -8015.274,
+    247.0
+   ],
+   "quat": [
+    -0.706244,
+    0.034915,
+    0.706244,
+    0.034915
+   ],
+   "scale": [
+    1.0,
+    1.0,
+    1.0
+   ],
+   "properties": {
+    "DecalMaterial": {
+     "asset": "MI_Decal_Puddle"
+    }
+   },
+   "components": {
+    "Decal": {
+     "DecalSize": [
+      20.0,
+      70.58812785620428,
+      57.10720178081613
+     ]
+    }
+   }
+  },
+  {
+   "name": "Decal_Puddle_21",
+   "cls": "DecalActor",
+   "folder": "Decals",
+   "location": [
+    5018.584,
+    -4951.568,
+    247.0
+   ],
+   "quat": [
+    0.270258,
+    0.653422,
+    -0.270258,
+    0.653422
+   ],
+   "scale": [
+    1.0,
+    1.0,
+    1.0
+   ],
+   "properties": {
+    "DecalMaterial": {
+     "asset": "MI_Decal_Puddle"
+    }
+   },
+   "components": {
+    "Decal": {
+     "DecalSize": [
+      20.0,
+      95.37056080859739,
+      81.6112775331013
+     ]
+    }
+   }
+  },
+  {
+   "name": "Decal_Puddle_22",
+   "cls": "DecalActor",
+   "folder": "Decals",
+   "location": [
+    4698.773,
+    -3419.521,
+    247.0
+   ],
+   "quat": [
+    0.273405,
+    0.652112,
+    -0.273405,
+    0.652112
+   ],
+   "scale": [
+    1.0,
+    1.0,
+    1.0
+   ],
+   "properties": {
+    "DecalMaterial": {
+     "asset": "MI_Decal_Puddle"
+    }
+   },
+   "components": {
+    "Decal": {
+     "DecalSize": [
+      20.0,
+      112.84905901865376,
+      87.63150598368014
+     ]
+    }
+   }
+  },
+  {
+   "name": "Decal_Puddle_23",
+   "cls": "DecalActor",
+   "folder": "Decals",
+   "location": [
+    4608.797,
+    -4784.402,
+    247.0
+   ],
+   "quat": [
+    -0.691707,
+    0.146768,
+    0.691707,
+    0.146768
+   ],
+   "scale": [
+    1.0,
+    1.0,
+    1.0
+   ],
+   "properties": {
+    "DecalMaterial": {
+     "asset": "MI_Decal_Puddle"
+    }
+   },
+   "components": {
+    "Decal": {
+     "DecalSize": [
+      20.0,
+      57.081119870878894,
+      38.79528623940607
+     ]
+    }
+   }
+  },
+  {
+   "name": "Decal_Puddle_24",
+   "cls": "DecalActor",
+   "folder": "Decals",
+   "location": [
+    4817.348,
+    -7460.815,
+    247.0
+   ],
+   "quat": [
+    -0.706949,
+    0.014952,
+    0.706949,
+    0.014952
+   ],
+   "scale": [
+    1.0,
+    1.0,
+    1.0
+   ],
+   "properties": {
+    "DecalMaterial": {
+     "asset": "MI_Decal_Puddle"
+    }
+   },
+   "components": {
+    "Decal": {
+     "DecalSize": [
+      20.0,
+      56.275371955805,
+      39.47537919810918
+     ]
+    }
+   }
+  },
+  {
+   "name": "Decal_Puddle_25",
+   "cls": "DecalActor",
+   "folder": "Decals",
+   "location": [
+    4538.868,
+    -4605.884,
+    247.0
+   ],
+   "quat": [
+    0.237196,
+    0.666137,
+    -0.237196,
+    0.666137
+   ],
+   "scale": [
+    1.0,
+    1.0,
+    1.0
+   ],
+   "properties": {
+    "DecalMaterial": {
+     "asset": "MI_Decal_Puddle"
+    }
+   },
+   "components": {
+    "Decal": {
+     "DecalSize": [
+      20.0,
+      102.59055757019186,
+      82.79578714828081
+     ]
+    }
+   }
+  },
+  {
+   "name": "Decal_Puddle_26",
+   "cls": "DecalActor",
+   "folder": "Decals",
+   "location": [
+    -5108.344,
+    -7572.68,
+    247.0
+   ],
+   "quat": [
+    -0.515797,
+    0.483688,
+    0.515797,
+    0.483688
+   ],
+   "scale": [
+    1.0,
+    1.0,
+    1.0
+   ],
+   "properties": {
+    "DecalMaterial": {
+     "asset": "MI_Decal_Puddle"
+    }
+   },
+   "components": {
+    "Decal": {
+     "DecalSize": [
+      20.0,
+      68.37326346856673,
+      56.86383448362972
+     ]
+    }
+   }
+  },
+  {
+   "name": "Decal_Puddle_27",
+   "cls": "DecalActor",
+   "folder": "Decals",
+   "location": [
+    -4751.185,
+    -9072.122,
+    247.0
+   ],
+   "quat": [
+    0.661984,
+    0.248551,
+    -0.661984,
+    0.248551
+   ],
+   "scale": [
+    1.0,
+    1.0,
+    1.0
+   ],
+   "properties": {
+    "DecalMaterial": {
+     "asset": "MI_Decal_Puddle"
+    }
+   },
+   "components": {
+    "Decal": {
+     "DecalSize": [
+      20.0,
+      100.74495363909664,
+      66.55541929128562
+     ]
+    }
+   }
+  },
+  {
+   "name": "Decal_Puddle_28",
+   "cls": "DecalActor",
+   "folder": "Decals",
+   "location": [
+    -4587.513,
+    -8805.358,
+    247.0
+   ],
+   "quat": [
+    -0.671875,
+    0.220417,
+    0.671875,
+    0.220417
+   ],
+   "scale": [
+    1.0,
+    1.0,
+    1.0
+   ],
+   "properties": {
+    "DecalMaterial": {
+     "asset": "MI_Decal_Puddle"
+    }
+   },
+   "components": {
+    "Decal": {
+     "DecalSize": [
+      20.0,
+      56.08750994051673,
+      51.06412548370726
+     ]
+    }
+   }
+  },
+  {
+   "name": "Decal_Puddle_29",
+   "cls": "DecalActor",
+   "folder": "Decals",
+   "location": [
+    -4722.81,
+    -5529.524,
+    247.0
+   ],
+   "quat": [
+    0.625719,
+    0.329356,
+    -0.625719,
+    0.329356
+   ],
+   "scale": [
+    1.0,
+    1.0,
+    1.0
+   ],
+   "properties": {
+    "DecalMaterial": {
+     "asset": "MI_Decal_Puddle"
+    }
+   },
+   "components": {
+    "Decal": {
+     "DecalSize": [
+      20.0,
+      62.09005760923196,
+      40.73253218852112
+     ]
+    }
+   }
+  },
+  {
+   "name": "Decal_Puddle_30",
+   "cls": "DecalActor",
+   "folder": "Decals",
+   "location": [
+    -4660.122,
+    -5464.978,
+    247.0
+   ],
+   "quat": [
+    0.67948,
+    0.19572,
+    -0.679481,
+    0.19572
+   ],
+   "scale": [
+    1.0,
+    1.0,
+    1.0
+   ],
+   "properties": {
+    "DecalMaterial": {
+     "asset": "MI_Decal_Puddle"
+    }
+   },
+   "components": {
+    "Decal": {
+     "DecalSize": [
+      20.0,
+      79.83193334210311,
+      79.80341510820908
+     ]
+    }
+   }
+  },
+  {
+   "name": "Decal_Puddle_31",
+   "cls": "DecalActor",
+   "folder": "Decals",
+   "location": [
+    -4525.677,
+    -8588.74,
+    247.0
+   ],
+   "quat": [
+    -0.36217,
+    0.607316,
+    0.36217,
+    0.607316
+   ],
+   "scale": [
+    1.0,
+    1.0,
+    1.0
+   ],
+   "properties": {
+    "DecalMaterial": {
+     "asset": "MI_Decal_Puddle"
+    }
+   },
+   "components": {
+    "Decal": {
+     "DecalSize": [
+      20.0,
+      97.93455525064668,
+      94.2052854218732
+     ]
+    }
+   }
+  },
+  {
+   "name": "Decal_Puddle_32",
+   "cls": "DecalActor",
+   "folder": "Decals",
+   "location": [
+    -4906.769,
+    -7895.04,
+    247.0
+   ],
+   "quat": [
+    0.624286,
+    0.332066,
+    -0.624286,
+    0.332066
+   ],
+   "scale": [
+    1.0,
+    1.0,
+    1.0
+   ],
+   "properties": {
+    "DecalMaterial": {
+     "asset": "MI_Decal_Puddle"
+    }
+   },
+   "components": {
+    "Decal": {
+     "DecalSize": [
+      20.0,
+      121.90231403126215,
+      80.4244190771599
+     ]
+    }
+   }
+  },
+  {
+   "name": "Decal_Puddle_33",
+   "cls": "DecalActor",
+   "folder": "Decals",
+   "location": [
+    17.717,
+    279.998,
+    247.0
+   ],
+   "quat": [
+    -0.649268,
+    0.280091,
+    0.649268,
+    0.280091
+   ],
+   "scale": [
+    1.0,
+    1.0,
+    1.0
+   ],
+   "properties": {
+    "DecalMaterial": {
+     "asset": "MI_Decal_Puddle"
+    }
+   },
+   "components": {
+    "Decal": {
+     "DecalSize": [
+      20.0,
+      95.00878729501363,
+      87.13605975410839
+     ]
+    }
+   }
+  },
+  {
+   "name": "Decal_Puddle_34",
+   "cls": "DecalActor",
+   "folder": "Decals",
+   "location": [
+    2822.098,
+    -390.269,
+    247.0
+   ],
+   "quat": [
+    0.165065,
+    0.687571,
+    -0.165065,
+    0.687571
+   ],
+   "scale": [
+    1.0,
+    1.0,
+    1.0
+   ],
+   "properties": {
+    "DecalMaterial": {
+     "asset": "MI_Decal_Puddle"
+    }
+   },
+   "components": {
+    "Decal": {
+     "DecalSize": [
+      20.0,
+      96.34932824091509,
+      84.01450193264502
+     ]
+    }
+   }
+  },
+  {
+   "name": "Decal_Puddle_35",
+   "cls": "DecalActor",
+   "folder": "Decals",
+   "location": [
+    -1379.99,
+    -68.962,
+    247.0
+   ],
+   "quat": [
+    0.342851,
+    0.618428,
+    -0.342851,
+    0.618428
+   ],
+   "scale": [
+    1.0,
+    1.0,
+    1.0
+   ],
+   "properties": {
+    "DecalMaterial": {
+     "asset": "MI_Decal_Puddle"
+    }
+   },
+   "components": {
+    "Decal": {
+     "DecalSize": [
+      20.0,
+      74.00864127382114,
+      46.95198570534942
+     ]
+    }
+   }
+  },
+  {
+   "name": "Decal_Puddle_36",
+   "cls": "DecalActor",
+   "folder": "Decals",
+   "location": [
+    2742.334,
+    265.869,
+    247.0
+   ],
+   "quat": [
+    -0.011648,
+    0.707011,
+    0.011648,
+    0.707011
+   ],
+   "scale": [
+    1.0,
+    1.0,
+    1.0
+   ],
+   "properties": {
+    "DecalMaterial": {
+     "asset": "MI_Decal_Puddle"
+    }
+   },
+   "components": {
+    "Decal": {
+     "DecalSize": [
+      20.0,
+      129.65042175491615,
+      100.80934434873437
+     ]
+    }
+   }
+  },
+  {
+   "name": "Decal_Puddle_37",
+   "cls": "DecalActor",
+   "folder": "Decals",
+   "location": [
+    1186.844,
+    -320.945,
+    247.0
+   ],
+   "quat": [
+    -0.705966,
+    0.040156,
+    0.705966,
+    0.040156
+   ],
+   "scale": [
+    1.0,
+    1.0,
+    1.0
+   ],
+   "properties": {
+    "DecalMaterial": {
+     "asset": "MI_Decal_Puddle"
+    }
+   },
+   "components": {
+    "Decal": {
+     "DecalSize": [
+      20.0,
+      83.4535468800577,
+      82.90033772354913
+     ]
+    }
+   }
+  },
+  {
+   "name": "Decal_Puddle_38",
+   "cls": "DecalActor",
+   "folder": "Decals",
+   "location": [
+    3650.551,
+    446.299,
+    247.0
+   ],
+   "quat": [
+    -0.695015,
+    0.13021,
+    0.695015,
+    0.13021
+   ],
+   "scale": [
+    1.0,
+    1.0,
+    1.0
+   ],
+   "properties": {
+    "DecalMaterial": {
+     "asset": "MI_Decal_Puddle"
+    }
+   },
+   "components": {
+    "Decal": {
+     "DecalSize": [
+      20.0,
+      118.8599103583788,
+      90.24500618354062
+     ]
+    }
+   }
+  },
+  {
+   "name": "Decal_Puddle_39",
+   "cls": "DecalActor",
+   "folder": "Decals",
+   "location": [
+    -1214.934,
+    469.904,
+    247.0
+   ],
+   "quat": [
+    0.540391,
+    0.456045,
+    -0.540391,
+    0.456045
+   ],
+   "scale": [
+    1.0,
+    1.0,
+    1.0
+   ],
+   "properties": {
+    "DecalMaterial": {
+     "asset": "MI_Decal_Puddle"
+    }
+   },
+   "components": {
+    "Decal": {
+     "DecalSize": [
+      20.0,
+      84.62226998627325,
+      82.70143834270472
+     ]
+    }
+   }
+  },
+  {
+   "name": "Decal_Puddle_40",
+   "cls": "DecalActor",
+   "folder": "Decals",
+   "location": [
+    3367.07,
+    -940.756,
+    247.0
+   ],
+   "quat": [
+    0.320877,
+    0.630109,
+    -0.320877,
+    0.630109
+   ],
+   "scale": [
+    1.0,
+    1.0,
+    1.0
+   ],
+   "properties": {
+    "DecalMaterial": {
+     "asset": "MI_Decal_Puddle"
+    }
+   },
+   "components": {
+    "Decal": {
+     "DecalSize": [
+      20.0,
+      73.08724249119228,
+      54.16294365585716
+     ]
+    }
+   }
+  },
+  {
+   "name": "Decal_Puddle_41",
+   "cls": "DecalActor",
+   "folder": "Decals",
+   "location": [
+    -603.837,
+    820.435,
+    247.0
+   ],
+   "quat": [
+    0.274932,
+    0.651469,
+    -0.274932,
+    0.651469
+   ],
+   "scale": [
+    1.0,
+    1.0,
+    1.0
+   ],
+   "properties": {
+    "DecalMaterial": {
+     "asset": "MI_Decal_Puddle"
+    }
+   },
+   "components": {
+    "Decal": {
+     "DecalSize": [
+      20.0,
+      117.2472254573472,
+      94.62851446918468
+     ]
+    }
+   }
+  },
+  {
+   "name": "Decal_Puddle_42",
+   "cls": "DecalActor",
+   "folder": "Decals",
+   "location": [
+    3181.238,
+    -766.1,
+    247.0
+   ],
+   "quat": [
+    -0.587042,
+    0.394185,
+    0.587042,
+    0.394185
+   ],
+   "scale": [
+    1.0,
+    1.0,
+    1.0
+   ],
+   "properties": {
+    "DecalMaterial": {
+     "asset": "MI_Decal_Puddle"
+    }
+   },
+   "components": {
+    "Decal": {
+     "DecalSize": [
+      20.0,
+      79.50350437366974,
+      77.99436818448852
+     ]
+    }
+   }
+  },
+  {
+   "name": "Decal_Puddle_43",
+   "cls": "DecalActor",
+   "folder": "Decals",
+   "location": [
+    218.727,
+    -740.605,
+    247.0
+   ],
+   "quat": [
+    0.467979,
+    0.53009,
+    -0.467979,
+    0.53009
+   ],
+   "scale": [
+    1.0,
+    1.0,
+    1.0
+   ],
+   "properties": {
+    "DecalMaterial": {
+     "asset": "MI_Decal_Puddle"
+    }
+   },
+   "components": {
+    "Decal": {
+     "DecalSize": [
+      20.0,
+      70.9044160185734,
+      60.8751967416583
+     ]
+    }
+   }
+  },
+  {
+   "name": "Decal_Puddle_44",
+   "cls": "DecalActor",
+   "folder": "Decals",
+   "location": [
+    2284.63,
+    -119.498,
+    247.0
+   ],
+   "quat": [
+    0.616874,
+    0.345639,
+    -0.616874,
+    0.345639
+   ],
+   "scale": [
+    1.0,
+    1.0,
+    1.0
+   ],
+   "properties": {
+    "DecalMaterial": {
+     "asset": "MI_Decal_Puddle"
+    }
+   },
+   "components": {
+    "Decal": {
+     "DecalSize": [
+      20.0,
+      137.06955221046593,
+      112.37529805829945
+     ]
+    }
+   }
+  },
+  {
+   "name": "Decal_Puddle_45",
+   "cls": "DecalActor",
+   "folder": "Decals",
+   "location": [
+    -362.38,
+    -286.633,
+    247.0
+   ],
+   "quat": [
+    0.619163,
+    0.341523,
+    -0.619163,
+    0.341523
+   ],
+   "scale": [
+    1.0,
+    1.0,
+    1.0
+   ],
+   "properties": {
+    "DecalMaterial": {
+     "asset": "MI_Decal_Puddle"
+    }
+   },
+   "components": {
+    "Decal": {
+     "DecalSize": [
+      20.0,
+      133.10078510341236,
+      96.30563255642333
+     ]
+    }
+   }
+  },
+  {
+   "name": "Decal_Puddle_46",
+   "cls": "DecalActor",
+   "folder": "Decals",
+   "location": [
+    3425.876,
+    9.149,
+    247.0
+   ],
+   "quat": [
+    -0.671893,
+    0.220362,
+    0.671893,
+    0.220362
+   ],
+   "scale": [
+    1.0,
+    1.0,
+    1.0
+   ],
+   "properties": {
+    "DecalMaterial": {
+     "asset": "MI_Decal_Puddle"
+    }
+   },
+   "components": {
+    "Decal": {
+     "DecalSize": [
+      20.0,
+      86.57288555498512,
+      78.66318160206528
+     ]
+    }
+   }
+  },
+  {
+   "name": "Decal_Puddle_47",
+   "cls": "DecalActor",
+   "folder": "Decals",
+   "location": [
+    409.056,
+    832.082,
+    247.0
+   ],
+   "quat": [
+    0.697142,
+    0.118295,
+    -0.697142,
+    0.118295
+   ],
+   "scale": [
+    1.0,
+    1.0,
+    1.0
+   ],
+   "properties": {
+    "DecalMaterial": {
+     "asset": "MI_Decal_Puddle"
+    }
+   },
+   "components": {
+    "Decal": {
+     "DecalSize": [
+      20.0,
+      91.92180751425826,
+      67.85161844354346
+     ]
+    }
+   }
+  },
+  {
+   "name": "Decal_Puddle_48",
+   "cls": "DecalActor",
+   "folder": "Decals",
+   "location": [
+    2786.621,
+    -563.623,
+    247.0
+   ],
+   "quat": [
+    0.703233,
+    0.073915,
+    -0.703233,
+    0.073915
+   ],
+   "scale": [
+    1.0,
+    1.0,
+    1.0
+   ],
+   "properties": {
+    "DecalMaterial": {
+     "asset": "MI_Decal_Puddle"
+    }
+   },
+   "components": {
+    "Decal": {
+     "DecalSize": [
+      20.0,
+      63.25729260448368,
+      42.11296739053696
+     ]
+    }
+   }
+  },
+  {
+   "name": "Decal_Leaves_1",
+   "cls": "DecalActor",
+   "folder": "Decals",
+   "location": [
+    4280.0,
+    -3842.59,
+    262.0
+   ],
+   "quat": [
+    0.195816,
+    0.679453,
+    -0.195816,
+    0.679453
+   ],
+   "scale": [
+    1.0,
+    1.0,
+    1.0
+   ],
+   "properties": {
+    "DecalMaterial": {
+     "asset": "MI_Decal_Leaves"
+    }
+   },
+   "components": {
+    "Decal": {
+     "DecalSize": [
+      20.0,
+      80.9725554673106,
+      74.63108901940082
+     ]
+    }
+   }
+  },
+  {
+   "name": "Decal_Leaves_2",
+   "cls": "DecalActor",
+   "folder": "Decals",
+   "location": [
+    5320.0,
+    -7328.444,
+    262.0
+   ],
+   "quat": [
+    0.693389,
+    0.138606,
+    -0.693389,
+    0.138606
+   ],
+   "scale": [
+    1.0,
+    1.0,
+    1.0
+   ],
+   "properties": {
+    "DecalMaterial": {
+     "asset": "MI_Decal_Leaves"
+    }
+   },
+   "components": {
+    "Decal": {
+     "DecalSize": [
+      20.0,
+      78.46923671314914,
+      60.72300926656305
+     ]
+    }
+   }
+  },
+  {
+   "name": "Decal_Leaves_3",
+   "cls": "DecalActor",
+   "folder": "Decals",
+   "location": [
+    -7365.279,
+    -1530.0,
+    262.0
+   ],
+   "quat": [
+    0.682378,
+    0.185367,
+    -0.682378,
+    0.185367
+   ],
+   "scale": [
+    1.0,
+    1.0,
+    1.0
+   ],
+   "properties": {
+    "DecalMaterial": {
+     "asset": "MI_Decal_Leaves"
+    }
+   },
+   "components": {
+    "Decal": {
+     "DecalSize": [
+      20.0,
+      141.52866939308657,
+      111.76771742333109
+     ]
+    }
+   }
+  },
+  {
+   "name": "Decal_Leaves_4",
+   "cls": "DecalActor",
+   "folder": "Decals",
+   "location": [
+    -4280.0,
+    -9589.123,
+    262.0
+   ],
+   "quat": [
+    0.514758,
+    0.484793,
+    -0.514758,
+    0.484793
+   ],
+   "scale": [
+    1.0,
+    1.0,
+    1.0
+   ],
+   "properties": {
+    "DecalMaterial": {
+     "asset": "MI_Decal_Leaves"
+    }
+   },
+   "components": {
+    "Decal": {
+     "DecalSize": [
+      20.0,
+      108.54641673388001,
+      88.38378316559509
+     ]
+    }
+   }
+  },
+  {
+   "name": "Decal_Leaves_5",
+   "cls": "DecalActor",
+   "folder": "Decals",
+   "location": [
+    -5320.0,
+    -5301.81,
+    262.0
+   ],
+   "quat": [
+    -0.601934,
+    0.371046,
+    0.601934,
+    0.371046
+   ],
+   "scale": [
+    1.0,
+    1.0,
+    1.0
+   ],
+   "properties": {
+    "DecalMaterial": {
+     "asset": "MI_Decal_Leaves"
+    }
+   },
+   "components": {
+    "Decal": {
+     "DecalSize": [
+      20.0,
+      92.91860666459691,
+      87.80526973835738
+     ]
+    }
+   }
+  },
+  {
+   "name": "Decal_Leaves_6",
+   "cls": "DecalActor",
+   "folder": "Decals",
+   "location": [
+    -26.325,
+    -2570.0,
+    262.0
+   ],
+   "quat": [
+    0.133762,
+    0.69434,
+    -0.133762,
+    0.69434
+   ],
+   "scale": [
+    1.0,
+    1.0,
+    1.0
+   ],
+   "properties": {
+    "DecalMaterial": {
+     "asset": "MI_Decal_Leaves"
+    }
+   },
+   "components": {
+    "Decal": {
+     "DecalSize": [
+      20.0,
+      119.69258499458218,
+      86.55163217419147
+     ]
+    }
+   }
+  },
+  {
+   "name": "Decal_Leaves_7",
+   "cls": "DecalActor",
+   "folder": "Decals",
+   "location": [
+    4280.0,
+    -7395.417,
+    262.0
+   ],
+   "quat": [
+    -0.574669,
+    0.412014,
+    0.574669,
+    0.412014
+   ],
+   "scale": [
+    1.0,
+    1.0,
+    1.0
+   ],
+   "properties": {
+    "DecalMaterial": {
+     "asset": "MI_Decal_Leaves"
+    }
+   },
+   "components": {
+    "Decal": {
+     "DecalSize": [
+      20.0,
+      91.70915484146123,
+      68.53770812629905
+     ]
+    }
+   }
+  },
+  {
+   "name": "Decal_Leaves_8",
+   "cls": "DecalActor",
+   "folder": "Decals",
+   "location": [
+    -116.091,
+    -1530.0,
+    262.0
+   ],
+   "quat": [
+    0.304587,
+    0.638143,
+    -0.304587,
+    0.638143
+   ],
+   "scale": [
+    1.0,
+    1.0,
+    1.0
+   ],
+   "properties": {
+    "DecalMaterial": {
+     "asset": "MI_Decal_Leaves"
+    }
+   },
+   "components": {
+    "Decal": {
+     "DecalSize": [
+      20.0,
+      132.03559297007482,
+      91.47187922909707
+     ]
+    }
+   }
+  },
+  {
+   "name": "Decal_Leaves_9",
+   "cls": "DecalActor",
+   "folder": "Decals",
+   "location": [
+    7279.926,
+    -1530.0,
+    262.0
+   ],
+   "quat": [
+    -0.204123,
+    0.677004,
+    0.204123,
+    0.677003
+   ],
+   "scale": [
+    1.0,
+    1.0,
+    1.0
+   ],
+   "properties": {
+    "DecalMaterial": {
+     "asset": "MI_Decal_Leaves"
+    }
+   },
+   "components": {
+    "Decal": {
+     "DecalSize": [
+      20.0,
+      81.82506960691367,
+      80.87082671957822
+     ]
+    }
+   }
+  },
+  {
+   "name": "Decal_Leaves_10",
+   "cls": "DecalActor",
+   "folder": "Decals",
+   "location": [
+    4280.0,
+    -8040.135,
+    262.0
+   ],
+   "quat": [
+    -0.703734,
+    0.068983,
+    0.703734,
+    0.068983
+   ],
+   "scale": [
+    1.0,
+    1.0,
+    1.0
+   ],
+   "properties": {
+    "DecalMaterial": {
+     "asset": "MI_Decal_Leaves"
+    }
+   },
+   "components": {
+    "Decal": {
+     "DecalSize": [
+      20.0,
+      81.39063376465377,
+      56.24746163828931
+     ]
+    }
+   }
+  },
+  {
+   "name": "Decal_Leaves_11",
+   "cls": "DecalActor",
+   "folder": "Decals",
+   "location": [
+    2937.985,
+    -2570.0,
+    262.0
+   ],
+   "quat": [
+    -0.269559,
+    0.653711,
+    0.269559,
+    0.653711
+   ],
+   "scale": [
+    1.0,
+    1.0,
+    1.0
+   ],
+   "properties": {
+    "DecalMaterial": {
+     "asset": "MI_Decal_Leaves"
+    }
+   },
+   "components": {
+    "Decal": {
+     "DecalSize": [
+      20.0,
+      141.09915742474968,
+      114.39541774190978
+     ]
+    }
+   }
+  },
+  {
+   "name": "Decal_Leaves_12",
+   "cls": "DecalActor",
+   "folder": "Decals",
+   "location": [
+    -5320.0,
+    -7540.759,
+    262.0
+   ],
+   "quat": [
+    -0.660968,
+    0.25124,
+    0.660968,
+    0.25124
+   ],
+   "scale": [
+    1.0,
+    1.0,
+    1.0
+   ],
+   "properties": {
+    "DecalMaterial": {
+     "asset": "MI_Decal_Leaves"
+    }
+   },
+   "components": {
+    "Decal": {
+     "DecalSize": [
+      20.0,
+      132.49652961100088,
+      97.26927128865019
+     ]
+    }
+   }
+  },
+  {
+   "name": "Decal_Leaves_13",
+   "cls": "DecalActor",
+   "folder": "Decals",
+   "location": [
+    5320.0,
+    -5044.525,
+    262.0
+   ],
+   "quat": [
+    -0.250982,
+    0.661066,
+    0.250982,
+    0.661066
+   ],
+   "scale": [
+    1.0,
+    1.0,
+    1.0
+   ],
+   "properties": {
+    "DecalMaterial": {
+     "asset": "MI_Decal_Leaves"
+    }
+   },
+   "components": {
+    "Decal": {
+     "DecalSize": [
+      20.0,
+      76.468316933725,
+      65.99921247171005
+     ]
+    }
+   }
+  },
+  {
+   "name": "Decal_Leaves_14",
+   "cls": "DecalActor",
+   "folder": "Decals",
+   "location": [
+    -4992.992,
+    -1530.0,
+    262.0
+   ],
+   "quat": [
+    0.285091,
+    0.647088,
+    -0.285091,
+    0.647088
+   ],
+   "scale": [
+    1.0,
+    1.0,
+    1.0
+   ],
+   "properties": {
+    "DecalMaterial": {
+     "asset": "MI_Decal_Leaves"
+    }
+   },
+   "components": {
+    "Decal": {
+     "DecalSize": [
+      20.0,
+      123.75896690598711,
+      95.41447999200903
+     ]
+    }
+   }
+  },
+  {
+   "name": "Decal_Leaves_15",
+   "cls": "DecalActor",
+   "folder": "Decals",
+   "location": [
+    -5320.0,
+    -8475.817,
+    262.0
+   ],
+   "quat": [
+    -0.312857,
+    0.63413,
+    0.312857,
+    0.63413
+   ],
+   "scale": [
+    1.0,
+    1.0,
+    1.0
+   ],
+   "properties": {
+    "DecalMaterial": {
+     "asset": "MI_Decal_Leaves"
+    }
+   },
+   "components": {
+    "Decal": {
+     "DecalSize": [
+      20.0,
+      91.95527463075663,
+      61.779222714847194
+     ]
+    }
+   }
+  },
+  {
+   "name": "Decal_Leaves_16",
+   "cls": "DecalActor",
+   "folder": "Decals",
+   "location": [
+    4280.0,
+    -7941.642,
+    262.0
+   ],
+   "quat": [
+    0.432167,
+    0.559671,
+    -0.432167,
+    0.559671
+   ],
+   "scale": [
+    1.0,
+    1.0,
+    1.0
+   ],
+   "properties": {
+    "DecalMaterial": {
+     "asset": "MI_Decal_Leaves"
+    }
+   },
+   "components": {
+    "Decal": {
+     "DecalSize": [
+      20.0,
+      97.67454415246782,
+      66.88898970927163
+     ]
+    }
+   }
+  },
+  {
+   "name": "Decal_Leaves_17",
+   "cls": "DecalActor",
+   "folder": "Decals",
+   "location": [
+    -5320.0,
+    -7670.344,
+    262.0
+   ],
+   "quat": [
+    -0.652669,
+    0.272073,
+    0.652669,
+    0.272073
+   ],
+   "scale": [
+    1.0,
+    1.0,
+    1.0
+   ],
+   "properties": {
+    "DecalMaterial": {
+     "asset": "MI_Decal_Leaves"
+    }
+   },
+   "components": {
+    "Decal": {
+     "DecalSize": [
+      20.0,
+      109.21031208688676,
+      94.4885654103431
+     ]
+    }
+   }
+  },
+  {
+   "name": "Decal_Leaves_18",
+   "cls": "DecalActor",
+   "folder": "Decals",
+   "location": [
+    -4280.0,
+    -7590.92,
+    262.0
+   ],
+   "quat": [
+    0.676604,
+    0.205443,
+    -0.676604,
+    0.205443
+   ],
+   "scale": [
+    1.0,
+    1.0,
+    1.0
+   ],
+   "properties": {
+    "DecalMaterial": {
+     "asset": "MI_Decal_Leaves"
+    }
+   },
+   "components": {
+    "Decal": {
+     "DecalSize": [
+      20.0,
+      107.89013747408123,
+      68.8400069439617
+     ]
+    }
+   }
+  },
+  {
+   "name": "Decal_Leaves_19",
+   "cls": "DecalActor",
+   "folder": "Decals",
+   "location": [
+    -4280.0,
+    -4407.067,
+    262.0
+   ],
+   "quat": [
+    -0.559776,
+    0.432031,
+    0.559776,
+    0.432031
+   ],
+   "scale": [
+    1.0,
+    1.0,
+    1.0
+   ],
+   "properties": {
+    "DecalMaterial": {
+     "asset": "MI_Decal_Leaves"
+    }
+   },
+   "components": {
+    "Decal": {
+     "DecalSize": [
+      20.0,
+      108.36039500593584,
+      103.72006002564353
+     ]
+    }
+   }
+  },
+  {
+   "name": "Decal_Leaves_20",
+   "cls": "DecalActor",
+   "folder": "Decals",
+   "location": [
+    4280.0,
+    -7932.802,
+    262.0
+   ],
+   "quat": [
+    -0.651572,
+    0.274689,
+    0.651572,
+    0.274689
+   ],
+   "scale": [
+    1.0,
+    1.0,
+    1.0
+   ],
+   "properties": {
+    "DecalMaterial": {
+     "asset": "MI_Decal_Leaves"
+    }
+   },
+   "components": {
+    "Decal": {
+     "DecalSize": [
+      20.0,
+      88.88439933519521,
+      88.77682013232227
+     ]
+    }
+   }
+  },
+  {
+   "name": "Decal_Leaves_21",
+   "cls": "DecalActor",
+   "folder": "Decals",
+   "location": [
+    3362.943,
+    -1530.0,
+    262.0
+   ],
+   "quat": [
+    0.55445,
+    0.438845,
+    -0.55445,
+    0.438845
+   ],
+   "scale": [
+    1.0,
+    1.0,
+    1.0
+   ],
+   "properties": {
+    "DecalMaterial": {
+     "asset": "MI_Decal_Leaves"
+    }
+   },
+   "components": {
+    "Decal": {
+     "DecalSize": [
+      20.0,
+      86.11340103589103,
+      74.37805801777041
+     ]
+    }
+   }
+  },
+  {
+   "name": "Decal_Leaves_22",
+   "cls": "DecalActor",
+   "folder": "Decals",
+   "location": [
+    4280.0,
+    -7032.404,
+    262.0
+   ],
+   "quat": [
+    -0.197957,
+    0.678832,
+    0.197957,
+    0.678832
+   ],
+   "scale": [
+    1.0,
+    1.0,
+    1.0
+   ],
+   "properties": {
+    "DecalMaterial": {
+     "asset": "MI_Decal_Leaves"
+    }
+   },
+   "components": {
+    "Decal": {
+     "DecalSize": [
+      20.0,
+      98.39397231698348,
+      65.32856274411844
+     ]
+    }
+   }
+  },
+  {
+   "name": "Decal_Leaves_23",
+   "cls": "DecalActor",
+   "folder": "Decals",
+   "location": [
+    411.534,
+    -8687.775,
+    265.0
+   ],
+   "quat": [
+    0.135993,
+    0.693906,
+    -0.135993,
+    0.693906
+   ],
+   "scale": [
+    1.0,
+    1.0,
+    1.0
+   ],
+   "properties": {
+    "DecalMaterial": {
+     "asset": "MI_Decal_Leaves"
+    }
+   },
+   "components": {
+    "Decal": {
+     "DecalSize": [
+      20.0,
+      126.97162287445958,
+      82.33005932955419
+     ]
+    }
+   }
+  },
+  {
+   "name": "Decal_Leaves_24",
+   "cls": "DecalActor",
+   "folder": "Decals",
+   "location": [
+    -822.596,
+    -8057.027,
+    265.0
+   ],
+   "quat": [
+    0.591183,
+    0.387947,
+    -0.591183,
+    0.387947
+   ],
+   "scale": [
+    1.0,
+    1.0,
+    1.0
+   ],
+   "properties": {
+    "DecalMaterial": {
+     "asset": "MI_Decal_Leaves"
+    }
+   },
+   "components": {
+    "Decal": {
+     "DecalSize": [
+      20.0,
+      149.11693677940886,
+      109.76890188308157
+     ]
+    }
+   }
+  },
+  {
+   "name": "Decal_Leaves_25",
+   "cls": "DecalActor",
+   "folder": "Decals",
+   "location": [
+    1020.447,
+    -9110.027,
+    265.0
+   ],
+   "quat": [
+    0.356546,
+    0.610635,
+    -0.356546,
+    0.610635
+   ],
+   "scale": [
+    1.0,
+    1.0,
+    1.0
+   ],
+   "properties": {
+    "DecalMaterial": {
+     "asset": "MI_Decal_Leaves"
+    }
+   },
+   "components": {
+    "Decal": {
+     "DecalSize": [
+      20.0,
+      147.832979703253,
+      127.25858757539046
+     ]
+    }
+   }
+  },
+  {
+   "name": "Decal_Leaves_26",
+   "cls": "DecalActor",
+   "folder": "Decals",
+   "location": [
+    -1200.577,
+    -5902.0,
+    265.0
+   ],
+   "quat": [
+    0.569439,
+    0.419213,
+    -0.569438,
+    0.419213
+   ],
+   "scale": [
+    1.0,
+    1.0,
+    1.0
+   ],
+   "properties": {
+    "DecalMaterial": {
+     "asset": "MI_Decal_Leaves"
+    }
+   },
+   "components": {
+    "Decal": {
+     "DecalSize": [
+      20.0,
+      137.0176213817893,
+      123.01103772653423
+     ]
+    }
+   }
+  },
+  {
+   "name": "Decal_Leaves_27",
+   "cls": "DecalActor",
+   "folder": "Decals",
+   "location": [
+    860.059,
+    -8419.746,
+    265.0
+   ],
+   "quat": [
+    -0.636355,
+    0.308305,
+    0.636355,
+    0.308305
+   ],
+   "scale": [
+    1.0,
+    1.0,
+    1.0
+   ],
+   "properties": {
+    "DecalMaterial": {
+     "asset": "MI_Decal_Leaves"
+    }
+   },
+   "components": {
+    "Decal": {
+     "DecalSize": [
+      20.0,
+      124.96677498296403,
+      96.34397581652638
+     ]
+    }
+   }
+  },
+  {
+   "name": "Decal_Leaves_28",
+   "cls": "DecalActor",
+   "folder": "Decals",
+   "location": [
+    623.354,
+    -8767.612,
+    265.0
+   ],
+   "quat": [
+    0.242028,
+    0.664396,
+    -0.242028,
+    0.664396
+   ],
+   "scale": [
+    1.0,
+    1.0,
+    1.0
+   ],
+   "properties": {
+    "DecalMaterial": {
+     "asset": "MI_Decal_Leaves"
+    }
+   },
+   "components": {
+    "Decal": {
+     "DecalSize": [
+      20.0,
+      193.03775622756493,
+      137.53464995595522
+     ]
+    }
+   }
+  },
+  {
+   "name": "Decal_Leaves_29",
+   "cls": "DecalActor",
+   "folder": "Decals",
+   "location": [
+    293.758,
+    -7569.09,
+    265.0
+   ],
+   "quat": [
+    0.006064,
+    0.707081,
+    -0.006064,
+    0.707081
+   ],
+   "scale": [
+    1.0,
+    1.0,
+    1.0
+   ],
+   "properties": {
+    "DecalMaterial": {
+     "asset": "MI_Decal_Leaves"
+    }
+   },
+   "components": {
+    "Decal": {
+     "DecalSize": [
+      20.0,
+      102.9037100563147,
+      91.66686707479612
+     ]
+    }
+   }
+  },
+  {
+   "name": "Decal_Leaves_30",
+   "cls": "DecalActor",
+   "folder": "Decals",
+   "location": [
+    -79.116,
+    -7536.21,
+    265.0
+   ],
+   "quat": [
+    -0.398096,
+    0.584397,
+    0.398096,
+    0.584397
+   ],
+   "scale": [
+    1.0,
+    1.0,
+    1.0
+   ],
+   "properties": {
+    "DecalMaterial": {
+     "asset": "MI_Decal_Leaves"
+    }
+   },
+   "components": {
+    "Decal": {
+     "DecalSize": [
+      20.0,
+      120.8065577184564,
+      91.2634567440218
+     ]
+    }
+   }
+  },
+  {
+   "name": "Decal_Leaves_31",
+   "cls": "DecalActor",
+   "folder": "Decals",
+   "location": [
+    -169.707,
+    -7863.389,
+    265.0
+   ],
+   "quat": [
+    0.493725,
+    0.506197,
+    -0.493725,
+    0.506197
+   ],
+   "scale": [
+    1.0,
+    1.0,
+    1.0
+   ],
+   "properties": {
+    "DecalMaterial": {
+     "asset": "MI_Decal_Leaves"
+    }
+   },
+   "components": {
+    "Decal": {
+     "DecalSize": [
+      20.0,
+      169.76320181509973,
+      102.54441892293653
+     ]
+    }
+   }
+  },
+  {
+   "name": "Decal_Leaves_32",
+   "cls": "DecalActor",
+   "folder": "Decals",
+   "location": [
+    1544.086,
+    -8384.301,
+    265.0
+   ],
+   "quat": [
+    -0.451227,
+    0.544421,
+    0.451227,
+    0.544421
+   ],
+   "scale": [
+    1.0,
+    1.0,
+    1.0
+   ],
+   "properties": {
+    "DecalMaterial": {
+     "asset": "MI_Decal_Leaves"
+    }
+   },
+   "components": {
+    "Decal": {
+     "DecalSize": [
+      20.0,
+      126.65019994961159,
+      107.00847369332406
+     ]
+    }
+   }
+  },
+  {
+   "name": "Decal_Mud_1",
+   "cls": "DecalActor",
+   "folder": "Decals",
+   "location": [
+    -6000.0,
+    -7600.0,
+    262.0
+   ],
+   "quat": [
+    0.556979,
+    0.43563,
+    -0.556979,
+    0.43563
+   ],
+   "scale": [
+    1.0,
+    1.0,
+    1.0
+   ],
+   "properties": {
+    "DecalMaterial": {
+     "asset": "MI_Decal_Mud"
+    }
+   },
+   "components": {
+    "Decal": {
+     "DecalSize": [
+      20.0,
+      133.1899245206005,
+      129.50161076304417
+     ]
+    }
+   }
+  },
+  {
+   "name": "Decal_Mud_2",
+   "cls": "DecalActor",
+   "folder": "Decals",
+   "location": [
+    -5800.0,
+    -9000.0,
+    262.0
+   ],
+   "quat": [
+    -0.583207,
+    0.399837,
+    0.583207,
+    0.399837
+   ],
+   "scale": [
+    1.0,
+    1.0,
+    1.0
+   ],
+   "properties": {
+    "DecalMaterial": {
+     "asset": "MI_Decal_Mud"
+    }
+   },
+   "components": {
+    "Decal": {
+     "DecalSize": [
+      20.0,
+      165.71469235975553,
+      146.5290280881418
+     ]
+    }
+   }
+  },
+  {
+   "name": "Decal_Mud_3",
+   "cls": "DecalActor",
+   "folder": "Decals",
+   "location": [
+    -2600.0,
+    -12000.0,
+    262.0
+   ],
+   "quat": [
+    -0.406415,
+    0.578643,
+    0.406415,
+    0.578643
+   ],
+   "scale": [
+    1.0,
+    1.0,
+    1.0
+   ],
+   "properties": {
+    "DecalMaterial": {
+     "asset": "MI_Decal_Mud"
+    }
+   },
+   "components": {
+    "Decal": {
+     "DecalSize": [
+      20.0,
+      121.03041981612633,
+      85.36565663242303
+     ]
+    }
+   }
+  },
+  {
+   "name": "Decal_Mud_4",
+   "cls": "DecalActor",
+   "folder": "Decals",
+   "location": [
+    -4000.0,
+    -12800.0,
+    262.0
+   ],
+   "quat": [
+    0.551339,
+    0.442747,
+    -0.551339,
+    0.442747
+   ],
+   "scale": [
+    1.0,
+    1.0,
+    1.0
+   ],
+   "properties": {
+    "DecalMaterial": {
+     "asset": "MI_Decal_Mud"
+    }
+   },
+   "components": {
+    "Decal": {
+     "DecalSize": [
+      20.0,
+      145.0474918839917,
+      129.83450747063043
+     ]
+    }
+   }
+  },
+  {
    "name": "Birds_Day_1",
    "cls": "HHAmbientEmitter",
    "folder": "Audio",
@@ -24220,7 +27280,9 @@
      "AttenuationRadius": 520,
      "CastShadows": true,
      "VolumetricScatteringIntensity": 1.0,
-     "SourceRadius": 3
+     "SourceRadius": 3,
+     "MaxDrawDistance": 5000.0,
+     "MaxDistanceFadeRange": 1000.0
     },
     "Fixture": {
      "CastShadow": false,
@@ -24280,7 +27342,9 @@
      "AttenuationRadius": 650,
      "CastShadows": true,
      "VolumetricScatteringIntensity": 1.0,
-     "SourceRadius": 3
+     "SourceRadius": 3,
+     "MaxDrawDistance": 5000.0,
+     "MaxDistanceFadeRange": 1000.0
     },
     "Fixture": {
      "CastShadow": false,
@@ -24516,7 +27580,9 @@
      "AttenuationRadius": 650,
      "CastShadows": true,
      "VolumetricScatteringIntensity": 1.0,
-     "SourceRadius": 3
+     "SourceRadius": 3,
+     "MaxDrawDistance": 5000.0,
+     "MaxDistanceFadeRange": 1000.0
     },
     "Fixture": {
      "CastShadow": false,
@@ -24664,7 +27730,9 @@
      "AttenuationRadius": 650,
      "CastShadows": true,
      "VolumetricScatteringIntensity": 1.0,
-     "SourceRadius": 3
+     "SourceRadius": 3,
+     "MaxDrawDistance": 5000.0,
+     "MaxDistanceFadeRange": 1000.0
     },
     "Fixture": {
      "CastShadow": false,
@@ -24724,7 +27792,9 @@
      "AttenuationRadius": 650,
      "CastShadows": true,
      "VolumetricScatteringIntensity": 1.0,
-     "SourceRadius": 3
+     "SourceRadius": 3,
+     "MaxDrawDistance": 5000.0,
+     "MaxDistanceFadeRange": 1000.0
     },
     "Fixture": {
      "CastShadow": false,
@@ -24960,7 +28030,9 @@
      ],
      "InnerConeAngle": 30,
      "OuterConeAngle": 55,
-     "SourceRadius": 3
+     "SourceRadius": 3,
+     "MaxDrawDistance": 5000.0,
+     "MaxDistanceFadeRange": 1000.0
     },
     "Fixture": {
      "CastShadow": false,
@@ -25020,7 +28092,9 @@
      "AttenuationRadius": 650,
      "CastShadows": true,
      "VolumetricScatteringIntensity": 1.0,
-     "SourceRadius": 3
+     "SourceRadius": 3,
+     "MaxDrawDistance": 5000.0,
+     "MaxDistanceFadeRange": 1000.0
     },
     "Fixture": {
      "CastShadow": false,
@@ -25403,7 +28477,9 @@
      "AttenuationRadius": 650,
      "CastShadows": true,
      "VolumetricScatteringIntensity": 1.0,
-     "SourceRadius": 3
+     "SourceRadius": 3,
+     "MaxDrawDistance": 5000.0,
+     "MaxDistanceFadeRange": 1000.0
     },
     "Fixture": {
      "CastShadow": false,
@@ -25529,7 +28605,9 @@
      "AttenuationRadius": 650,
      "CastShadows": true,
      "VolumetricScatteringIntensity": 1.0,
-     "SourceRadius": 3
+     "SourceRadius": 3,
+     "MaxDrawDistance": 5000.0,
+     "MaxDistanceFadeRange": 1000.0
     },
     "Fixture": {
      "CastShadow": false,
@@ -25589,7 +28667,9 @@
      "AttenuationRadius": 650,
      "CastShadows": true,
      "VolumetricScatteringIntensity": 1.0,
-     "SourceRadius": 3
+     "SourceRadius": 3,
+     "MaxDrawDistance": 5000.0,
+     "MaxDistanceFadeRange": 1000.0
     },
     "Fixture": {
      "CastShadow": false,
@@ -25803,7 +28883,9 @@
      "AttenuationRadius": 450,
      "CastShadows": true,
      "VolumetricScatteringIntensity": 1.0,
-     "SourceRadius": 3
+     "SourceRadius": 3,
+     "MaxDrawDistance": 5000.0,
+     "MaxDistanceFadeRange": 1000.0
     },
     "Fixture": {
      "CastShadow": false,
@@ -25863,7 +28945,9 @@
      "AttenuationRadius": 650,
      "CastShadows": true,
      "VolumetricScatteringIntensity": 1.0,
-     "SourceRadius": 3
+     "SourceRadius": 3,
+     "MaxDrawDistance": 5000.0,
+     "MaxDistanceFadeRange": 1000.0
     },
     "Fixture": {
      "CastShadow": false,
@@ -26011,7 +29095,9 @@
      "AttenuationRadius": 650,
      "CastShadows": true,
      "VolumetricScatteringIntensity": 1.0,
-     "SourceRadius": 3
+     "SourceRadius": 3,
+     "MaxDrawDistance": 5000.0,
+     "MaxDistanceFadeRange": 1000.0
     },
     "Fixture": {
      "CastShadow": false,
@@ -26159,7 +29245,9 @@
      "AttenuationRadius": 650,
      "CastShadows": true,
      "VolumetricScatteringIntensity": 1.0,
-     "SourceRadius": 3
+     "SourceRadius": 3,
+     "MaxDrawDistance": 5000.0,
+     "MaxDistanceFadeRange": 1000.0
     },
     "Fixture": {
      "CastShadow": false,
@@ -26352,7 +29440,9 @@
      "AttenuationRadius": 650,
      "CastShadows": true,
      "VolumetricScatteringIntensity": 1.0,
-     "SourceRadius": 3
+     "SourceRadius": 3,
+     "MaxDrawDistance": 5000.0,
+     "MaxDistanceFadeRange": 1000.0
     },
     "Fixture": {
      "CastShadow": false,
@@ -26698,7 +29788,9 @@
      "AttenuationRadius": 600,
      "CastShadows": true,
      "VolumetricScatteringIntensity": 1.0,
-     "SourceRadius": 3
+     "SourceRadius": 3,
+     "MaxDrawDistance": 5000.0,
+     "MaxDistanceFadeRange": 1000.0
     },
     "Fixture": {
      "CastShadow": false,
@@ -26758,7 +29850,9 @@
      "AttenuationRadius": 600,
      "CastShadows": true,
      "VolumetricScatteringIntensity": 1.0,
-     "SourceRadius": 3
+     "SourceRadius": 3,
+     "MaxDrawDistance": 5000.0,
+     "MaxDistanceFadeRange": 1000.0
     },
     "Fixture": {
      "CastShadow": false,
@@ -27631,7 +30725,9 @@
      "AttenuationRadius": 650,
      "CastShadows": true,
      "VolumetricScatteringIntensity": 1.0,
-     "SourceRadius": 2
+     "SourceRadius": 2,
+     "MaxDrawDistance": 5000.0,
+     "MaxDistanceFadeRange": 1000.0
     },
     "Fixture": {
      "CastShadow": false,
@@ -28503,7 +31599,9 @@
       0.55,
       0.25
      ],
-     "SourceRadius": 3.0
+     "SourceRadius": 3.0,
+     "MaxDrawDistance": 5000.0,
+     "MaxDistanceFadeRange": 1000.0
     }
    },
    "tags": [
@@ -29481,7 +32579,9 @@
      "AttenuationRadius": 600,
      "CastShadows": true,
      "VolumetricScatteringIntensity": 1.0,
-     "SourceRadius": 2
+     "SourceRadius": 2,
+     "MaxDrawDistance": 5000.0,
+     "MaxDistanceFadeRange": 1000.0
     },
     "Fixture": {
      "CastShadow": false,
@@ -29540,7 +32640,9 @@
      "AttenuationRadius": 600,
      "CastShadows": true,
      "VolumetricScatteringIntensity": 1.0,
-     "SourceRadius": 2
+     "SourceRadius": 2,
+     "MaxDrawDistance": 5000.0,
+     "MaxDistanceFadeRange": 1000.0
     },
     "Fixture": {
      "CastShadow": false,
@@ -29599,7 +32701,9 @@
      "AttenuationRadius": 650,
      "CastShadows": true,
      "VolumetricScatteringIntensity": 1.0,
-     "SourceRadius": 3
+     "SourceRadius": 3,
+     "MaxDrawDistance": 5000.0,
+     "MaxDistanceFadeRange": 1000.0
     },
     "Fixture": {
      "CastShadow": false,
@@ -29658,7 +32762,9 @@
      "AttenuationRadius": 650,
      "CastShadows": true,
      "VolumetricScatteringIntensity": 1.0,
-     "SourceRadius": 3
+     "SourceRadius": 3,
+     "MaxDrawDistance": 5000.0,
+     "MaxDistanceFadeRange": 1000.0
     },
     "Fixture": {
      "CastShadow": false,
