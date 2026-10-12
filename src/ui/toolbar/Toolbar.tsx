@@ -22,6 +22,7 @@ import {
 } from '../commands';
 import { exportProjectFile, importProjectFile, newProject, saveProjectAs } from '../../project/manager';
 import { pickFile } from '../dialogs/filePick';
+import { checkNotices } from '../admin/notices';
 import './toolbar.css';
 import { askText } from '../dialogs/askText';
 
@@ -42,6 +43,8 @@ function fileMenu(): MenuItem[] {
     { label: 'Export WAV (current pattern)…', onClick: () => void exportWav('pattern') },
     { label: 'Export project file (.goofy.json)', onClick: exportProjectFile },
     { label: 'Import project file…', onClick: () => pickFile('.json,application/json', (f) => void importProjectFile(f)) },
+    { separator: true },
+    { label: 'Song Splitter (remove vocals / beat)…', onClick: () => openWindow({ kind: 'stems' }) },
   ];
 }
 
@@ -113,6 +116,7 @@ function optionsMenu(): MenuItem[] {
 
 function helpMenu(): MenuItem[] {
   return [
+    { label: 'Check for updates & news', onClick: () => void checkNotices(true) },
     { label: 'Keyboard shortcuts', onClick: () => openWindow({ kind: 'shortcuts' }) },
     { label: 'About Goofy Studio', onClick: () => openWindow({ kind: 'about' }) },
   ];

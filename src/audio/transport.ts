@@ -3,7 +3,7 @@
 import type { Project } from '../state/types';
 import { PPQ, TICKS_PER_STEP } from '../state/types';
 import { ticksPerBar } from '../state/utils';
-import { assets } from './assets';
+import { scheduleAudioClip } from './clipPlayback';
 import type { MixGraph } from './mixgraph';
 import {
   collectAudioSpanning, collectAudioStarts, collectNoteEvents, patternLength, songLength, type AudioEvent, type PlayMode,
@@ -202,26 +202,10 @@ export class Transport {
   }
 
   private startAudio(ev: AudioEvent, time: number, spt: number, project: Project) {
-    const buffer = ev.clip.assetId ? assets.get(ev.clip.assetId) : undefined;
-    if (!buffer) return;
-    const offset = Math.max(0, ev.sourceOffset);
-    if (offset >= buffer.duration) return;
-    const dur = Math.min(buffer.duration - offset, ev.remaining * spt);
-    if (dur <= 0.001) return;
-    const track = project.tracks.find((t) => t.id === ev.clip.trackId);
-    const src = this.ctx.createBufferSource();
-    src.buffer = buffer;
-    const g = this.ctx.createGain();
-    const level = ev.clip.gain ?? 1;
-    g.gain.setValueAtTime(0, time);
-    g.gain.linearRampToValueAtTime(level, time + 0.003);
-    g.gain.setValueAtTime(level, time + Math.max(0.003, dur - 0.004));
-    g.gain.linearRampToValueAtTime(0, time + dur);
-    src.connect(g).connect(this.graph.stripInput(track?.mixerTrackId ?? 'master'));
-    src.start(time, offset, dur);
-    const entry = { src, gain: g, end: time + dur };
-    src.onended = () => {
-      try { g.disconnect(); } catch { /* ignore */ }
+    const entry = scheduleAudioClip(this.ctx, this.graph, project, ev, time, spt);
+    if (!entry) return;
+    entry.src.onended = () => {
+      try { entry.gain.disconnect(); } catch { /* ignore */ }
       this.sources.delete(entry);
     };
     this.sources.add(entry);

@@ -11,6 +11,7 @@ export function formatParam(def: NumberParamDef, v: number): string {
     case 's': return `${v.toFixed(2)} s`;
     case ':1': return `${v.toFixed(1)}:1`;
     case 'st': return `${v > 0 ? '+' : ''}${v.toFixed(1)} st`;
+    case 'ct': return `${v > 0 ? '+' : ''}${Math.round(v)} ct`;
     case 'Q': return `Q ${v.toFixed(2)}`;
     default: return def.max <= 1 && def.min >= 0 ? `${Math.round(v * 100)}%` : v.toFixed(2);
   }

@@ -1,7 +1,7 @@
 import { useEffect, useRef, useState } from 'react';
 import { useProject, getProject } from '../../state/store';
 import { setUI, toast, useUI } from '../../state/ui';
-import { addInsert, setEffectParam, toggleBypass } from '../../state/actions';
+import { addInsert, fxApplyChain, fxRemove, setEffectParam, toggleBypass } from '../../state/actions';
 import { engine } from '../../audio/engine';
 import { AudioInput, type DeviceInfo } from '../../audio/input';
 import { Knob } from '../components/Knob';
@@ -12,6 +12,7 @@ import { formatDb } from '../../state/utils';
 import { PitchView } from '../effects/views';
 import { VOCAL_CHAINS, applyVocalChain } from '../browser/vocalChains';
 import { toggleRecord } from '../commands';
+import { FxChainEditor, SoundFxPicker, projectChainOps } from '../effects/FxChainEditor';
 import '../effects/effects.css';
 import './vocal.css';
 
@@ -140,6 +141,19 @@ export function VocalPanel() {
           <Icon name="vocal" /> Goofy Tune <span className="crumb">· on “{target.name}”</span>
           <span className="spacer" />
           {VOCAL_CHAINS.map((c) => <button key={c.name} className="btn small" onClick={() => applyVocalChain(c.name)} title="Load this vocal chain onto the vocal insert">{c.name}</button>)}
+        </div>
+        <div className="vc-live">
+          <div className="vc-title"><Icon name="fx" /> Live Voice FX <span className="crumb">· everything here changes your voice instantly (turn on Monitor + headphones)</span></div>
+          <SoundFxPicker
+            ops={{ ...projectChainOps({ kind: 'mixer', id: target.id }), applyChain: (effects, mode, label) => fxApplyChain({ kind: 'mixer', id: target.id }, effects, mode, label, ['pitch']) }}
+            categories={['Voice', 'Autotune', 'Funny', 'Space', 'Character']}
+          />
+          <FxChainEditor
+            ops={{ ...projectChainOps({ kind: 'mixer', id: target.id }), clear: () => { for (const i of target.inserts) if (i.id !== pitchFx?.id) fxRemove({ kind: 'mixer', id: target.id }, i.id); } }}
+            effects={target.inserts.filter((i) => i.id !== pitchFx?.id)}
+            title={`Other effects on “${target.name}”`}
+            presets={false}
+          />
         </div>
         {pitchFx ? (
           <div className={`fx-body ${pitchFx.bypass ? 'bypassed' : ''}`} style={{ ['--fxc' as string]: '#f28c28' }}>

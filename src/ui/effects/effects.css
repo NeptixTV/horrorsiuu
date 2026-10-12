@@ -7,3 +7,4 @@
 .fx-knobs .knob { width: 58px !important; }
 .fx-choice { display: flex; flex-direction: column; align-items: center; gap: 4px; justify-content: center; }
 .fx-choice select { height: 22px; font-size: 11px; max-width: 110px; }
+.fx-info { color: var(--dim); font-size: 11px; line-height: 1.4; }

@@ -4,7 +4,7 @@ import type { Project } from '../state/types';
 import { PPQ } from '../state/types';
 import { getProject, loadProjectState, markSaved, useProject } from '../state/store';
 import { createEmptyProject } from '../state/defaults';
-import { addAsset, addClip, updateTrack } from '../state/actions';
+import { addAsset, addClip, ensureTrackInsert, updateTrack } from '../state/actions';
 import { setUI, toast, ui } from '../state/ui';
 import { secondsToTicks, uid } from '../state/utils';
 import { assets } from '../audio/assets';
@@ -233,6 +233,7 @@ export function placeAudioClip(assetId: string, trackId: string, startTick: numb
   const b = assets.get(assetId);
   if (!b) return;
   registerAsset(assetId, assets.name(assetId));
+  ensureTrackInsert(trackId);
   addClip({ trackId, kind: 'audio', start: Math.max(0, startTick), length: Math.max(1, Math.round(secondsToTicks(b.duration, p.bpm))), offset: 0, assetId });
 }
 
@@ -257,7 +258,10 @@ export function installRecordingHandler() {
     addClip({ trackId: track.id, kind: 'audio', start: Math.max(0, Math.round(startTick)), length: Math.max(1, Math.round(secondsToTicks(buffer.duration, p.bpm))), offset: 0, assetId: id });
     // route the vocal track to the monitored insert so the recording plays through the same effects
     const target = engine.monitorTarget(p);
-    if (track.mixerTrackId === 'master' && target !== 'master') updateTrack(track.id, { mixerTrackId: target }, 'Route track');
+    if (track.mixerTrackId === 'master') {
+      if (target !== 'master') updateTrack(track.id, { mixerTrackId: target }, 'Route track');
+      else ensureTrackInsert(track.id);
+    }
     toast(`Recorded ${name} (${buffer.duration.toFixed(1)} s)`, 'ok');
   };
 }

@@ -8,8 +8,14 @@ import { addChannel, addInsert } from '../../state/actions';
 import type { DrumType, EffectType } from '../../state/types';
 import { assets } from '../../audio/assets';
 import { engine } from '../../audio/engine';
-import { importLibrarySample } from '../../project/manager';
-import { storage, recordToBuffer } from '../../project/storage';
+import { getProject } from '../../state/store';
+import { placeAudioClip } from '../../project/manager';
+import { showMenu, type MenuItem } from '../components/ContextMenu';
+import { askText } from '../dialogs/askText';
+import { addToLibrary, deleteLibrarySample, loadLibrary, renameLibrarySample, useLibrary } from '../library/libraryStore';
+import { FX_CATEGORIES, FX_CHAINS } from '../../audio/effects/fxPresets';
+import { fxApplyChain } from '../../state/actions';
+import { openWindow } from '../../state/ui';
 import { Icon } from '../components/Icon';
 import { pickFile } from '../dialogs/filePick';
 import { applyVocalChain, VOCAL_CHAINS } from './vocalChains';
@@ -24,6 +30,8 @@ interface Item {
   sub?: string;
   onActivate: () => void;
   onClick?: () => void;
+  menu?: () => MenuItem[];
+  noDrag?: boolean;
 }
 
 interface Category {
@@ -75,6 +83,21 @@ function addEffectToSelected(type: EffectType, presetName?: string) {
   toast(`${presetName ?? EFFECTS[type].name} added to selected mixer insert`, 'ok');
 }
 
+/** Double-click on a Sound FX: selected audio clip first, otherwise the selected mixer insert. */
+export function applyFxChainToSelection(name: string) {
+  const chain = FX_CHAINS.find((c) => c.name === name);
+  if (!chain) return;
+  const p = getProject();
+  const clip = p.clips.find((c) => ui().selectedClipIds.includes(c.id) && c.kind === 'audio');
+  if (clip) {
+    fxApplyChain({ kind: 'clip', id: clip.id }, chain.effects, 'replace', chain.name);
+    toast(`${chain.icon} ${chain.name} → selected clip`, 'ok');
+  } else {
+    fxApplyChain({ kind: 'mixer', id: ui().selectedMixerId }, chain.effects, 'add', chain.name);
+    toast(`${chain.icon} ${chain.name} → mixer insert “${p.mixer.find((m) => m.id === ui().selectedMixerId)?.name}”`, 'ok');
+  }
+}
+
 const DRUM_KIT: DrumType[] = ['kick', 'snare', 'clap', 'hihat', 'openhat', 'tom', 'perc'];
 
 export function addDrumKit() {
@@ -90,29 +113,33 @@ export function addDrumKit() {
 export function Browser() {
   const [query, setQuery] = useState('');
   const [open, setOpen] = useState<Record<string, boolean>>({ instruments: true, drums: true });
-  const [userSamples, setUserSamples] = useState<{ id: string; name: string }[]>([]);
+  const userSamples = useLibrary((s) => s.samples);
   const patterns = useProject((s) => s.project.patterns);
   const projectAssets = useProject((s) => s.project.assets);
   const selectedPatternId = useUI((s) => s.selectedPatternId);
 
-  useEffect(() => {
-    storage.listLibraryAssets().then((list) => {
-      for (const rec of list) if (!assets.has(rec.id)) assets.add(rec.id, recordToBuffer(rec), rec.name);
-      setUserSamples(list.map((r) => ({ id: r.id, name: r.name })));
-    }).catch(() => undefined);
-  }, []);
+  useEffect(() => { void loadLibrary(); }, []);
 
   const importSamples = () => pickFile('audio/*', async (f) => {
-    const res = await importLibrarySample(f);
-    if (res) {
-      setUserSamples((s) => [...s, { id: res.id, name: res.name }]);
-      setOpen((o) => ({ ...o, samples: true }));
-      toast(`Imported “${res.name}”`, 'ok');
+    try {
+      const buffer = await engine.ctx.decodeAudioData(await f.arrayBuffer());
+      const name = f.name.replace(/\.[^.]+$/, '');
+      await addToLibrary(buffer, name);
+      setOpen((o) => ({ ...o, library: true }));
+      toast(`Imported “${name}” into My Library`, 'ok');
+    } catch {
+      toast(`Could not read “${f.name}”`, 'error');
     }
   }, true);
 
   const categories = useMemo<Category[]>(() => {
-    const sampleItem = (id: string, name: string, color: string, sub?: string): Item => ({
+    const toPlaylist = (id: string) => {
+      const p = getProject();
+      const trackId = ui().selectedTrackId ?? p.tracks[0].id;
+      placeAudioClip(id, trackId, Math.round(engine.transport?.getTick() ?? 0));
+      toast('Added to the playlist at the playhead', 'ok');
+    };
+    const sampleItem = (id: string, name: string, color: string, sub?: string, own = false): Item => ({
       key: id, label: name, icon: 'wave', color, sub, payload: { type: 'sample', assetId: id, name },
       onClick: () => previewSample(id),
       onActivate: () => {
@@ -120,9 +147,40 @@ export function Browser() {
         setUI({ selectedChannelId: addChannel('sampler', { assetId: id, name, rootNote: s?.root ?? 60 }) });
         toast(`Sampler channel “${name}” added`, 'ok');
       },
+      menu: () => [
+        { label: '▶ Preview', onClick: () => previewSample(id) },
+        { label: own ? 'Edit (cut, effects, pitch)…' : 'Edit a copy…', onClick: () => openWindow({ kind: 'sampleEditor', assetId: id }) },
+        { label: 'Add to playlist (at playhead)', onClick: () => toPlaylist(id) },
+        { label: 'New sampler channel', onClick: () => setUI({ selectedChannelId: addChannel('sampler', { assetId: id, name, rootNote: LIBRARY.find((x) => x.id === id)?.root ?? 60 }) }) },
+        ...(own ? [
+          { separator: true },
+          { label: 'Rename…', onClick: () => { void askText('Sample name', name).then((n) => { if (n) void renameLibrarySample(id, n); }); } },
+          { label: 'Delete from My Library', danger: true, onClick: () => { if (confirm(`Delete “${name}”?`)) void deleteLibrarySample(id); } },
+        ] as MenuItem[] : []),
+      ],
     });
     const libGroup = (cat: string) => LIBRARY.filter((s) => s.category === cat).map((s) => sampleItem(s.id, s.name, '#56ccf2', cat));
+    const libCats = ['Drums', 'Percussion', 'Bass', 'Melodic', 'FX', 'Funny', 'Game', 'Loops'];
+    const action = (key: string, label: string, icon: string, fn: () => void): Item => ({ key, label, icon, color: 'var(--accent)', payload: { type: 'instrument', kind: 'synth' }, onActivate: fn, onClick: fn, noDrag: true });
     return [
+      {
+        key: 'library', label: 'My Library', icon: 'star', color: '#9be15d',
+        items: [
+          action('lib-import', 'Import audio files…', 'import', importSamples),
+          action('lib-split', 'Song Splitter (vocals / beat)…', 'scissors', () => openWindow({ kind: 'stems' })),
+          ...userSamples.map((s) => sampleItem(s.id, s.name, '#9be15d', s.duration ? `${s.duration.toFixed(1)}s` : undefined, true)),
+        ],
+      },
+      {
+        key: 'soundfx', label: 'Sound FX', icon: 'fx', color: '#ff6bb3', items: [],
+        groups: FX_CATEGORIES.map((cat) => ({
+          label: cat,
+          items: FX_CHAINS.filter((c) => c.category === cat).map((c) => ({
+            key: `sfx-${c.name}`, label: `${c.icon} ${c.name}`, icon: 'fx', color: '#ff6bb3', sub: cat, payload: { type: 'fxchain', name: c.name } as DragPayload,
+            onActivate: () => applyFxChainToSelection(c.name),
+          })),
+        })),
+      },
       {
         key: 'instruments', label: 'Instruments', icon: 'synth', color: '#f28c28',
         items: [
@@ -150,14 +208,7 @@ export function Browser() {
       },
       {
         key: 'samples', label: 'Samples', icon: 'sample', color: '#56ccf2', items: [],
-        groups: [
-          { label: 'Drum One-Shots', items: libGroup('Drums') },
-          { label: 'Bass', items: libGroup('Bass') },
-          { label: 'Melodic', items: libGroup('Melodic') },
-          { label: 'FX', items: libGroup('FX') },
-          { label: 'Loops', items: libGroup('Loops') },
-          { label: 'My Samples', items: userSamples.map((s) => sampleItem(s.id, s.name, '#9be15d', 'Imported')) },
-        ],
+        groups: libCats.filter((c) => c !== 'Vocals').map((c) => ({ label: c, items: libGroup(c) })),
       },
       {
         key: 'vocals', label: 'Vocals', icon: 'vocal', color: '#f28c28', items: [],
@@ -201,6 +252,7 @@ export function Browser() {
         })),
       },
     ];
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [userSamples, patterns, projectAssets, selectedPatternId]);
 
   const q = query.trim().toLowerCase();
@@ -209,8 +261,9 @@ export function Browser() {
   const renderItem = (it: Item) => (
     <div
       key={it.key}
-      className="br-item"
-      draggable
+      className={`br-item ${it.noDrag ? 'br-action' : ''}`}
+      draggable={!it.noDrag}
+      onContextMenu={(e) => { if (it.menu) { e.preventDefault(); showMenu(e.clientX, e.clientY, it.menu()); } }}
       onDragStart={(e) => setDragPayload(e, it.payload)}
       onDragEnd={() => setUI({ dragPayload: null })}
       onClick={it.onClick}
@@ -238,7 +291,7 @@ export function Browser() {
       <div className="br-tree scroll-y">
         {categories.map((c) => {
           const items = c.items.filter(match);
-          const groups = (c.groups ?? []).map((g) => ({ ...g, items: g.items.filter(match) })).filter((g) => g.items.length || (!q && g.label === 'My Samples'));
+          const groups = (c.groups ?? []).map((g) => ({ ...g, items: g.items.filter(match) })).filter((g) => g.items.length);
           const count = items.length + groups.reduce((n, g) => n + g.items.length, 0);
           if (q && count === 0) return null;
           const isOpen = q ? true : !!open[c.key];
@@ -257,9 +310,6 @@ export function Browser() {
                     <div key={g.label} className="br-group">
                       <div className="br-group-head">{g.label}</div>
                       {g.items.map(renderItem)}
-                      {g.label === 'My Samples' && !q && (
-                        <div className="br-item br-import" onClick={importSamples}><Icon name="plus" size={11} /> Import audio files…</div>
-                      )}
                     </div>
                   ))}
                 </div>
@@ -268,7 +318,7 @@ export function Browser() {
           );
         })}
       </div>
-      <div className="br-hint">Click a sample to preview · double-click to add · drag into rack, playlist or mixer</div>
+      <div className="br-hint">Click a sample to preview · double-click to add · right-click for edit options · drag Sound FX onto a clip</div>
     </div>
   );
 }

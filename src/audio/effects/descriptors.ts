@@ -28,6 +28,8 @@ export interface EffectDescriptor {
   name: string;
   short: string;
   category: 'EQ & Filter' | 'Dynamics' | 'Space' | 'Modulation' | 'Character' | 'Vocal';
+  /** one line explaining what the effect does */
+  info?: string;
   color: string;
   params: ParamDef[];
 }
@@ -137,8 +139,70 @@ export const EFFECTS: Record<EffectType, EffectDescriptor> = {
       n('correction', 'Correction', 0, 1, 1),
       n('retune', 'Retune Speed', 0, 400, 20, 'ms'),
       n('humanize', 'Humanize', 0, 1, 0.2),
+      n('transpose', 'Transpose', -12, 12, 0, 'st'),
       n('formant', 'Formant', -12, 12, 0, 'st'),
       n('mix', 'Wet/Dry', 0, 1, 1),
+    ],
+  },
+  voice: {
+    type: 'voice', name: 'Voice Changer', short: 'VOX', category: 'Vocal', color: '#9be15d',
+    info: 'Shift the pitch of a voice up or down without changing the speed, add robot / alien tones.',
+    params: [
+      n('transpose', 'Pitch', -24, 24, 7, 'st'),
+      n('fine', 'Fine', -100, 100, 0, 'ct'),
+      n('formant', 'Formant', -12, 12, 0, 'st'),
+      n('robot', 'Robot', 0, 1, 0),
+      n('robotFreq', 'Robot Freq', 20, 1200, 90, 'Hz', true),
+      n('tone', 'Tone', 300, 18000, 18000, 'Hz', true),
+      n('mix', 'Mix', 0, 1, 1),
+    ],
+  },
+  phaser: {
+    type: 'phaser', name: 'Goofy Phaser', short: 'PHA', category: 'Modulation', color: '#56ccf2',
+    params: [
+      n('rate', 'Rate', 0.05, 10, 0.5, 'Hz', true),
+      n('depth', 'Depth', 0, 1, 0.7),
+      n('freq', 'Center', 200, 5000, 900, 'Hz', true),
+      n('feedback', 'Feedback', 0, 0.9, 0.5),
+      n('mix', 'Mix', 0, 1, 0.5),
+    ],
+  },
+  flanger: {
+    type: 'flanger', name: 'Goofy Flanger', short: 'FLA', category: 'Modulation', color: '#bb6bd9',
+    params: [
+      n('rate', 'Rate', 0.05, 8, 0.3, 'Hz', true),
+      n('depth', 'Depth', 0, 1, 0.7),
+      n('delay', 'Delay', 0.5, 15, 3, 'ms'),
+      n('feedback', 'Feedback', -0.95, 0.95, 0.6),
+      n('mix', 'Mix', 0, 1, 0.5),
+    ],
+  },
+  tremolo: {
+    type: 'tremolo', name: 'Goofy Tremolo', short: 'TRM', category: 'Modulation', color: '#e3a75e',
+    params: [
+      { key: 'shape', label: 'Shape', kind: 'choice', default: 'sine', options: [
+        { value: 'sine', label: 'Sine' }, { value: 'square', label: 'Square' }, { value: 'triangle', label: 'Triangle' }, { value: 'sawtooth', label: 'Saw' },
+      ] },
+      n('rate', 'Rate', 0.1, 20, 5, 'Hz', true),
+      n('depth', 'Depth', 0, 1, 0.6),
+    ],
+  },
+  autopan: {
+    type: 'autopan', name: '8D Auto-Pan', short: '8D', category: 'Space', color: '#4cd6a3',
+    info: 'Moves the sound around your head – put on headphones.',
+    params: [
+      n('rate', 'Rate', 0.02, 8, 0.15, 'Hz', true),
+      n('depth', 'Width', 0, 1, 1),
+      n('motion', 'Distance', 0, 1, 0.4),
+    ],
+  },
+  limiter: {
+    type: 'limiter', name: 'Goofy Limiter', short: 'LIM', category: 'Dynamics', color: '#ff9a1f',
+    info: 'Makes things loud without clipping.',
+    params: [
+      n('drive', 'Drive', 0, 24, 6, 'dB'),
+      n('ceiling', 'Ceiling', -12, 0, -0.5, 'dB'),
+      n('release', 'Release', 10, 500, 80, 'ms', true),
     ],
   },
 };
@@ -190,3 +254,16 @@ export const EFFECT_PRESETS: EffectPreset[] = [
   { name: 'Natural Tune', type: 'pitch', params: { key: '0', scale: 'Major', correction: 0.8, retune: 80, humanize: 0.6, formant: 0, mix: 1 } },
   { name: 'Robot Voice', type: 'pitch', params: { key: '0', scale: 'Chromatic', correction: 1, retune: 0, humanize: 0, formant: 0, mix: 1 } },
 ];
+
+EFFECT_PRESETS.push(
+  { name: 'Chipmunk', type: 'voice', params: { ...defaultParams('voice'), transpose: 8, formant: 4 } },
+  { name: 'Deep Voice', type: 'voice', params: { ...defaultParams('voice'), transpose: -5, formant: -3 } },
+  { name: 'Monster', type: 'voice', params: { ...defaultParams('voice'), transpose: -10, formant: -6, tone: 4000 } },
+  { name: 'Robot', type: 'voice', params: { ...defaultParams('voice'), transpose: 0, robot: 0.8, robotFreq: 80 } },
+  { name: 'Alien', type: 'voice', params: { ...defaultParams('voice'), transpose: 5, robot: 0.5, robotFreq: 600 } },
+  { name: 'Slow Swirl', type: 'phaser', params: { rate: 0.2, depth: 0.8, freq: 700, feedback: 0.6, mix: 0.5 } },
+  { name: 'Jet Plane', type: 'flanger', params: { rate: 0.15, depth: 0.9, delay: 2, feedback: 0.8, mix: 0.6 } },
+  { name: 'Helicopter', type: 'tremolo', params: { shape: 'square', rate: 12, depth: 0.9 } },
+  { name: '8D Slow Orbit', type: 'autopan', params: { rate: 0.1, depth: 1, motion: 0.5 } },
+  { name: 'Loud & Proud', type: 'limiter', params: { drive: 10, ceiling: -0.3, release: 60 } },
+);

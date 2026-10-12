@@ -56,6 +56,8 @@ export class PitchEffect extends Effect {
       retune: num(p, 'retune', 20),
       humanize: num(p, 'humanize', 0.2),
       mix: num(p, 'mix', 1),
+      transpose: num(p, 'transpose', 0),
+      analysis: true,
       bypass: false,
     });
     const f = num(p, 'formant', 0);

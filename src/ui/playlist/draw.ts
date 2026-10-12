@@ -28,7 +28,7 @@ export function drawGrid(ctx: CanvasRenderingContext2D, v: View, project: Projec
     const y = i * v.trackH - v.scrollY;
     ctx.fillStyle = i % 2 ? t.gridAlt : t.grid;
     ctx.fillRect(0, y, v.w, v.trackH);
-    if (project.tracks[i]?.mute) {
+    if (project.tracks[i]?.mute || (project.tracks.some((t) => t.solo) && !project.tracks[i]?.solo)) {
       ctx.fillStyle = 'rgba(0,0,0,0.25)';
       ctx.fillRect(0, y, v.w, v.trackH);
     }
@@ -122,7 +122,7 @@ function patternPreview(ctx: CanvasRenderingContext2D, pattern: Pattern, project
 }
 
 function audioPreview(ctx: CanvasRenderingContext2D, clip: Clip, x: number, y: number, w: number, h: number, bpm: number, pxPerTick: number, color: string, viewW: number) {
-  const peaks = clip.assetId ? assets.getPeaks(clip.assetId) : undefined;
+  const peaks = clip.assetId ? assets.getPeaks(clip.assetId, clip.reverse) : undefined;
   const buf = clip.assetId ? assets.get(clip.assetId) : undefined;
   if (!peaks || !buf) {
     ctx.fillStyle = rgba('#ffffff', 0.4);
@@ -130,7 +130,7 @@ function audioPreview(ctx: CanvasRenderingContext2D, clip: Clip, x: number, y: n
     ctx.fillText('missing audio', x + 4, y + h / 2);
     return;
   }
-  const secPerPx = 60 / bpm / PPQ / pxPerTick;
+  const secPerPx = (60 / bpm / PPQ / pxPerTick) * (clip.speed ?? 1);
   const mid = y + h / 2;
   const amp = (h / 2) * 0.92 * (clip.gain ?? 1);
   ctx.fillStyle = shade(color, 0.6);
@@ -159,6 +159,7 @@ export function clipColor(clip: Clip, project: Project): string {
 }
 
 export function clipLabel(clip: Clip, project: Project): string {
+  if (clip.name) return clip.name;
   if (clip.kind === 'audio') return project.assets[clip.assetId ?? '']?.name ?? assets.name(clip.assetId ?? '');
   return project.patterns.find((p) => p.id === clip.patternId)?.name ?? 'Pattern';
 }
@@ -203,6 +204,36 @@ export function drawClips(ctx: CanvasRenderingContext2D, v: View, project: Proje
       audioPreview(ctx, clip, body.x, body.y, body.w, body.h, project.bpm, v.pxPerTick, color, v.w);
     }
     ctx.restore();
+    // fades
+    if (clip.kind === 'audio' && (clip.fadeIn || clip.fadeOut)) {
+      const spt = 60 / project.bpm / PPQ;
+      ctx.strokeStyle = 'rgba(255,255,255,0.7)';
+      ctx.lineWidth = 1;
+      ctx.beginPath();
+      if (clip.fadeIn) { ctx.moveTo(x, y + h); ctx.lineTo(x + (clip.fadeIn / spt) * v.pxPerTick, y + headH); }
+      if (clip.fadeOut) { ctx.moveTo(x + w - (clip.fadeOut / spt) * v.pxPerTick, y + headH); ctx.lineTo(x + w, y + h); }
+      ctx.stroke();
+    }
+    // badges: effects / reverse / speed / transpose
+    const badges: string[] = [];
+    if (clip.fx?.length) badges.push(`FX ${clip.fx.length}`);
+    if (clip.reverse) badges.push('REV');
+    if (clip.speed && Math.abs(clip.speed - 1) > 0.001) badges.push(`${clip.speed.toFixed(2)}×`);
+    if (clip.transpose) badges.push(`${clip.transpose > 0 ? '+' : ''}${clip.transpose} st`);
+    if (badges.length && w > 40) {
+      ctx.font = '700 8.5px Inter, sans-serif';
+      let bx = x + w - 3;
+      for (const b of badges) {
+        const tw = ctx.measureText(b).width + 6;
+        bx -= tw;
+        if (bx < x + 30) break;
+        ctx.fillStyle = 'rgba(0,0,0,0.55)';
+        ctx.fillRect(bx, y + 1.5, tw - 2, Math.min(10, headH - 2));
+        ctx.fillStyle = '#fff';
+        ctx.fillText(b, bx + 2, y + headH / 2 + 0.5);
+      }
+      ctx.font = '600 10px Inter, sans-serif';
+    }
     // border
     ctx.strokeStyle = sel ? '#fff' : shade(color, -0.6);
     ctx.lineWidth = sel ? 1.5 : 1;

@@ -4,9 +4,9 @@ import type { Project } from '../state/types';
 import { PPQ } from '../state/types';
 import { MixGraph } from './mixgraph';
 import { loadWorklets, markWorkletsReady } from './worklets';
-import { assets } from './assets';
+import { scheduleAudioClip } from './clipPlayback';
 import {
-  collectAudioStarts, collectNoteEvents, patternLength, songLength, type PlayMode,
+  collectAudioSpanning, collectAudioStarts, collectNoteEvents, patternLength, songLength, type PlayMode,
 } from './sequencer';
 
 export interface RenderOptions {
@@ -42,16 +42,11 @@ export async function renderProject(project: Project, opts: RenderOptions): Prom
   }
   if (opts.mode === 'song') {
     for (const ev of collectAudioStarts(project, fromTick, toTick)) {
-      const buffer = ev.clip.assetId ? assets.get(ev.clip.assetId) : undefined;
-      if (!buffer) continue;
-      const track = project.tracks.find((t) => t.id === ev.clip.trackId);
-      const src = ctx.createBufferSource();
-      src.buffer = buffer;
-      const g = ctx.createGain();
-      g.gain.value = ev.clip.gain ?? 1;
-      src.connect(g).connect(graph.stripInput(track?.mixerTrackId ?? 'master'));
-      const dur = Math.min(buffer.duration - ev.sourceOffset, Math.min(ev.remaining, toTick - ev.tick) * spt);
-      if (dur > 0) src.start(lead + (ev.tick - fromTick) * spt, ev.sourceOffset, dur);
+      scheduleAudioClip(ctx, graph, project, { ...ev, remaining: Math.min(ev.remaining, toTick - ev.tick) }, lead + (ev.tick - fromTick) * spt, spt);
+    }
+    // clips that already run at the start of the loop region
+    for (const ev of collectAudioSpanning(project, fromTick, project.bpm)) {
+      scheduleAudioClip(ctx, graph, project, { ...ev, remaining: Math.min(ev.remaining, toTick - ev.tick) }, lead, spt);
     }
   }
   return ctx.startRendering();

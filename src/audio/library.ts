@@ -5,11 +5,12 @@ import { assets } from './assets';
 import { DRUM_BUILDERS } from './instruments/drums';
 import { defaultDrum } from '../state/defaults';
 import type { DrumType } from '../state/types';
+import { PACK, PACK_GENERATORS } from './soundpack';
 
 export interface LibrarySample {
   id: string;
   name: string;
-  category: 'Drums' | 'Bass' | 'FX' | 'Vocals' | 'Loops' | 'Melodic';
+  category: 'Drums' | 'Percussion' | 'Bass' | 'Melodic' | 'Vocals' | 'FX' | 'Funny' | 'Game' | 'Loops';
   /** root note for melodic samples */
   root?: number;
 }
@@ -34,9 +35,10 @@ export const LIBRARY: LibrarySample[] = [
   { id: 'builtin:downlifter', name: 'Downlifter', category: 'FX' },
   { id: 'builtin:impact', name: 'Impact Boom', category: 'FX' },
   { id: 'builtin:zap', name: 'Laser Zap', category: 'FX' },
-  { id: 'builtin:boing', name: 'Goofy Boing', category: 'FX' },
+  { id: 'builtin:boing', name: 'Goofy Boing', category: 'Funny' },
   { id: 'builtin:vinyl', name: 'Vinyl Crackle Loop', category: 'Loops' },
   { id: 'builtin:beat', name: 'Boom Bap Loop 90', category: 'Loops' },
+  ...PACK,
 ];
 
 type Render = (ctx: OfflineAudioContext) => void;
@@ -101,6 +103,7 @@ const OOH: [number, number, number][] = [[300, 8, 1.6], [870, 10, 0.5], [2240, 1
 const AAH: [number, number, number][] = [[730, 7, 1.4], [1090, 9, 0.8], [2440, 12, 0.3]];
 
 const GENERATORS: Record<string, () => Promise<AudioBuffer>> = {
+  ...PACK_GENERATORS,
   'builtin:kick-808': () => drum('kick', { decay: 2.2, tone: 0.2, snap: 0.2 }, 1.4),
   'builtin:kick-punch': () => drum('kick', { decay: 0.8, tone: 0.8, snap: 0.9 }),
   'builtin:snare': () => drum('snare', { tone: 0.6, snap: 0.7 }),
@@ -295,14 +298,21 @@ const GENERATORS: Record<string, () => Promise<AudioBuffer>> = {
 /** Renders all built-in samples into the asset registry. */
 export async function buildLibrary(onProgress?: (done: number, total: number) => void) {
   let done = 0;
-  for (const s of LIBRARY) {
-    if (assets.has(s.id)) continue;
-    try {
-      const buf = await GENERATORS[s.id]();
-      assets.add(s.id, buf, s.name);
-    } catch (err) {
-      console.warn('[GoofyStudio] could not render', s.id, err);
+  const todo = LIBRARY.filter((s) => !assets.has(s.id));
+  // offline renders run on audio threads – do several at once
+  const CONCURRENCY = 8;
+  let next = 0;
+  const worker = async () => {
+    while (next < todo.length) {
+      const s = todo[next++];
+      try {
+        const buf = await GENERATORS[s.id]();
+        assets.add(s.id, buf, s.name);
+      } catch (err) {
+        console.warn('[GoofyStudio] could not render', s.id, err);
+      }
+      onProgress?.(++done, todo.length);
     }
-    onProgress?.(++done, LIBRARY.length);
-  }
+  };
+  await Promise.all(Array.from({ length: CONCURRENCY }, worker));
 }

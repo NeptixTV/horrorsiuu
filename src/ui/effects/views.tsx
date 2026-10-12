@@ -4,7 +4,7 @@ import { useRef } from 'react';
 import type { EffectInstance, ParamValue } from '../../state/types';
 import { EFFECTS, num, str } from '../../audio/effects/descriptors';
 import type { Effect } from '../../audio/effects/base';
-import { CompressorEffect, DelayEffect, DistortionEffect, EqEffect, FilterEffect, PitchEffect } from '../../audio/effects';
+import { CompressorEffect, DelayEffect, DistortionEffect, EqEffect, FilterEffect, LimiterEffect, PitchEffect } from '../../audio/effects';
 import { makeCurve } from '../../audio/effects/distortion';
 import { engine } from '../../audio/engine';
 import { beginGesture, endGesture } from '../../state/store';
@@ -538,6 +538,102 @@ export function PitchView(p: ViewProps) {
   );
 }
 
+// ---------------- generic views for the modulation / voice effects ----------------
+function lfoShape(shape: string, ph: number) {
+  const f = ph - Math.floor(ph);
+  switch (shape) {
+    case 'square': return f < 0.5 ? 1 : -1;
+    case 'triangle': return 1 - 4 * Math.abs(f - 0.5);
+    case 'sawtooth': return 2 * f - 1;
+    default: return Math.sin(f * Math.PI * 2);
+  }
+}
+
+export function ModView(p: ViewProps) {
+  const d = EFFECTS[p.fx.type];
+  const color = d.color;
+  const ref = useCanvas((ctx, w, h) => {
+    const t = theme();
+    ctx.fillStyle = '#08090b';
+    ctx.fillRect(0, 0, w, h);
+    drawTrackSpectrum(ctx, p.trackId, w, h, color);
+    const now = performance.now() / 1000;
+    const prm = p.fx.params;
+    ctx.font = '10px Inter, sans-serif';
+    ctx.fillStyle = t.dim;
+    if (p.fx.type === 'voice') {
+      const st = num(prm, 'transpose', 0) + num(prm, 'fine', 0) / 100;
+      const mid = h / 2;
+      ctx.strokeStyle = rgba(t.text, 0.25);
+      ctx.beginPath(); ctx.moveTo(20, mid); ctx.lineTo(w - 20, mid); ctx.stroke();
+      const y = mid - (st / 24) * (h / 2 - 16);
+      ctx.strokeStyle = color;
+      ctx.lineWidth = 3;
+      ctx.beginPath(); ctx.moveTo(w / 2 - 60, mid); ctx.lineTo(w / 2 + 60, y); ctx.stroke();
+      ctx.lineWidth = 1;
+      ctx.fillStyle = t.text;
+      ctx.font = '700 22px Inter, sans-serif';
+      ctx.textAlign = 'center';
+      ctx.fillText(`${st > 0 ? '+' : ''}${st.toFixed(1)} st`, w / 2, 30);
+      ctx.font = '10px Inter, sans-serif';
+      ctx.fillStyle = t.dim;
+      const robot = num(prm, 'robot', 0);
+      ctx.fillText(robot > 0.01 ? `robot ${Math.round(robot * 100)}% @ ${Math.round(num(prm, 'robotFreq', 90))} Hz` : 'natural voice', w / 2, h - 10);
+      ctx.textAlign = 'left';
+      return;
+    }
+    if (p.fx.type === 'limiter') {
+      const eff = p.effect();
+      const gr = eff instanceof LimiterEffect ? eff.reduction : 0;
+      const bw = w - 40;
+      ctx.fillStyle = '#15181c';
+      ctx.fillRect(20, h / 2 - 10, bw, 20);
+      ctx.fillStyle = color;
+      ctx.fillRect(20 + bw - clamp(-gr / 24, 0, 1) * bw, h / 2 - 10, clamp(-gr / 24, 0, 1) * bw, 20);
+      ctx.fillStyle = t.text;
+      ctx.fillText(`Gain reduction ${gr.toFixed(1)} dB · drive +${num(prm, 'drive', 6).toFixed(1)} dB · ceiling ${num(prm, 'ceiling', -0.5).toFixed(1)} dB`, 20, h / 2 - 18);
+      return;
+    }
+    // LFO driven effects: draw the modulation over time
+    const rate = num(prm, 'rate', 1);
+    const depth = num(prm, 'depth', 0.6);
+    const shape = p.fx.type === 'tremolo' ? str(prm, 'shape', 'sine') : p.fx.type === 'flanger' ? 'triangle' : 'sine';
+    ctx.strokeStyle = color;
+    ctx.lineWidth = 2;
+    ctx.shadowColor = color;
+    ctx.shadowBlur = 6;
+    ctx.beginPath();
+    for (let x = 0; x < w; x++) {
+      const tt = now - (1 - x / w) * 3;
+      const y = h / 2 - lfoShape(shape, tt * rate) * depth * (h / 2 - 12);
+      if (x === 0) ctx.moveTo(x, y); else ctx.lineTo(x, y);
+    }
+    ctx.stroke();
+    ctx.shadowBlur = 0;
+    if (p.fx.type === 'autopan') {
+      const pan = Math.sin(now * rate * Math.PI * 2) * depth;
+      const cx = w / 2 + pan * (w / 2 - 30);
+      const back = Math.cos(now * rate * Math.PI * 2);
+      ctx.beginPath();
+      ctx.arc(cx, h / 2 + back * 14, 9 - back * 3, 0, Math.PI * 2);
+      ctx.fillStyle = t.accent2;
+      ctx.fill();
+      ctx.fillStyle = t.dim;
+      ctx.fillText('L', 8, 14);
+      ctx.fillText('R', w - 14, 14);
+    }
+    ctx.fillStyle = t.dim;
+    ctx.fillText(`${d.name} · ${rate.toFixed(2)} Hz`, 8, h - 8);
+  });
+  return (
+    <div className="fx-view">
+      {d.info && <div className="fx-info">{d.info}</div>}
+      <canvas ref={ref} className="fx-canvas" />
+      <Knobs fx={p.fx} set={p.set} />
+    </div>
+  );
+}
+
 export const VIEWS: Record<EffectInstance['type'], (p: ViewProps) => React.ReactElement> = {
   eq: EqView,
   compressor: CompressorView,
@@ -547,4 +643,10 @@ export const VIEWS: Record<EffectInstance['type'], (p: ViewProps) => React.React
   distortion: DistortionView,
   chorus: ChorusView,
   pitch: PitchView,
+  voice: ModView,
+  phaser: ModView,
+  flanger: ModView,
+  tremolo: ModView,
+  autopan: ModView,
+  limiter: ModView,
 };

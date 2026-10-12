@@ -54,6 +54,10 @@ class GoofyPitch extends AudioWorkletProcessor {
     this.humanize = 0.2;
     this.mix = 1;
     this.bypass = false;
+    // constant pitch shift in semitones (voice changer); added on top of the correction
+    this.transpose = 0;
+    // pitch detection can be switched off when only transposing
+    this.analysis = true;
 
     this.port.onmessage = (e) => {
       const m = e.data;
@@ -64,6 +68,8 @@ class GoofyPitch extends AudioWorkletProcessor {
         if (typeof m.humanize === 'number') this.humanize = m.humanize;
         if (typeof m.mix === 'number') this.mix = m.mix;
         if (typeof m.bypass === 'boolean') this.bypass = m.bypass;
+        if (typeof m.transpose === 'number') this.transpose = m.transpose;
+        if (typeof m.analysis === 'boolean') this.analysis = m.analysis;
       }
     };
   }
@@ -144,7 +150,7 @@ class GoofyPitch extends AudioWorkletProcessor {
       else this.held = 0;
       this.snapped = snapped;
       this.detected = midi;
-      this.targetShift = (snapped - midi) * this.correction;
+      this.targetShift = (snapped - midi) * this.correction + this.transpose;
       const sustained = this.held > 0.12 * this.sr;
       const ms = this.retune + (sustained ? this.humanize * 300 : 0);
       this.alpha = ms <= 0.5 ? 1 : 1 - Math.exp(-1 / (ms * 0.001 * this.sr));
@@ -152,7 +158,7 @@ class GoofyPitch extends AudioWorkletProcessor {
       this.detected = -1;
       this.snapped = -1;
       this.held = 0;
-      this.targetShift = 0;
+      this.targetShift = this.transpose;
       this.alpha = 1 - Math.exp(-1 / (0.08 * this.sr));
     }
   }
@@ -199,7 +205,11 @@ class GoofyPitch extends AudioWorkletProcessor {
       }
       if (++this.hopCount >= this.hop) {
         this.hopCount = 0;
-        this.analyze();
+        if (this.analysis) this.analyze();
+        else {
+          this.targetShift = this.transpose;
+          this.alpha = 1 - Math.exp(-1 / (0.02 * this.sr));
+        }
       }
 
       this.shift += (this.targetShift - this.shift) * this.alpha;

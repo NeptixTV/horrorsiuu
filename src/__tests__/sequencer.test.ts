@@ -93,3 +93,36 @@ describe('song events', () => {
     expect(songLength(p)).toBe(PPQ * 72);
   });
 });
+
+describe('clip & row settings', () => {
+  it('transposes and scales the notes of a pattern clip', () => {
+    const p = simpleProject();
+    const pat = p.patterns[0];
+    pat.steps = {};
+    pat.notes[p.channels[4].id] = [{ id: 'n', pitch: 60, start: 0, length: PPQ, velocity: 0.5 }];
+    p.clips = [{ id: 'c', trackId: p.tracks[0].id, kind: 'pattern', start: 0, length: PPQ * 4, offset: 0, patternId: pat.id, transpose: 7, gain: 1.5 }];
+    const ev = collectNoteEvents(p, 'song', null, 0, PPQ * 4);
+    expect(ev).toHaveLength(1);
+    expect(ev[0].pitch).toBe(67);
+    expect(ev[0].velocity).toBeCloseTo(0.75);
+  });
+
+  it('a soloed row silences the other rows', () => {
+    const p = createDemoProject();
+    const bar = PPQ * 4;
+    const all = collectNoteEvents(p, 'song', null, bar * 4, bar * 5);
+    p.tracks[1].solo = true; // bass row
+    const solo = collectNoteEvents(p, 'song', null, bar * 4, bar * 5);
+    expect(solo.length).toBeGreaterThan(0);
+    expect(solo.length).toBeLessThan(all.length);
+    const bassChannel = p.channels.find((c) => c.name === 'Fat Bass')!.id;
+    expect(solo.every((e) => e.channelId === bassChannel)).toBe(true);
+  });
+
+  it('accounts for clip speed when starting mid-clip', () => {
+    const p = createEmptyProject();
+    p.clips = [{ id: 'a', trackId: p.tracks[0].id, kind: 'audio', start: 0, length: PPQ * 8, offset: 0, assetId: 'x', speed: 2 }];
+    const span = collectAudioSpanning(p, PPQ * 2, 120);
+    expect(span[0].sourceOffset).toBeCloseTo(2); // 1 s of timeline at 2× speed = 2 s of source
+  });
+});

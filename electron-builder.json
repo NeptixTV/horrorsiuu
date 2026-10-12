@@ -2,20 +2,40 @@
   "appId": "com.goofystudio.daw",
   "productName": "Goofy Studio",
   "copyright": "Goofy Studio",
-  "directories": { "output": "release", "buildResources": "build" },
-  "files": ["dist/**/*", "electron/**/*", "package.json"],
+  "directories": {
+    "output": "release",
+    "buildResources": "build"
+  },
+  "files": [
+    "dist/**/*",
+    "electron/**/*",
+    "!electron/afterPack.cjs",
+    "package.json"
+  ],
   "asar": true,
   "npmRebuild": false,
   "afterPack": "electron/afterPack.cjs",
   "win": {
     "target": [
-      { "target": "portable", "arch": ["x64"] },
-      { "target": "nsis", "arch": ["x64"] }
+      {
+        "target": "portable",
+        "arch": [
+          "x64"
+        ]
+      },
+      {
+        "target": "nsis",
+        "arch": [
+          "x64"
+        ]
+      }
     ],
     "icon": "build/icon.ico",
     "signAndEditExecutable": false
   },
-  "portable": { "artifactName": "GoofyStudio-${version}-portable.exe" },
+  "portable": {
+    "artifactName": "GoofyStudio-${version}-portable.exe"
+  },
   "nsis": {
     "oneClick": false,
     "allowToChangeInstallationDirectory": true,
@@ -26,6 +46,18 @@
     "uninstallerIcon": "build/icon.ico",
     "artifactName": "GoofyStudio-${version}-Setup.exe"
   },
-  "linux": { "target": ["AppImage"], "icon": "build/icon.png", "category": "AudioVideo" },
-  "mac": { "target": ["dmg"], "icon": "build/icon.png", "category": "public.app-category.music" }
+  "linux": {
+    "target": [
+      "AppImage"
+    ],
+    "icon": "build/icon.png",
+    "category": "AudioVideo"
+  },
+  "mac": {
+    "target": [
+      "dmg"
+    ],
+    "icon": "build/icon.png",
+    "category": "public.app-category.music"
+  }
 }

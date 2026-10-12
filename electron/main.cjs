@@ -2,6 +2,7 @@
 const { app, BrowserWindow, Menu, net, protocol, session, shell } = require('electron');
 const path = require('node:path');
 const { pathToFileURL } = require('node:url');
+const ipc = require('./ipc.cjs');
 
 const DIST = path.join(__dirname, '..', 'dist');
 
@@ -14,7 +15,17 @@ protocol.registerSchemesAsPrivileged([
 // Audio may start without a click inside the desktop app.
 app.commandLine.appendSwitch('autoplay-policy', 'no-user-gesture-required');
 
-if (!app.requestSingleInstanceLock()) app.quit();
+// One window only. A freshly downloaded update ("--after-update") waits until
+// the old version has closed before it takes over.
+async function acquireLock() {
+  if (app.requestSingleInstanceLock()) return true;
+  if (!process.argv.includes('--after-update')) return false;
+  for (let i = 0; i < 40; i++) {
+    await new Promise((r) => setTimeout(r, 250));
+    if (app.requestSingleInstanceLock()) return true;
+  }
+  return false;
+}
 
 let mainWindow = null;
 
@@ -32,6 +43,7 @@ function createWindow() {
       contextIsolation: true,
       nodeIntegration: false,
       sandbox: true,
+      preload: path.join(__dirname, 'preload.cjs'),
       backgroundThrottling: false,
     },
   });
@@ -54,12 +66,16 @@ const CSP = [
   "img-src 'self' data: blob:",
   "font-src 'self' data:",
   "media-src 'self' data: blob:",
-  "connect-src 'self' data: blob:",
+  "connect-src 'self' data: blob: https://api.github.com https://raw.githubusercontent.com",
 ].join('; ');
 
 const ALLOWED = new Set(['media', 'midi', 'midiSysex', 'speaker-selection', 'clipboard-sanitized-write', 'fullscreen']);
 
-app.whenReady().then(() => {
+app.whenReady().then(async () => {
+  if (!(await acquireLock())) {
+    app.quit();
+    return;
+  }
   protocol.handle('app', async (request) => {
     const { pathname } = new URL(request.url);
     const file = path.normalize(path.join(DIST, decodeURIComponent(pathname)));
@@ -74,6 +90,7 @@ app.whenReady().then(() => {
   session.defaultSession.setPermissionRequestHandler((_wc, permission, callback) => callback(ALLOWED.has(permission)));
   session.defaultSession.setPermissionCheckHandler((_wc, permission) => ALLOWED.has(permission));
   Menu.setApplicationMenu(null);
+  ipc.register(() => mainWindow);
   createWindow();
 });
 

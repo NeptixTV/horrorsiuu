@@ -44,6 +44,12 @@ export function songLength(project: Project): number {
   return Math.max(bar * 4, Math.ceil(end / bar) * bar);
 }
 
+/** Playlist tracks that are silent (muted, or not soloed while another track is). */
+export function silentTracks(project: Project): Set<string> {
+  const anySolo = project.tracks.some((t) => t.solo);
+  return new Set(project.tracks.filter((t) => t.mute || (anySolo && !t.solo)).map((t) => t.id));
+}
+
 function activeChannels(project: Project): Set<string> {
   const anySolo = project.channels.some((c) => c.solo);
   const set = new Set<string>();
@@ -61,7 +67,7 @@ function activeChannels(project: Project): Set<string> {
  */
 export function collectPatternEvents(
   project: Project, pattern: Pattern, from: number, to: number, base: number, out: NoteEvent[],
-  active = activeChannels(project), limit = Infinity,
+  active = activeChannels(project), limit = Infinity, transpose = 0, gain = 1,
 ) {
   const swing = project.swing * TICKS_PER_STEP * 0.5;
   for (const ch of project.channels) {
@@ -74,7 +80,7 @@ export function collectPatternEvents(
         if (!v) continue;
         const t = i * TICKS_PER_STEP + (i % 2 === 1 ? swing : 0);
         if (t >= from && t < to) {
-          out.push({ tick: base + t, channelId: ch.id, pitch: ch.rootNote, velocity: v, length: Math.min(TICKS_PER_STEP, limit - t), step: i });
+          out.push({ tick: base + t, channelId: ch.id, pitch: ch.rootNote + transpose, velocity: Math.min(1, v * gain), length: Math.min(TICKS_PER_STEP, limit - t), step: i });
         }
       }
     }
@@ -82,7 +88,7 @@ export function collectPatternEvents(
     if (notes) {
       for (const note of notes) {
         if (note.start >= from && note.start < to) {
-          out.push({ tick: base + note.start, channelId: ch.id, pitch: note.pitch, velocity: note.velocity, length: Math.min(note.length, limit - note.start) });
+          out.push({ tick: base + note.start, channelId: ch.id, pitch: note.pitch + transpose, velocity: Math.min(1, note.velocity * gain), length: Math.min(note.length, limit - note.start) });
         }
       }
     }
@@ -108,7 +114,7 @@ export function collectNoteEvents(project: Project, mode: PlayMode, patternId: s
     return out;
   }
 
-  const mutedTracks = new Set(project.tracks.filter((t) => t.mute).map((t) => t.id));
+  const mutedTracks = silentTracks(project);
   const patterns = new Map(project.patterns.map((p) => [p.id, p]));
   for (const clip of project.clips) {
     if (clip.kind !== 'pattern' || mutedTracks.has(clip.trackId)) continue;
@@ -126,7 +132,7 @@ export function collectNoteEvents(project: Project, mode: PlayMode, patternId: s
       const la = Math.max(a, loopStart) - loopStart;
       const lb = Math.min(b, loopStart + len) - loopStart;
       const limit = Math.min(len, clipEnd - loopStart);
-      collectPatternEvents(project, pattern, la, lb, loopStart, out, active, limit);
+      collectPatternEvents(project, pattern, la, lb, loopStart, out, active, limit, clip.transpose ?? 0, clip.gain ?? 1);
       loopStart += len;
     }
   }
@@ -136,7 +142,7 @@ export function collectNoteEvents(project: Project, mode: PlayMode, patternId: s
 
 /** Audio clips starting in [from, to). */
 export function collectAudioStarts(project: Project, from: number, to: number): AudioEvent[] {
-  const mutedTracks = new Set(project.tracks.filter((t) => t.mute).map((t) => t.id));
+  const mutedTracks = silentTracks(project);
   const out: AudioEvent[] = [];
   for (const clip of project.clips) {
     if (clip.kind !== 'audio' || mutedTracks.has(clip.trackId)) continue;
@@ -147,13 +153,13 @@ export function collectAudioStarts(project: Project, from: number, to: number): 
 
 /** Audio clips that are already playing at `tick` (start < tick < end): used when starting mid-clip. */
 export function collectAudioSpanning(project: Project, tick: number, bpm: number): AudioEvent[] {
-  const mutedTracks = new Set(project.tracks.filter((t) => t.mute).map((t) => t.id));
+  const mutedTracks = silentTracks(project);
   const out: AudioEvent[] = [];
   for (const clip of project.clips) {
     if (clip.kind !== 'audio' || mutedTracks.has(clip.trackId)) continue;
     if (clip.start < tick && clip.start + clip.length > tick) {
       const intoTicks = tick - clip.start;
-      out.push({ tick, clip, sourceOffset: clip.offset + (intoTicks / PPQ) * (60 / bpm), remaining: clip.length - intoTicks });
+      out.push({ tick, clip, sourceOffset: clip.offset + (intoTicks / PPQ) * (60 / bpm) * (clip.speed ?? 1), remaining: clip.length - intoTicks });
     }
   }
   return out;

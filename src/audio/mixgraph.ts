@@ -1,7 +1,7 @@
 // The audio graph for one project: mixer strips with insert chains, sends and
 // routing, plus one instrument host per channel. Works with any
 // BaseAudioContext, so the same code drives live playback and offline export.
-import type { Channel, EffectInstance, MixerTrack, Project } from '../state/types';
+import type { Channel, Clip, EffectInstance, MixerTrack, Project } from '../state/types';
 import { MASTER_ID } from '../state/types';
 import { audibleTracks, wouldCycle } from '../state/routing';
 import { createEffect } from './effects';
@@ -30,52 +30,35 @@ function measure(an: AnalyserNode): [number, number] {
   return [peak, Math.sqrt(sum / meterBuf.length)];
 }
 
-export class Strip {
+/** An ordered chain of insert effects between `input` and `output`. */
+export class InsertChain {
   readonly input: GainNode;
-  readonly panner: StereoPannerNode;
-  readonly fader: GainNode;
-  readonly muteGain: GainNode;
   readonly output: GainNode;
-  readonly analyserL: AnalyserNode;
-  readonly analyserR: AnalyserNode;
   slots: EffectSlot[] = [];
-  sendGains = new Map<string, GainNode>();
-  state: MixerTrack;
+  private current: EffectInstance[] | null = null;
 
-  constructor(private ctx: BaseAudioContext, track: MixerTrack, env: EffectEnv) {
+  constructor(private ctx: BaseAudioContext) {
     this.input = ctx.createGain();
-    this.panner = ctx.createStereoPanner();
-    this.fader = ctx.createGain();
-    this.muteGain = ctx.createGain();
     this.output = ctx.createGain();
-    const split = ctx.createChannelSplitter(2);
-    this.analyserL = ctx.createAnalyser();
-    this.analyserR = ctx.createAnalyser();
-    this.analyserL.fftSize = 1024;
-    this.analyserR.fftSize = 1024;
-    this.panner.connect(this.fader).connect(this.muteGain).connect(this.output);
-    this.output.connect(split);
-    split.connect(this.analyserL, 0);
-    split.connect(this.analyserR, 1);
-    this.state = { ...track, inserts: [] };
-    this.applyInserts(track.inserts, env);
-    this.apply(track, env);
+    this.input.connect(this.output);
   }
 
   private rewire() {
     try { this.input.disconnect(); } catch { /* ignore */ }
-    let prev: AudioNode = this.input;
     for (const s of this.slots) {
       try { s.output.disconnect(); } catch { /* ignore */ }
     }
+    let prev: AudioNode = this.input;
     for (const s of this.slots) {
       prev.connect(s.input);
       prev = s.output;
     }
-    prev.connect(this.panner);
+    prev.connect(this.output);
   }
 
-  private applyInserts(inserts: EffectInstance[], env: EffectEnv) {
+  apply(inserts: EffectInstance[], env: EffectEnv) {
+    if (inserts === this.current) return;
+    this.current = inserts;
     const existing = new Map(this.slots.map((s) => [s.instance.id, s]));
     const next: EffectSlot[] = [];
     for (const inst of inserts) {
@@ -91,18 +74,71 @@ export class Strip {
     for (const s of existing.values()) s.dispose();
     const orderChanged = next.length !== this.slots.length || next.some((s, i) => s !== this.slots[i]);
     this.slots = next;
-    if (orderChanged || this.slots.length === 0) this.rewire();
+    if (orderChanged) this.rewire();
+  }
+
+  setTempo(bpm: number) {
+    for (const s of this.slots) s.effect.setTempo(bpm);
+  }
+
+  slot(effectId: string) {
+    return this.slots.find((s) => s.instance.id === effectId);
+  }
+
+  dispose() {
+    for (const s of this.slots) s.dispose();
+    try { this.input.disconnect(); } catch { /* ignore */ }
+    try { this.output.disconnect(); } catch { /* ignore */ }
+  }
+}
+
+export class Strip {
+  readonly input: GainNode;
+  readonly chain: InsertChain;
+  readonly panner: StereoPannerNode;
+  readonly fader: GainNode;
+  readonly muteGain: GainNode;
+  readonly output: GainNode;
+  readonly analyserL: AnalyserNode;
+  readonly analyserR: AnalyserNode;
+  sendGains = new Map<string, GainNode>();
+  state: MixerTrack;
+
+  constructor(private ctx: BaseAudioContext, track: MixerTrack, env: EffectEnv) {
+    this.chain = new InsertChain(ctx);
+    this.input = this.chain.input;
+    this.panner = ctx.createStereoPanner();
+    this.fader = ctx.createGain();
+    this.muteGain = ctx.createGain();
+    this.output = ctx.createGain();
+    const split = ctx.createChannelSplitter(2);
+    this.analyserL = ctx.createAnalyser();
+    this.analyserR = ctx.createAnalyser();
+    this.analyserL.fftSize = 1024;
+    this.analyserR.fftSize = 1024;
+    this.chain.output.connect(this.panner);
+    this.panner.connect(this.fader).connect(this.muteGain).connect(this.output);
+    this.output.connect(split);
+    split.connect(this.analyserL, 0);
+    split.connect(this.analyserR, 1);
+    this.state = track;
+    this.chain.apply(track.inserts, env);
+    this.apply(track, env);
+  }
+
+  get slots() {
+    return this.chain.slots;
   }
 
   apply(track: MixerTrack, env: EffectEnv) {
-    if (track.inserts !== this.state.inserts) this.applyInserts(track.inserts, env);
+    this.chain.apply(track.inserts, env);
     setParam(this.fader.gain, track.volume, this.ctx, 0.01);
     setParam(this.panner.pan, track.pan, this.ctx, 0.01);
     this.state = track;
   }
 
   setTempo(bpm: number) {
-    for (const s of this.slots) s.effect.setTempo(bpm);
+    this.chain.setTempo(bpm);
   }
 
   setAudible(on: boolean) {
@@ -116,15 +152,53 @@ export class Strip {
   }
 
   slot(effectId: string) {
-    return this.slots.find((s) => s.instance.id === effectId);
+    return this.chain.slot(effectId);
   }
 
   dispose() {
-    for (const s of this.slots) s.dispose();
-    for (const n of [this.input, this.panner, this.fader, this.muteGain, this.output]) {
+    this.chain.dispose();
+    for (const n of [this.panner, this.fader, this.muteGain, this.output]) {
       try { n.disconnect(); } catch { /* ignore */ }
     }
     for (const g of this.sendGains.values()) g.disconnect();
+  }
+}
+
+/** Per-clip effect chain + pan for audio clips (persistent, so it can be tweaked while playing). */
+export class ClipHost {
+  readonly chain: InsertChain;
+  readonly panner: StereoPannerNode;
+  state: Clip;
+  connectedTo: AudioNode | null = null;
+
+  constructor(private ctx: BaseAudioContext, clip: Clip, env: EffectEnv) {
+    this.chain = new InsertChain(ctx);
+    this.panner = ctx.createStereoPanner();
+    this.chain.output.connect(this.panner);
+    this.state = clip;
+    this.apply(clip, env);
+  }
+
+  get input() {
+    return this.chain.input;
+  }
+
+  apply(clip: Clip, env: EffectEnv) {
+    this.chain.apply(clip.fx ?? [], env);
+    setParam(this.panner.pan, clip.pan ?? 0, this.ctx, 0.01);
+    this.state = clip;
+  }
+
+  connect(dest: AudioNode) {
+    if (this.connectedTo === dest) return;
+    try { this.panner.disconnect(); } catch { /* ignore */ }
+    this.panner.connect(dest);
+    this.connectedTo = dest;
+  }
+
+  dispose() {
+    this.chain.dispose();
+    try { this.panner.disconnect(); } catch { /* ignore */ }
   }
 }
 
@@ -182,6 +256,7 @@ export class ChannelHost {
 export class MixGraph {
   readonly strips = new Map<string, Strip>();
   readonly channels = new Map<string, ChannelHost>();
+  readonly clips = new Map<string, ClipHost>();
   readonly out: GainNode;
   private project: Project | null = null;
   private routingKey = '';
@@ -207,9 +282,49 @@ export class MixGraph {
     const env: EffectEnv = { bpm: project.bpm };
 
     if (!prev || prev.mixer !== project.mixer) this.syncMixer(project.mixer, env);
-    if (prev && prev.bpm !== project.bpm) for (const s of this.strips.values()) s.setTempo(project.bpm);
+    if (prev && prev.bpm !== project.bpm) {
+      for (const s of this.strips.values()) s.setTempo(project.bpm);
+      for (const c of this.clips.values()) c.chain.setTempo(project.bpm);
+    }
     this.bpm = project.bpm;
     if (!prev || prev.channels !== project.channels || prev.mixer !== project.mixer) this.syncChannels(project.channels);
+    if (!prev || prev.clips !== project.clips || prev.tracks !== project.tracks || prev.mixer !== project.mixer) this.syncClips(project, env);
+  }
+
+  /** Destination for an audio clip: its own effect chain, or the mixer insert of its track. */
+  clipInput(clip: Clip, project: Project): AudioNode {
+    const host = this.clips.get(clip.id);
+    if (host) return host.input;
+    const track = project.tracks.find((t) => t.id === clip.trackId);
+    return this.stripInput(track?.mixerTrackId ?? MASTER_ID);
+  }
+
+  clipSlot(clipId: string, effectId: string) {
+    return this.clips.get(clipId)?.chain.slot(effectId);
+  }
+
+  private syncClips(project: Project, env: EffectEnv) {
+    const need = new Set<string>();
+    const tracks = new Map(project.tracks.map((t) => [t.id, t]));
+    for (const clip of project.clips) {
+      if (clip.kind !== 'audio') continue;
+      if (!(clip.fx?.length) && !(clip.pan && Math.abs(clip.pan) > 0.001)) continue;
+      need.add(clip.id);
+      let host = this.clips.get(clip.id);
+      if (!host) {
+        host = new ClipHost(this.ctx, clip, env);
+        this.clips.set(clip.id, host);
+      } else if (host.state !== clip) {
+        host.apply(clip, env);
+      }
+      host.connect(this.stripInput(tracks.get(clip.trackId)?.mixerTrackId ?? MASTER_ID));
+    }
+    for (const [id, host] of this.clips) {
+      if (!need.has(id)) {
+        host.dispose();
+        this.clips.delete(id);
+      }
+    }
   }
 
   private syncMixer(mixer: MixerTrack[], env: EffectEnv) {
@@ -331,6 +446,7 @@ export class MixGraph {
 
   dispose() {
     for (const h of this.channels.values()) h.dispose();
+    for (const c of this.clips.values()) c.dispose();
     for (const s of this.strips.values()) s.dispose();
     this.channels.clear();
     this.strips.clear();

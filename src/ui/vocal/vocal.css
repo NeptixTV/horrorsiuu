@@ -19,3 +19,4 @@
 .vc-rec.on .vc-rec-dot { background: #fff; }
 .vc-timer { font-family: var(--mono); font-weight: 400; }
 .vc-hint { color: var(--dim); font-size: 10.5px; line-height: 1.5; margin: 0; }
+.vc-live { display: flex; flex-direction: column; gap: 8px; margin-bottom: 12px; padding-bottom: 12px; border-bottom: 1px solid var(--border); }

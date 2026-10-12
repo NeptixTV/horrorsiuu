@@ -19,6 +19,8 @@ import { showMenu, type MenuItem } from '../components/ContextMenu';
 import { colorMenu } from '../components/ColorPicker';
 import { readDragPayload } from '../browser/Browser';
 import { applyVocalChain } from '../browser/vocalChains';
+import { FX_CHAINS } from '../../audio/effects/fxPresets';
+import { fxApplyChain } from '../../state/actions';
 import './mixer.css';
 import { askText } from '../dialogs/askText';
 
@@ -52,6 +54,14 @@ function handleEffectDrop(e: DragEvent, trackId: string, index?: number) {
   e.stopPropagation();
   const p = readDragPayload(e);
   setUI({ dragPayload: null });
+  if (p?.type === 'fxchain') {
+    const chain = FX_CHAINS.find((c) => c.name === p.name);
+    if (chain) {
+      fxApplyChain({ kind: 'mixer', id: trackId }, chain.effects, 'add', chain.name);
+      toast(`${chain.icon} ${chain.name} → ${getProject().mixer.find((m) => m.id === trackId)?.name}`, 'ok');
+    }
+    return true;
+  }
   if (!p || p.type !== 'effect') return false;
   if (p.preset?.startsWith('chain:')) {
     applyVocalChain(p.preset.slice(6));

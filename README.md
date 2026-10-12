@@ -8,13 +8,61 @@ Step-Sequencer · Playlist · Piano Roll · Mixer · Effekte · Synthesizer · D
 
 ---
 
+## Neu in Version 1.1.0
+
+- **Admin-Panel** (irgendwo in der App `187` tippen): Nachrichten an alle Nutzer schicken und Updates veröffentlichen.
+  Beim nächsten Start sehen alle ein Popup – bei Updates mit „Download & update“ / „Not now“ und deinem Text, was neu ist.
+- **Automatische Updates** ab 1.1.0: Die App lädt das neue Update selbst herunter und installiert es
+  (Installer-Version) bzw. startet die neue portable .exe. *Die alte 1.0.0 hat noch keinen Update-Code – wer sie
+  hat, muss 1.1.0 einmal selbst herunterladen.*
+- **Rechtsklick auf einen Sound in der Playlist → Settings…**: Lautstärke exakt in dB, Pan, Speed, Reverse,
+  Fade-in/out, Normalize und eigene Effektkette nur für diesen Clip – inkl. Ein-Klick-**Sound FX**
+  (Unterwasser, Bass Boosted, Roboter, Chipmunk, Monster, Alien, Telefon, Radio, Megaphon, 8D-Audio, Höhle,
+  Stadion, Lo-Fi, Vaporwave, Nightcore …) und Autotune-Varianten. Alles lässt sich **live beim Abspielen** ändern.
+- **Jede Reihe hat ihren eigenen Mixer-Kanal** (Zahnrad oder Rechtsklick auf den Reihennamen → Settings): Lautstärke,
+  Pan, Solo/Mute, Effekte. Reihen mit Sounds bekommen ihren Mixer-Kanal automatisch.
+- **Sauberes Schneiden**: Das Schere-Werkzeug schneidet *genau* an der Mausposition (gestrichelte Vorschaulinie),
+  Ziehen/Verlängern folgt exakt der Maus und rastet nur „magnetisch“ ein, wenn man nah an einer Rasterlinie oder
+  Clip-Kante ist (Modus *Magnet / Grid / Free*, Alt = frei). Jeder Schnitt bekommt Mini-Fades, damit nichts knackt.
+- **Song Splitter** (File-Menü oder *My Library*): Song reinziehen → **Vocals**, **Instrumental (ohne Stimme)**,
+  **Beat/Drums** und **Melodie** trennen, anhören und als eigene Spuren in die Playlist legen.
+- **My Library + Sample-Editor**: eigene Sounds importieren, umbenennen, löschen, bearbeiten (Bereich auswählen,
+  Trim, Cut, Fade, Normalize, Reverse, Pitch) und Effekte vorhören & fest einrechnen.
+- **Mikrofon-Live-FX**: Stimmverzerrer, Autotune-Varianten und alle Effekte live auf dem Mikrofon.
+- **6 neue Effekte**: Voice Changer, Phaser, Flanger, Tremolo, 8D Auto-Pan, Limiter. Goofy Tune kann jetzt zusätzlich transponieren.
+- **50 neue Sounds**: Trap-/House-Drums, Percussion, Piano, Gitarre, Glocke, Orgel, Chor, Sirene, Air Horn,
+  Game-Sounds und lustige Sounds (Quack, Furz, Slide Whistle, Ba-Dum-Tss, Sad Trombone, Muh …).
+
+## Admin-Panel: Nachrichten & Updates verschicken
+
+Die App liest beim Start die Datei `feed.json` aus dem Branch **`goofy-feed`** dieses (öffentlichen) Repos.
+Schreiben darf nur, wer deinen GitHub-Schlüssel hat – der Code `187` öffnet nur das Fenster.
+
+**Einmalig: Schlüssel (Token) anlegen**
+1. GitHub → *Settings → Developer settings → Personal access tokens → Fine-grained tokens → Generate new token*
+   (oder im Admin-Panel unter 🔑 Access auf „Create token on GitHub“ klicken).
+2. *Repository access*: „Only select repositories“ → `NeptixTV/horrorsiuu`.
+3. *Permissions → Repository permissions → Contents*: **Read and write**.
+4. Token kopieren, in Goofy Studio `187` tippen → 🔑 Access → einfügen → *Save & test*.
+   Der Token wird verschlüsselt nur auf deinem PC gespeichert und ist nicht Teil der App, die du weitergibst.
+
+**Nachricht senden:** 📢 Send news → Titel + Text → *Send to everyone*. Erscheint bei allen beim nächsten Start.
+
+**Update veröffentlichen:**
+1. In `package.json` die Version erhöhen (z. B. `1.2.0`), Änderungen pushen.
+2. GitHub baut die neuen .exe-Dateien (Actions → „Build Windows .exe“ → *Artifacts*) – herunterladen und entpacken.
+3. In der App `187` → ⬆️ Publish update → Version eintragen, „What's new“ schreiben,
+   `Setup.exe` und/oder `portable.exe` reinziehen → *Publish update*.
+   Die App legt dafür automatisch ein GitHub-Release an und lädt die Dateien hoch.
+4. Alle mit Version 1.1.0 oder neuer bekommen beim nächsten Start das Update-Popup.
+
 ## Windows-Programm (.exe)
 
 Goofy Studio gibt es als Windows-Programm – mit eigenem Chromium (Electron), daher funktionieren Audio,
 AudioWorklets und Mikrofon genau wie getestet.
 
-- **`GoofyStudio-1.0.0-portable.exe`** – Doppelklick und los, keine Installation nötig.
-- **`GoofyStudio-1.0.0-Setup.exe`** – Installer mit Desktop- und Startmenü-Verknüpfung.
+- **`GoofyStudio-<version>-portable.exe`** – Doppelklick und los, keine Installation nötig.
+- **`GoofyStudio-<version>-Setup.exe`** – Installer mit Desktop- und Startmenü-Verknüpfung (empfohlen für automatische Updates).
 
 Beide werden automatisch vom Workflow **„Build Windows .exe“** gebaut (GitHub → *Actions* → letzter Lauf →
 *Artifacts* → `GoofyStudio-Windows`). Wird ein Tag wie `v1.0.0` gepusht, landen sie zusätzlich als Release auf GitHub.
@@ -147,7 +195,8 @@ Projektdatei exportieren/importieren (`.goofy.json` inkl. Aufnahmen). Gespeicher
 ## Architektur
 
 ```
-electron/             Desktop-Hülle: main.cjs (Fenster, app://-Protokoll, Mikrofon-Rechte), afterPack.cjs (Icon in die .exe)
+electron/             Desktop-Hülle: main.cjs (Fenster, app://-Protokoll, Mikrofon-Rechte), preload.cjs + ipc.cjs
+                      (Admin-Token, GitHub-Upload, Update-Download/-Installation), afterPack.cjs (Icon in die .exe)
 build/                App-Icons (icon.ico / icon.png)
 src/
 ├── audio/            Audio-Engine (unabhängig von React)
@@ -158,10 +207,14 @@ src/
 │   ├── input.ts        Mikrofon, Monitoring, Aufnahme
 │   ├── render.ts       Offline-Mixdown + WAV-Encoder
 │   ├── library.ts      synthetisierte Sample-Bibliothek
-│   ├── effects/        EQ, Compressor, Reverb, Delay, Filter, Distortion, Chorus, Pitch + Beschreibungen/Presets
+│   ├── effects/        EQ, Compressor, Reverb, Delay, Filter, Distortion, Chorus, Pitch, Voice Changer, Phaser,
+│   │                   Flanger, Tremolo, 8D, Limiter + Presets und Sound-FX-Ketten (fxPresets.ts)
+│   ├── stems/          Song-Trennung (Mitten-Extraktion + HPSS im Web Worker)
+│   ├── clipPlayback.ts Abspielen eines Audio-Clips (Fades, Speed, Reverse, Clip-Effekte)
 │   ├── instruments/    Synth, Drum-Voices, Sampler
 │   └── worklets/       AudioWorklet-Prozessoren (Recorder, Pitch Correction)
 ├── state/            Datenmodell, Store mit Undo/Redo (zustand + immer), Aktionen, Routing-Logik
+├── admin/            News-/Update-Feed (lesen für alle, schreiben per GitHub-API fürs Admin-Panel)
 ├── project/          IndexedDB-Speicher, Projekt-Lebenszyklus, Import/Export
 ├── midi/             Musiktheorie (Skalen, Notennamen, Frequenzen)
 ├── ui/               React-Komponenten: toolbar, browser, playlist, channelrack, pianoroll, mixer, effects,
@@ -182,8 +235,12 @@ Designprinzipien:
 
 ## Ehrliche Hinweise zu Grenzen
 
-- Die **Formant**-Regelung von Goofy Tune ist eine klangliche Annäherung (Spektral-Tilt), keine echte
-  Formant-Verschiebung. Tonhöhenerkennung und -korrektur selbst sind echt (in Tests: 452 Hz → 440 Hz).
+- Die **Formant**-Regelung (Goofy Tune, Voice Changer) ist eine klangliche Annäherung (Spektral-Tilt), keine echte
+  Formant-Verschiebung.
+- Der **Song Splitter** arbeitet mit klassischer Signalverarbeitung, nicht mit einer KI. Er funktioniert am besten bei
+  Stereo-Studiosongs mit mittig gemischter Stimme; zwischen den Spuren bleibt etwas „Übersprechen“. Mono-Songs lassen
+  sich kaum trennen.
+- Das Update-System nutzt GitHub: Ohne Internet gibt es keine News/Updates, die App funktioniert aber normal. Tonhöhenerkennung und -korrektur selbst sind echt (in Tests: 452 Hz → 440 Hz).
 - Browser liefern keine echte CPU-Auslastung; die Anzeige zeigt die Auslastung der UI-Frames, aktive Stimmen und Speicher.
 - Die Buffer-Size bestimmt der Browser; einstellbar ist der Latenzmodus (Interactive / Balanced / Playback).
 - Projekte werden im Browser (IndexedDB) gespeichert. Zum Sichern oder Weitergeben: *File → Export project file*.

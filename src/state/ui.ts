@@ -19,6 +19,12 @@ export interface CustomTheme {
 export type WindowKind =
   | { kind: 'channel'; channelId: Id }
   | { kind: 'effect'; trackId: Id; effectId: Id }
+  | { kind: 'clipEffect'; clipId: Id; effectId: Id }
+  | { kind: 'clip'; clipId: Id }
+  | { kind: 'track'; trackId: Id }
+  | { kind: 'sampleEditor'; assetId: Id }
+  | { kind: 'stems' }
+  | { kind: 'admin' }
   | { kind: 'settings' }
   | { kind: 'projects' }
   | { kind: 'export' }
@@ -45,6 +51,8 @@ export interface UIState {
   // editors
   playlistTool: PlaylistTool;
   playlistSnap: number; // ticks
+  /** magnet = exact position, pulled onto nearby grid lines / clip edges */
+  snapMode: 'magnet' | 'grid' | 'off';
   playlistZoom: number; // px per beat
   trackHeight: number;
   pianoSnap: number;
@@ -87,11 +95,12 @@ export type DragPayload =
   | { type: 'sample'; assetId: string; name: string }
   | { type: 'effect'; effect: EffectType; preset?: string }
   | { type: 'synthPreset'; preset: string }
-  | { type: 'pattern'; patternId: string };
+  | { type: 'pattern'; patternId: string }
+  | { type: 'fxchain'; name: string };
 
 const PERSIST_KEY = 'goofy-studio-ui';
 const PERSISTED: (keyof UIState)[] = [
-  'playlistSnap', 'playlistZoom', 'trackHeight', 'pianoSnap', 'pianoZoomX', 'pianoZoomY', 'followPlayhead', 'dockTab',
+  'playlistSnap', 'snapMode', 'playlistZoom', 'trackHeight', 'pianoSnap', 'pianoZoomX', 'pianoZoomY', 'followPlayhead', 'dockTab',
   'browserWidth', 'dockHeight', 'browserOpen', 'dockOpen', 'theme', 'accent', 'custom', 'autosave', 'latencyHint',
   'inputDeviceId', 'outputDeviceId', 'inputGain', 'setupDone', 'metronome', 'lastNoteLength',
 ];
@@ -115,6 +124,7 @@ export const useUI = create<UIState>(() => ({
   focus: 'playlist',
   playlistTool: 'draw',
   playlistSnap: PPQ,
+  snapMode: 'magnet',
   playlistZoom: 22,
   trackHeight: 44,
   pianoSnap: PPQ / 4,

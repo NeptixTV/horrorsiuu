@@ -81,6 +81,13 @@ export const storage = {
     const key = await tx<IDBValidKey | undefined>('assets', 'readonly', (s) => s.getKey(id));
     return key !== undefined;
   },
+  async deleteAsset(id: string): Promise<void> {
+    await tx('assets', 'readwrite', (s) => s.delete(id));
+  },
+  async renameAsset(id: string, name: string): Promise<void> {
+    const rec = await this.loadAsset(id);
+    if (rec) await tx('assets', 'readwrite', (s) => s.put({ ...rec, name }));
+  },
   async listLibraryAssets(): Promise<AssetRecord[]> {
     const all = await tx<AssetRecord[]>('assets', 'readonly', (s) => s.getAll());
     return all.filter((a) => a.library);

@@ -1,8 +1,9 @@
 // Domain operations on the project. Every function is a thin, named wrapper
 // around `update` so it produces a labelled undo step.
+import type { Draft } from 'immer';
 import type {
   AssetMeta, Channel, ChannelKind, Clip, DrumParams, EffectInstance, EffectType, MixerTrack, Note, ParamValue, Pattern,
-  PlaylistTrack, SamplerParams, SynthParams,
+  PlaylistTrack, Project, SamplerParams, SynthParams,
 } from './types';
 import { MASTER_ID, TICKS_PER_STEP } from './types';
 import { getProject, update } from './store';
@@ -279,11 +280,12 @@ export function sliceClip(id: string, at: number) {
   const leftLen = at - c.start;
   const right: Clip = {
     ...c, id: uid('c'), start: at, length: c.length - leftLen,
-    offset: c.kind === 'audio' ? c.offset + (leftLen / 96) * (60 / p.bpm) : c.offset + leftLen,
+    offset: c.kind === 'audio' ? c.offset + (leftLen / 96) * (60 / p.bpm) * (c.speed ?? 1) : c.offset + leftLen,
+    fadeIn: 0,
   };
   update('Slice clip', (d) => {
     const x = d.clips.find((k) => k.id === id);
-    if (x) x.length = leftLen;
+    if (x) { x.length = leftLen; x.fadeOut = 0; }
     d.clips.push(right);
   });
 }
@@ -297,7 +299,15 @@ export function addTrack(): string {
 export function updateTrack(id: string, patch: Partial<PlaylistTrack>, label = 'Edit track') {
   update(label, (d) => {
     const t = d.tracks.find((x) => x.id === id);
-    if (t) Object.assign(t, patch);
+    if (!t) return;
+    const oldName = t.name;
+    Object.assign(t, patch);
+    // a track's own mixer insert follows its name and colour
+    const m = t.mixerTrackId !== MASTER_ID ? d.mixer.find((x) => x.id === t.mixerTrackId) : undefined;
+    if (m && m.name === oldName) {
+      if (patch.name) m.name = patch.name;
+      if (patch.color) m.color = patch.color;
+    }
   });
 }
 
@@ -445,3 +455,118 @@ export function setOutput(trackId: string, target: string): boolean {
 }
 
 export const stepTicks = TICKS_PER_STEP;
+
+// ---------- clip & track settings ----------
+export function updateClip(id: string, patch: Partial<Clip>, label = 'Clip settings') {
+  update(label, (d) => {
+    const c = d.clips.find((x) => x.id === id);
+    if (c) Object.assign(c, patch);
+  });
+}
+
+/** Where an effect chain lives: a mixer insert or a single audio clip. */
+export type FxTarget = { kind: 'mixer'; id: string } | { kind: 'clip'; id: string };
+
+function chainOf(d: Draft<Project>, t: FxTarget): EffectInstance[] | null {
+  if (t.kind === 'mixer') return d.mixer.find((m) => m.id === t.id)?.inserts ?? null;
+  const c = d.clips.find((x) => x.id === t.id);
+  if (!c) return null;
+  c.fx ??= [];
+  return c.fx;
+}
+
+export function fxAdd(t: FxTarget, type: EffectType, params?: Record<string, ParamValue>): string {
+  const fx = makeEffect(type, params);
+  update('Add effect', (d) => { chainOf(d, t)?.push(fx); });
+  return fx.id;
+}
+
+export function fxRemove(t: FxTarget, effectId: string) {
+  update('Remove effect', (d) => {
+    const chain = chainOf(d, t);
+    if (!chain) return;
+    const i = chain.findIndex((e) => e.id === effectId);
+    if (i >= 0) chain.splice(i, 1);
+  });
+}
+
+export function fxMove(t: FxTarget, effectId: string, dir: -1 | 1) {
+  update('Reorder effects', (d) => {
+    const chain = chainOf(d, t);
+    if (!chain) return;
+    const i = chain.findIndex((e) => e.id === effectId);
+    const j = i + dir;
+    if (i < 0 || j < 0 || j >= chain.length) return;
+    const [e] = chain.splice(i, 1);
+    chain.splice(j, 0, e);
+  });
+}
+
+export function fxBypass(t: FxTarget, effectId: string) {
+  update('Bypass effect', (d) => {
+    const e = chainOf(d, t)?.find((x) => x.id === effectId);
+    if (e) e.bypass = !e.bypass;
+  });
+}
+
+export function fxParam(t: FxTarget, effectId: string, key: string, value: ParamValue) {
+  update('Effect parameter', (d) => {
+    const e = chainOf(d, t)?.find((x) => x.id === effectId);
+    if (e) e.params[key] = value;
+  });
+}
+
+export function fxClear(t: FxTarget) {
+  update('Clear effects', (d) => {
+    const chain = chainOf(d, t);
+    if (chain) chain.splice(0, chain.length);
+  });
+}
+
+/** Applies a one-click chain ("Underwater", "Robot" …). Autotune follows the project key. */
+export function fxApplyChain(t: FxTarget, effects: [EffectType, Record<string, ParamValue>][], mode: 'add' | 'replace', label: string, keep: EffectType[] = []) {
+  update(`Sound FX: ${label}`, (d) => {
+    const chain = chainOf(d, t);
+    if (!chain) return;
+    if (mode === 'replace') {
+      const kept = chain.filter((e) => keep.includes(e.type) && !effects.some(([type]) => type === e.type));
+      chain.splice(0, chain.length, ...kept);
+    }
+    for (const [type, params] of effects) {
+      const extra: Record<string, ParamValue> = type === 'pitch'
+        ? { key: String(d.key ?? 0), scale: d.scale && d.scale !== 'Chromatic' ? d.scale : 'Major', ...params }
+        : params;
+      chain.push(makeEffect(type, extra));
+    }
+  });
+}
+
+/**
+ * Gives a playlist track its own mixer insert (named like the track) so every
+ * row has its own volume, pan and effects. Returns the insert id.
+ */
+export function ensureTrackInsert(trackId: string): string {
+  const p = getProject();
+  const tr = p.tracks.find((t) => t.id === trackId);
+  if (!tr) return MASTER_ID;
+  if (tr.mixerTrackId !== MASTER_ID && p.mixer.some((m) => m.id === tr.mixerTrackId)) return tr.mixerTrackId;
+  const used = new Set([...p.channels.map((c) => c.mixerTrackId), ...p.tracks.map((t) => t.mixerTrackId)]);
+  const free = p.mixer.find((m) => m.id !== MASTER_ID && !used.has(m.id) && m.inserts.length === 0 && m.sends.length === 0 && /^Insert \d+$/.test(m.name));
+  const id = free?.id ?? uid('mx');
+  update('Track insert', (d) => {
+    if (!free) d.mixer.push({ ...makeMixerTrack(d.mixer.length, tr.name), id });
+    const m = d.mixer.find((x) => x.id === id)!;
+    m.name = tr.name;
+    m.color = tr.color === '#56636e' ? m.color : tr.color;
+    const t = d.tracks.find((x) => x.id === trackId)!;
+    t.mixerTrackId = id;
+  });
+  return id;
+}
+
+export function toggleTrackSolo(id: string) {
+  update('Solo track', (d) => {
+    const t = d.tracks.find((x) => x.id === id);
+    if (t) t.solo = !t.solo;
+  });
+}

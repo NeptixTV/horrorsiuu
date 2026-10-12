@@ -3,7 +3,7 @@ import { getProject, beginGesture, endGesture, update, useProject } from '../../
 import { setUI, ui, useUI, type PlaylistTool } from '../../state/ui';
 import type { Clip, Project } from '../../state/types';
 import { PPQ, TICKS_PER_STEP } from '../../state/types';
-import { clamp, secondsToTicks, snapTicks, ticksPerBar, uid } from '../../state/utils';
+import { clamp, formatBBS, secondsToTicks, snapTicks, ticksPerBar, uid } from '../../state/utils';
 import {
   addPattern, addTrack, clonePattern, deleteClips, duplicateClips, removePattern, removeTrack, setLoop, sliceClip, updateClips, updatePattern, updateTrack,
 } from '../../state/actions';
@@ -19,6 +19,11 @@ import { readDragPayload } from '../browser/Browser';
 import { decodeAudioFile, placeAudioClip } from '../../project/manager';
 import { addChannel } from '../../state/actions';
 import { drawClips, drawGrid, drawLoop, drawRuler, RULER_H, type View } from './draw';
+import { openClipSettings, openTrackSettings } from '../settings/SettingsWindows';
+import { FX_CATEGORIES, FX_CHAINS } from '../../audio/effects/fxPresets';
+import { ensureTrackInsert, fxApplyChain, toggleTrackSolo } from '../../state/actions';
+import { saveClipToLibrary } from '../library/libraryStore';
+import { toast } from '../../state/ui';
 import { rgba } from '../../state/utils';
 import './playlist.css';
 import { askText } from '../dialogs/askText';
@@ -26,7 +31,7 @@ import { askText } from '../dialogs/askText';
 type Drag =
   | { kind: 'move'; startTick: number; startTrack: number; anchorId: string; orig: Map<string, { start: number; track: number }>; moved: boolean }
   | { kind: 'resize'; id: string; origStart: number; origLen: number; maxLen: number }
-  | { kind: 'trim'; id: string; origStart: number; origLen: number; origOffset: number; audio: boolean }
+  | { kind: 'trim'; id: string; origStart: number; origLen: number; origOffset: number; audio: boolean; speed: number }
   | { kind: 'marquee'; x0: number; y0: number; x1: number; y1: number; add: boolean }
   | { kind: 'seek' }
   | { kind: 'loop'; anchor: number };
@@ -54,6 +59,7 @@ export function Playlist() {
   const dirty = useRef(true);
   const drag = useRef<Drag | null>(null);
   const hoverCursor = useRef('default');
+  const hover = useRef<{ clipId: string; tick: number } | null>(null);
   const [dropHint, setDropHint] = useState(false);
 
   const tracks = useProject((s) => s.project.tracks);
@@ -63,6 +69,7 @@ export function Playlist() {
   const trackH = useUI((s) => s.trackHeight);
   const tool = useUI((s) => s.playlistTool);
   const snap = useUI((s) => s.playlistSnap);
+  const snapMode = useUI((s) => s.snapMode);
   const selectedPatternId = useUI((s) => s.selectedPatternId);
   const selectedTrackId = useUI((s) => s.selectedTrackId);
   const follow = useUI((s) => s.followPlayhead);
@@ -172,6 +179,29 @@ export function Playlist() {
           o.fillRect(px, mid - a, Math.max(1, pxPer - 0.3), Math.max(1, a * 2));
         }
       }
+      // slice preview: exactly where the cut will happen
+      const hv = hover.current;
+      if (hv && ui().playlistTool === 'slice') {
+        const hc = project.clips.find((c) => c.id === hv.clipId);
+        if (hc) {
+          const ti = trackIndexOf(project, hc.trackId);
+          const x = hv.tick * v.pxPerTick - v.scrollX;
+          const y = ti * v.trackH - v.scrollY;
+          o.strokeStyle = '#fff';
+          o.setLineDash([4, 3]);
+          o.lineWidth = 1.5;
+          o.beginPath();
+          o.moveTo(Math.round(x) + 0.5, y);
+          o.lineTo(Math.round(x) + 0.5, y + v.trackH);
+          o.stroke();
+          o.setLineDash([]);
+          o.fillStyle = 'rgba(0,0,0,0.75)';
+          o.fillRect(x + 4, y + 2, 64, 13);
+          o.fillStyle = '#fff';
+          o.font = '600 9px Inter, sans-serif';
+          o.fillText(formatBBS(hv.tick, project.timeSig), x + 7, y + 11.5);
+        }
+      }
       // marquee
       const d = drag.current;
       if (d?.kind === 'marquee') {
@@ -234,7 +264,7 @@ export function Playlist() {
       const cx = c.start * v.pxPerTick;
       const cw = c.length * v.pxPerTick;
       const cy = ti * v.trackH;
-      if (x >= cx && x <= cx + cw && y >= cy && y < cy + v.trackH) {
+      if (x >= cx && x < cx + cw && y >= cy && y < cy + v.trackH) {
         const edgeW = Math.min(8, cw / 4);
         return { clip: c, edge: x > cx + cw - edgeW ? 'right' : x < cx + edgeW ? 'left' : null };
       }
@@ -242,7 +272,39 @@ export function Playlist() {
     return null;
   };
 
-  const snapOf = (e: { altKey: boolean }) => (e.altKey ? 1 : ui().playlistSnap);
+  const snapOf = (e: { altKey: boolean }) => (e.altKey || ui().snapMode === 'off' ? 1 : ui().playlistSnap);
+
+  /**
+   * Snapping: "grid" = hard grid; "magnet" (default) = exactly where the mouse
+   * is, but pulled onto grid lines, clip edges, the playhead or loop markers
+   * when they are within a few pixels. Alt always gives the exact position.
+   */
+  const magnet = (raw: number, e: { altKey: boolean }, exclude?: Set<string>): number => {
+    const s = ui();
+    const exact = Math.max(0, Math.round(raw * 100) / 100);
+    if (e.altKey || s.snapMode === 'off') return exact;
+    if (s.snapMode === 'grid') return Math.max(0, snapTicks(raw, s.playlistSnap));
+    const ppt = view.current.pxPerTick;
+    let best = exact;
+    let bestPx = 7;
+    const consider = (t: number) => {
+      const d = Math.abs(t - raw) * ppt;
+      if (d < bestPx) { bestPx = d; best = t; }
+    };
+    if (s.playlistSnap > 1) consider(Math.round(raw / s.playlistSnap) * s.playlistSnap);
+    const project = getProject();
+    for (const c of project.clips) {
+      if (exclude?.has(c.id)) continue;
+      consider(c.start);
+      consider(c.start + c.length);
+    }
+    if (engine.transport) consider(engine.transport.getTick());
+    if (project.loop.enabled) { consider(project.loop.start); consider(project.loop.end); }
+    return Math.max(0, best);
+  };
+
+  /** Where a cut lands: exactly under the mouse (hard grid only in grid mode). */
+  const cutTick = (raw: number, e: { altKey: boolean }) => (ui().snapMode === 'grid' && !e.altKey ? snapTicks(raw, ui().playlistSnap) : Math.round(raw * 100) / 100);
 
   // ---------- pointer handling ----------
   const onPointerDown = (e: RPE) => {
@@ -258,7 +320,7 @@ export function Playlist() {
     if (track >= 0 && track < project.tracks.length) setUI({ selectedTrackId: project.tracks[track].id });
 
     if (s.playlistTool === 'slice') {
-      if (hit) sliceClip(hit.clip.id, snapTicks(tick, snapOf(e)));
+      if (hit) sliceClip(hit.clip.id, cutTick(tick, e));
       return;
     }
     if (hit) {
@@ -269,13 +331,13 @@ export function Playlist() {
       beginGesture();
       if (edge === 'right') {
         const buf = clip.kind === 'audio' && clip.assetId ? assets.get(clip.assetId) : undefined;
-        const maxLen = buf ? secondsToTicks(buf.duration - clip.offset, project.bpm) : Infinity;
+        const maxLen = buf ? secondsToTicks((buf.duration - clip.offset) / (clip.speed ?? 1), project.bpm) : Infinity;
         drag.current = { kind: 'resize', id: clip.id, origStart: clip.start, origLen: clip.length, maxLen };
         setUI({ selectedClipIds: [clip.id] });
         return;
       }
       if (edge === 'left') {
-        drag.current = { kind: 'trim', id: clip.id, origStart: clip.start, origLen: clip.length, origOffset: clip.offset, audio: clip.kind === 'audio' };
+        drag.current = { kind: 'trim', id: clip.id, origStart: clip.start, origLen: clip.length, origOffset: clip.offset, audio: clip.kind === 'audio', speed: clip.speed ?? 1 };
         setUI({ selectedClipIds: [clip.id] });
         return;
       }
@@ -306,7 +368,7 @@ export function Playlist() {
     const pattern = project.patterns.find((p) => p.id === s.selectedPatternId) ?? project.patterns[0];
     if (!pattern) return;
     beginGesture();
-    const start = Math.max(0, snapTicks(tick, snapOf(e), 'floor'));
+    const start = ui().snapMode === 'magnet' && !e.altKey ? magnet(snapTicks(tick, snapOf(e), 'floor'), e) : Math.max(0, snapTicks(tick, snapOf(e), 'floor'));
     const id = uid('c');
     const clip: Clip = { id, trackId: project.tracks[track].id, kind: 'pattern', start, length: patternLength(pattern, project.timeSig), offset: 0, patternId: pattern.id };
     update('Add clip', (d) => { d.clips.push(clip); });
@@ -320,6 +382,7 @@ export function Playlist() {
     const project = getProject();
     if (!d) {
       const hit = hitClip(x, y);
+      hover.current = hit && ui().playlistTool === 'slice' ? { clipId: hit.clip.id, tick: cutTick(tick, e) } : null;
       const cur = ui().playlistTool === 'slice' && hit ? 'crosshair' : hit?.edge ? 'ew-resize' : hit ? 'grab' : ui().playlistTool === 'draw' ? 'copy' : 'default';
       if (cur !== hoverCursor.current) {
         hoverCursor.current = cur;
@@ -331,7 +394,17 @@ export function Playlist() {
     if (d.kind === 'move') {
       const a = d.orig.get(d.anchorId);
       if (!a) return;
-      const newAnchor = Math.max(0, snapTicks(a.start + (tick - d.startTick), sn));
+      const rawStart = a.start + (tick - d.startTick);
+      let newAnchor: number;
+      if (ui().snapMode === 'magnet' && !e.altKey) {
+        const len = project.clips.find((c) => c.id === d.anchorId)?.length ?? 0;
+        const ex = new Set(d.orig.keys());
+        const s1 = magnet(rawStart, e, ex);
+        const e1 = magnet(rawStart + len, e, ex) - len;
+        newAnchor = Math.abs(e1 - rawStart) > 0.001 && (Math.abs(s1 - rawStart) < 0.001 || Math.abs(e1 - rawStart) < Math.abs(s1 - rawStart)) ? e1 : s1;
+      } else {
+        newAnchor = Math.max(0, snapTicks(rawStart, sn));
+      }
       let dt = newAnchor - a.start;
       let dTrack = track - d.startTrack;
       const origs = [...d.orig.values()];
@@ -351,24 +424,25 @@ export function Playlist() {
         }
       });
     } else if (d.kind === 'resize') {
-      const end = Math.max(d.origStart + sn, snapTicks(tick, sn));
-      const len = Math.min(d.maxLen, Math.max(sn > 1 ? sn : 6, end - d.origStart));
+      const minLen = ui().snapMode === 'grid' ? Math.max(1, sn) : 1;
+      const end = ui().snapMode === 'grid' && !e.altKey ? snapTicks(tick, sn) : magnet(tick, e, new Set([d.id]));
+      const len = Math.min(d.maxLen, Math.max(minLen, end - d.origStart));
       update('Resize clip', (dr) => {
         const c = dr.clips.find((k) => k.id === d.id);
-        if (c) c.length = Math.round(len);
+        if (c) c.length = Math.round(len * 100) / 100;
       });
     } else if (d.kind === 'trim') {
       const end = d.origStart + d.origLen;
-      let start = snapTicks(tick, sn);
-      const minStart = d.audio ? d.origStart - secondsToTicks(d.origOffset, project.bpm) : 0;
-      start = clamp(start, Math.max(0, minStart), end - Math.max(6, sn));
+      let start = ui().snapMode === 'grid' && !e.altKey ? snapTicks(tick, sn) : magnet(tick, e, new Set([d.id]));
+      const minStart = d.audio ? d.origStart - secondsToTicks(d.origOffset / d.speed, project.bpm) : 0;
+      start = clamp(start, Math.max(0, minStart), end - 1);
       const delta = start - d.origStart;
       update('Trim clip', (dr) => {
         const c = dr.clips.find((k) => k.id === d.id);
         if (!c) return;
         c.start = start;
         c.length = end - start;
-        c.offset = d.audio ? Math.max(0, d.origOffset + (delta / PPQ) * (60 / project.bpm)) : d.origOffset + delta;
+        c.offset = d.audio ? Math.max(0, d.origOffset + (delta / PPQ) * (60 / project.bpm) * d.speed) : d.origOffset + delta;
       });
     } else if (d.kind === 'marquee') {
       d.x1 = x;
@@ -396,6 +470,10 @@ export function Playlist() {
   const onDoubleClick = (e: React.MouseEvent) => {
     const { x, y } = toContent(e);
     const hit = hitClip(x, y);
+    if (hit?.clip.kind === 'audio') {
+      openClipSettings(hit.clip.id);
+      return;
+    }
     if (hit?.clip.kind === 'pattern' && hit.clip.patternId) {
       const pat = getProject().patterns.find((p) => p.id === hit.clip.patternId);
       const hasNotes = pat && Object.values(pat.notes).some((l) => l.length);
@@ -424,9 +502,17 @@ export function Playlist() {
     const ids = ui().selectedClipIds.includes(c.id) ? ui().selectedClipIds : [c.id];
     if (!ui().selectedClipIds.includes(c.id)) setUI({ selectedClipIds: [c.id] });
     const items: MenuItem[] = [
+      { label: 'Settings… (volume, effects, voice)', onClick: () => openClipSettings(c.id) },
+      ...(c.kind === 'audio' ? [{
+        label: 'Sound FX', submenu: FX_CATEGORIES.map((cat) => ({
+          label: cat, submenu: FX_CHAINS.filter((f) => f.category === cat).map((f) => ({ label: `${f.icon} ${f.name}`, onClick: () => { fxApplyChain({ kind: 'clip', id: c.id }, f.effects, 'replace', f.name); toast(`${f.icon} ${f.name}`, 'ok'); } })),
+        })),
+      }, { label: 'Remove clip effects', disabled: !(c.fx?.length), onClick: () => updateClips(new Set([c.id]), (k) => { k.fx = []; }, 'Remove effects') }] as MenuItem[] : []),
+      { separator: true },
       { label: ids.length > 1 ? `Delete ${ids.length} clips` : 'Delete', shortcut: 'Del', danger: true, onClick: () => { deleteClips(new Set(ids)); setUI({ selectedClipIds: [] }); } },
       { label: 'Duplicate', shortcut: 'Ctrl+D', onClick: () => setUI({ selectedClipIds: duplicateClips(new Set(ids)) }) },
-      { label: 'Slice here', onClick: () => sliceClip(c.id, snapTicks(tick, ui().playlistSnap)) },
+      { label: 'Slice here (exactly at the mouse)', onClick: () => sliceClip(c.id, cutTick(tick, e)) },
+      { label: 'Slice at playhead', disabled: !(engine.transport && engine.transport.getTick() > c.start && engine.transport.getTick() < c.start + c.length), onClick: () => sliceClip(c.id, Math.round(engine.transport.getTick() * 100) / 100) },
       { separator: true },
     ];
     if (c.kind === 'pattern' && c.patternId) {
@@ -441,9 +527,9 @@ export function Playlist() {
       );
     } else {
       items.push(
-        { label: 'Gain +3 dB', onClick: () => updateClips(new Set(ids), (k) => { k.gain = Math.min(4, (k.gain ?? 1) * 1.413); }, 'Clip gain') },
-        { label: 'Gain −3 dB', onClick: () => updateClips(new Set(ids), (k) => { k.gain = (k.gain ?? 1) / 1.413; }, 'Clip gain') },
-        { label: 'Reset gain', onClick: () => updateClips(new Set(ids), (k) => { k.gain = 1; }, 'Clip gain') },
+        { label: 'Volume +3 dB', onClick: () => updateClips(new Set(ids), (k) => { k.gain = Math.min(4, (k.gain ?? 1) * 1.413); }, 'Clip gain') },
+        { label: 'Volume −3 dB', onClick: () => updateClips(new Set(ids), (k) => { k.gain = (k.gain ?? 1) / 1.413; }, 'Clip gain') },
+        { label: 'Save to My Library', onClick: () => { if (c.assetId) void saveClipToLibrary(c.id); } },
         { label: 'Create sampler channel from clip', onClick: () => { if (c.assetId) setUI({ selectedChannelId: addChannel('sampler', { assetId: c.assetId, name: assets.name(c.assetId) }) }); } },
       );
     }
@@ -548,6 +634,22 @@ export function Playlist() {
     const payload = readDragPayload(e);
     setUI({ dragPayload: null });
     if (!payload) return;
+    if (payload.type === 'fxchain') {
+      const chain = FX_CHAINS.find((c) => c.name === payload.name);
+      const { x, y } = toContent(e);
+      const hit = hitClip(x, y);
+      if (!chain) return;
+      if (hit?.clip.kind === 'audio') {
+        fxApplyChain({ kind: 'clip', id: hit.clip.id }, chain.effects, 'replace', chain.name);
+        setUI({ selectedClipIds: [hit.clip.id] });
+        toast(`${chain.icon} ${chain.name} → clip`, 'ok');
+      } else {
+        const ins = ensureTrackInsert(trackId);
+        fxApplyChain({ kind: 'mixer', id: ins }, chain.effects, 'add', chain.name);
+        toast(`${chain.icon} ${chain.name} → row “${project.tracks[tIdx].name}”`, 'ok');
+      }
+      return;
+    }
     if (payload.type === 'pattern') {
       const pat = project.patterns.find((p) => p.id === payload.patternId);
       if (pat) update('Add clip', (d) => { d.clips.push({ id: uid('c'), trackId, kind: 'pattern', start, length: patternLength(pat, project.timeSig), offset: 0, patternId: pat.id }); });
@@ -565,6 +667,9 @@ export function Playlist() {
     const tr = project.tracks.find((t) => t.id === trackId);
     if (!tr) return;
     showMenu(e.clientX, e.clientY, [
+      { label: 'Settings… (volume, effects)', onClick: () => openTrackSettings(tr.id) },
+      { label: tr.solo ? 'Unsolo' : 'Solo', onClick: () => toggleTrackSolo(tr.id) },
+      { separator: true },
       { label: 'Rename…', onClick: () => { void askText('Track name', tr.name).then((n) => { if (n) updateTrack(tr.id, { name: n }, 'Rename track'); }); } },
       { label: 'Colour', submenu: colorMenu(tr.color, (c) => updateTrack(tr.id, { color: c }, 'Track colour')) },
       { label: 'Record into this track', checked: ui().selectedTrackId === tr.id, onClick: () => setUI({ selectedTrackId: tr.id }) },
@@ -588,7 +693,12 @@ export function Playlist() {
         </div>
         <div className="pl-tools">
           <Icon name="magnet" size={12} style={{ color: 'var(--dim)' }} />
-          <select className="input small-select" value={snap} onChange={(e) => setUI({ playlistSnap: Number(e.target.value) })} title="Snap to grid (hold Alt to bypass)">
+          <select className="input small-select" value={snapMode} onChange={(e) => setUI({ snapMode: e.target.value as 'magnet' | 'grid' | 'off' })} title="Magnet: exact mouse position, pulled onto nearby grid lines and clip edges · Grid: hard snap · Off: free (Alt = free)">
+            <option value="magnet">Magnet</option>
+            <option value="grid">Grid</option>
+            <option value="off">Free</option>
+          </select>
+          <select className="input small-select" value={snap} onChange={(e) => setUI({ playlistSnap: Number(e.target.value) })} title="Grid size (hold Alt to bypass)">
             {SNAPS.map((s) => <option key={s.value} value={s.value}>{s.label}</option>)}
           </select>
         </div>
@@ -665,6 +775,8 @@ export function Playlist() {
                     <span className="pl-header-color" style={{ background: t.color }} />
                     <span className="pl-header-name" onDoubleClick={() => { void askText('Track name', t.name).then((n) => { if (n) updateTrack(t.id, { name: n }, 'Rename track'); }); }}>{t.name}</span>
                     {selectedTrackId === t.id && <Icon name="mic" size={10} style={{ color: 'var(--rec)', opacity: 0.8 }} />}
+                    <button className={`pl-hbtn ${t.solo ? 'solo' : ''}`} title="Solo row" onClick={(e) => { e.stopPropagation(); toggleTrackSolo(t.id); }}>S</button>
+                    <button className="pl-hbtn" title="Row settings (volume, effects)" onClick={(e) => { e.stopPropagation(); openTrackSettings(t.id); }}><Icon name="settings" size={10} /></button>
                     <span
                       className={`led ${t.mute ? '' : 'on'}`}
                       title={t.mute ? 'Unmute track' : 'Mute track'}

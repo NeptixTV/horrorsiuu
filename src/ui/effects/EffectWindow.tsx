@@ -1,9 +1,13 @@
 import { useEffect } from 'react';
+import { useShallow } from 'zustand/react/shallow';
 import { useProject } from '../../state/store';
 import type { FloatingWindow } from '../../state/ui';
 import { closeWindow } from '../../state/ui';
+import type { EffectInstance, Project } from '../../state/types';
+import { MASTER_ID } from '../../state/types';
 import { EFFECTS, EFFECT_PRESETS, defaultParams } from '../../audio/effects/descriptors';
-import { setEffectParam, setEffectParams, toggleBypass, removeInsert } from '../../state/actions';
+import { fxBypass, fxParam, fxRemove, type FxTarget } from '../../state/actions';
+import { update } from '../../state/store';
 import { engine } from '../../audio/engine';
 import { Window } from '../components/Window';
 import { Icon } from '../components/Icon';
@@ -11,45 +15,59 @@ import { showMenu } from '../components/ContextMenu';
 import { VIEWS } from './views';
 import './effects.css';
 
-export function EffectWindow({ w, trackId, effectId }: { w: FloatingWindow; trackId: string; effectId: string }) {
-  const track = useProject((s) => s.project.mixer.find((m) => m.id === trackId));
-  const fx = track?.inserts.find((e) => e.id === effectId);
-  const missing = !track || !fx;
+function resolve(p: Project, target: FxTarget, effectId: string): { fx?: EffectInstance; owner: string; meterTrack: string } {
+  if (target.kind === 'mixer') {
+    const m = p.mixer.find((x) => x.id === target.id);
+    return { fx: m?.inserts.find((e) => e.id === effectId), owner: m?.name ?? '', meterTrack: target.id };
+  }
+  const c = p.clips.find((x) => x.id === target.id);
+  const tr = c ? p.tracks.find((t) => t.id === c.trackId) : undefined;
+  return { fx: c?.fx?.find((e) => e.id === effectId), owner: `Clip · ${c?.name ?? p.assets[c?.assetId ?? '']?.name ?? 'audio'}`, meterTrack: tr?.mixerTrackId ?? MASTER_ID };
+}
+
+/** Engine-side effect object for a target (for live visualisations). */
+export function liveEffect(target: FxTarget, effectId: string) {
+  if (!engine.initialized) return undefined;
+  return target.kind === 'mixer' ? engine.graph.strips.get(target.id)?.slot(effectId)?.effect : engine.graph.clipSlot(target.id, effectId)?.effect;
+}
+
+export function EffectWindow({ w, target, effectId }: { w: FloatingWindow; target: FxTarget; effectId: string }) {
+  const { fx, owner, meterTrack } = useProject(useShallow((s) => resolve(s.project, target, effectId)));
   useEffect(() => {
-    if (missing) closeWindow(w.id);
-  }, [missing, w.id]);
-  if (!track || !fx) return null;
+    if (!fx) closeWindow(w.id);
+  }, [fx, w.id]);
+  if (!fx) return null;
   const d = EFFECTS[fx.type];
   const View = VIEWS[fx.type];
   const presets = EFFECT_PRESETS.filter((p) => p.type === fx.type);
+  const setAll = (params: EffectInstance['params']) => update('Effect preset', (dr) => {
+    const list = target.kind === 'mixer' ? dr.mixer.find((m) => m.id === target.id)?.inserts : dr.clips.find((c) => c.id === target.id)?.fx;
+    const e = list?.find((x) => x.id === effectId);
+    if (e) e.params = { ...e.params, ...params };
+  });
   return (
     <Window
       w={w}
       width={fx.type === 'pitch' || fx.type === 'eq' ? 560 : 470}
       color={d.color}
-      title={<><b>{d.name}</b> <span className="crumb">· {track.name}</span></>}
+      title={<><b>{d.name}</b> <span className="crumb">· {owner}</span></>}
       actions={
         <>
           <button className="btn small" onClick={(e) => showMenu(e.clientX, e.clientY, [
-            { label: 'Default', onClick: () => setEffectParams(trackId, effectId, defaultParams(fx.type)) },
-            ...presets.map((p) => ({ label: p.name, onClick: () => setEffectParams(trackId, effectId, p.params) })),
+            { label: 'Default', onClick: () => setAll(defaultParams(fx.type)) },
+            ...presets.map((p) => ({ label: p.name, onClick: () => setAll(p.params) })),
           ])}>
             <Icon name="preset" size={11} /> Presets
           </button>
-          <button className={`btn small ${fx.bypass ? '' : 'on'}`} title="Bypass" onClick={() => toggleBypass(trackId, effectId)}>
+          <button className={`btn small ${fx.bypass ? '' : 'on'}`} title="Bypass" onClick={() => fxBypass(target, effectId)}>
             <Icon name="power" size={11} /> {fx.bypass ? 'Off' : 'On'}
           </button>
-          <button className="btn ghost icon small danger" title="Remove effect" onClick={() => { removeInsert(trackId, effectId); closeWindow(w.id); }}><Icon name="trash" size={11} /></button>
+          <button className="btn ghost icon small danger" title="Remove effect" onClick={() => { fxRemove(target, effectId); closeWindow(w.id); }}><Icon name="trash" size={11} /></button>
         </>
       }
     >
       <div className={`fx-body ${fx.bypass ? 'bypassed' : ''}`} style={{ ['--fxc' as string]: d.color }}>
-        <View
-          trackId={trackId}
-          fx={fx}
-          set={(k, v) => setEffectParam(trackId, effectId, k, v)}
-          effect={() => engine.initialized ? engine.graph.strips.get(trackId)?.slot(effectId)?.effect : undefined}
-        />
+        <View trackId={meterTrack} fx={fx} set={(k, v) => fxParam(target, effectId, k, v)} effect={() => liveEffect(target, effectId)} />
       </div>
     </Window>
   );

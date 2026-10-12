@@ -7,7 +7,7 @@ name: Build Windows .exe
 on:
   workflow_dispatch:
   push:
-    branches: ['**']
+    branches: ['**', '!goofy-feed']
     tags: ['v*']
 
 permissions:

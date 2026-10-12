@@ -8,6 +8,8 @@ import { FilterEffect } from './filter';
 import { DistortionEffect } from './distortion';
 import { ChorusEffect } from './chorus';
 import { PitchEffect } from './pitch';
+import { VoiceEffect } from './voice';
+import { AutoPanEffect, FlangerEffect, LimiterEffect, PhaserEffect, TremoloEffect } from './modulation';
 
 export function createEffect(ctx: BaseAudioContext, type: EffectType): Effect {
   switch (type) {
@@ -19,7 +21,16 @@ export function createEffect(ctx: BaseAudioContext, type: EffectType): Effect {
     case 'distortion': return new DistortionEffect(ctx);
     case 'chorus': return new ChorusEffect(ctx);
     case 'pitch': return new PitchEffect(ctx);
+    case 'voice': return new VoiceEffect(ctx);
+    case 'phaser': return new PhaserEffect(ctx);
+    case 'flanger': return new FlangerEffect(ctx);
+    case 'tremolo': return new TremoloEffect(ctx);
+    case 'autopan': return new AutoPanEffect(ctx);
+    case 'limiter': return new LimiterEffect(ctx);
   }
 }
 
-export { EqEffect, CompressorEffect, ReverbEffect, DelayEffect, FilterEffect, DistortionEffect, ChorusEffect, PitchEffect };
+export {
+  EqEffect, CompressorEffect, ReverbEffect, DelayEffect, FilterEffect, DistortionEffect, ChorusEffect, PitchEffect, VoiceEffect,
+  PhaserEffect, FlangerEffect, TremoloEffect, AutoPanEffect, LimiterEffect,
+};

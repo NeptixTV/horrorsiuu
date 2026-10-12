@@ -14,6 +14,8 @@ import { Windows } from './ui/Windows';
 import { Splitter } from './ui/components/Splitter';
 import { ContextMenuHost } from './ui/components/ContextMenu';
 import { AskTextHost } from './ui/dialogs/askText';
+import { StartupNotices } from './ui/admin/StartupNotices';
+import { loadLibrary } from './ui/library/libraryStore';
 import { Icon } from './ui/components/Icon';
 import { installShortcuts } from './ui/shortcuts';
 import { syncTransportUI, showDock } from './ui/commands';
@@ -125,6 +127,7 @@ function boot(): Promise<void> {
       installRecordingHandler();
       startAutosave();
       installShortcuts();
+      void loadLibrary();
       if (ui().outputDeviceId) void engine.setOutputDevice(ui().outputDeviceId);
       report('Building interface…', 0.95);
       // give the splash animation time to breathe
@@ -180,6 +183,7 @@ export function App() {
       {ready && <div className={`app-shell ${splashGone ? 'entered' : ''}`}><Main /></div>}
       {!splashGone && <Splash progress={progress} label={label} done={ready} onGone={() => setSplashGone(true)} />}
       {ready && splashGone && !setupDone && <SetupWizard onDone={() => undefined} />}
+      {ready && splashGone && setupDone && <StartupNotices />}
       <ContextMenuHost />
       <AskTextHost />
       <Toast />

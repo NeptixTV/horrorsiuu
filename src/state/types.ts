@@ -104,6 +104,7 @@ export interface PlaylistTrack {
   name: string;
   color: string;
   mute: boolean;
+  solo?: boolean;
   /** Mixer insert that audio clips on this track are routed to. */
   mixerTrackId: Id;
 }
@@ -120,7 +121,23 @@ export interface Clip {
   offset: number;
   patternId?: Id;
   assetId?: Id;
+  /** linear gain (audio) / velocity scale (pattern) */
   gain?: number;
+  /** stereo pan of an audio clip, -1..1 */
+  pan?: number;
+  /** semitones added to every note of a pattern clip */
+  transpose?: number;
+  /** audio clips: playback speed (changes pitch like a tape), 1 = normal */
+  speed?: number;
+  /** audio clips: play the source reversed */
+  reverse?: boolean;
+  /** audio clips: fades in seconds */
+  fadeIn?: number;
+  fadeOut?: number;
+  /** audio clips: effect chain applied to this clip only */
+  fx?: EffectInstance[];
+  /** optional display name */
+  name?: string;
 }
 
 export type EffectType =
@@ -131,7 +148,13 @@ export type EffectType =
   | 'filter'
   | 'distortion'
   | 'chorus'
-  | 'pitch';
+  | 'pitch'
+  | 'voice'
+  | 'phaser'
+  | 'flanger'
+  | 'tremolo'
+  | 'autopan'
+  | 'limiter';
 
 export type ParamValue = number | string | boolean;
 

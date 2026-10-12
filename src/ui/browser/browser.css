@@ -16,3 +16,4 @@
 .br-item-sub { font-size: 9.5px; color: var(--dim); }
 .br-import { color: var(--accent); cursor: pointer; }
 .br-hint { padding: 6px 8px; font-size: 10px; color: var(--dim); border-top: 1px solid var(--border); line-height: 1.4; }
+.br-item.br-action { color: var(--accent); cursor: pointer; font-weight: 600; }

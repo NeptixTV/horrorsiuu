@@ -29,3 +29,6 @@
 .pl-viewport { position: absolute; inset: 0; overflow: scroll; }
 .pl-canvas { position: absolute; left: 0; top: 0; display: block; pointer-events: none; }
 .pl-overlay { pointer-events: auto; touch-action: none; }
+.pl-hbtn { width: 17px; height: 15px; padding: 0; border-radius: 3px; border: 1px solid var(--border); background: var(--panel3); color: var(--dim); font-size: 9px; font-weight: 700; cursor: pointer; display: inline-flex; align-items: center; justify-content: center; flex-shrink: 0; }
+.pl-hbtn:hover { color: var(--text); border-color: var(--accent); }
+.pl-hbtn.solo { background: #e6c229; color: #111; }

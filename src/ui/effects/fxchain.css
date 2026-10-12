@@ -1,0 +1,21 @@
+.fxchain { display: flex; flex-direction: column; gap: 6px; }
+.fxchain-head { display: flex; align-items: center; gap: 6px; margin-top: 4px; }
+.fxchain-empty { color: var(--dim); font-size: 11px; padding: 8px; border: 1px dashed var(--panel3); border-radius: 5px; text-align: center; }
+.sfx { background: var(--bg); border: 1px solid var(--border); border-radius: 6px; padding: 6px; display: flex; flex-direction: column; gap: 6px; }
+.sfx-head { display: flex; align-items: center; gap: 6px; flex-wrap: wrap; }
+.sfx-tabs { display: flex; gap: 2px; flex-wrap: wrap; }
+.sfx-tab { height: 20px; padding: 0 8px; font-size: 10.5px; border-radius: 10px; border: 1px solid var(--border); background: var(--panel2); color: var(--dim); cursor: pointer; }
+.sfx-tab.on { background: var(--accent); color: #111; border-color: var(--accent); }
+.sfx-mode { display: flex; align-items: center; gap: 4px; color: var(--dim); font-size: 10.5px; cursor: pointer; }
+.sfx-chips { display: flex; flex-wrap: wrap; gap: 4px; }
+.sfx-chip { display: inline-flex; align-items: center; gap: 5px; height: 26px; padding: 0 9px; border-radius: 13px; border: 1px solid var(--panel3); background: linear-gradient(180deg, var(--panel3), var(--panel2)); cursor: pointer; font-size: 11.5px; transition: transform .08s, border-color .12s; }
+.sfx-chip:hover { border-color: var(--accent); transform: translateY(-1px); }
+.sfx-chip:active { transform: scale(.96); }
+.sfx-icon { font-size: 14px; }
+.fxc { border: 1px solid var(--border); border-left: 3px solid var(--fc); border-radius: 5px; background: linear-gradient(90deg, color-mix(in srgb, var(--fc) 10%, var(--panel)), var(--panel)); }
+.fxc.bypassed { opacity: .55; }
+.fxc-head { display: flex; align-items: center; gap: 4px; padding: 3px 4px 3px 6px; }
+.fxc-name { background: none; border: none; color: var(--text); font-weight: 600; cursor: pointer; display: inline-flex; align-items: center; gap: 4px; padding: 0; }
+.fxc-knobs { display: flex; flex-wrap: wrap; gap: 6px 4px; padding: 4px 6px 8px; }
+.fxc-knobs .knob { width: 52px !important; }
+.fxc-knobs .fx-choice select { max-width: 96px; }

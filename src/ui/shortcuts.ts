@@ -22,8 +22,25 @@ function isTextTarget(t: EventTarget | null) {
   return t.tagName === 'INPUT' || t.tagName === 'TEXTAREA' || t.tagName === 'SELECT' || t.isContentEditable;
 }
 
+// typing 1-8-7 anywhere (outside text fields) opens the admin panel
+let code = '';
+let codeTime = 0;
+function secretCode(e: KeyboardEvent) {
+  if (!/^\d$/.test(e.key) || e.ctrlKey || e.metaKey || e.altKey) return false;
+  const now = performance.now();
+  code = (now - codeTime > 1500 ? '' : code) + e.key;
+  codeTime = now;
+  if (code.endsWith('187')) {
+    code = '';
+    openWindow({ kind: 'admin' });
+    return true;
+  }
+  return false;
+}
+
 function onKeyDown(e: KeyboardEvent) {
   if (isTextTarget(e.target)) return;
+  if (!e.repeat && secretCode(e)) { e.preventDefault(); return; }
   const mod = e.ctrlKey || e.metaKey;
   const k = e.key.toLowerCase();
 

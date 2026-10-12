@@ -1,0 +1,22 @@
+.st-body { padding: 12px; display: flex; flex-direction: column; gap: 10px; max-height: calc(100vh - 80px); overflow-y: auto; }
+.st-drop { border: 2px dashed var(--panel3); border-radius: 10px; padding: 34px; display: flex; flex-direction: column; align-items: center; gap: 6px; cursor: pointer; color: var(--dim); }
+.st-drop:hover { border-color: var(--accent); color: var(--text); }
+.st-drop b { color: var(--text); font-size: 14px; }
+.st-drop-icon { font-size: 34px; }
+.st-song { display: flex; flex-direction: column; gap: 6px; }
+.st-song-head, .st-part-head { display: flex; align-items: center; gap: 6px; flex-wrap: wrap; }
+.st-wave { width: 100%; height: 56px; display: block; border-radius: 4px; border: 1px solid var(--border); }
+.st-warn { color: #ffbe3d; font-size: 11px; }
+.st-options { display: grid; grid-template-columns: 1fr 1fr auto; gap: 6px; align-items: center; }
+.st-opt { display: flex; align-items: center; gap: 8px; padding: 6px 8px; border-radius: 6px; border: 1px solid var(--border); background: var(--bg); cursor: pointer; line-height: 1.3; }
+.st-opt small { color: var(--dim); }
+.st-opt.on { border-color: var(--sc); background: color-mix(in srgb, var(--sc) 10%, var(--bg)); }
+.st-opt-icon { font-size: 18px; }
+.st-options .knob { grid-row: 1 / 3; grid-column: 3; }
+.st-actions { display: flex; justify-content: center; }
+.st-actions .btn.primary { height: 32px; padding: 0 22px; font-size: 13px; }
+.st-progress { position: relative; width: 100%; height: 24px; background: var(--bg); border: 1px solid var(--border); border-radius: 5px; overflow: hidden; }
+.st-progress > div { position: absolute; inset: 0; transform-origin: left; background: linear-gradient(90deg, var(--accent), var(--accent2)); transition: transform .2s; }
+.st-progress span { position: relative; display: flex; height: 100%; align-items: center; justify-content: center; font-weight: 600; color: #111; mix-blend-mode: screen; }
+.st-parts { display: flex; flex-direction: column; gap: 8px; }
+.st-part { border-left: 3px solid var(--sc); padding-left: 8px; display: flex; flex-direction: column; gap: 4px; }

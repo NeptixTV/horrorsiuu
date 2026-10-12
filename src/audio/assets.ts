@@ -37,6 +37,7 @@ class AssetRegistry {
     this.buffers.set(id, buffer);
     this.reversed.delete(id);
     this.peaks.delete(id);
+    this.peaks.delete(`${id}::rev`);
     if (name) this.names.set(id, name);
     this.version++;
     this.listeners.forEach((l) => l());
@@ -66,13 +67,14 @@ class AssetRegistry {
     return r;
   }
 
-  getPeaks(id: string): Peaks | undefined {
-    let p = this.peaks.get(id);
+  getPeaks(id: string, reversed = false): Peaks | undefined {
+    const key = reversed ? `${id}::rev` : id;
+    let p = this.peaks.get(key);
     if (!p) {
-      const b = this.buffers.get(id);
+      const b = reversed ? this.getReversed(id) : this.buffers.get(id);
       if (!b) return undefined;
       p = computePeaks(b, 128);
-      this.peaks.set(id, p);
+      this.peaks.set(key, p);
     }
     return p;
   }
