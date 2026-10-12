@@ -51,8 +51,8 @@ export interface UIState {
   // editors
   playlistTool: PlaylistTool;
   playlistSnap: number; // ticks
-  /** magnet = exact position, pulled onto nearby grid lines / clip edges */
-  snapMode: 'magnet' | 'grid' | 'off';
+  /** Playlist placement: off = exactly at the mouse (default), grid = hard grid snap */
+  snapMode: 'grid' | 'off';
   playlistZoom: number; // px per beat
   trackHeight: number;
   pianoSnap: number;
@@ -108,7 +108,9 @@ const PERSISTED: (keyof UIState)[] = [
 function loadPersisted(): Partial<UIState> {
   try {
     const raw = localStorage.getItem(PERSIST_KEY);
-    return raw ? JSON.parse(raw) : {};
+    const p: Partial<UIState> = raw ? JSON.parse(raw) : {};
+    if (p.snapMode !== 'grid') p.snapMode = 'off'; // the old "magnet" mode was removed in 1.1.1
+    return p;
   } catch {
     return {};
   }
@@ -124,7 +126,7 @@ export const useUI = create<UIState>(() => ({
   focus: 'playlist',
   playlistTool: 'draw',
   playlistSnap: PPQ,
-  snapMode: 'magnet',
+  snapMode: 'off',
   playlistZoom: 22,
   trackHeight: 44,
   pianoSnap: PPQ / 4,

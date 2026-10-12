@@ -30,8 +30,8 @@ import { askText } from '../dialogs/askText';
 
 type Drag =
   | { kind: 'move'; startTick: number; startTrack: number; anchorId: string; orig: Map<string, { start: number; track: number }>; moved: boolean }
-  | { kind: 'resize'; id: string; origStart: number; origLen: number; maxLen: number }
-  | { kind: 'trim'; id: string; origStart: number; origLen: number; origOffset: number; audio: boolean; speed: number }
+  | { kind: 'resize'; id: string; origStart: number; origLen: number; maxLen: number; pressTick: number; moved: boolean }
+  | { kind: 'trim'; id: string; origStart: number; origLen: number; origOffset: number; audio: boolean; speed: number; pressTick: number; moved: boolean }
   | { kind: 'marquee'; x0: number; y0: number; x1: number; y1: number; add: boolean }
   | { kind: 'seek' }
   | { kind: 'loop'; anchor: number };
@@ -272,39 +272,13 @@ export function Playlist() {
     return null;
   };
 
-  const snapOf = (e: { altKey: boolean }) => (e.altKey || ui().snapMode === 'off' ? 1 : ui().playlistSnap);
-
   /**
-   * Snapping: "grid" = hard grid; "magnet" (default) = exactly where the mouse
-   * is, but pulled onto grid lines, clip edges, the playhead or loop markers
-   * when they are within a few pixels. Alt always gives the exact position.
+   * Where a clip edge, cut or new clip lands. "Free" (default): exactly under
+   * the mouse – never pulled onto other clips' edges or nearby lines.
+   * "Grid": hard snap to the grid size (hold Alt for free placement).
    */
-  const magnet = (raw: number, e: { altKey: boolean }, exclude?: Set<string>): number => {
-    const s = ui();
-    const exact = Math.max(0, Math.round(raw * 100) / 100);
-    if (e.altKey || s.snapMode === 'off') return exact;
-    if (s.snapMode === 'grid') return Math.max(0, snapTicks(raw, s.playlistSnap));
-    const ppt = view.current.pxPerTick;
-    let best = exact;
-    let bestPx = 7;
-    const consider = (t: number) => {
-      const d = Math.abs(t - raw) * ppt;
-      if (d < bestPx) { bestPx = d; best = t; }
-    };
-    if (s.playlistSnap > 1) consider(Math.round(raw / s.playlistSnap) * s.playlistSnap);
-    const project = getProject();
-    for (const c of project.clips) {
-      if (exclude?.has(c.id)) continue;
-      consider(c.start);
-      consider(c.start + c.length);
-    }
-    if (engine.transport) consider(engine.transport.getTick());
-    if (project.loop.enabled) { consider(project.loop.start); consider(project.loop.end); }
-    return Math.max(0, best);
-  };
-
-  /** Where a cut lands: exactly under the mouse (hard grid only in grid mode). */
-  const cutTick = (raw: number, e: { altKey: boolean }) => (ui().snapMode === 'grid' && !e.altKey ? snapTicks(raw, ui().playlistSnap) : Math.round(raw * 100) / 100);
+  const place = (raw: number, e: { altKey: boolean }, mode: 'round' | 'floor' = 'round'): number =>
+    Math.max(0, ui().snapMode === 'grid' && !e.altKey ? snapTicks(raw, ui().playlistSnap, mode) : Math.round(raw * 100) / 100);
 
   // ---------- pointer handling ----------
   const onPointerDown = (e: RPE) => {
@@ -320,7 +294,7 @@ export function Playlist() {
     if (track >= 0 && track < project.tracks.length) setUI({ selectedTrackId: project.tracks[track].id });
 
     if (s.playlistTool === 'slice') {
-      if (hit) sliceClip(hit.clip.id, cutTick(tick, e));
+      if (hit) sliceClip(hit.clip.id, place(tick, e));
       return;
     }
     if (hit) {
@@ -332,12 +306,12 @@ export function Playlist() {
       if (edge === 'right') {
         const buf = clip.kind === 'audio' && clip.assetId ? assets.get(clip.assetId) : undefined;
         const maxLen = buf ? secondsToTicks((buf.duration - clip.offset) / (clip.speed ?? 1), project.bpm) : Infinity;
-        drag.current = { kind: 'resize', id: clip.id, origStart: clip.start, origLen: clip.length, maxLen };
+        drag.current = { kind: 'resize', id: clip.id, origStart: clip.start, origLen: clip.length, maxLen, pressTick: tick, moved: false };
         setUI({ selectedClipIds: [clip.id] });
         return;
       }
       if (edge === 'left') {
-        drag.current = { kind: 'trim', id: clip.id, origStart: clip.start, origLen: clip.length, origOffset: clip.offset, audio: clip.kind === 'audio', speed: clip.speed ?? 1 };
+        drag.current = { kind: 'trim', id: clip.id, origStart: clip.start, origLen: clip.length, origOffset: clip.offset, audio: clip.kind === 'audio', speed: clip.speed ?? 1, pressTick: tick, moved: false };
         setUI({ selectedClipIds: [clip.id] });
         return;
       }
@@ -368,12 +342,12 @@ export function Playlist() {
     const pattern = project.patterns.find((p) => p.id === s.selectedPatternId) ?? project.patterns[0];
     if (!pattern) return;
     beginGesture();
-    const start = ui().snapMode === 'magnet' && !e.altKey ? magnet(snapTicks(tick, snapOf(e), 'floor'), e) : Math.max(0, snapTicks(tick, snapOf(e), 'floor'));
+    const start = place(tick, e, 'floor');
     const id = uid('c');
     const clip: Clip = { id, trackId: project.tracks[track].id, kind: 'pattern', start, length: patternLength(pattern, project.timeSig), offset: 0, patternId: pattern.id };
     update('Add clip', (d) => { d.clips.push(clip); });
     setUI({ selectedClipIds: [id] });
-    drag.current = { kind: 'move', startTick: start, startTrack: track, anchorId: id, orig: new Map([[id, { start, track }]]), moved: false };
+    drag.current = { kind: 'move', startTick: tick, startTrack: track, anchorId: id, orig: new Map([[id, { start, track }]]), moved: false };
   };
 
   const onPointerMove = (e: RPE) => {
@@ -382,7 +356,7 @@ export function Playlist() {
     const project = getProject();
     if (!d) {
       const hit = hitClip(x, y);
-      hover.current = hit && ui().playlistTool === 'slice' ? { clipId: hit.clip.id, tick: cutTick(tick, e) } : null;
+      hover.current = hit && ui().playlistTool === 'slice' ? { clipId: hit.clip.id, tick: place(tick, e) } : null;
       const cur = ui().playlistTool === 'slice' && hit ? 'crosshair' : hit?.edge ? 'ew-resize' : hit ? 'grab' : ui().playlistTool === 'draw' ? 'copy' : 'default';
       if (cur !== hoverCursor.current) {
         hoverCursor.current = cur;
@@ -390,22 +364,12 @@ export function Playlist() {
       }
       return;
     }
-    const sn = snapOf(e);
+    // a few pixels of hand jitter while clicking never moves or resizes anything
+    const still = (from: number) => Math.abs(tick - from) * view.current.pxPerTick < 3;
     if (d.kind === 'move') {
       const a = d.orig.get(d.anchorId);
       if (!a) return;
-      const rawStart = a.start + (tick - d.startTick);
-      let newAnchor: number;
-      if (ui().snapMode === 'magnet' && !e.altKey) {
-        const len = project.clips.find((c) => c.id === d.anchorId)?.length ?? 0;
-        const ex = new Set(d.orig.keys());
-        const s1 = magnet(rawStart, e, ex);
-        const e1 = magnet(rawStart + len, e, ex) - len;
-        newAnchor = Math.abs(e1 - rawStart) > 0.001 && (Math.abs(s1 - rawStart) < 0.001 || Math.abs(e1 - rawStart) < Math.abs(s1 - rawStart)) ? e1 : s1;
-      } else {
-        newAnchor = Math.max(0, snapTicks(rawStart, sn));
-      }
-      let dt = newAnchor - a.start;
+      let dt = place(a.start + (tick - d.startTick), e) - a.start;
       let dTrack = track - d.startTrack;
       const origs = [...d.orig.values()];
       const minStart = Math.min(...origs.map((o) => o.start));
@@ -413,7 +377,7 @@ export function Playlist() {
       const minT = Math.min(...origs.map((o) => o.track));
       const maxT = Math.max(...origs.map((o) => o.track));
       dTrack = clamp(dTrack, -minT, project.tracks.length - 1 - maxT);
-      if (dt === 0 && dTrack === 0 && !d.moved) return;
+      if (!d.moved && dTrack === 0 && (dt === 0 || still(d.startTick))) return;
       d.moved = true;
       update('Move clips', (dr) => {
         for (const c of dr.clips) {
@@ -424,16 +388,20 @@ export function Playlist() {
         }
       });
     } else if (d.kind === 'resize') {
-      const minLen = ui().snapMode === 'grid' ? Math.max(1, sn) : 1;
-      const end = ui().snapMode === 'grid' && !e.altKey ? snapTicks(tick, sn) : magnet(tick, e, new Set([d.id]));
+      if (!d.moved && still(d.pressTick)) return;
+      d.moved = true;
+      const minLen = ui().snapMode === 'grid' && !e.altKey ? Math.max(1, ui().playlistSnap) : 1;
+      const end = place(d.origStart + d.origLen + (tick - d.pressTick), e);
       const len = Math.min(d.maxLen, Math.max(minLen, end - d.origStart));
       update('Resize clip', (dr) => {
         const c = dr.clips.find((k) => k.id === d.id);
         if (c) c.length = Math.round(len * 100) / 100;
       });
     } else if (d.kind === 'trim') {
+      if (!d.moved && still(d.pressTick)) return;
+      d.moved = true;
       const end = d.origStart + d.origLen;
-      let start = ui().snapMode === 'grid' && !e.altKey ? snapTicks(tick, sn) : magnet(tick, e, new Set([d.id]));
+      let start = place(d.origStart + (tick - d.pressTick), e);
       const minStart = d.audio ? d.origStart - secondsToTicks(d.origOffset / d.speed, project.bpm) : 0;
       start = clamp(start, Math.max(0, minStart), end - 1);
       const delta = start - d.origStart;
@@ -511,7 +479,7 @@ export function Playlist() {
       { separator: true },
       { label: ids.length > 1 ? `Delete ${ids.length} clips` : 'Delete', shortcut: 'Del', danger: true, onClick: () => { deleteClips(new Set(ids)); setUI({ selectedClipIds: [] }); } },
       { label: 'Duplicate', shortcut: 'Ctrl+D', onClick: () => setUI({ selectedClipIds: duplicateClips(new Set(ids)) }) },
-      { label: 'Slice here (exactly at the mouse)', onClick: () => sliceClip(c.id, cutTick(tick, e)) },
+      { label: 'Slice here (exactly at the mouse)', onClick: () => sliceClip(c.id, place(tick, e)) },
       { label: 'Slice at playhead', disabled: !(engine.transport && engine.transport.getTick() > c.start && engine.transport.getTick() < c.start + c.length), onClick: () => sliceClip(c.id, Math.round(engine.transport.getTick() * 100) / 100) },
       { separator: true },
     ];
@@ -542,7 +510,7 @@ export function Playlist() {
     const pattern = project.patterns.find((p) => p.id === ui().selectedPatternId);
     if (!pattern || track < 0 || track >= project.tracks.length) return;
     update('Add clip', (d) => {
-      d.clips.push({ id: uid('c'), trackId: project.tracks[track].id, kind: 'pattern', start: Math.max(0, snapTicks(tick, ui().playlistSnap, 'floor')), length: patternLength(pattern, project.timeSig), offset: 0, patternId: pattern.id });
+      d.clips.push({ id: uid('c'), trackId: project.tracks[track].id, kind: 'pattern', start: place(tick, { altKey: false }, 'floor'), length: patternLength(pattern, project.timeSig), offset: 0, patternId: pattern.id });
     });
   };
 
@@ -618,7 +586,7 @@ export function Playlist() {
     const project = getProject();
     const tIdx = clamp(track, 0, project.tracks.length - 1);
     const trackId = project.tracks[tIdx].id;
-    const start = Math.max(0, snapTicks(tick, ui().playlistSnap, 'floor'));
+    const start = place(tick, e, 'floor');
     const files = Array.from(e.dataTransfer.files ?? []).filter((f) => f.type.startsWith('audio') || /\.(wav|mp3|ogg|flac|m4a|aac|webm)$/i.test(f.name));
     if (files.length) {
       let at = start;
@@ -693,10 +661,9 @@ export function Playlist() {
         </div>
         <div className="pl-tools">
           <Icon name="magnet" size={12} style={{ color: 'var(--dim)' }} />
-          <select className="input small-select" value={snapMode} onChange={(e) => setUI({ snapMode: e.target.value as 'magnet' | 'grid' | 'off' })} title="Magnet: exact mouse position, pulled onto nearby grid lines and clip edges · Grid: hard snap · Off: free (Alt = free)">
-            <option value="magnet">Magnet</option>
-            <option value="grid">Grid</option>
+          <select className="input small-select" value={snapMode} onChange={(e) => setUI({ snapMode: e.target.value as 'grid' | 'off' })} title="Free: clips move, resize and cut exactly at the mouse – no jumping to other clips' edges · Grid: snap to the grid size (Alt = free)">
             <option value="off">Free</option>
+            <option value="grid">Grid</option>
           </select>
           <select className="input small-select" value={snap} onChange={(e) => setUI({ playlistSnap: Number(e.target.value) })} title="Grid size (hold Alt to bypass)">
             {SNAPS.map((s) => <option key={s.value} value={s.value}>{s.label}</option>)}

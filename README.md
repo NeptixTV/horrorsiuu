@@ -22,8 +22,8 @@ Step-Sequencer · Playlist · Piano Roll · Mixer · Effekte · Synthesizer · D
 - **Jede Reihe hat ihren eigenen Mixer-Kanal** (Zahnrad oder Rechtsklick auf den Reihennamen → Settings): Lautstärke,
   Pan, Solo/Mute, Effekte. Reihen mit Sounds bekommen ihren Mixer-Kanal automatisch.
 - **Sauberes Schneiden**: Das Schere-Werkzeug schneidet *genau* an der Mausposition (gestrichelte Vorschaulinie),
-  Ziehen/Verlängern folgt exakt der Maus und rastet nur „magnetisch“ ein, wenn man nah an einer Rasterlinie oder
-  Clip-Kante ist (Modus *Magnet / Grid / Free*, Alt = frei). Jeder Schnitt bekommt Mini-Fades, damit nichts knackt.
+  Verschieben und Auf-/Zuziehen folgen exakt der Maus – nichts springt an die Kante eines anderen Clips (Modus *Free*,
+  Standard). Wer im Takt bleiben will, stellt *Grid* ein (Alt = frei). Jeder Schnitt bekommt Mini-Fades, damit nichts knackt.
 - **Song Splitter** (File-Menü oder *My Library*): Song reinziehen → **Vocals**, **Instrumental (ohne Stimme)**,
   **Beat/Drums** und **Melodie** trennen, anhören und als eigene Spuren in die Playlist legen.
 - **My Library + Sample-Editor**: eigene Sounds importieren, umbenennen, löschen, bearbeiten (Bereich auswählen,
