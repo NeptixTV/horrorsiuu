@@ -11,6 +11,8 @@ rem ----------------------------------------------------------------------------
 set "PROJECT_DIR=%~dp0"
 set "UPROJECT=%PROJECT_DIR%HorrorHeist.uproject"
 set "LOG=%PROJECT_DIR%BuildLog.txt"
+set "ERRORS=%PROJECT_DIR%BuildErrors.txt"
+if exist "%ERRORS%" del "%ERRORS%"
 
 set "UE_ROOT=%~1"
 if not defined UE_ROOT (
@@ -50,10 +52,25 @@ pause
 exit /b 0
 
 :failed
+rem Nur die Fehlerzeilen herausfiltern (Compiler, Linker, UnrealHeaderTool, UnrealBuildTool).
+findstr /I /C:": error" /C:"fatal error" /C:"error LNK" /C:"error C" /C:"error MSB" /C:"ERROR:" "%LOG%" > "%ERRORS%" 2>nul
 echo.
-echo FEHLER beim Kompilieren. Das vollstaendige Protokoll steht in:
-echo   %LOG%
-echo Bitte diese Datei weitergeben, damit der Fehler gezielt behoben werden kann.
+echo FEHLER beim Kompilieren.
+echo.
+for %%F in ("%ERRORS%") do if %%~zF GTR 0 (
+    echo Die ersten Fehlermeldungen:
+    echo ----------------------------------------------------------------------------------
+    powershell -NoProfile -Command "Get-Content -LiteralPath $env:ERRORS -TotalCount 40"
+    echo ----------------------------------------------------------------------------------
+    echo.
+    echo Alle Fehlerzeilen stehen in:  %ERRORS%
+) else (
+    echo Keine einzelnen Fehlerzeilen gefunden - bitte das komplette Protokoll weitergeben.
+)
+echo Komplettes Protokoll:          %LOG%
+echo.
+echo Bitte BuildErrors.txt (oder BuildLog.txt) weitergeben bzw. den Text oben kopieren,
+echo damit der Fehler gezielt behoben werden kann.
 echo.
 pause
 exit /b 1
