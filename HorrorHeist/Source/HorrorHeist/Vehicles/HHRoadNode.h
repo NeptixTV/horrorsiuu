@@ -4,6 +4,17 @@
 #include "GameFramework/Actor.h"
 #include "HHRoadNode.generated.h"
 
+/** What traffic must do before driving through a junction node. */
+UENUM(BlueprintType)
+enum class EHHTrafficControl : uint8
+{
+	None,
+	/** Stop at the line, wait a moment, go. */
+	StopSign,
+	/** Wait for green (AHHTrafficLight phases, shared by every light of the junction). */
+	Lights
+};
+
 /**
  * A point on the town's road network (centre of a street, a junction). AI cars (the police)
  * drive from node to node; Links name the nodes this one connects to (both ways). Placed in
@@ -18,6 +29,9 @@ public:
 	AHHRoadNode();
 
 	FName GetNodeId() const { return NodeId; }
+	EHHTrafficControl GetControl() const { return Control; }
+	/** Which signal group of the junction this node belongs to (all lights of a junction share it). */
+	FName GetJunctionId() const { return JunctionId.IsNone() ? NodeId : JunctionId; }
 
 	/** Nearest node to Location (null when the town has no road nodes). */
 	static AHHRoadNode* FindNearest(const UObject* WorldContextObject, const FVector& Location);
@@ -37,4 +51,12 @@ protected:
 
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Road")
 	TArray<FName> Links;
+
+	/** Junction rule for cars driving through this node (stop sign, traffic lights). */
+	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Road")
+	EHHTrafficControl Control = EHHTrafficControl::None;
+
+	/** Lights: the junction id the signals use (defaults to this node's id). */
+	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Road")
+	FName JunctionId;
 };

@@ -23,6 +23,8 @@
 #include "EnhancedInputComponent.h"
 #include "Engine/PostProcessVolume.h"
 #include "Engine/World.h"
+#include "Sound/SoundBase.h"
+#include "Kismet/GameplayStatics.h"
 #include "GameFramework/GameStateBase.h"
 #include "EngineUtils.h"
 #include "Interfaces/VoiceInterface.h"
@@ -419,6 +421,27 @@ void AHHPlayerController::ClientKnockedDown_Implementation()
 	if (AHHLobbyHUD* LobbyHUD = GetLobbyHUD())
 	{
 		LobbyHUD->PlayKnockdown();
+	}
+}
+
+void AHHPlayerController::ClientHauntTouch_Implementation(USoundBase* Sound)
+{
+	if (Sound)
+	{
+		UGameplayStatics::PlaySound2D(this, Sound);
+	}
+	if (UHHAudioSubsystem* Audio = UHHAudioSubsystem::Get(this))
+	{
+		Audio->ShowCaption(LOCTEXT("Touch", "[Something touches your shoulder]"), 3.f, true);
+	}
+	// A small flinch of the view (skipped when camera shake is turned off).
+	const UHHGameUserSettings* Settings = UHHGameUserSettings::Get();
+	if (!Settings || Settings->AllowsCameraShake())
+	{
+		FRotator Rotation = GetControlRotation();
+		Rotation.Yaw += FMath::FRandRange(-6.f, 6.f);
+		Rotation.Pitch = FMath::Clamp(FRotator::NormalizeAxis(Rotation.Pitch) + FMath::FRandRange(2.f, 4.f), -84.f, 84.f);
+		SetControlRotation(Rotation);
 	}
 }
 

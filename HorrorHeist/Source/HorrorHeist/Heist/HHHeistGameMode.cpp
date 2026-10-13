@@ -7,6 +7,7 @@
 #include "Heist/HHEscapeZone.h"
 #include "Heist/HHApparition.h"
 #include "Heist/HHSaltLine.h"
+#include "Heist/HHHauntMark.h"
 #include "Data/HHEquipmentDefinition.h"
 #include "Core/HHGameData.h"
 #include "Interaction/HHDoorActor.h"
@@ -1362,9 +1363,26 @@ void AHHHeistGameMode::HandleUseItem(AHHCharacter* Character, int32 SlotIndex, c
 			Ghost = *It;
 			break;
 		}
+		bool bEvidence = false;
 		if (Ghost && Ghost->IsInPhoto(ViewLocation, Direction))
 		{
 			Ghost->OnPhotographed();
+			bEvidence = true;
+		}
+		else
+		{
+			// Handprints and writing the house left behind are evidence too (each one once).
+			for (TActorIterator<AHHHauntMark> It(GetWorld()); It; ++It)
+			{
+				if (It->TryPhotograph(ViewLocation, Direction, Character))
+				{
+					bEvidence = true;
+					break;
+				}
+			}
+		}
+		if (bEvidence)
+		{
 			HeistState->AddPhoto();
 			const bool bPays = HeistState->GetPhotos() <= MaxPhotos;
 			HeistState->MulticastCrewMessage(bPays

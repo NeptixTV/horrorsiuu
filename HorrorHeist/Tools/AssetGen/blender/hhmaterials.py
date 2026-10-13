@@ -162,6 +162,13 @@ CATALOG = {
     'MI_Decal_Grime': decal('T_Decal_Grime', opacity=0.8, rough=0.9),
     'MI_Decal_Footprints': decal('T_Decal_Footprints', opacity=0.9, rough=0.85),
     'MI_Decal_Cracks': decal('T_Decal_Cracks', opacity=1.0, rough=0.9),
+    # The haunting (textures: textures/gen_haunt_images.py)
+    'MI_Decal_Handprints': decal('T_Decal_Handprints', opacity=0.95, rough=0.35),
+    'MI_Decal_GetOut': decal('T_Decal_GetOut', opacity=0.95, rough=0.45),
+    'MI_Decal_StillHere': decal('T_Decal_StillHere', opacity=0.95, rough=0.45),
+    'MI_Decal_Scratches': decal('T_Decal_Scratches', opacity=0.9, rough=0.9),
+    'MI_Decal_ChalkCircle': decal('T_Decal_ChalkCircle', opacity=0.9, rough=0.95),
+    'MI_Decal_ChildDrawing': decal('T_Decal_ChildDrawing', opacity=1.0, rough=0.8),
 
     # --- Town: ground, streets, exteriors (textures: textures/gen_world_textures.py) -----
     'MI_Asphalt': surface('T_Asphalt_Wet', (0.78, 0.78, 0.78), uv=0.25, rough_add=0.12),

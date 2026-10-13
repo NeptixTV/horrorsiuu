@@ -88,12 +88,13 @@ void AHHApparition::OnRep_Mode()
 	}
 }
 
-void AHHApparition::Glimpse(const FVector& Location, const FVector& FaceTowards, float Lifetime)
+void AHHApparition::Glimpse(const FVector& Location, const FVector& FaceTowards, float Lifetime, bool bInFace)
 {
 	if (!HasAuthority())
 	{
 		return;
 	}
+	bInYourFace = bInFace;
 	SetActorLocationAndRotation(Location, FRotator(0.f, (FaceTowards - Location).Rotation().Yaw, 0.f), false, nullptr, ETeleportType::TeleportPhysics);
 	Mode = EHHApparitionMode::Glimpse;
 	EndTime = GetWorld()->GetTimeSeconds() + Lifetime;
@@ -101,6 +102,47 @@ void AHHApparition::Glimpse(const FVector& Location, const FVector& FaceTowards,
 	Witnesses.Reset();
 	OnRep_Mode();
 	ForceNetUpdate();
+}
+
+void AHHApparition::Dash(const FVector& From, const FVector& To, float Speed)
+{
+	if (!HasAuthority())
+	{
+		return;
+	}
+	SetActorLocationAndRotation(From, FRotator(0.f, (To - From).Rotation().Yaw, 0.f), false, nullptr, ETeleportType::TeleportPhysics);
+	DashTarget = To;
+	DashSpeed = FMath::Max(100.f, Speed);
+	Mode = EHHApparitionMode::Dash;
+	EndTime = GetWorld()->GetTimeSeconds() + FVector::Dist(From, To) / DashSpeed + 0.5f;
+	Witnesses.Reset();
+	OnRep_Mode();
+	ForceNetUpdate();
+}
+
+void AHHApparition::TickDash(float DeltaSeconds)
+{
+	FVector Location = GetActorLocation();
+	const FVector ToTarget = DashTarget - Location;
+	const float Step = DashSpeed * DeltaSeconds;
+	if (ToTarget.Size() <= Step || GetWorld()->GetTimeSeconds() > EndTime)
+	{
+		Vanish();
+		return;
+	}
+	SetActorLocation(Location + ToTarget.GetSafeNormal() * Step);
+	for (FConstPlayerControllerIterator It = GetWorld()->GetPlayerControllerIterator(); It; ++It)
+	{
+		APawn* Pawn = It->Get() ? It->Get()->GetPawn() : nullptr;
+		if (Pawn && !Witnesses.Contains(Pawn) && CanSee(Pawn, 40.f))
+		{
+			Witnesses.Add(Pawn);
+			if (AHHHauntDirector* HauntDirector = Director.Get())
+			{
+				HauntDirector->OnApparitionSeen(Pawn);
+			}
+		}
+	}
 }
 
 void AHHApparition::Hunt(const FVector& Location, APawn* Target, float Duration)
@@ -210,6 +252,10 @@ void AHHApparition::Tick(float DeltaSeconds)
 	{
 		TickHunt(DeltaSeconds);
 	}
+	else if (Mode == EHHApparitionMode::Dash)
+	{
+		TickDash(DeltaSeconds);
+	}
 }
 
 void AHHApparition::TickGlimpse(float DeltaSeconds)
@@ -223,7 +269,7 @@ void AHHApparition::TickGlimpse(float DeltaSeconds)
 			continue;
 		}
 		const float Distance = FVector::Dist2D(Pawn->GetActorLocation(), GetActorLocation());
-		if (Distance < 380.f)
+		if (Distance < 380.f && !bInYourFace)
 		{
 			// Never close enough to touch while it is only watching.
 			Vanish();
@@ -243,7 +289,7 @@ void AHHApparition::TickGlimpse(float DeltaSeconds)
 		}
 	}
 	LookedAtTime = bStaredAt ? LookedAtTime + DeltaSeconds : FMath::Max(0.f, LookedAtTime - DeltaSeconds);
-	if (LookedAtTime > 0.7f || GetWorld()->GetTimeSeconds() > EndTime)
+	if ((LookedAtTime > 0.7f && !bInYourFace) || GetWorld()->GetTimeSeconds() > EndTime)
 	{
 		Vanish();
 	}

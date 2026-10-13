@@ -2,6 +2,10 @@
 #include "Heist/HHApparition.h"
 #include "Heist/HHHauntDevice.h"
 #include "Heist/HHHauntProp.h"
+#include "Heist/HHHauntThrowable.h"
+#include "Heist/HHHauntMark.h"
+#include "Player/HHCharacter.h"
+#include "Player/HHPlayerController.h"
 #include "Heist/HHHeistGameMode.h"
 #include "Heist/HHHeistGameState.h"
 #include "Interaction/HHDoorActor.h"
@@ -26,13 +30,19 @@
 
 namespace HHHaunt
 {
-	/** Minimum stage for each event (index = EHHHauntEvent). */
-	static const int32 MinStage[] = { 0, 1, 1, 1, 2, 2, 2, 2, 2, 3, 3, 4 };
-	/** Seconds before the same event may run again. */
-	static const float Cooldown[] = { 20.f, 35.f, 50.f, 45.f, 60.f, 50.f, 90.f, 40.f, 45.f, 50.f, 70.f, 80.f };
-	/** Relative weight when picking. */
-	static const float Weight[] = { 1.f, 2.f, 1.4f, 1.3f, 1.3f, 1.1f, 0.8f, 0.9f, 1.f, 0.9f, 0.9f, 1.2f };
+	/**
+	 * Minimum stage, cooldown (s) and weight for each event (index = EHHHauntEvent):
+	 * Settle, DistantSound, LightOut, DoorOpen, ObjectMoved, DoorSlam, DeviceOn, Flicker, Whisper, GlassFall,
+	 * Apparition, Hunt, Voice, Scratch, StepsBehind, Touch, Throw, Mark, Manifest, ShadowRun, Rock.
+	 */
+	static const int32 MinStage[] = { 0, 1, 1, 1, 2, 2, 2, 2, 2, 3, 3, 4, 1, 2, 2, 2, 2, 2, 3, 2, 1 };
+	static const float Cooldown[] = { 20.f, 35.f, 50.f, 45.f, 60.f, 50.f, 90.f, 40.f, 45.f, 50.f, 70.f, 80.f,
+		40.f, 45.f, 60.f, 70.f, 40.f, 80.f, 90.f, 60.f, 70.f };
+	static const float Weight[] = { 1.f, 2.f, 1.4f, 1.3f, 1.3f, 1.1f, 0.8f, 0.9f, 1.f, 0.9f, 0.9f, 1.2f,
+		1.2f, 1.f, 0.9f, 0.7f, 1.2f, 0.8f, 0.8f, 0.9f, 0.8f };
 	static_assert(UE_ARRAY_COUNT(MinStage) == static_cast<int32>(EHHHauntEvent::MAX), "Haunt event table size");
+	static_assert(UE_ARRAY_COUNT(Cooldown) == static_cast<int32>(EHHHauntEvent::MAX), "Haunt event table size");
+	static_assert(UE_ARRAY_COUNT(Weight) == static_cast<int32>(EHHHauntEvent::MAX), "Haunt event table size");
 }
 
 AHHHauntDirector::AHHHauntDirector()
@@ -91,6 +101,7 @@ void AHHHauntDirector::EndPlay(const EEndPlayReason::Type EndPlayReason)
 {
 	GetWorldTimerManager().ClearTimer(ThinkTimer);
 	GetWorldTimerManager().ClearTimer(HuntTimer);
+	GetWorldTimerManager().ClearTimer(StepTimer);
 	Super::EndPlay(EndPlayReason);
 }
 
@@ -100,6 +111,8 @@ void AHHHauntDirector::GatherHouse()
 	Doors.Reset();
 	Props.Reset();
 	Devices.Reset();
+	Throwables.Reset();
+	Marks.Reset();
 	SoundPoints.Reset();
 	ApparitionPoints.Reset();
 
@@ -118,6 +131,14 @@ void AHHHauntDirector::GatherHouse()
 		else if (AHHHauntDevice* Device = Cast<AHHHauntDevice>(Actor))
 		{
 			Devices.Add(Device);
+		}
+		else if (AHHHauntThrowable* Throwable = Cast<AHHHauntThrowable>(Actor))
+		{
+			Throwables.Add(Throwable);
+		}
+		else if (AHHHauntMark* Mark = Cast<AHHHauntMark>(Actor))
+		{
+			Marks.Add(Mark);
 		}
 		else if (AHHApparition* Ghost = Cast<AHHApparition>(Actor))
 		{
@@ -151,9 +172,9 @@ void AHHHauntDirector::GatherHouse()
 			ApparitionPoints.Add(Actor->GetActorLocation());
 		}
 	}
-	UE_LOG(LogHorrorHeist, Log, TEXT("Haunt '%s': %d lights, %d doors, %d props, %d devices, %d sound points, %d apparition points, apparition %s."),
-		*HouseTag.ToString(), Lights.Num(), Doors.Num(), Props.Num(), Devices.Num(), SoundPoints.Num(), ApparitionPoints.Num(),
-		Apparition.IsValid() ? TEXT("yes") : TEXT("no"));
+	UE_LOG(LogHorrorHeist, Log, TEXT("Haunt '%s': %d lights, %d doors, %d props, %d devices, %d throwables, %d marks, %d sound points, %d apparition points, apparition %s."),
+		*HouseTag.ToString(), Lights.Num(), Doors.Num(), Props.Num(), Devices.Num(), Throwables.Num(), Marks.Num(), SoundPoints.Num(),
+		ApparitionPoints.Num(), Apparition.IsValid() ? TEXT("yes") : TEXT("no"));
 }
 
 void AHHHauntDirector::SetActive(bool bNewActive)
@@ -387,6 +408,15 @@ bool AHHHauntDirector::RunEvent(EHHHauntEvent Event)
 	case EHHHauntEvent::GlassFall:		bDone = DoGlassFall(); break;
 	case EHHHauntEvent::Apparition:		bDone = DoApparition(false); break;
 	case EHHHauntEvent::Hunt:			bDone = DoApparition(true); break;
+	case EHHHauntEvent::Voice:			bDone = DoVoice(); break;
+	case EHHHauntEvent::Scratch:		bDone = DoScratch(); break;
+	case EHHHauntEvent::StepsBehind:	bDone = DoStepsBehind(); break;
+	case EHHHauntEvent::Touch:			bDone = DoTouch(); break;
+	case EHHHauntEvent::Throw:			bDone = DoThrow(); break;
+	case EHHHauntEvent::Mark:			bDone = DoMark(); break;
+	case EHHHauntEvent::Manifest:		bDone = DoManifest(); break;
+	case EHHHauntEvent::ShadowRun:		bDone = DoShadowRun(); break;
+	case EHHHauntEvent::Rock:			bDone = DoRock(); break;
 	default: break;
 	}
 
@@ -814,6 +844,311 @@ bool AHHHauntDirector::DoApparition(bool bHunt)
 		return true;
 	}
 	return false;
+}
+
+// ---------------------------------------------------------------------------------------
+// The new repertoire
+
+APawn* AHHHauntDirector::PickVictim() const
+{
+	TArray<APawn*> Candidates;
+	for (APawn* Pawn : GetPawnsInside())
+	{
+		const AHHCharacter* Character = Cast<AHHCharacter>(Pawn);
+		if (!Character || !Character->IsIncapacitated())
+		{
+			Candidates.Add(Pawn);
+		}
+	}
+	return Candidates.Num() > 0 ? Candidates[Stream.RandRange(0, Candidates.Num() - 1)] : nullptr;
+}
+
+bool AHHHauntDirector::DoVoice()
+{
+	if (VoiceSounds.Num() == 0)
+	{
+		return false;
+	}
+	USoundBase* Sound = VoiceSounds[Stream.RandRange(0, VoiceSounds.Num() - 1)];
+	if (!Sound)
+	{
+		return false;
+	}
+	const FString Name = Sound->GetName();
+	FText Caption = LOCTEXT("VoiceAny", "[A voice somewhere in the house]");
+	if (Name.Contains(TEXT("Hum")))
+	{
+		Caption = LOCTEXT("VoiceHum", "[Someone is humming a lullaby]");
+	}
+	else if (Name.Contains(TEXT("Giggle")))
+	{
+		Caption = LOCTEXT("VoiceGiggle", "[A child giggles]");
+	}
+	else if (Name.Contains(TEXT("Crying")))
+	{
+		Caption = LOCTEXT("VoiceCry", "[Someone is crying quietly]");
+	}
+	else if (Name.Contains(TEXT("Piano")))
+	{
+		Caption = LOCTEXT("VoicePiano", "[Piano keys, in another room]");
+	}
+	return DoSoundInOtherRoom({ Sound }, Caption, 600.f);
+}
+
+bool AHHHauntDirector::DoScratch()
+{
+	APawn* Victim = PickVictim();
+	if (!Victim || ScratchSounds.Num() == 0)
+	{
+		return false;
+	}
+	// Inside the wall next to them: the nearest sound point a couple of metres away.
+	FVector Best = FVector::ZeroVector;
+	float BestDistance = TNumericLimits<float>::Max();
+	for (const FVector& Point : SoundPoints)
+	{
+		const float Distance = FVector::Dist(Point, Victim->GetActorLocation());
+		if (Distance > 180.f && Distance < 800.f && Distance < BestDistance)
+		{
+			BestDistance = Distance;
+			Best = Point;
+		}
+	}
+	if (BestDistance == TNumericLimits<float>::Max())
+	{
+		return false;
+	}
+	PlaySoundEverywhere(ScratchSounds[Stream.RandRange(0, ScratchSounds.Num() - 1)], Best, LOCTEXT("Scratch", "[Scratching inside the wall]"));
+	HitPsyche(Victim, 3.f);
+	EventAt = Best;
+	return true;
+}
+
+bool AHHHauntDirector::DoStepsBehind()
+{
+	APawn* Victim = PickVictim();
+	if (!Victim || CloseStepSounds.Num() == 0 || GetWorldTimerManager().IsTimerActive(StepTimer))
+	{
+		return false;
+	}
+	StepVictim = Victim;
+	StepIndex = 0;
+	EventAt = Victim->GetActorLocation() - Victim->GetActorForwardVector() * 400.f;
+	StepBehind();
+	GetWorldTimerManager().SetTimer(StepTimer, this, &AHHHauntDirector::StepBehind, 0.62f, true);
+	return true;
+}
+
+void AHHHauntDirector::StepBehind()
+{
+	APawn* Victim = StepVictim.Get();
+	const AHHPlayerState* State = Victim ? Victim->GetPlayerState<AHHPlayerState>() : nullptr;
+	if (!Victim || !State || !State->IsInsideHouse() || !bActive)
+	{
+		GetWorldTimerManager().ClearTimer(StepTimer);
+		return;
+	}
+	const int32 Steps = 6;
+	// Always behind them, wherever they turn: from seven metres to an arm's length.
+	const float Back = FMath::Lerp(700.f, 110.f, static_cast<float>(StepIndex) / (Steps - 1));
+	const FVector Where = Victim->GetActorLocation() - Victim->GetActorForwardVector() * Back - FVector(0.f, 0.f, 70.f);
+	if (StepIndex < Steps)
+	{
+		PlaySoundEverywhere(CloseStepSounds[StepIndex % CloseStepSounds.Num()], Where,
+			StepIndex == 0 ? LOCTEXT("StepsBehind", "[Slow footsteps behind you]") : FText::GetEmpty(), 0.9f);
+		++StepIndex;
+		return;
+	}
+	GetWorldTimerManager().ClearTimer(StepTimer);
+	if (BreathSounds.Num() > 0)
+	{
+		PlaySoundEverywhere(BreathSounds[Stream.RandRange(0, BreathSounds.Num() - 1)], Where + FVector(0.f, 0.f, 90.f),
+			LOCTEXT("BreathNeck", "[Breathing, right at your neck]"));
+	}
+	HitPsyche(Victim, 6.f);
+}
+
+bool AHHHauntDirector::DoTouch()
+{
+	APawn* Victim = PickVictim();
+	AHHPlayerController* PC = Victim ? Cast<AHHPlayerController>(Victim->GetController()) : nullptr;
+	if (!PC)
+	{
+		return false;
+	}
+	PC->ClientHauntTouch(TouchSound);
+	HitPsyche(Victim, 6.f);
+	EventAt = Victim->GetActorLocation();
+	return true;
+}
+
+bool AHHHauntDirector::DoThrow()
+{
+	TArray<AHHHauntThrowable*> Candidates;
+	for (const TWeakObjectPtr<AHHHauntThrowable>& ThrowablePtr : Throwables)
+	{
+		AHHHauntThrowable* Throwable = ThrowablePtr.Get();
+		const float Nearest = Throwable ? DistanceToNearestPawn(Throwable->GetActorLocation()) : 0.f;
+		if (Throwable && Throwable->CanBeThrown() && Nearest > 150.f && Nearest < 1000.f)
+		{
+			Candidates.Add(Throwable);
+		}
+	}
+	APawn* Victim = PickVictim();
+	if (Candidates.Num() == 0 || !Victim)
+	{
+		return false;
+	}
+	// Towards whoever is nearest, landing at their feet (not on them).
+	AHHHauntThrowable* Throwable = Candidates[Stream.RandRange(0, Candidates.Num() - 1)];
+	APawn* Target = Victim;
+	float Nearest = TNumericLimits<float>::Max();
+	for (APawn* Pawn : GetPawnsInside())
+	{
+		const float Distance = FVector::Dist(Pawn->GetActorLocation(), Throwable->GetActorLocation());
+		if (Distance < Nearest)
+		{
+			Nearest = Distance;
+			Target = Pawn;
+		}
+	}
+	const FVector Toward = (Target->GetActorLocation() - Throwable->GetActorLocation()).GetSafeNormal2D();
+	FVector Landing = Target->GetActorLocation() - Toward * Stream.FRandRange(60.f, 140.f) + FVector(Stream.FRandRange(-40.f, 40.f), Stream.FRandRange(-40.f, 40.f), 0.f);
+	FHitResult Hit;
+	FCollisionQueryParams Params(SCENE_QUERY_STAT(HHHauntThrow), false, Target);
+	Params.AddIgnoredActor(Throwable);
+	if (GetWorld()->LineTraceSingleByChannel(Hit, Landing + FVector(0.f, 0.f, 50.f), Landing - FVector(0.f, 0.f, 300.f), ECC_Visibility, Params))
+	{
+		Landing = Hit.ImpactPoint + FVector(0.f, 0.f, 3.f);
+	}
+	Throwable->ThrowTo(Landing, FMath::Clamp(Nearest / 900.f, 0.35f, 0.8f));
+	HitPsycheNear(Landing, 900.f, 4.f);
+	AddAnger(1.f);
+	EventAt = Throwable->GetActorLocation();
+	return true;
+}
+
+bool AHHHauntDirector::DoMark()
+{
+	TArray<AHHHauntMark*> Candidates;
+	for (const TWeakObjectPtr<AHHHauntMark>& MarkPtr : Marks)
+	{
+		AHHHauntMark* Mark = MarkPtr.Get();
+		if (!Mark || Mark->IsRevealed() || Mark->GetMinStage() > Stage)
+		{
+			continue;
+		}
+		const float Nearest = DistanceToNearestPawn(Mark->GetActorLocation());
+		if (Nearest > 250.f && Nearest < 1800.f && !IsObserved(Mark->GetActorLocation(), 2500.f))
+		{
+			Candidates.Add(Mark);
+		}
+	}
+	if (Candidates.Num() == 0)
+	{
+		return false;
+	}
+	AHHHauntMark* Mark = Candidates[Stream.RandRange(0, Candidates.Num() - 1)];
+	Mark->Reveal();
+	HitPsycheNear(Mark->GetActorLocation(), 1200.f, 3.f);
+	EventAt = Mark->GetActorLocation();
+	return true;
+}
+
+bool AHHHauntDirector::DoManifest()
+{
+	AHHApparition* Ghost = Apparition.Get();
+	APawn* Victim = PickVictim();
+	if (!Ghost || !Victim || Ghost->GetMode() != EHHApparitionMode::Hidden)
+	{
+		return false;
+	}
+	FVector Eye;
+	FRotator View;
+	Victim->GetActorEyesViewPoint(Eye, View);
+	const FVector Ahead = FRotator(0.f, View.Yaw, 0.f).Vector();
+	const FVector Point = Eye + Ahead * 170.f;
+	FHitResult Hit;
+	FCollisionQueryParams Params(SCENE_QUERY_STAT(HHHauntManifest), false, Victim);
+	Params.AddIgnoredActor(Ghost);
+	if (GetWorld()->LineTraceSingleByChannel(Hit, Eye, Point + Ahead * 40.f, ECC_Visibility, Params))
+	{
+		return false;	// A wall right in front of them: no room to stand.
+	}
+	if (!GetWorld()->LineTraceSingleByChannel(Hit, Point, Point - FVector(0.f, 0.f, 300.f), ECC_Visibility, Params))
+	{
+		return false;
+	}
+	Ghost->Glimpse(Hit.ImpactPoint, Victim->GetActorLocation(), 0.9f, true);
+	PlaySoundEverywhere(GrowlSound, Hit.ImpactPoint, LOCTEXT("Growl", "[A low growl, right in front of you]"));
+	if (StingerSounds.Num() > 0)
+	{
+		MulticastStinger(StingerSounds[Stream.RandRange(0, StingerSounds.Num() - 1)]);
+	}
+	MulticastFlicker(Hit.ImpactPoint, 900.f, 1.2f);
+	HitPsyche(Victim, 12.f);
+	EventAt = Hit.ImpactPoint;
+	return true;
+}
+
+bool AHHHauntDirector::DoShadowRun()
+{
+	AHHApparition* Ghost = Apparition.Get();
+	APawn* Viewer = PickVictim();
+	if (!Ghost || !Viewer || Ghost->GetMode() != EHHApparitionMode::Hidden || ApparitionPoints.Num() < 2)
+	{
+		return false;
+	}
+	FVector Eye;
+	FRotator View;
+	Viewer->GetActorEyesViewPoint(Eye, View);
+	for (int32 Attempt = 0; Attempt < 12; ++Attempt)
+	{
+		const FVector A = ApparitionPoints[Stream.RandRange(0, ApparitionPoints.Num() - 1)];
+		const FVector B = ApparitionPoints[Stream.RandRange(0, ApparitionPoints.Num() - 1)];
+		const float Length = FVector::Dist(A, B);
+		const FVector Mid = (A + B) * 0.5f + FVector(0.f, 0.f, 100.f);
+		const FVector ToMid = Mid - Eye;
+		const float Distance = ToMid.Size();
+		if (Length < 250.f || Length > 1000.f || FMath::Abs(A.Z - B.Z) > 100.f || Distance < 400.f || Distance > 1600.f
+			|| FVector::DotProduct(View.Vector(), ToMid / Distance) < 0.5f)
+		{
+			continue;
+		}
+		FHitResult Hit;
+		FCollisionQueryParams Params(SCENE_QUERY_STAT(HHHauntShadow), false, Viewer);
+		Params.AddIgnoredActor(Ghost);
+		if (GetWorld()->LineTraceSingleByChannel(Hit, Eye, Mid, ECC_Visibility, Params))
+		{
+			continue;
+		}
+		Ghost->Dash(A, B, 650.f);
+		EventAt = Mid;
+		return true;
+	}
+	return false;
+}
+
+bool AHHHauntDirector::DoRock()
+{
+	TArray<AHHHauntProp*> Candidates;
+	for (const TWeakObjectPtr<AHHHauntProp>& PropPtr : Props)
+	{
+		AHHHauntProp* Prop = PropPtr.Get();
+		if (Prop && Prop->CanRock() && DistanceToNearestPawn(Prop->GetActorLocation()) < 2200.f)
+		{
+			Candidates.Add(Prop);
+		}
+	}
+	if (Candidates.Num() == 0)
+	{
+		return false;
+	}
+	AHHHauntProp* Prop = Candidates[Stream.RandRange(0, Candidates.Num() - 1)];
+	Prop->Rock(Stream.FRandRange(10.f, 16.f));
+	HitPsycheNear(Prop->GetActorLocation(), 1200.f, 2.f);
+	EventAt = Prop->GetActorLocation();
+	return true;
 }
 
 void AHHHauntDirector::OnApparitionSeen(APawn* Witness)

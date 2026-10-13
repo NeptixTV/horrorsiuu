@@ -11,6 +11,8 @@ class AHHDoorActor;
 class AHHHauntProp;
 class AHHHauntDevice;
 class AHHApparition;
+class AHHHauntThrowable;
+class AHHHauntMark;
 class AHHPlayerState;
 class UHHLootDefinition;
 
@@ -29,6 +31,24 @@ enum class EHHHauntEvent : uint8
 	GlassFall,
 	Apparition,
 	Hunt,
+	/** Humming, a child's giggle, crying or piano keys in another room. */
+	Voice,
+	/** Nails dragged inside the wall next to someone. */
+	Scratch,
+	/** Footsteps walking up behind someone, then breathing at their neck. */
+	StepsBehind,
+	/** Something touches someone's shoulder (only they feel it). */
+	Touch,
+	/** A book or a mug flies across the room. */
+	Throw,
+	/** Handprints or words appear on a mirror or wall. */
+	Mark,
+	/** It stands right in front of someone for a heartbeat. */
+	Manifest,
+	/** A dark shape runs across a hallway in plain view. */
+	ShadowRun,
+	/** The rocking chair rocks by itself. */
+	Rock,
 	MAX UMETA(Hidden)
 };
 
@@ -106,6 +126,18 @@ protected:
 	bool DoWhisper();
 	bool DoGlassFall();
 	bool DoApparition(bool bHunt);
+	bool DoVoice();
+	bool DoScratch();
+	bool DoStepsBehind();
+	void StepBehind();
+	bool DoTouch();
+	bool DoThrow();
+	bool DoMark();
+	bool DoManifest();
+	bool DoShadowRun();
+	bool DoRock();
+	/** A random crew member inside the house who is still on their feet (null if none). */
+	APawn* PickVictim() const;
 
 	TArray<APawn*> GetPawnsInside() const;
 	bool IsObserved(const FVector& Location, float MaxDistance) const;
@@ -186,6 +218,28 @@ protected:
 	UPROPERTY(EditAnywhere, Category = "Sounds")
 	TArray<TObjectPtr<USoundBase>> StingerSounds;
 
+	/** Hum, giggle, crying, piano: the house's voices (played in another room). */
+	UPROPERTY(EditAnywhere, Category = "Sounds")
+	TArray<TObjectPtr<USoundBase>> VoiceSounds;
+
+	UPROPERTY(EditAnywhere, Category = "Sounds")
+	TArray<TObjectPtr<USoundBase>> ScratchSounds;
+
+	/** Single slow footsteps for steps that walk up behind someone. */
+	UPROPERTY(EditAnywhere, Category = "Sounds")
+	TArray<TObjectPtr<USoundBase>> CloseStepSounds;
+
+	UPROPERTY(EditAnywhere, Category = "Sounds")
+	TArray<TObjectPtr<USoundBase>> BreathSounds;
+
+	/** 2D, only for the one who is touched. */
+	UPROPERTY(EditAnywhere, Category = "Sounds")
+	TObjectPtr<USoundBase> TouchSound;
+
+	/** When it stands right in front of someone. */
+	UPROPERTY(EditAnywhere, Category = "Sounds")
+	TObjectPtr<USoundBase> GrowlSound;
+
 private:
 	UPROPERTY(Replicated)
 	FVector_NetQuantize LastEventLocation = FVector::ZeroVector;
@@ -217,6 +271,11 @@ private:
 	TArray<TWeakObjectPtr<AHHDoorActor>> Doors;
 	TArray<TWeakObjectPtr<AHHHauntProp>> Props;
 	TArray<TWeakObjectPtr<AHHHauntDevice>> Devices;
+	TArray<TWeakObjectPtr<AHHHauntThrowable>> Throwables;
+	TArray<TWeakObjectPtr<AHHHauntMark>> Marks;
+	TWeakObjectPtr<APawn> StepVictim;
+	int32 StepIndex = 0;
+	FTimerHandle StepTimer;
 	TArray<FVector> SoundPoints;
 	TArray<FVector> ApparitionPoints;
 	TWeakObjectPtr<AHHApparition> Apparition;

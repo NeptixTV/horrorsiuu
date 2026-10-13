@@ -1,4 +1,8 @@
 #include "Heist/HHHauntDevice.h"
+#include "GameFramework/Pawn.h"
+#include "Player/HHPlayerController.h"
+#include "Player/HHPlayerState.h"
+#include "Heist/HHHeistGameState.h"
 #include "Audio/HHAudioSubsystem.h"
 #include "Components/AudioComponent.h"
 #include "Components/PointLightComponent.h"
@@ -55,7 +59,8 @@ void AHHHauntDevice::EndPlay(const EEndPlayReason::Type EndPlayReason)
 
 FText AHHHauntDevice::GetInteractionPrompt(AActor* Interactor) const
 {
-	return FText::Format(LOCTEXT("SwitchOff", "Switch off the {0}"), DeviceName);
+	return AnswerSound ? FText::Format(LOCTEXT("Answer", "Answer the {0}"), DeviceName)
+		: FText::Format(LOCTEXT("SwitchOff", "Switch off the {0}"), DeviceName);
 }
 
 bool AHHHauntDevice::CanInteract(AActor* Interactor) const
@@ -66,9 +71,30 @@ bool AHHHauntDevice::CanInteract(AActor* Interactor) const
 void AHHHauntDevice::Interact(AActor* Interactor)
 {
 	BP_OnInteracted(Interactor);
-	if (HasAuthority())
+	if (!HasAuthority())
 	{
-		TurnOff();
+		return;
+	}
+	TurnOff();
+	// Somebody picked up the phone. Something on the line.
+	if (AnswerSound)
+	{
+		if (AHHHeistGameState* HeistState = GetWorld()->GetGameState<AHHHeistGameState>())
+		{
+			HeistState->MulticastSoundAt(AnswerSound, GetActorLocation(), 1.f);
+		}
+		const APawn* Pawn = Cast<APawn>(Interactor);
+		if (AHHPlayerState* State = Pawn ? Pawn->GetPlayerState<AHHPlayerState>() : nullptr)
+		{
+			State->SetPsyche(State->GetPsyche() - 8.f);
+		}
+		if (AHHPlayerController* PC = Pawn ? Cast<AHHPlayerController>(Pawn->GetController()) : nullptr)
+		{
+			if (!AnswerCaption.IsEmpty())
+			{
+				PC->ClientNotify(AnswerCaption, EHHNotifyType::Warning);
+			}
+		}
 	}
 }
 

@@ -17,8 +17,10 @@ enum class EHHApparitionMode : uint8
 	Hidden,
 	/** Stands at the end of a corridor and is gone when you look properly or come close. */
 	Glimpse,
-	/** Comes for the nearest crew member inside the house. Touch = blackout. */
-	Hunt
+	/** Comes for the nearest crew member inside the house. Touch = knocked down. */
+	Hunt,
+	/** A dark shape running across a hallway or doorway, gone at the far side. */
+	Dash
 };
 
 /**
@@ -39,7 +41,9 @@ public:
 	virtual void GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& OutLifetimeProps) const override;
 
 	/** Server. */
-	void Glimpse(const FVector& Location, const FVector& FaceTowards, float Lifetime);
+	/** bInYourFace: right in front of someone for a moment (no stepping closer makes it leave). */
+	void Glimpse(const FVector& Location, const FVector& FaceTowards, float Lifetime, bool bInFace = false);
+	void Dash(const FVector& From, const FVector& To, float Speed);
 	void Hunt(const FVector& Location, APawn* Target, float Duration);
 	void Vanish();
 
@@ -61,6 +65,7 @@ protected:
 
 	void TickGlimpse(float DeltaSeconds);
 	void TickHunt(float DeltaSeconds);
+	void TickDash(float DeltaSeconds);
 	APawn* PickHuntTarget() const;
 	bool CanSee(const APawn* Pawn, float MaxAngleDegrees) const;
 
@@ -97,6 +102,9 @@ private:
 	TWeakObjectPtr<APawn> HuntTarget;
 	double EndTime = 0.0;
 	double StallUntil = 0.0;
+	bool bInYourFace = false;
+	FVector DashTarget = FVector::ZeroVector;
+	float DashSpeed = 600.f;
 	float LookedAtTime = 0.f;
 	TSet<TWeakObjectPtr<APawn>> Witnesses;
 };

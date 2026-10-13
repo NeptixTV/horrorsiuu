@@ -17,7 +17,7 @@ map by job_layout().
 """
 import math
 
-from mathutils import Vector
+from mathutils import Matrix, Vector
 
 import build_hideout as BH
 import hhblend as H
@@ -553,7 +553,71 @@ def haunt_director():
         'BulbPopSound': a('S_Light_Bulb_Pop'),
         'DoorCreakSound': a('S_Door_Creak_Slow'),
         'StingerSounds': [a('M_Haunt_Stinger_01'), a('M_Haunt_Stinger_02')],
+        'VoiceSounds': [a('A_Haunt_Hum_01'), a('A_Haunt_Giggle_01'), a('A_Haunt_Crying_01'), a('A_Haunt_Piano_01')],
+        'ScratchSounds': [a('A_Haunt_Scratch_01')],
+        'CloseStepSounds': [a(f'A_Haunt_Step_Close_0{i}') for i in range(1, 5)],
+        'BreathSounds': [a('A_Haunt_Breath_01'), a('A_Haunt_Breath_02')],
+        'TouchSound': a('S_Haunt_Touch_01'),
+        'GrowlSound': a('S_Haunt_Growl_01'),
     })
+
+
+def wall_matrix(loc, normal):
+    """House-local point on a wall + the wall's outward normal -> world matrix for a projector whose
+    local -Z looks into the wall and local +Y points up (decals: the image stands upright)."""
+    n = Vector(normal).normalized()
+    up = Vector((0.0, 0.0, 1.0))
+    x = up.cross(n)
+    basis = Matrix((x, up, n)).transposed().to_4x4()
+    return M @ (Matrix.Translation(Vector(loc)) @ basis)
+
+
+def haunt_throwables(tags):
+    """Small things the house throws (they sit where they would anyway)."""
+    for name, mesh, loc, yaw, sound in (
+            ('Vance_Throw_KitchenMug', 'SM_Mug', (XI1 - 0.45, 5.62, G + 0.961), 30, 'S_Haunt_Throw_Mug_01'),
+            ('Vance_Throw_StudyMug', 'SM_Mug', (XI1 - 0.42, 2.45, G + 0.762), -70, 'S_Haunt_Throw_Mug_01'),
+            ('Vance_Throw_LivingFrame', 'SM_Picture_Frame', (-1.55, 1.08, G + 0.612), 180, 'S_Haunt_Throw_Frame_01'),
+            ('Vance_Throw_Candlestick', 'SM_Loot_Candlestick', (XI0 + 0.32, 7.7, G + 0.862), 0, 'S_Haunt_Throw_Frame_01'),
+            ('Vance_Throw_MasterMug', 'SM_Mug', (XI0 + 0.22, 4.2, U + 0.562), 110, 'S_Haunt_Throw_Mug_01'),
+            ('Vance_Throw_KidsFrame', 'SM_Picture_Frame', (XI1 - 0.2, 3.72, U + 0.562), -90, 'S_Haunt_Throw_Frame_01')):
+        BH.actor('HHHauntThrowable', M @ K.mat(loc, yaw), 'Haunt', mesh=mesh, name=name, tags=tags,
+                 properties={'ImpactSound': BH.asset(sound)})
+
+
+def haunt_marks(tags):
+    """Handprints and words the house shows (hidden decals until revealed)."""
+    half = T_INT / 2
+    for name, material, loc, normal, size, stage, sound, caption in (
+            ('Vance_Mark_HallMirror', 'MI_Decal_Handprints', (PX1 + half + 0.06, 4.6, G + 1.6), (1, 0, 0), (0.75, 0.75), 2,
+             'A_Haunt_Glass_Squeak_01', '[Something squeaks across the glass]'),
+            ('Vance_Mark_MasterMirror', 'MI_Decal_GetOut', (-3.3, YI0 + 0.06, U + 1.55), (0, 1, 0), (0.62, 0.31), 3,
+             'A_Haunt_Writing_01', '[Scratching on glass]'),
+            ('Vance_Mark_KidsWall', 'MI_Decal_StillHere', (XI1 - 0.01, 2.6, U + 1.75), (-1, 0, 0), (1.6, 0.8), 3,
+             'A_Haunt_Writing_01', '[Scratching on the wall]'),
+            ('Vance_Mark_BackDoor', 'MI_Decal_Handprints', (-0.1, YI1 - 0.01, G + 1.25), (0, -1, 0), (0.8, 0.8), 2,
+             'A_Haunt_Glass_Squeak_01', '[Something drags across the door]')):
+        BH.actor('HHHauntMark', wall_matrix(loc, normal), 'Haunt', name=name, tags=tags, camera_like=True,
+                 properties={'MinStage': stage, 'RevealSound': BH.asset(sound), 'Caption': BH.text(caption)},
+                 components={'Decal': {'DecalMaterial': BH.asset(material),
+                                       'DecalSize': [0.3 * 50, size[0] * 50, size[1] * 50]}})
+
+
+def creepy_decor():
+    """No gameplay, only dread: a chalk circle with candles in the basement, claw marks, a child's drawing."""
+    def wall_decal(material, loc, normal, size, name):
+        BH.actor('DecalActor', wall_matrix(loc, normal), 'Decals', name=BH._unique_name(name), camera_like=True,
+                 properties={'DecalMaterial': BH.asset(material)},
+                 components={'Decal': {'DecalSize': [0.3 * 50, size[0] * 50, size[1] * 50]}})
+    cx, cy = -1.9, 5.0
+    BH.decal('MI_Decal_ChalkCircle', L(cx, cy, B + 0.01), (2.3, 2.3), rot=(0, 0, -90), name='Vance_ChalkCircle')
+    for k in range(4):
+        ang = math.radians(45 + 90 * k)
+        put('SM_Loot_Candlestick', cx + 1.2 * math.cos(ang), cy + 1.2 * math.sin(ang), B, rot=15 * k,
+            collection='Vance_Decor')
+    wall_decal('MI_Decal_Scratches', (PX2 + T_INT / 2 + 0.01, 1.5, U + 0.95), (1, 0, 0), (0.55, 0.55), 'Vance_Scratches')
+    wall_decal('MI_Decal_Scratches', (XI0 + 0.01, 6.2, B + 1.1), (1, 0, 0), (0.6, 0.6), 'Vance_Scratches')
+    wall_decal('MI_Decal_ChildDrawing', (XI1 - 0.81, 8.3, G + 1.3), (-1, 0, 0), (0.3, 0.4), 'Vance_ChildDrawing')
 
 
 def haunt_elements():
@@ -570,13 +634,15 @@ def haunt_elements():
         BH.actor('TargetPoint', K.mat(L(x, y, z), yaw - 90), 'Haunt', tags=['HH_ApparitionPoint'] + tags,
                  name=BH._unique_name('Vance_ApparitionPoint'))
     # Props that move when nobody looks (alternate transform in Unreal world space).
-    def haunt_prop(name, mesh, loc, yaw, alt_loc, alt_yaw, alt_roll=0.0):
+    def haunt_prop(name, mesh, loc, yaw, alt_loc, alt_yaw, alt_roll=0.0, extra=None):
         alt = Vector(L(*alt_loc))
         ue = H.to_ue_location(alt)
-        BH.actor('HHHauntProp', M @ K.mat(loc, yaw), 'Haunt', mesh=mesh, name=name, tags=tags,
-                 properties={'AltLocation': ue, 'AltRotation': [alt_roll, 0.0, -(alt_yaw - 90.0)]})
+        props = {'AltLocation': ue, 'AltRotation': [alt_roll, 0.0, -(alt_yaw - 90.0)]}
+        props.update(extra or {})
+        BH.actor('HHHauntProp', M @ K.mat(loc, yaw), 'Haunt', mesh=mesh, name=name, tags=tags, properties=props)
     haunt_prop('Vance_Haunt_Chair', 'SM_DiningChair', (-3.2, 6.25, G + 0.012), 180, (-3.0, 5.95, G + 0.012), 215)
-    haunt_prop('Vance_Haunt_Rocker', 'SM_RockingChair', (2.4, 2.9, U + 0.012), 200, (2.2, 2.4, U + 0.012), 90)
+    haunt_prop('Vance_Haunt_Rocker', 'SM_RockingChair', (2.4, 2.9, U + 0.012), 200, (2.2, 2.4, U + 0.012), 90,
+               extra={'bCanRock': True, 'RockSound': BH.asset('A_Haunt_Rocking_Loop')})
     haunt_prop('Vance_Haunt_Teddy', 'SM_Teddy', (XI1 - 0.6, 2.95, U + 0.55), -100, (0.6, 1.2, U + 0.012), 180)
     haunt_prop('Vance_Haunt_Picture', 'SM_Picture_Frame', (0.04 + 0.0, 4.4, G + 1.5), -90, (0.04, 4.4, G + 1.48), -90,
                alt_roll=14.0)
@@ -596,6 +662,17 @@ def haunt_elements():
                          'SwitchOnSound': BH.asset('S_Radio_Tune'), 'Prompt': BH.text('Switch off the radio')},
              components={'Audio': {'Sound': BH.asset('A_Radio_Static_Loop')},
                          'Glow': {'RelativeLocation': H.ue_vector((0.0, -0.2, 0.15))}})
+    # A telephone on the study desk that rings by itself. Answer it and something is on the line.
+    BH.actor('HHHauntDevice', M @ K.mat((XI1 - 0.32, 1.5, G + 0.762), -90), 'Haunt', mesh='SM_Phone_Rotary',
+             name='Vance_Haunt_Phone', tags=tags,
+             properties={'DeviceName': BH.text('telephone'), 'Caption': BH.text('[The telephone rings]'),
+                         'Prompt': BH.text('Answer the telephone'),
+                         'AnswerSound': BH.asset('S_Haunt_Phone_Voice_01'),
+                         'AnswerCaption': BH.text('Static, then a voice on the line: "...get... out..."')},
+             components={'Audio': {'Sound': BH.asset('A_Haunt_Phone_Ring_Loop')}, 'Glow': {'Intensity': 0.0}})
+    haunt_throwables(tags)
+    haunt_marks(tags)
+    creepy_decor()
     # The thing in the house.
     BH.actor('HHApparition', K.mat(L(-0.5, 8.4, U), 0.0), 'Haunt', name='Vance_Apparition', tags=tags,
              properties={'IdleAnim': BH.asset('A_HH_Idle'), 'GhostMaterial': BH.asset('MI_Apparition'),

@@ -57,6 +57,13 @@ protected:
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Device")
 	FText Caption;
 
+	/** A telephone: whoever answers it hears this (and it costs them some nerve). */
+	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Device")
+	TObjectPtr<USoundBase> AnswerSound;
+
+	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Device")
+	FText AnswerCaption;
+
 private:
 	UPROPERTY(ReplicatedUsing = OnRep_On)
 	bool bOn = false;

@@ -9,6 +9,7 @@
 class AHHLobbyHUD;
 class AHHPlayerState;
 class APostProcessVolume;
+class USoundBase;
 
 /**
  * Bridges the local player (profile, settings, UI) and the server (validated RPCs).
@@ -61,6 +62,10 @@ public:
 	/** The thing in the house threw you to the floor. */
 	UFUNCTION(Client, Reliable)
 	void ClientKnockedDown();
+
+	/** Something touched your shoulder: a sound only you hear and a jolt of the camera. */
+	UFUNCTION(Client, Unreliable)
+	void ClientHauntTouch(USoundBase* Sound);
 
 	/** Dead on a job: watch the next crew member who is still around (local). */
 	void SpectateNext();
@@ -124,7 +129,8 @@ public:
 	UFUNCTION(Exec)
 	void HHAddAnger(float Amount);
 
-	/** Run a haunt event now: 0 settle .. 10 apparition, 11 hunt (host, on a job). */
+	/** Run a haunt event now (host, on a job): 0 settle .. 10 apparition, 11 hunt, 12 voice, 13 scratch,
+	 *  14 steps behind, 15 touch, 16 throw, 17 mark, 18 in your face, 19 shadow run, 20 rocking chair. */
 	UFUNCTION(Exec)
 	void HHHauntEvent(int32 EventIndex);
 
