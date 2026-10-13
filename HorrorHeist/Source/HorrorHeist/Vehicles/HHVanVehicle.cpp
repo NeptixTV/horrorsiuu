@@ -187,7 +187,7 @@ int32 AHHVanVehicle::SeatFor(const AActor* Interactor) const
 
 bool AHHVanVehicle::TryEnter(AHHCharacter* Character, int32 PreferredSeat)
 {
-	if (!HasAuthority() || !Character || Character->IsSeated() || IsOccupant(Character))
+	if (!HasAuthority() || !Character || Character->IsSeated() || IsOccupant(Character) || Character->IsIncapacitated())
 	{
 		return false;
 	}
@@ -324,7 +324,7 @@ FText AHHVanVehicle::GetInteractionDetail(AActor* Interactor) const
 bool AHHVanVehicle::CanInteract(AActor* Interactor) const
 {
 	const AHHCharacter* Character = Cast<AHHCharacter>(Interactor);
-	if (!Character || Character->IsSeated() || Character->IsArrested() || GetNumOccupants() >= NumSeats)
+	if (!Character || Character->IsSeated() || Character->IsArrested() || Character->IsIncapacitated() || GetNumOccupants() >= NumSeats)
 	{
 		return false;
 	}

@@ -68,6 +68,8 @@ public:
 	void ShowMissionSummary(const FHHMissionSummary& Summary);
 	/** Psyche gave out / caught: black, a beat, waking up outside. */
 	void PlayBlackout(bool bCaughtByEntity);
+	/** Knocked down by the thing in the house: a short black flash. */
+	void PlayKnockdown();
 	AHHPreviewStation* GetPreviewStation() const;
 	UHHInteractionComponent* GetInteraction() const;
 

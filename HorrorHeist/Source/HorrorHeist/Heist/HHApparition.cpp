@@ -2,6 +2,7 @@
 #include "Heist/HHHauntDirector.h"
 #include "Heist/HHHeistGameMode.h"
 #include "Player/HHPlayerState.h"
+#include "Player/HHCharacter.h"
 #include "Components/AudioComponent.h"
 #include "Components/SkeletalMeshComponent.h"
 #include "Animation/AnimSequence.h"
@@ -204,31 +205,45 @@ void AHHApparition::TickGlimpse(float DeltaSeconds)
 
 APawn* AHHApparition::PickHuntTarget() const
 {
+	// Whoever is still standing comes first; with nobody left standing it comes back for the downed.
 	APawn* Best = nullptr;
+	APawn* BestDowned = nullptr;
 	float BestDistance = TNumericLimits<float>::Max();
+	float BestDownedDistance = TNumericLimits<float>::Max();
 	for (FConstPlayerControllerIterator It = GetWorld()->GetPlayerControllerIterator(); It; ++It)
 	{
 		APawn* Pawn = It->Get() ? It->Get()->GetPawn() : nullptr;
 		const AHHPlayerState* State = Pawn ? Pawn->GetPlayerState<AHHPlayerState>() : nullptr;
-		if (!State || !State->IsInsideHouse())
+		const AHHCharacter* Character = Cast<AHHCharacter>(Pawn);
+		if (!State || !State->IsInsideHouse() || (Character && Character->IsDead()))
 		{
 			continue;
 		}
 		const float Distance = FVector::DistSquared(Pawn->GetActorLocation(), GetActorLocation());
+		if (Character && Character->IsDowned())
+		{
+			if (Distance < BestDownedDistance)
+			{
+				BestDownedDistance = Distance;
+				BestDowned = Pawn;
+			}
+			continue;
+		}
 		if (Distance < BestDistance)
 		{
 			BestDistance = Distance;
 			Best = Pawn;
 		}
 	}
-	return Best;
+	return Best ? Best : BestDowned;
 }
 
 void AHHApparition::TickHunt(float DeltaSeconds)
 {
 	APawn* Target = HuntTarget.Get();
 	const AHHPlayerState* TargetState = Target ? Target->GetPlayerState<AHHPlayerState>() : nullptr;
-	if (!TargetState || !TargetState->IsInsideHouse())
+	const AHHCharacter* TargetBody = Cast<AHHCharacter>(Target);
+	if (!TargetState || !TargetState->IsInsideHouse() || (TargetBody && TargetBody->IsIncapacitated()))
 	{
 		// The target got out: anyone else still inside?
 		Target = PickHuntTarget();

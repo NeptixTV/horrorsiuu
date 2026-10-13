@@ -18,7 +18,8 @@ struct FHHAnimSample
 
 /**
  * Native locomotion blender: idle / walk / run / crouch / fall, distance-matched playback
- * rate and a replicated look-pitch spread over the spine. Lets the project run without
+ * rate and a replicated look-pitch spread over the spine. Full-body poses (downed + crawling,
+ * dead, kneeling to revive) blend over the locomotion. Lets the project run without
  * an Animation Blueprint; a designer can still swap in one via the character definition.
  */
 struct FHHAnimInstanceProxy : public FAnimInstanceProxy
@@ -87,7 +88,20 @@ private:
 	UPROPERTY(Transient)
 	TObjectPtr<UAnimSequence> FallAnim;
 
+	UPROPERTY(Transient)
+	TObjectPtr<UAnimSequence> DownedAnim;
+
+	UPROPERTY(Transient)
+	TObjectPtr<UAnimSequence> CrawlAnim;
+
+	UPROPERTY(Transient)
+	TObjectPtr<UAnimSequence> DeadAnim;
+
+	UPROPERTY(Transient)
+	TObjectPtr<UAnimSequence> ReviveAnim;
+
 	float WalkSpeedRef = 150.f;
+	float CrawlSpeedRef = 60.f;
 	float RunSpeedRef = 400.f;
 	float CrouchSpeedRef = 120.f;
 
@@ -99,11 +113,17 @@ private:
 	float CrouchAlpha = 0.f;
 	float FallAlpha = 0.f;
 	float AimPitch = 0.f;
+	/** Full-body poses (downed / dead / kneeling) blending over locomotion. */
+	float DownAlpha = 0.f;
+	float DeadAlpha = 0.f;
+	float KneelAlpha = 0.f;
 
 	// Playback clocks
 	float IdleTime = 0.f;
 	float CrouchIdleTime = 0.f;
 	float FallTime = 0.f;
+	float PoseTime = 0.f;
+	float CrawlPhase = 0.f;
 	/** Shared normalized gait phase keeps walk/run/crouch-walk feet in sync while blending. */
 	float GaitPhase = 0.f;
 

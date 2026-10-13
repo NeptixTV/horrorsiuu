@@ -1,5 +1,6 @@
 #include "Player/HHPlayerController.h"
 #include "Player/HHPlayerState.h"
+#include "Player/HHCharacter.h"
 #include "Lobby/HHLobbyGameMode.h"
 #include "Lobby/HHLobbyGameState.h"
 #include "Heist/HHHeistGameMode.h"
@@ -21,6 +22,7 @@
 #include "EnhancedInputComponent.h"
 #include "Engine/PostProcessVolume.h"
 #include "Engine/World.h"
+#include "GameFramework/GameStateBase.h"
 #include "EngineUtils.h"
 #include "Interfaces/VoiceInterface.h"
 #include "OnlineSubsystemUtils.h"
@@ -404,6 +406,60 @@ void AHHPlayerController::ClientBlackout_Implementation(bool bCaughtByEntity)
 	}
 }
 
+void AHHPlayerController::ClientKnockedDown_Implementation()
+{
+	if (AHHLobbyHUD* LobbyHUD = GetLobbyHUD())
+	{
+		LobbyHUD->PlayKnockdown();
+	}
+}
+
+void AHHPlayerController::SpectateNext()
+{
+	const AHHCharacter* Me = Cast<AHHCharacter>(GetPawn());
+	TArray<APawn*> Candidates;
+	// Clients only know their own controller: walk the player states instead.
+	if (const AGameStateBase* GameState = GetWorld()->GetGameState())
+	{
+		for (APlayerState* Other : GameState->PlayerArray)
+		{
+			AHHCharacter* Character = Other ? Cast<AHHCharacter>(Other->GetPawn()) : nullptr;
+			if (Character && Character != Me && !Character->IsDead() && !Character->IsArrested())
+			{
+				Candidates.Add(Character);
+			}
+		}
+	}
+	if (Candidates.Num() == 0)
+	{
+		Spectated.Reset();
+		return;
+	}
+	const int32 Current = Candidates.IndexOfByKey(Spectated.Get());
+	Spectated = Candidates[(Current + 1) % Candidates.Num()];
+}
+
+void AHHPlayerController::UpdateSpectating()
+{
+	const AHHCharacter* Me = Cast<AHHCharacter>(GetPawn());
+	if (!Me || !Me->IsDead())
+	{
+		Spectated.Reset();
+		return;
+	}
+	const AHHCharacter* Watched = Cast<AHHCharacter>(Spectated.Get());
+	if (!Watched || Watched->IsDead() || Watched->IsArrested())
+	{
+		SpectateNext();
+	}
+}
+
+void AHHPlayerController::PlayerTick(float DeltaTime)
+{
+	Super::PlayerTick(DeltaTime);
+	UpdateSpectating();
+}
+
 void AHHPlayerController::ClientNotify_Implementation(const FText& Message, EHHNotifyType Type)
 {
 	if (AHHLobbyHUD* LobbyHUD = GetLobbyHUD())
@@ -679,6 +735,14 @@ void AHHPlayerController::HHCallPolice()
 	if (AHHHeistGameMode* HeistMode = HasAuthority() ? GetWorld()->GetAuthGameMode<AHHHeistGameMode>() : nullptr)
 	{
 		HeistMode->DebugCallPolice();
+	}
+}
+
+void AHHPlayerController::HHKnockDown()
+{
+	if (AHHHeistGameMode* HeistMode = HasAuthority() ? GetWorld()->GetAuthGameMode<AHHHeistGameMode>() : nullptr)
+	{
+		HeistMode->HandleEntityCatch(GetPawn());
 	}
 }
 

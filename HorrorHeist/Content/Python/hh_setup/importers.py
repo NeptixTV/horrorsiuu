@@ -204,13 +204,37 @@ def import_audio():
 # =============================================================================================
 # Meshes
 
-def _disable_interchange_fbx():
-    # The scripts below drive the classic FBX importer (FbxImportUI options).
-    for cmd in ('Interchange.FeatureFlags.Import.FBX 0', 'Interchange.FeatureFlags.Import.FBX.ToLevel 0'):
+INTERCHANGE_FBX = ('Interchange.FeatureFlags.Import.FBX', 'Interchange.FeatureFlags.Import.FBX.ToLevel')
+
+
+def _interchange_fbx_on():
+    """True/False, or None if the variable can't be read (older/newer editor)."""
+    try:
+        return bool(unreal.SystemLibrary.get_console_variable_bool_value(INTERCHANGE_FBX[0]))
+    except Exception:  # noqa: BLE001
+        return None
+
+
+def _set_interchange_fbx(on):
+    for name in INTERCHANGE_FBX:
         try:
-            unreal.SystemLibrary.execute_console_command(None, cmd)
+            unreal.SystemLibrary.execute_console_command(None, f'{name} {1 if on else 0}')
         except Exception:  # noqa: BLE001
             pass
+
+
+def _disable_interchange_fbx():
+    # The scripts below drive the classic FBX importer (FbxImportUI options: shared skeleton for the
+    # garments and animations, mesh types). UE 5.5 imports FBX through Interchange by default, which
+    # ignores those options; Config/DefaultEngine.ini turns it off at startup, this covers editors
+    # started with other settings.
+    _set_interchange_fbx(False)
+    state = _interchange_fbx_on()
+    U.log('FBX importer: ' + {True: 'Interchange (could not switch it off)', False: 'classic',
+                              None: 'unknown'}[state])
+    if state:
+        U.warn('Interchange FBX import is still on. Add "Interchange.FeatureFlags.Import.FBX=False" under '
+               '[ConsoleVariables] in Config/DefaultEngine.ini, restart the editor and rebuild the content.')
 
 
 def _static_options(nanite):
@@ -305,6 +329,57 @@ def _collision(mesh, kind):
         sub.add_simple_collisions(mesh, shape)
 
 
+def _skeletal_from(paths, name, folder):
+    """The skeletal mesh among an import's results, renamed to `name` if the importer named it after
+    the FBX node (Interchange does) instead of the requested destination name."""
+    found = U.find(name, required=False)
+    if isinstance(found, unreal.SkeletalMesh):
+        return found
+    for path in paths:
+        obj = U.EAL.load_asset(path)
+        if not isinstance(obj, unreal.SkeletalMesh):
+            continue
+        current = obj.get_path_name().split('.')[0]
+        want = f'{folder}/{name}'
+        if current != want:
+            if U.EAL.does_asset_exist(want):
+                U.EAL.delete_asset(want)
+            U.EAL.rename_asset(current, want)
+            U.log(f'{name}: the importer created {current}, renamed')
+            U.refresh_index()
+        found = U.find(name, required=False)
+        if isinstance(found, unreal.SkeletalMesh):
+            return found
+    if found is not None:
+        U.warn(f'{name} was imported as {type(found).__name__}, not as a skeletal mesh')
+        U.EAL.delete_asset(found.get_path_name().split('.')[0])
+        U.refresh_index()
+    return None
+
+
+def _import_body(filename, dest):
+    """Body first: it owns the skeleton everything else binds to. If the importer that is active
+    fails, try once with the other one, then switch back to the classic importer."""
+    results = _run_tasks([_task(filename, dest, 'SK_HH_Body', _skeletal_options(None, True))])
+    U.refresh_index()
+    body = _skeletal_from(results[0], 'SK_HH_Body', dest)
+    if body is not None:
+        return body
+    state = _interchange_fbx_on()
+    if state is None:
+        return None
+    U.warn(f'SK_HH_Body: no skeletal mesh from the {"Interchange" if state else "classic"} FBX importer, '
+           f'retrying with the {"classic" if state else "Interchange"} importer')
+    _set_interchange_fbx(not state)
+    try:
+        results = _run_tasks([_task(filename, dest, 'SK_HH_Body', _skeletal_options(None, True))])
+        U.refresh_index()
+        body = _skeletal_from(results[0], 'SK_HH_Body', dest)
+    finally:
+        _set_interchange_fbx(False)
+    return body
+
+
 def import_meshes():
     _disable_interchange_fbx()
     meshes = U.load_json('Meshes', 'meshes.json')
@@ -327,17 +402,17 @@ def import_meshes():
         except Exception as exc:  # noqa: BLE001
             U.warn(f'{task.destination_name}: {exc}')
 
-    # Body first: it owns the skeleton everything else binds to.
     body_entry = meshes.get('SK_HH_Body')
     if body_entry is None:
         U.warn('SK_HH_Body missing from meshes.json')
         return
     dest = f'{MESH_ROOT}/Character'
     U.ensure_dir(dest)
-    _run_tasks([_task(os.path.join(U.PROJECT, body_entry['file']), dest, 'SK_HH_Body', _skeletal_options(None, True))])
-    U.refresh_index()
-    body = U.find('SK_HH_Body')
+    body = _import_body(os.path.join(U.PROJECT, body_entry['file']), dest)
     if body is None:
+        U.warn('SK_HH_Body could not be imported as a skeletal mesh: the crew is shown as a grey stand-in '
+               'cylinder and the garments/animations are skipped. See the Output Log ([HH Setup] lines and '
+               'LogFbx / LogInterchange errors above them).')
         return
     skeleton = body.get_editor_property('skeleton')
     _assign_skeletal_materials(body)
@@ -353,8 +428,13 @@ def import_meshes():
     U.refresh_index()
     for name in garments:
         mesh = U.find(name, required=False)
-        if mesh is not None:
-            _assign_skeletal_materials(mesh)
+        if not isinstance(mesh, unreal.SkeletalMesh):
+            U.warn(f'{name}: garment did not import as a skeletal mesh')
+            continue
+        _assign_skeletal_materials(mesh)
+        if mesh.get_editor_property('skeleton') != skeleton:
+            U.warn(f'{name}: imported with its own skeleton instead of the body\'s (it still follows the body '
+                   f'by bone names)')
 
     anims = {n: e for n, e in meshes.items() if e.get('kind') == 'anim'}
     adest = f'{MESH_ROOT}/Character/Anims'
@@ -375,7 +455,8 @@ def import_meshes():
     U.refresh_index()
     for name in anims:
         anim = U.find(name, required=False)
-        if anim is None:
+        if not isinstance(anim, unreal.AnimSequence):
+            U.warn(f'{name}: animation was not imported (the crew will stand still in that state)')
             continue
         try:
             anim.set_editor_property('enable_root_motion', False)

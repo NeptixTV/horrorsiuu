@@ -130,7 +130,79 @@ void SHHHeistHud::Construct(const FArguments& InArgs)
 				.ShadowColorAndOpacity(FLinearColor(0.f, 0.f, 0.f, 0.9f))
 			]
 		]
+		// Down on the floor / dead and watching the others.
+		+ SOverlay::Slot().HAlign(HAlign_Center).VAlign(VAlign_Top).Padding(FMargin(0.f, 150.f, 0.f, 0.f))
+		[
+			SNew(SVerticalBox)
+			.Visibility_Lambda([this]()
+			{
+				const AHHCharacter* Character = GetOwnCharacter();
+				const AHHHeistGameState* State = GetState();
+				return Character && Character->IsIncapacitated() && State && State->GetHeistPhase() != EHHHeistPhase::Ended
+					? EVisibility::HitTestInvisible : EVisibility::Collapsed;
+			})
+			+ SVerticalBox::Slot().AutoHeight().HAlign(HAlign_Center)
+			[
+				SNew(STextBlock)
+				.Text_Lambda([this]()
+				{
+					const AHHCharacter* Character = GetOwnCharacter();
+					return Character && Character->IsDead() ? LOCTEXT("Dead", "DEAD") : LOCTEXT("Downed", "DOWN");
+				})
+				.Font(FHHStyle::Font(EHHFont::Display, 54.f, 300))
+				.ColorAndOpacity(FSlateColor(FHHStyle::Danger()))
+				.ShadowOffset(FVector2D(0.0, 2.0))
+				.ShadowColorAndOpacity(FLinearColor(0.f, 0.f, 0.f, 0.9f))
+			]
+			+ SVerticalBox::Slot().AutoHeight().HAlign(HAlign_Center).Padding(0.f, 8.f, 0.f, 0.f)
+			[
+				SNew(STextBlock)
+				.Justification(ETextJustify::Center)
+				.Text_Lambda([this]()
+				{
+					const AHHCharacter* Character = GetOwnCharacter();
+					if (!Character)
+					{
+						return FText::GetEmpty();
+					}
+					if (Character->IsDowned())
+					{
+						return FText::Format(LOCTEXT("DownedBody", "{0} s. Crawl towards your crew - one of them has to kneel next to you and hold {1}."),
+							FText::AsNumber(FMath::CeilToInt(Character->GetBleedOutRemaining())), GetKeyText(TEXT("Interact")));
+					}
+					const AHHLobbyHUD* LobbyHUD = HUD.Get();
+					const AHHPlayerController* PC = LobbyHUD ? LobbyHUD->GetHHController() : nullptr;
+					const APawn* Watched = PC ? PC->GetSpectated() : nullptr;
+					const APlayerState* WatchedState = Watched ? Watched->GetPlayerState() : nullptr;
+					if (!WatchedState)
+					{
+						return LOCTEXT("DeadAlone", "Nobody left to watch. The house is quiet now.");
+					}
+					return FText::Format(LOCTEXT("DeadBody", "Watching {0}. {1}: next crew member. Your gear stays in the house."),
+						FText::FromString(WatchedState->GetPlayerName()), GetKeyText(TEXT("Interact")));
+				})
+				.Font(FHHStyle::Font(EHHFont::Typewriter, 16.f))
+				.ColorAndOpacity(FSlateColor(FHHStyle::Text()))
+				.ShadowOffset(FVector2D(0.0, 1.0))
+				.ShadowColorAndOpacity(FLinearColor(0.f, 0.f, 0.f, 0.9f))
+			]
+		]
 	];
+}
+
+AHHCharacter* SHHHeistHud::GetOwnCharacter() const
+{
+	const AHHLobbyHUD* LobbyHUD = HUD.Get();
+	const AHHPlayerController* PC = LobbyHUD ? LobbyHUD->GetHHController() : nullptr;
+	return PC ? Cast<AHHCharacter>(PC->GetPawn()) : nullptr;
+}
+
+FText SHHHeistHud::GetKeyText(const TCHAR* Binding) const
+{
+	const AHHLobbyHUD* LobbyHUD = HUD.Get();
+	const AHHPlayerController* PC = LobbyHUD ? LobbyHUD->GetHHController() : nullptr;
+	const UHHInputSubsystem* Input = PC ? UHHInputSubsystem::Get(PC) : nullptr;
+	return Input ? Input->GetKeyDisplayText(FName(Binding)) : FText::FromString(TEXT("E"));
 }
 
 AHHHeistGameState* SHHHeistHud::GetState() const
@@ -650,7 +722,20 @@ void SHHHeistHud::RebuildCrew()
 					+ SHorizontalBox::Slot().AutoWidth().VAlign(VAlign_Center).Padding(8.f, 0.f, 0.f, 0.f)
 					[
 						SNew(STextBlock)
-						.Text_Lambda([WeakMember]() { const AHHPlayerState* M = WeakMember.Get(); return M && M->IsInsideHouse() ? LOCTEXT("Inside", "INSIDE") : FText::GetEmpty(); })
+						.Text_Lambda([WeakMember]()
+						{
+							const AHHPlayerState* M = WeakMember.Get();
+							const AHHCharacter* Body = M ? Cast<AHHCharacter>(M->GetPawn()) : nullptr;
+							if (Body && Body->IsDead())
+							{
+								return LOCTEXT("CrewDead", "DEAD");
+							}
+							if (Body && Body->IsDowned())
+							{
+								return FText::Format(LOCTEXT("CrewDown", "DOWN {0}s"), FText::AsNumber(FMath::CeilToInt(Body->GetBleedOutRemaining())));
+							}
+							return M && M->IsInsideHouse() ? LOCTEXT("Inside", "INSIDE") : FText::GetEmpty();
+						})
 						.Font(FHHStyle::Font(EHHFont::CondensedSemi, 10.f, 200))
 						.ColorAndOpacity(FSlateColor(FHHStyle::TextFaint()))
 					]

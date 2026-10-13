@@ -2,12 +2,15 @@
 
 #include "CoreMinimal.h"
 #include "GameFramework/Character.h"
+#include "Core/HHTypes.h"
+#include "Interaction/HHInteractable.h"
 #include "HHCharacter.generated.h"
 
 class UCameraComponent;
 class USpringArmComponent;
 class USpotLightComponent;
 class UStaticMeshComponent;
+class USphereComponent;
 class UHHCosmeticComponent;
 class UHHInventoryComponent;
 class UHHInteractionComponent;
@@ -22,9 +25,13 @@ struct FInputActionValue;
  * eyes. Station cameras and the optional third-person view show the complete character.
  * Appearance comes entirely from the replicated player state (cosmetics + loadout); on a job
  * the selected inventory item is held in the right hand (two-bone IK towards the item).
+ *
+ * On a job the thing in the house can knock a crew member down: they crawl, a crewmate kneels
+ * next to them and holds the interact key to get them back up. Nobody comes in time, or it
+ * comes back for them: dead. The dead watch the rest of the job through their crewmates' eyes.
  */
 UCLASS()
-class HORRORHEIST_API AHHCharacter : public ACharacter
+class HORRORHEIST_API AHHCharacter : public ACharacter, public IHHInteractable
 {
 	GENERATED_BODY()
 
@@ -96,6 +103,38 @@ public:
 	void SetArrested(bool bInArrested);
 	bool IsArrested() const { return bArrested; }
 
+	// ---- Down, dead, back up ------------------------------------------------------------
+
+	EHHBodyPose GetBodyPose() const { return BodyPose; }
+	bool IsDowned() const { return BodyPose == EHHBodyPose::Downed; }
+	bool IsDead() const { return BodyPose == EHHBodyPose::Dead; }
+	/** Downed or dead: no standing up, no items, no interacting, no van. */
+	bool IsIncapacitated() const { return IsDowned() || IsDead(); }
+	/** Seconds until a downed crew member is gone for good (0 when not downed). */
+	float GetBleedOutRemaining() const;
+	/** Was down during this job and got back up. */
+	bool WasRevived() const { return bWasRevived; }
+
+	/** Server: knocked to the floor; dead after BleedOutSeconds unless a crewmate helps. */
+	void SetDowned(float BleedOutSeconds);
+	/** Server: gone. The body stays where it fell. */
+	void SetDead();
+	/** Server: a crewmate got them back on their feet. */
+	void ReviveBy(AHHCharacter* Helper);
+
+	/** Local: kneel next to a downed crewmate while holding the interact key (visual only). */
+	void SetKneeling(bool bKneel);
+
+	UFUNCTION(Server, Reliable)
+	void ServerSetKneeling(bool bKneel);
+
+	// IHHInteractable: crewmates help a downed member up.
+	virtual FText GetInteractionPrompt(AActor* Interactor) const override;
+	virtual FText GetInteractionDetail(AActor* Interactor) const override;
+	virtual bool CanInteract(AActor* Interactor) const override;
+	virtual void Interact(AActor* Interactor) override;
+	virtual float GetInteractDuration(AActor* Interactor) const override;
+
 protected:
 	// Input
 	void Input_Move(const FInputActionValue& Value);
@@ -139,6 +178,8 @@ protected:
 	FName GetUsableLightId() const;
 	void ReportMissingBody(const FString& Reason);
 	void UpdateLocalVisibility();
+	/** The local player is dead and looking through this crewmate's eyes. */
+	bool IsViewedByLocalSpectator() const;
 	void UpdateCamera(float DeltaSeconds);
 	void UpdateFlashlightAim();
 	void HandleSettingsApplied();
@@ -154,6 +195,12 @@ protected:
 
 	/** Hidden, no collision, no movement while seated or arrested (every machine). */
 	void ApplyBodyState();
+
+	UFUNCTION()
+	void OnRep_BodyPose();
+	/** Crawling speed, capsule, camera height and the revive target for the current pose (every machine). */
+	void ApplyPose();
+	float GetServerTime() const;
 
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Components")
 	TObjectPtr<UCameraComponent> FirstPersonCamera;
@@ -186,6 +233,25 @@ protected:
 
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Components")
 	TObjectPtr<UHHFootstepComponent> Footsteps;
+
+	/** Answers the interaction trace only while downed, so crewmates can aim at the body on the floor. */
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Components")
+	TObjectPtr<USphereComponent> ReviveZone;
+
+	UPROPERTY(EditDefaultsOnly, Category = "Downed")
+	float CrawlSpeed = 60.f;
+
+	/** Seconds a crewmate holds the interact key to get a downed member up. */
+	UPROPERTY(EditDefaultsOnly, Category = "Downed")
+	float ReviveSeconds = 4.5f;
+
+	/** Psyche a revived crew member starts with. */
+	UPROPERTY(EditDefaultsOnly, Category = "Downed")
+	float RevivedPsyche = 35.f;
+
+	/** Eye height above the (crouched) capsule centre while lying on the floor. */
+	UPROPERTY(EditDefaultsOnly, Category = "Camera")
+	float DownedEyeZ = -30.f;
 
 	UPROPERTY(EditDefaultsOnly, Category = "Movement")
 	float WalkSpeed = 175.f;
@@ -233,7 +299,16 @@ private:
 	UPROPERTY(ReplicatedUsing = OnRep_Seat)
 	bool bArrested = false;
 
+	UPROPERTY(ReplicatedUsing = OnRep_BodyPose)
+	EHHBodyPose BodyPose = EHHBodyPose::Normal;
+
+	/** Game-state clock (server world time) at which a downed crew member is gone. */
+	UPROPERTY(Replicated)
+	float BleedOutAt = 0.f;
+
 	bool bBodyStowed = false;
+	bool bWasRevived = false;
+	EHHBodyPose AppliedPose = EHHBodyPose::Normal;
 
 	bool bThirdPerson = false;
 	bool bLocallyHidden = false;

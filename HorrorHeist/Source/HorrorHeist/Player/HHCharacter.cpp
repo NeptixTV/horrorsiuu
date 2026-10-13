@@ -7,6 +7,7 @@
 #include "Player/HHPlayerController.h"
 #include "Player/HHInventoryComponent.h"
 #include "Vehicles/HHVanVehicle.h"
+#include "Heist/HHHeistGameMode.h"
 #include "Audio/HHAudioSubsystem.h"
 #include "Core/HHGameData.h"
 #include "Data/HHCharacterDefinition.h"
@@ -18,6 +19,7 @@
 #include "Camera/CameraComponent.h"
 #include "Camera/PlayerCameraManager.h"
 #include "Components/CapsuleComponent.h"
+#include "Components/SphereComponent.h"
 #include "Components/SkeletalMeshComponent.h"
 #include "Components/SpotLightComponent.h"
 #include "Components/StaticMeshComponent.h"
@@ -28,6 +30,7 @@
 #include "Engine/World.h"
 #include "EnhancedInputComponent.h"
 #include "GameFramework/CharacterMovementComponent.h"
+#include "GameFramework/GameStateBase.h"
 #include "GameFramework/SpringArmComponent.h"
 #include "InputActionValue.h"
 #include "Kismet/GameplayStatics.h"
@@ -126,6 +129,19 @@ AHHCharacter::AHHCharacter(const FObjectInitializer& ObjectInitializer)
 	Cosmetics = CreateDefaultSubobject<UHHCosmeticComponent>(TEXT("Cosmetics"));
 	Interaction = CreateDefaultSubobject<UHHInteractionComponent>(TEXT("Interaction"));
 	Footsteps = CreateDefaultSubobject<UHHFootstepComponent>(TEXT("Footsteps"));
+
+	// Low on the floor around the hips of a body lying there; only the interaction trace hits it.
+	ReviveZone = CreateDefaultSubobject<USphereComponent>(TEXT("ReviveZone"));
+	ReviveZone->SetupAttachment(GetCapsuleComponent());
+	ReviveZone->InitSphereRadius(60.f);
+	ReviveZone->SetRelativeLocation(FVector(0.f, 0.f, -30.f));
+	ReviveZone->SetCollisionObjectType(ECC_WorldDynamic);
+	ReviveZone->SetCollisionResponseToAllChannels(ECR_Ignore);
+	ReviveZone->SetCollisionResponseToChannel(ECC_Visibility, ECR_Block);
+	ReviveZone->SetCollisionEnabled(ECollisionEnabled::NoCollision);
+	ReviveZone->SetGenerateOverlapEvents(false);
+	ReviveZone->SetCanEverAffectNavigation(false);
+	ReviveZone->CanCharacterStepUpOn = ECB_No;
 }
 
 void AHHCharacter::GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& OutLifetimeProps) const
@@ -136,6 +152,8 @@ void AHHCharacter::GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& OutLife
 	DOREPLIFETIME(AHHCharacter, Vehicle);
 	DOREPLIFETIME(AHHCharacter, SeatIndex);
 	DOREPLIFETIME(AHHCharacter, bArrested);
+	DOREPLIFETIME(AHHCharacter, BodyPose);
+	DOREPLIFETIME(AHHCharacter, BleedOutAt);
 }
 
 void AHHCharacter::BeginPlay()
@@ -425,12 +443,28 @@ void AHHCharacter::UpdateLocalVisibility()
 		const AActor* Pending = CameraManager ? CameraManager->PendingViewTarget.Target.Get() : nullptr;
 		bFirstPersonView = ViewTarget == this && (Pending == nullptr || Pending == this);
 	}
+	else if (!IsLocallyControlled())
+	{
+		// A dead crewmate on this machine watches through our eyes.
+		bFirstPersonView = IsViewedByLocalSpectator();
+	}
 
 	bHeadHidden = bFirstPersonView;
 	GetMesh()->SetOwnerNoSee(false);
 	Cosmetics->SetHiddenForOwner(bFirstPersonView);
 	GetMesh()->SetVisibility(!bLocallyHidden, true);
 	FallbackBody->SetOwnerNoSee(bFirstPersonView);
+}
+
+bool AHHCharacter::IsViewedByLocalSpectator() const
+{
+	const UWorld* World = GetWorld();
+	const APlayerController* LocalPC = World ? World->GetFirstPlayerController() : nullptr;
+	if (!LocalPC || !LocalPC->IsLocalController() || LocalPC->GetPawn() == this || !LocalPC->PlayerCameraManager)
+	{
+		return false;
+	}
+	return LocalPC->PlayerCameraManager->GetViewTarget() == this;
 }
 
 void AHHCharacter::SetLocallyHidden(bool bInHidden)
@@ -504,7 +538,7 @@ void AHHCharacter::Input_Move(const FInputActionValue& Value)
 		}
 		return;
 	}
-	if (!Controller || Axis.IsNearlyZero() || bArrested)
+	if (!Controller || Axis.IsNearlyZero() || bArrested || IsDead() || BodyPose == EHHBodyPose::Kneeling)
 	{
 		return;
 	}
@@ -578,6 +612,10 @@ void AHHCharacter::Input_JumpStarted()
 		}
 		return;
 	}
+	if (IsIncapacitated() || BodyPose == EHHBodyPose::Kneeling)
+	{
+		return;
+	}
 	if (bIsCrouched)
 	{
 		UnCrouch();
@@ -597,7 +635,7 @@ void AHHCharacter::Input_JumpCompleted()
 
 void AHHCharacter::Input_SprintStarted()
 {
-	if (IsSeated())
+	if (IsSeated() || IsIncapacitated())
 	{
 		return;
 	}
@@ -623,7 +661,7 @@ void AHHCharacter::Input_SprintCompleted()
 
 void AHHCharacter::Input_CrouchStarted()
 {
-	if (IsSeated())
+	if (IsSeated() || IsIncapacitated())
 	{
 		return;
 	}
@@ -644,7 +682,7 @@ void AHHCharacter::Input_CrouchStarted()
 void AHHCharacter::Input_CrouchCompleted()
 {
 	const UHHGameUserSettings* Settings = UHHGameUserSettings::Get();
-	if (Settings && !Settings->bToggleCrouch)
+	if (Settings && !Settings->bToggleCrouch && !IsIncapacitated())
 	{
 		UnCrouch();
 	}
@@ -657,6 +695,19 @@ void AHHCharacter::Input_Interact()
 		ServerExitVehicle();
 		return;
 	}
+	if (IsDead())
+	{
+		// Watching the crew: the interact key switches to the next one.
+		if (AHHPlayerController* PC = Cast<AHHPlayerController>(GetController()))
+		{
+			PC->SpectateNext();
+		}
+		return;
+	}
+	if (IsDowned())
+	{
+		return;
+	}
 	Interaction->TryInteract();
 }
 
@@ -667,6 +718,10 @@ void AHHCharacter::Input_InteractReleased()
 
 void AHHCharacter::SelectSlot(int32 Index)
 {
+	if (IsIncapacitated())
+	{
+		return;
+	}
 	const AHHPlayerState* State = BoundPlayerState.Get();
 	UHHInventoryComponent* Inventory = State ? State->GetInventory() : nullptr;
 	if (Inventory && Inventory->IsEnabled() && Index != Inventory->GetSelectedIndex())
@@ -719,7 +774,7 @@ void AHHCharacter::Input_Drop()
 	}
 	const AHHPlayerState* State = BoundPlayerState.Get();
 	UHHInventoryComponent* Inventory = State ? State->GetInventory() : nullptr;
-	if (Inventory && Inventory->IsEnabled() && !Inventory->GetSelected().IsEmpty())
+	if (Inventory && Inventory->IsEnabled() && !Inventory->GetSelected().IsEmpty() && !IsIncapacitated())
 	{
 		Interaction->StopInteract();
 		Inventory->RequestDrop();
@@ -734,6 +789,10 @@ void AHHCharacter::Input_Flashlight()
 		{
 			Vehicle->ServerToggleHeadlights();
 		}
+		return;
+	}
+	if (IsDead())
+	{
 		return;
 	}
 	if (GetUsableLightId().IsNone())
@@ -877,6 +936,197 @@ void AHHCharacter::ApplyBodyState()
 }
 
 // ---------------------------------------------------------------------------------------
+// Down, dead, back up
+
+float AHHCharacter::GetServerTime() const
+{
+	const UWorld* World = GetWorld();
+	const AGameStateBase* GameState = World ? World->GetGameState() : nullptr;
+	return GameState ? static_cast<float>(GameState->GetServerWorldTimeSeconds()) : (World ? static_cast<float>(World->GetTimeSeconds()) : 0.f);
+}
+
+float AHHCharacter::GetBleedOutRemaining() const
+{
+	return IsDowned() ? FMath::Max(0.f, BleedOutAt - GetServerTime()) : 0.f;
+}
+
+void AHHCharacter::SetDowned(float BleedOutSeconds)
+{
+	if (!HasAuthority() || IsIncapacitated() || IsSeated() || bArrested)
+	{
+		return;
+	}
+	BleedOutAt = GetServerTime() + FMath::Max(5.f, BleedOutSeconds);
+	BodyPose = EHHBodyPose::Downed;
+	OnRep_BodyPose();
+	ForceNetUpdate();
+}
+
+void AHHCharacter::SetDead()
+{
+	if (!HasAuthority() || IsDead())
+	{
+		return;
+	}
+	BodyPose = EHHBodyPose::Dead;
+	BleedOutAt = 0.f;
+	OnRep_BodyPose();
+	ForceNetUpdate();
+}
+
+void AHHCharacter::ReviveBy(AHHCharacter* Helper)
+{
+	if (!HasAuthority() || !IsDowned())
+	{
+		return;
+	}
+	BodyPose = EHHBodyPose::Normal;
+	BleedOutAt = 0.f;
+	bWasRevived = true;
+	if (AHHPlayerState* State = GetPlayerState<AHHPlayerState>())
+	{
+		State->SetPsyche(FMath::Max(State->GetPsyche(), RevivedPsyche));
+	}
+	if (Helper && Helper->GetBodyPose() == EHHBodyPose::Kneeling)
+	{
+		Helper->BodyPose = EHHBodyPose::Normal;
+		Helper->OnRep_BodyPose();
+	}
+	OnRep_BodyPose();
+	ForceNetUpdate();
+	if (AHHHeistGameMode* HeistMode = GetWorld()->GetAuthGameMode<AHHHeistGameMode>())
+	{
+		HeistMode->HandleRevived(this, Helper);
+	}
+}
+
+void AHHCharacter::SetKneeling(bool bKneel)
+{
+	const bool bCan = BodyPose == EHHBodyPose::Normal || BodyPose == EHHBodyPose::Kneeling;
+	const EHHBodyPose Wanted = bKneel ? EHHBodyPose::Kneeling : EHHBodyPose::Normal;
+	if (!bCan || BodyPose == Wanted)
+	{
+		return;
+	}
+	BodyPose = Wanted;
+	OnRep_BodyPose();
+	if (!HasAuthority())
+	{
+		ServerSetKneeling(bKneel);
+	}
+}
+
+void AHHCharacter::ServerSetKneeling_Implementation(bool bKneel)
+{
+	SetKneeling(bKneel);
+	ForceNetUpdate();
+}
+
+void AHHCharacter::OnRep_BodyPose()
+{
+	ApplyPose();
+}
+
+void AHHCharacter::ApplyPose()
+{
+	const EHHBodyPose Previous = AppliedPose;
+	AppliedPose = BodyPose;
+	UCharacterMovementComponent* Movement = GetCharacterMovement();
+
+	ReviveZone->SetCollisionEnabled(IsDowned() ? ECollisionEnabled::QueryOnly : ECollisionEnabled::NoCollision);
+
+	if (IsIncapacitated())
+	{
+		Interaction->StopInteract();
+		bSprinting = false;
+		// The capsule shrinks to the crouched size while on the floor (the owner drives crouching).
+		if (IsLocallyControlled())
+		{
+			Crouch();
+		}
+		CameraTargetZ = DownedEyeZ;
+	}
+	if (IsDead())
+	{
+		Movement->StopMovementImmediately();
+		Movement->DisableMovement();
+		// The crew can step over the body.
+		GetCapsuleComponent()->SetCollisionResponseToChannel(ECC_Pawn, ECR_Ignore);
+		if (bFlashlightOn)
+		{
+			bFlashlightOn = false;
+			OnRep_Flashlight();
+		}
+		if (IsLocallyControlled())
+		{
+			if (AHHPlayerController* PC = Cast<AHHPlayerController>(GetController()))
+			{
+				PC->SpectateNext();
+			}
+		}
+	}
+	else if (Previous == EHHBodyPose::Dead)
+	{
+		GetCapsuleComponent()->SetCollisionResponseToChannel(ECC_Pawn, ECR_Block);
+		if (!bBodyStowed)
+		{
+			Movement->SetMovementMode(MOVE_Walking);
+		}
+	}
+	if (BodyPose == EHHBodyPose::Kneeling)
+	{
+		Movement->StopMovementImmediately();
+	}
+	if (BodyPose == EHHBodyPose::Normal && (Previous == EHHBodyPose::Downed || Previous == EHHBodyPose::Dead))
+	{
+		if (IsLocallyControlled())
+		{
+			UnCrouch();
+		}
+		CameraTargetZ = bIsCrouched ? CrouchedEyeZ : StandingEyeZ;
+	}
+	ApplyMovementSpeed();
+}
+
+FText AHHCharacter::GetInteractionPrompt(AActor* Interactor) const
+{
+	if (!IsDowned())
+	{
+		return FText::GetEmpty();
+	}
+	const AHHPlayerState* State = GetPlayerState<AHHPlayerState>();
+	return FText::Format(LOCTEXT("ReviveCrew", "Help {0} up"), FText::FromString(State ? State->GetPlayerName() : FString(TEXT("them"))));
+}
+
+FText AHHCharacter::GetInteractionDetail(AActor* Interactor) const
+{
+	if (!IsDowned())
+	{
+		return FText::GetEmpty();
+	}
+	return FText::Format(LOCTEXT("ReviveTime", "{0} s before it is too late"), FText::AsNumber(FMath::CeilToInt(GetBleedOutRemaining())));
+}
+
+bool AHHCharacter::CanInteract(AActor* Interactor) const
+{
+	const AHHCharacter* Helper = Cast<AHHCharacter>(Interactor);
+	return IsDowned() && Helper && Helper != this && !Helper->IsIncapacitated() && !Helper->IsSeated() && !Helper->IsArrested();
+}
+
+void AHHCharacter::Interact(AActor* Interactor)
+{
+	if (CanInteract(Interactor))
+	{
+		ReviveBy(Cast<AHHCharacter>(Interactor));
+	}
+}
+
+float AHHCharacter::GetInteractDuration(AActor* Interactor) const
+{
+	return ReviveSeconds;
+}
+
+// ---------------------------------------------------------------------------------------
 // Movement state
 
 void AHHCharacter::SetSprinting(bool bNewSprinting)
@@ -899,10 +1149,24 @@ void AHHCharacter::SetSprinting(bool bNewSprinting)
 
 void AHHCharacter::ApplyMovementSpeed()
 {
+	UCharacterMovementComponent* Movement = GetCharacterMovement();
+	if (IsDowned())
+	{
+		// Dragging yourself across the floor (the capsule is crouched while down).
+		Movement->MaxWalkSpeed = CrawlSpeed;
+		Movement->MaxWalkSpeedCrouched = CrawlSpeed;
+		return;
+	}
+	if (BodyPose == EHHBodyPose::Kneeling || IsDead())
+	{
+		Movement->MaxWalkSpeed = 0.f;
+		Movement->MaxWalkSpeedCrouched = 0.f;
+		return;
+	}
 	// Bulky loot: slower, and no sprinting with a TV in your arms.
 	const float CarryFactor = bCarryingHeavy ? HeavyCarrySpeedFactor : 1.f;
-	GetCharacterMovement()->MaxWalkSpeed = (bSprinting && !bCarryingHeavy ? SprintSpeed : WalkSpeed) * CarryFactor;
-	GetCharacterMovement()->MaxWalkSpeedCrouched = CrouchSpeed * CarryFactor;
+	Movement->MaxWalkSpeed = (bSprinting && !bCarryingHeavy ? SprintSpeed : WalkSpeed) * CarryFactor;
+	Movement->MaxWalkSpeedCrouched = CrouchSpeed * CarryFactor;
 }
 
 void AHHCharacter::ServerSetSprinting_Implementation(bool bNewSprinting)
@@ -956,14 +1220,14 @@ void AHHCharacter::OnStartCrouch(float HalfHeightAdjust, float ScaledHalfHeightA
 	Super::OnStartCrouch(HalfHeightAdjust, ScaledHalfHeightAdjust);
 	// Keep the eye where it was this frame, then ease down.
 	CameraZ += HalfHeightAdjust;
-	CameraTargetZ = CrouchedEyeZ;
+	CameraTargetZ = IsIncapacitated() ? DownedEyeZ : CrouchedEyeZ;
 }
 
 void AHHCharacter::OnEndCrouch(float HalfHeightAdjust, float ScaledHalfHeightAdjust)
 {
 	Super::OnEndCrouch(HalfHeightAdjust, ScaledHalfHeightAdjust);
 	CameraZ -= HalfHeightAdjust;
-	CameraTargetZ = StandingEyeZ;
+	CameraTargetZ = IsIncapacitated() ? DownedEyeZ : StandingEyeZ;
 }
 
 void AHHCharacter::Landed(const FHitResult& Hit)
@@ -985,6 +1249,18 @@ void AHHCharacter::Tick(float DeltaSeconds)
 {
 	Super::Tick(DeltaSeconds);
 
+	if (HasAuthority() && IsDowned() && GetServerTime() >= BleedOutAt)
+	{
+		if (AHHHeistGameMode* HeistMode = GetWorld()->GetAuthGameMode<AHHHeistGameMode>())
+		{
+			HeistMode->HandleBleedOut(this);
+		}
+		else
+		{
+			SetDead();
+		}
+	}
+
 	if (IsLocallyControlled())
 	{
 		UpdateCamera(DeltaSeconds);
@@ -995,6 +1271,10 @@ void AHHCharacter::Tick(float DeltaSeconds)
 		{
 			UpdateFlashlightAim();
 		}
+	}
+	else if (bHeadHidden || IsViewedByLocalSpectator())
+	{
+		UpdateLocalVisibility();
 	}
 
 	const bool bHolding = HeldItem->IsVisible();

@@ -195,6 +195,19 @@ struct HORRORHEIST_API FHHEquipmentLoadout
 // Heists
 
 /** What an inventory slot holds. */
+/** Full-body state of a crew member that overrides locomotion. */
+UENUM(BlueprintType)
+enum class EHHBodyPose : uint8
+{
+	Normal,
+	/** On the floor, crawling; a crewmate can get them back up. */
+	Downed,
+	/** Gone. The body stays where it fell. */
+	Dead,
+	/** Kneeling over a downed crewmate, getting them back up. */
+	Kneeling
+};
+
 UENUM(BlueprintType)
 enum class EHHInventoryKind : uint8
 {
@@ -257,7 +270,9 @@ enum class EHHMissionOutcome : uint8
 	/** Reached the safehouse with the full haul after the police had been called. */
 	HotGetaway,
 	/** The police boxed the van in during the chase. */
-	ChaseBusted
+	ChaseBusted,
+	/** Nobody was left standing: the house took them (or the police took the rest). */
+	CrewLost
 };
 
 /** What became of one crew member when the job ended (end-of-job roll call). */
@@ -271,7 +286,9 @@ enum class EHHCrewFate : uint8
 	/** Picked up by the police. */
 	Caught,
 	/** Left the session during the job. */
-	Gone
+	Gone,
+	/** Died in the house. Whatever they carried, gear included, stays there. */
+	Dead
 };
 
 /** Police activity on a job (replicated for the HUD). */
@@ -376,6 +393,10 @@ struct HORRORHEIST_API FHHCrewRecord
 
 	UPROPERTY(BlueprintReadOnly, Category = "Summary")
 	bool bDrove = false;
+
+	/** Was down at some point and got back up thanks to a crewmate. */
+	UPROPERTY(BlueprintReadOnly, Category = "Summary")
+	bool bRevived = false;
 };
 
 USTRUCT(BlueprintType)
@@ -434,6 +455,10 @@ struct HORRORHEIST_API FHHMissionSummary
 
 	UPROPERTY(BlueprintReadOnly, Category = "Summary")
 	TArray<FHHCrewRecord> Crew;
+
+	/** Personal copy only: equipment this player lost (they died with it in the house). */
+	UPROPERTY(BlueprintReadOnly, Category = "Summary")
+	TArray<FName> LostGear;
 };
 
 /** Shared helpers for display names and colors of the enums above. */

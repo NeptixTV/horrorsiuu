@@ -1,4 +1,15 @@
 {
+ "A_HH_Crawl": {
+  "collision": "none",
+  "file": "SourceArt/Meshes/Character/Anims/A_HH_Crawl.fbx",
+  "folder": "Character/Anims",
+  "fps": 30,
+  "frames": 40,
+  "kind": "anim",
+  "materials": [],
+  "nanite": false,
+  "skeleton": "SK_HH_Body"
+ },
  "A_HH_CrouchIdle": {
   "collision": "none",
   "file": "SourceArt/Meshes/Character/Anims/A_HH_CrouchIdle.fbx",
@@ -21,12 +32,45 @@
   "nanite": false,
   "skeleton": "SK_HH_Body"
  },
+ "A_HH_Dead": {
+  "collision": "none",
+  "file": "SourceArt/Meshes/Character/Anims/A_HH_Dead.fbx",
+  "folder": "Character/Anims",
+  "fps": 30,
+  "frames": 30,
+  "kind": "anim",
+  "materials": [],
+  "nanite": false,
+  "skeleton": "SK_HH_Body"
+ },
+ "A_HH_Downed": {
+  "collision": "none",
+  "file": "SourceArt/Meshes/Character/Anims/A_HH_Downed.fbx",
+  "folder": "Character/Anims",
+  "fps": 30,
+  "frames": 90,
+  "kind": "anim",
+  "materials": [],
+  "nanite": false,
+  "skeleton": "SK_HH_Body"
+ },
  "A_HH_Fall": {
   "collision": "none",
   "file": "SourceArt/Meshes/Character/Anims/A_HH_Fall.fbx",
   "folder": "Character/Anims",
   "fps": 30,
   "frames": 30,
+  "kind": "anim",
+  "materials": [],
+  "nanite": false,
+  "skeleton": "SK_HH_Body"
+ },
+ "A_HH_Guard": {
+  "collision": "none",
+  "file": "SourceArt/Meshes/Character/Anims/A_HH_Guard.fbx",
+  "folder": "Character/Anims",
+  "fps": 30,
+  "frames": 120,
   "kind": "anim",
   "materials": [],
   "nanite": false,
@@ -43,12 +87,122 @@
   "nanite": false,
   "skeleton": "SK_HH_Body"
  },
+ "A_HH_Kneel": {
+  "collision": "none",
+  "file": "SourceArt/Meshes/Character/Anims/A_HH_Kneel.fbx",
+  "folder": "Character/Anims",
+  "fps": 30,
+  "frames": 60,
+  "kind": "anim",
+  "materials": [],
+  "nanite": false,
+  "skeleton": "SK_HH_Body"
+ },
+ "A_HH_Phone": {
+  "collision": "none",
+  "file": "SourceArt/Meshes/Character/Anims/A_HH_Phone.fbx",
+  "folder": "Character/Anims",
+  "fps": 30,
+  "frames": 120,
+  "kind": "anim",
+  "materials": [],
+  "nanite": false,
+  "skeleton": "SK_HH_Body"
+ },
+ "A_HH_Photo": {
+  "collision": "none",
+  "file": "SourceArt/Meshes/Character/Anims/A_HH_Photo.fbx",
+  "folder": "Character/Anims",
+  "fps": 30,
+  "frames": 90,
+  "kind": "anim",
+  "materials": [],
+  "nanite": false,
+  "skeleton": "SK_HH_Body"
+ },
+ "A_HH_Revive": {
+  "collision": "none",
+  "file": "SourceArt/Meshes/Character/Anims/A_HH_Revive.fbx",
+  "folder": "Character/Anims",
+  "fps": 30,
+  "frames": 60,
+  "kind": "anim",
+  "materials": [],
+  "nanite": false,
+  "skeleton": "SK_HH_Body"
+ },
  "A_HH_Run": {
   "collision": "none",
   "file": "SourceArt/Meshes/Character/Anims/A_HH_Run.fbx",
   "folder": "Character/Anims",
   "fps": 30,
   "frames": 19,
+  "kind": "anim",
+  "materials": [],
+  "nanite": false,
+  "skeleton": "SK_HH_Body"
+ },
+ "A_HH_Sit": {
+  "collision": "none",
+  "file": "SourceArt/Meshes/Character/Anims/A_HH_Sit.fbx",
+  "folder": "Character/Anims",
+  "fps": 30,
+  "frames": 90,
+  "kind": "anim",
+  "materials": [],
+  "nanite": false,
+  "skeleton": "SK_HH_Body"
+ },
+ "A_HH_SitGround": {
+  "collision": "none",
+  "file": "SourceArt/Meshes/Character/Anims/A_HH_SitGround.fbx",
+  "folder": "Character/Anims",
+  "fps": 30,
+  "frames": 90,
+  "kind": "anim",
+  "materials": [],
+  "nanite": false,
+  "skeleton": "SK_HH_Body"
+ },
+ "A_HH_SitSwing": {
+  "collision": "none",
+  "file": "SourceArt/Meshes/Character/Anims/A_HH_SitSwing.fbx",
+  "folder": "Character/Anims",
+  "fps": 30,
+  "frames": 60,
+  "kind": "anim",
+  "materials": [],
+  "nanite": false,
+  "skeleton": "SK_HH_Body"
+ },
+ "A_HH_SitType": {
+  "collision": "none",
+  "file": "SourceArt/Meshes/Character/Anims/A_HH_SitType.fbx",
+  "folder": "Character/Anims",
+  "fps": 30,
+  "frames": 60,
+  "kind": "anim",
+  "materials": [],
+  "nanite": false,
+  "skeleton": "SK_HH_Body"
+ },
+ "A_HH_Sleep": {
+  "collision": "none",
+  "file": "SourceArt/Meshes/Character/Anims/A_HH_Sleep.fbx",
+  "folder": "Character/Anims",
+  "fps": 30,
+  "frames": 120,
+  "kind": "anim",
+  "materials": [],
+  "nanite": false,
+  "skeleton": "SK_HH_Body"
+ },
+ "A_HH_Talk": {
+  "collision": "none",
+  "file": "SourceArt/Meshes/Character/Anims/A_HH_Talk.fbx",
+  "folder": "Character/Anims",
+  "fps": 30,
+  "frames": 120,
   "kind": "anim",
   "materials": [],
   "nanite": false,

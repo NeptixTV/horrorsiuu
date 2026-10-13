@@ -161,6 +161,25 @@ def build_character():
         anim = U.find(name)
         if anim is not None:
             _set(a, **{key: anim})
+    # Poses beyond locomotion (townspeople, the downed and the dead): every other A_HH_* animation.
+    locomotion = {'A_HH_Idle', 'A_HH_Walk', 'A_HH_Run', 'A_HH_CrouchIdle', 'A_HH_CrouchWalk', 'A_HH_Fall'}
+    extras = []
+    for name, entry in sorted(U.load_json('Meshes', 'meshes.json').items()):
+        if entry.get('kind') != 'anim' or name in locomotion:
+            continue
+        anim = U.find(name, required=False)
+        if anim is None:
+            U.warn(f'DA_Character_Default: animation {name} missing')
+            continue
+        item = unreal.HHNamedAnim()
+        item.set_editor_property('anim_name', unreal.Name(name[len('A_HH_'):]))
+        item.set_editor_property('anim', anim)
+        extras.append(item)
+    try:
+        a.set_editor_property('extra_anims', extras)
+        a.set_editor_property('crawl_anim_speed', 60.0)
+    except Exception as exc:  # noqa: BLE001 - editor binary older than the scripts
+        U.warn(f'DA_Character_Default: extra animations not set ({exc}). Recompile the project.')
     return a
 
 

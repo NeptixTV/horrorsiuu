@@ -445,7 +445,8 @@ void AHHHeistGameMode::TickRules()
 	for (AHHPlayerState* State : Crew)
 	{
 		APawn* Pawn = State->GetPawn();
-		if (!Pawn || Arrested.Contains(State))
+		const AHHCharacter* CrewBody = Cast<AHHCharacter>(Pawn);
+		if (!Pawn || Arrested.Contains(State) || (CrewBody && CrewBody->IsDead()))
 		{
 			continue;
 		}
@@ -498,7 +499,7 @@ void AHHHeistGameMode::TickRules()
 			Psyche += PsycheRecoverOutside * Dt;
 		}
 		State->SetPsyche(Psyche);
-		if (bInside && State->GetPsyche() <= 0.f)
+		if (bInside && State->GetPsyche() <= 0.f && !(CrewBody && CrewBody->IsIncapacitated()))
 		{
 			Blackouts.Add(Pawn);
 		}
@@ -743,6 +744,10 @@ void AHHHeistGameMode::Arrest(AHHPlayerState* State)
 {
 	AHHHeistGameState* HeistState = GetHeistState();
 	if (!State || Arrested.Contains(State) || !HeistState)
+	{
+		return;
+	}
+	if (const AHHCharacter* Body = Cast<AHHCharacter>(State->GetPawn()); Body && Body->IsDead())
 	{
 		return;
 	}
@@ -1142,23 +1147,7 @@ void AHHHeistGameMode::HandlePlayerBlackout(APawn* Pawn, bool bCaughtByEntity)
 	}
 
 	// Everything in the bag stays where they fell (the crew can still fetch it).
-	if (UHHInventoryComponent* Inventory = State->GetInventory())
-	{
-		const TArray<FHHInventorySlot> Items = Inventory->RemoveAllLoot();
-		const FVector Center = Pawn->GetActorLocation();
-		for (int32 Index = 0; Index < Items.Num(); ++Index)
-		{
-			const float Angle = Index * 2.f * UE_PI / FMath::Max(1, Items.Num());
-			FVector Spot = Center + FVector(FMath::Cos(Angle), FMath::Sin(Angle), 0.f) * 45.f;
-			FHitResult Hit;
-			FCollisionQueryParams Params(SCENE_QUERY_STAT(HHBlackoutDrop), false, Pawn);
-			if (GetWorld()->LineTraceSingleByChannel(Hit, Spot + FVector(0.f, 0.f, 30.f), Spot - FVector(0.f, 0.f, 300.f), ECC_Visibility, Params))
-			{
-				Spot = Hit.ImpactPoint;
-			}
-			AHHLootActor::SpawnDropped(GetWorld(), Items[Index], FTransform(FRotator(0.f, FMath::RandRange(0.f, 360.f), 0.f), Spot));
-		}
-	}
+	DropCarriedLoot(Pawn, State->GetInventory());
 
 	if (AActor* Wake = FindWakePoint(Pawn->GetActorLocation()))
 	{
@@ -1186,6 +1175,142 @@ void AHHHeistGameMode::HandlePlayerBlackout(APawn* Pawn, bool bCaughtByEntity)
 		{
 			Director->OnPlayerCaught();
 		}
+	}
+}
+
+void AHHHeistGameMode::DropCarriedLoot(APawn* Pawn, UHHInventoryComponent* Inventory)
+{
+	if (!Pawn || !Inventory)
+	{
+		return;
+	}
+	const TArray<FHHInventorySlot> Items = Inventory->RemoveAllLoot();
+	const FVector Center = Pawn->GetActorLocation();
+	for (int32 Index = 0; Index < Items.Num(); ++Index)
+	{
+		const float Angle = Index * 2.f * UE_PI / FMath::Max(1, Items.Num());
+		FVector Spot = Center + FVector(FMath::Cos(Angle), FMath::Sin(Angle), 0.f) * 45.f;
+		FHitResult Hit;
+		FCollisionQueryParams Params(SCENE_QUERY_STAT(HHLootDrop), false, Pawn);
+		if (GetWorld()->LineTraceSingleByChannel(Hit, Spot + FVector(0.f, 0.f, 30.f), Spot - FVector(0.f, 0.f, 300.f), ECC_Visibility, Params))
+		{
+			Spot = Hit.ImpactPoint;
+		}
+		AHHLootActor::SpawnDropped(GetWorld(), Items[Index], FTransform(FRotator(0.f, FMath::RandRange(0.f, 360.f), 0.f), Spot));
+	}
+}
+
+void AHHHeistGameMode::HandleEntityCatch(APawn* Pawn)
+{
+	AHHCharacter* Character = Cast<AHHCharacter>(Pawn);
+	AHHPlayerState* State = Pawn ? Pawn->GetPlayerState<AHHPlayerState>() : nullptr;
+	AHHHeistGameState* HeistState = GetHeistState();
+	if (!Character || !State || !HeistState || bEnded || Arrested.Contains(State) || IsInVan(State) || Character->IsDead())
+	{
+		return;
+	}
+	if (Character->IsDowned())
+	{
+		// It came back for them.
+		HandleCrewDeath(Character, true);
+		return;
+	}
+	Character->SetDowned(DownedSeconds);
+	State->SetPsyche(FMath::Min(State->GetPsyche(), 15.f));
+	if (AHHPlayerController* PC = Cast<AHHPlayerController>(Character->GetController()))
+	{
+		PC->ClientKnockedDown();
+	}
+	HeistState->MulticastCrewMessage(FText::Format(
+		LOCTEXT("KnockedDown", "Something threw {0} to the floor! Kneel next to them and hold the interact key - {1} seconds before it's too late."),
+		FText::FromString(State->GetPlayerName()), FText::AsNumber(FMath::RoundToInt(DownedSeconds))), EHHNotifyType::Error);
+	if (AHHHauntDirector* Director = Haunt.Get())
+	{
+		Director->OnPlayerCaught();
+	}
+}
+
+void AHHHeistGameMode::HandleBleedOut(AHHCharacter* Character)
+{
+	HandleCrewDeath(Character, false);
+}
+
+void AHHHeistGameMode::HandleRevived(AHHCharacter* Character, AHHCharacter* Helper)
+{
+	AHHHeistGameState* HeistState = GetHeistState();
+	const AHHPlayerState* State = Character ? Character->GetPlayerState<AHHPlayerState>() : nullptr;
+	const AHHPlayerState* HelperState = Helper ? Helper->GetPlayerState<AHHPlayerState>() : nullptr;
+	if (HeistState && State)
+	{
+		HeistState->MulticastCrewMessage(FText::Format(LOCTEXT("Revived", "{0} got {1} back on their feet."),
+			FText::FromString(HelperState ? HelperState->GetPlayerName() : FString(TEXT("Someone"))), FText::FromString(State->GetPlayerName())),
+			EHHNotifyType::Success);
+	}
+}
+
+void AHHHeistGameMode::HandleCrewDeath(AHHCharacter* Character, bool bTakenByEntity)
+{
+	AHHPlayerState* State = Character ? Character->GetPlayerState<AHHPlayerState>() : nullptr;
+	AHHHeistGameState* HeistState = GetHeistState();
+	if (!Character || !State || !HeistState || bEnded || Character->IsDead())
+	{
+		return;
+	}
+	// The loot can still be fetched; the gear they brought stays with the body.
+	DropCarriedLoot(Character, State->GetInventory());
+	TArray<FName>& Gear = DeadGear.FindOrAdd(State);
+	Gear.Reset();
+	if (const UHHInventoryComponent* Inventory = State->GetInventory())
+	{
+		for (const FHHInventorySlot& Slot : Inventory->GetSlots())
+		{
+			if (Slot.Kind == EHHInventoryKind::Equipment && !Slot.ItemId.IsNone())
+			{
+				Gear.AddUnique(Slot.ItemId);
+			}
+		}
+	}
+	Character->SetDead();
+	State->SetInsideHouse(false);
+	HeistState->MulticastCrewMessage(FText::Format(bTakenByEntity
+		? LOCTEXT("TakenDead", "It came back for {0}. They are gone.")
+		: LOCTEXT("BledOut", "Nobody reached {0} in time. They are gone."), FText::FromString(State->GetPlayerName())), EHHNotifyType::Error);
+	if (AHHHauntDirector* Director = Haunt.Get())
+	{
+		Director->OnPlayerCaught();
+	}
+	CheckCrewLost();
+}
+
+void AHHHeistGameMode::CheckCrewLost()
+{
+	AHHHeistGameState* HeistState = GetHeistState();
+	if (!HeistState || bEnded)
+	{
+		return;
+	}
+	int32 Dead = 0;
+	for (AHHPlayerState* State : HeistState->GetCrew())
+	{
+		const AHHCharacter* Character = Cast<AHHCharacter>(State->GetPawn());
+		if (Arrested.Contains(State))
+		{
+			continue;
+		}
+		if (Character && Character->IsDead())
+		{
+			++Dead;
+			continue;
+		}
+		if (Character)
+		{
+			return;		// Someone can still drive (or crawl back to the van and be helped up).
+		}
+	}
+	if (Dead > 0)
+	{
+		HeistState->MulticastCrewMessage(LOCTEXT("CrewLost", "Nobody is left to drive the van."), EHHNotifyType::Error);
+		EndMission(EHHMissionOutcome::CrewLost);
 	}
 }
 
@@ -1286,8 +1411,14 @@ void AHHHeistGameMode::EndMission(EHHMissionOutcome Outcome)
 		Record.CrewSlot = State->GetCrewSlot();
 		Record.Stashed = State->GetStashedValue();
 		const bool bInVan = IsInVan(State);
+		const AHHCharacter* CrewBody = Cast<AHHCharacter>(State->GetPawn());
 		Record.bDrove = TheVan && State->GetPawn() && TheVan->GetDriver() == State->GetPawn();
-		if (Arrested.Contains(State) || Outcome == EHHMissionOutcome::Caught)
+		Record.bRevived = CrewBody && CrewBody->WasRevived();
+		if (CrewBody && CrewBody->IsDead())
+		{
+			Record.Fate = EHHCrewFate::Dead;
+		}
+		else if (Arrested.Contains(State) || Outcome == EHHMissionOutcome::Caught)
 		{
 			Record.Fate = EHHCrewFate::Caught;
 		}
@@ -1339,7 +1470,8 @@ void AHHHeistGameMode::EndMission(EHHMissionOutcome Outcome)
 	case EHHMissionOutcome::HotGetaway:		Summary.XPPerPlayer = 30 + BaseXP; break;
 	case EHHMissionOutcome::Partial:		Summary.XPPerPlayer = 15 + BaseXP / 2; break;
 	case EHHMissionOutcome::Caught:
-	case EHHMissionOutcome::ChaseBusted:	Summary.XPPerPlayer = 10; break;
+	case EHHMissionOutcome::ChaseBusted:
+	case EHHMissionOutcome::CrewLost:		Summary.XPPerPlayer = 10 + 6 * Summary.HauntStage; break;
 	default:								Summary.XPPerPlayer = 0; break;
 	}
 
@@ -1352,7 +1484,7 @@ void AHHHeistGameMode::EndMission(EHHMissionOutcome Outcome)
 	for (FConstPlayerControllerIterator It = GetWorld()->GetPlayerControllerIterator(); It; ++It)
 	{
 		AHHPlayerController* PC = Cast<AHHPlayerController>(It->Get());
-		const AHHPlayerState* State = PC ? PC->GetPlayerState<AHHPlayerState>() : nullptr;
+		AHHPlayerState* State = PC ? PC->GetPlayerState<AHHPlayerState>() : nullptr;
 		if (!PC || !State)
 		{
 			continue;
@@ -1363,6 +1495,15 @@ void AHHHeistGameMode::EndMission(EHHMissionOutcome Outcome)
 		{
 			Personal.PayoutPerPlayer = 0;
 			Personal.XPPerPlayer = FMath::Min(Summary.XPPerPlayer, 10);
+		}
+		else if (Mine && Mine->Fate == EHHCrewFate::Dead)
+		{
+			Personal.PayoutPerPlayer = 0;
+			Personal.XPPerPlayer = FMath::Min(Summary.XPPerPlayer, 10);
+			if (const TArray<FName>* Gear = DeadGear.Find(State))
+			{
+				Personal.LostGear = *Gear;
+			}
 		}
 		else if (Mine && Mine->Fate == EHHCrewFate::LeftBehind)
 		{

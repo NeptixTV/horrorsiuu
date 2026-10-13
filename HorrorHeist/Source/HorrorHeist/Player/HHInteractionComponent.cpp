@@ -54,7 +54,7 @@ void UHHInteractionComponent::UpdateFocus()
 {
 	const AHHCharacter* Character = Cast<AHHCharacter>(GetOwner());
 	UWorld* World = GetWorld();
-	if (!Character || !World || bSuspended || Character->IsSeated() || Character->IsArrested())
+	if (!Character || !World || bSuspended || Character->IsSeated() || Character->IsArrested() || Character->IsIncapacitated())
 	{
 		SetFocus(nullptr);
 		return;
@@ -161,6 +161,11 @@ void UHHInteractionComponent::TryInteract()
 		{
 			HoldAudio = UGameplayStatics::SpawnSoundAttached(Loop, Character->GetRootComponent());
 		}
+		// Helping a crewmate up: kneel next to them while holding.
+		if (const AHHCharacter* Downed = Cast<AHHCharacter>(Target); Downed && Downed->IsDowned())
+		{
+			Character->SetKneeling(true);
+		}
 		Character->ServerBeginHold(Target);
 		return;
 	}
@@ -214,6 +219,10 @@ void UHHInteractionComponent::CancelHold()
 {
 	HoldTarget.Reset();
 	HoldDuration = 0.f;
+	if (AHHCharacter* Character = Cast<AHHCharacter>(GetOwner()); Character && Character->IsLocallyControlled() && Character->GetBodyPose() == EHHBodyPose::Kneeling)
+	{
+		Character->SetKneeling(false);
+	}
 	if (HoldAudio)
 	{
 		HoldAudio->FadeOut(0.15f, 0.f);

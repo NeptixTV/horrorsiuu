@@ -10,7 +10,12 @@ MAP = '/Game/HorrorHeist/Maps/L_Hideout'
 GAME_DATA = '/Game/HorrorHeist/Data/DA_GameData'
 # Everything the current code needs to start a job from the hideout.
 REQUIRED = (MAP, '/Game/HorrorHeist/Maps/L_Town', '/Game/HorrorHeist/Maps/L_Job_Vance', GAME_DATA,
-            '/Game/HorrorHeist/Data/Missions/DA_JOB_Vance', '/Game/HorrorHeist/Data/Loot/DA_LT_CoinCollection')
+            '/Game/HorrorHeist/Data/Missions/DA_JOB_Vance', '/Game/HorrorHeist/Data/Loot/DA_LT_CoinCollection',
+            # The crew's body and its animations (without them the crew is a grey stand-in cylinder).
+            '/Game/HorrorHeist/Meshes/Character/SK_HH_Body', '/Game/HorrorHeist/Meshes/Character/Anims/A_HH_Walk',
+            '/Game/HorrorHeist/Data/Characters/DA_Character_Default',
+            # Gear the Fence sells.
+            '/Game/HorrorHeist/Data/Equipment/DA_EQ_Light_Patrol')
 
 
 def _add_menu():

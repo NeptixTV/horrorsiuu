@@ -364,6 +364,34 @@ void UHHProfileSubsystem::RecordJob(const FHHMissionSummary& Summary)
 	{
 		++Profile->JobsCompleted;
 	}
+	// Died in the house: the gear they carried stays there. Starter gear is always replaced, and
+	// an emptied slot falls back to whatever else of that kind they still own.
+	if (Summary.LostGear.Num() > 0)
+	{
+		const UHHItemRegistrySubsystem* Registry = GetGameInstance()->GetSubsystem<UHHItemRegistrySubsystem>();
+		for (const FName& Id : Summary.LostGear)
+		{
+			const UHHEquipmentDefinition* Item = Registry ? Registry->FindEquipment(Id) : nullptr;
+			if (!Item || Item->bOwnedByDefault)
+			{
+				continue;
+			}
+			Profile->OwnedItems.Remove(Item->GetItemId());
+			if (Profile->Equipment.Get(Item->Slot) == Item->GetItemId())
+			{
+				Profile->Equipment.Set(Item->Slot, NAME_None);
+				for (const FName& Candidate : Profile->OwnedItems)
+				{
+					const UHHEquipmentDefinition* Other = Registry->FindEquipment(Candidate);
+					if (Other && Other->Slot == Item->Slot)
+					{
+						Profile->Equipment.Set(Item->Slot, Candidate);
+						break;
+					}
+				}
+			}
+		}
+	}
 	NotifyChanged();
 	const int32 NewLevel = GetLevel();
 	if (NewLevel > OldLevel)

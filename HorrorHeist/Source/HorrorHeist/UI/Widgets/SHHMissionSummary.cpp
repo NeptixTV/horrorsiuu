@@ -47,7 +47,8 @@ void SHHMissionSummary::Construct(const FArguments& InArgs)
 	HUD = InArgs._HUD;
 
 	const bool bGood = Summary.Outcome == EHHMissionOutcome::Success;
-	const bool bBad = Summary.Outcome == EHHMissionOutcome::Caught || Summary.Outcome == EHHMissionOutcome::ChaseBusted || Summary.Outcome == EHHMissionOutcome::Abandoned;
+	const bool bBad = Summary.Outcome == EHHMissionOutcome::Caught || Summary.Outcome == EHHMissionOutcome::ChaseBusted
+		|| Summary.Outcome == EHHMissionOutcome::Abandoned || Summary.Outcome == EHHMissionOutcome::CrewLost;
 	OutcomeColor = bGood ? FHHStyle::Ready() : (bBad ? FHHStyle::Danger() : FHHStyle::Accent());
 
 	// Timeline: the loot list sets how long the money counts.
@@ -357,9 +358,22 @@ TSharedRef<SWidget> SHHMissionSummary::BuildCrew()
 		{
 			Detail = Record.Lost > 0 ? FText::Format(LOCTEXT("LeftLost", "walked home; dumped {0}"), HHText::Money(Record.Lost)) : LOCTEXT("LeftPlain", "walked home through the woods");
 		}
+		else if (Record.Fate == EHHCrewFate::Dead)
+		{
+			Detail = Record.Lost > 0 ? FText::Format(LOCTEXT("DeadLost", "never came out; {0} and their gear stayed with them"), HHText::Money(Record.Lost))
+				: LOCTEXT("DeadPlain", "never came out of the house; their gear stayed with them");
+		}
+		else if (Record.Fate == EHHCrewFate::Gone)
+		{
+			Detail = LOCTEXT("GonePlain", "lost the connection");
+		}
 		else
 		{
 			Detail = Record.bDrove ? LOCTEXT("Drove", "drove the van") : LOCTEXT("Rode", "in the van");
+			if (Record.bRevived)
+			{
+				Detail = FText::Format(LOCTEXT("RevivedToo", "{0} - after being dragged back up off the floor"), Detail);
+			}
 		}
 
 		Box->AddSlot().AutoHeight().Padding(0.f, 0.f, 0.f, 8.f)

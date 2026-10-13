@@ -1,6 +1,8 @@
 """
-The crew body: skeleton (UE-style bone names), a sculpted-by-metaballs body mesh, automatic
-weights, and procedural animations (idle, walk, run, crouch idle/walk, fall).
+The crew body: skeleton (UE-style bone names), a signed-distance-field body mesh, automatic
+weights, and procedural animations: locomotion (idle, walk, run, crouch idle/walk, fall) and the
+poses of townspeople, the downed and the dead (sit, type, swing, sit on the ground, talk, guard,
+photo, phone, kneel, revive, downed, crawl, sleep, dead).
 
 Authored in centimetres (scene unit scale 0.01), facing -Y, feet on z = 0. In Unreal the asset
 faces +Y, so the character definition rotates the mesh by -90 yaw.
@@ -551,6 +553,165 @@ class Animator:
             out.append((f, rots, pelvis_off))
         return out
 
+    # -- poses for townspeople, the downed crew and the dead ----------------------------
+    def _legs(self, rots, pelvis_rot, pelvis_off, feet, pitches=None, pole=FORWARD):
+        for side in ('l', 'r'):
+            hip = self.hip_position(side, pelvis_rot, pelvis_off)
+            fp, bp = (pitches or {}).get(side, (0.0, 0.0))
+            rots.update(self.leg_rots(side, hip, feet[side], fp, bp, pole=pole))
+
+    def _rigid_leg(self, rots, side, parent_rot, bend_thigh=0.0, bend_knee=0.0, splay=0.0):
+        """Leg following a lying pelvis: thigh/calf rotated about the hip/knee axis (degrees)."""
+        s = 1 if side == 'l' else -1
+        q_thigh = parent_rot @ qaxis(Y, -s * splay) @ qaxis(X, -bend_thigh)
+        q_calf = q_thigh @ qaxis(X, bend_knee)
+        rots.update({'thigh_' + side: q_thigh, 'calf_' + side: q_calf, 'foot_' + side: q_calf,
+                     'ball_' + side: q_calf})
+
+    def sit(self, frames=90, mode='chair'):
+        """Seated on a chair or bench (seat 46 cm). mode: chair (hands on the lap), type (keyboard),
+        swing (holding the chains, legs pumping), ground (on the floor, knees up)."""
+        out = []
+        P = self.P
+        for f in range(frames + 1):
+            t = (f % frames) / frames
+            breathe = 1.0 * math.sin(2 * math.pi * t * 2)
+            w = math.sin(2 * math.pi * t)
+            if mode == 'ground':
+                pelvis_off = Vector((0, 8, 16 - P.rest_head('pelvis').z))
+                pelvis_rot = qaxis(X, -14)
+                rots = self.spine_chain(pelvis_rot, 30, breathe=breathe, head_pitch=-18,
+                                        head_yaw=10 * math.sin(2 * math.pi * t + 0.4))
+                feet = {'l': Vector((16, -42, 9)), 'r': Vector((-15, -40, 9))}
+                self._legs(rots, pelvis_rot, pelvis_off, feet, {'l': (-20, 0), 'r': (-20, 0)}, pole=Z)
+                dig = 8 * math.sin(4 * math.pi * t)
+                rots.update(self.arm_rots('l', rots['spine_03'], hang=30, swing=48 + dig, elbow=28))
+                rots.update(self.arm_rots('r', rots['spine_03'], hang=30, swing=44 - dig, elbow=32))
+                out.append((f, rots, pelvis_off))
+                continue
+            pelvis_off = Vector((0, 7, 55 - P.rest_head('pelvis').z))
+            pelvis_rot = qaxis(X, -6)
+            lean = 10 if mode != 'type' else 16
+            rots = self.spine_chain(pelvis_rot, lean, breathe=breathe,
+                                    head_pitch=(-14 if mode == 'type' else (8 if mode == 'swing' else -2)),
+                                    head_yaw=(5 * math.sin(2 * math.pi * t + 0.8) if mode != 'type' else 2 * w))
+            if mode == 'swing':
+                k = math.sin(2 * math.pi * t)          # legs out on the way forward, tucked on the way back
+                feet = {s_: Vector((sx, -38 - 22 * k, 30 + 16 * k)) for s_, sx in (('l', 10), ('r', -10))}
+                self._legs(rots, pelvis_rot, pelvis_off, feet, {'l': (-10 - 10 * k, 0), 'r': (-10 - 10 * k, 0)})
+                for side in ('l', 'r'):
+                    rots.update(self.arm_rots(side, rots['spine_03'], hang=30, swing=96, elbow=62 + 6 * k))
+            else:
+                feet = {'l': Vector((11, -46, 9)), 'r': Vector((-11, -44, 9))}
+                self._legs(rots, pelvis_rot, pelvis_off, feet)
+                if mode == 'type':
+                    for side, ph in (('l', 0.0), ('r', 0.5)):
+                        tap = 2.5 * math.sin(2 * math.pi * (6 * t + ph))
+                        rots.update(self.arm_rots(side, rots['spine_03'], hang=38, swing=14 + tap, elbow=62 - tap))
+                else:
+                    for side in ('l', 'r'):
+                        rots.update(self.arm_rots(side, rots['spine_03'], hang=38, swing=22 + 0.8 * breathe,
+                                                  elbow=30))
+            out.append((f, rots, pelvis_off))
+        return out
+
+    def stand(self, frames=120, mode='talk'):
+        """Standing townspeople: talk (gestures, nods), guard (hands behind the back), photo (camera
+        held to the face), phone (one hand at the ear)."""
+        out = []
+        P = self.P
+        for f in range(frames + 1):
+            t = (f % frames) / frames
+            breathe = 1.1 * math.sin(2 * math.pi * t * 2)
+            sway = math.sin(2 * math.pi * t)
+            pelvis_off = Vector((1.0 * sway, 0, -1.0 + 0.3 * math.sin(4 * math.pi * t)))
+            pelvis_rot = qaxis(Y, -1.2 * sway) @ qaxis(Z, 2 * sway)
+            nod = 5 * math.sin(2 * math.pi * 3 * t) if mode == 'talk' else 0.0
+            rots = self.spine_chain(pelvis_rot, 3 if mode != 'photo' else 6, twist=-1.5 * sway, breathe=breathe,
+                                    head_pitch=(-6 if mode == 'photo' else nod - 2),
+                                    head_yaw=(10 * math.sin(2 * math.pi * t + 0.3) if mode == 'guard' else 3 * sway))
+            feet = {'l': Vector((12, -2, 9)), 'r': Vector((-12, 2, 9))}
+            self._legs(rots, pelvis_rot, pelvis_off, feet)
+            if mode == 'talk':
+                g1 = 0.5 + 0.5 * math.sin(2 * math.pi * 2 * t)
+                g2 = 0.5 + 0.5 * math.sin(2 * math.pi * 2 * t + 2.2)
+                rots.update(self.arm_rots('r', rots['spine_03'], hang=30, swing=18 + 22 * g1, elbow=55 + 30 * g1))
+                rots.update(self.arm_rots('l', rots['spine_03'], hang=33, swing=6 + 14 * g2, elbow=25 + 35 * g2))
+            elif mode == 'guard':
+                for side in ('l', 'r'):
+                    rots.update(self.arm_rots(side, rots['spine_03'], hang=26, swing=-32, elbow=64, raise_side=-4))
+            elif mode == 'photo':
+                for side in ('l', 'r'):
+                    rots.update(self.arm_rots(side, rots['spine_03'], hang=44, swing=34 + 0.6 * breathe, elbow=128))
+            elif mode == 'phone':
+                rots.update(self.arm_rots('r', rots['spine_03'], hang=34, swing=22, elbow=150))
+                rots.update(self.arm_rots('l', rots['spine_03'], hang=34, swing=4, elbow=14))
+            out.append((f, rots, pelvis_off))
+        return out
+
+    def kneel(self, frames=60, revive=False):
+        """On one knee, leaning over something on the floor; revive: both hands pressing rhythmically."""
+        out = []
+        P = self.P
+        for f in range(frames + 1):
+            t = (f % frames) / frames
+            push = (0.5 + 0.5 * math.sin(2 * math.pi * 4 * t)) if revive else 0.5 + 0.2 * math.sin(2 * math.pi * t)
+            pelvis_off = Vector((0, 10, 52 - P.rest_head('pelvis').z - 2.0 * push))
+            pelvis_rot = qaxis(X, 18)
+            rots = self.spine_chain(pelvis_rot, 34 + 8 * push, breathe=0.6 * math.sin(2 * math.pi * 2 * t),
+                                    head_pitch=-30)
+            feet = {'l': Vector((13, -30, 9)), 'r': Vector((-11, 46, 10))}
+            self._legs(rots, pelvis_rot, pelvis_off, feet, {'l': (0, 0), 'r': (70, -40)})
+            for side in ('l', 'r'):
+                rots.update(self.arm_rots(side, rots['spine_03'], hang=34, swing=52 + 10 * push,
+                                          elbow=20 + 15 * (1 - push)))
+            out.append((f, rots, pelvis_off))
+        return out
+
+    def prone(self, frames=90, crawl=False):
+        """Down on the floor, propped on the elbows and breathing hard; crawl: dragging forward."""
+        out = []
+        P = self.P
+        for f in range(frames + 1):
+            t = (f % frames) / frames
+            breathe = 1.6 * math.sin(2 * math.pi * t * (4 if not crawl else 2))
+            k = math.sin(2 * math.pi * t) if crawl else 0.0
+            pelvis_off = Vector((2.0 * k, 0, 13 - P.rest_head('pelvis').z + 0.8 * abs(k)))
+            pelvis_rot = qaxis(Z, 6 * k) @ qaxis(X, 90)
+            rots = self.spine_chain(pelvis_rot, -34 + breathe, twist=-8 * k, head_pitch=70)
+            for side, sgn in (('l', 1.0), ('r', -1.0)):
+                reach = 18 * k * sgn if crawl else 0.0
+                rots.update(self.arm_rots(side, rots['spine_03'], hang=28, swing=78 + reach,
+                                          elbow=92 - reach * 1.6))
+                bend = max(0.0, 26 * k * sgn) if crawl else (4 if side == 'l' else 12)
+                self._rigid_leg(rots, side, pelvis_rot, bend_thigh=bend, bend_knee=bend * 1.3 + 4,
+                                splay=4 + 0.4 * bend)
+            out.append((f, rots, pelvis_off))
+        return out
+
+    def supine(self, frames=120, dead=False):
+        """On the back: asleep (slow breathing) or dead (still, limbs fallen out, head turned)."""
+        out = []
+        P = self.P
+        for f in range(frames + 1):
+            t = (f % frames) / frames
+            breathe = 0.0 if dead else 1.4 * math.sin(2 * math.pi * t * 2)
+            pelvis_off = Vector((0, 0, 11 - P.rest_head('pelvis').z))
+            pelvis_rot = qaxis(Y, 6 if dead else 0) @ qaxis(X, -90)
+            rots = self.spine_chain(pelvis_rot, 2, breathe=breathe, head_pitch=-6,
+                                    head_yaw=(38 if dead else 8))
+            for side, sgn in (('l', 1.0), ('r', -1.0)):
+                if dead:
+                    rots.update(self.arm_rots(side, rots['spine_03'], hang=-14 if side == 'l' else 8, swing=12,
+                                              elbow=-6 if side == 'l' else 14))
+                    self._rigid_leg(rots, side, pelvis_rot, bend_thigh=10 if side == 'r' else 0,
+                                    bend_knee=22 if side == 'r' else 4, splay=9)
+                else:
+                    rots.update(self.arm_rots(side, rots['spine_03'], hang=34 + 0.5 * breathe, swing=8, elbow=-14))
+                    self._rigid_leg(rots, side, pelvis_rot, bend_thigh=2, bend_knee=4, splay=3)
+            out.append((f, rots, pelvis_off))
+        return out
+
     # -- writing actions -------------------------------------------------------------
     def bake(self, name, frames):
         arm = self.arm
@@ -601,6 +762,21 @@ def build_animations(arm):
     for name, g in GAITS.items():
         actions[name] = anim.bake('A_HH_' + name, anim.locomotion(g, crouch=name.startswith('Crouch')))
     actions['Fall'] = anim.bake('A_HH_Fall', anim.fall(30))
+    # Townspeople, the downed and the dead.
+    actions['Sit'] = anim.bake('A_HH_Sit', anim.sit(90, 'chair'))
+    actions['SitType'] = anim.bake('A_HH_SitType', anim.sit(60, 'type'))
+    actions['SitSwing'] = anim.bake('A_HH_SitSwing', anim.sit(60, 'swing'))
+    actions['SitGround'] = anim.bake('A_HH_SitGround', anim.sit(90, 'ground'))
+    actions['Talk'] = anim.bake('A_HH_Talk', anim.stand(120, 'talk'))
+    actions['Guard'] = anim.bake('A_HH_Guard', anim.stand(120, 'guard'))
+    actions['Photo'] = anim.bake('A_HH_Photo', anim.stand(90, 'photo'))
+    actions['Phone'] = anim.bake('A_HH_Phone', anim.stand(120, 'phone'))
+    actions['Kneel'] = anim.bake('A_HH_Kneel', anim.kneel(60))
+    actions['Revive'] = anim.bake('A_HH_Revive', anim.kneel(60, revive=True))
+    actions['Downed'] = anim.bake('A_HH_Downed', anim.prone(90))
+    actions['Crawl'] = anim.bake('A_HH_Crawl', anim.prone(40, crawl=True))
+    actions['Sleep'] = anim.bake('A_HH_Sleep', anim.supine(120))
+    actions['Dead'] = anim.bake('A_HH_Dead', anim.supine(30, dead=True))
     return actions
 
 

@@ -8,6 +8,7 @@
 class AHHLobbyHUD;
 class AHHHeistGameState;
 class AHHPlayerState;
+class AHHCharacter;
 class UHHInventoryComponent;
 class SVerticalBox;
 struct FSlateBrush;
@@ -34,6 +35,9 @@ public:
 
 private:
 	AHHHeistGameState* GetState() const;
+	AHHCharacter* GetOwnCharacter() const;
+	/** Display text of the key bound to an action ("Interact" -> "E"). */
+	FText GetKeyText(const TCHAR* Binding) const;
 	AHHPlayerState* GetMyState() const;
 	UHHInventoryComponent* GetInventory() const;
 

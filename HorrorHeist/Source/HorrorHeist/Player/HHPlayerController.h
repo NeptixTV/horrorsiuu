@@ -58,6 +58,15 @@ public:
 	UFUNCTION(Client, Reliable)
 	void ClientBlackout(bool bCaughtByEntity);
 
+	/** The thing in the house threw you to the floor. */
+	UFUNCTION(Client, Reliable)
+	void ClientKnockedDown();
+
+	/** Dead on a job: watch the next crew member who is still around (local). */
+	void SpectateNext();
+	/** The crew member being watched (null when not spectating). */
+	APawn* GetSpectated() const { return Spectated.Get(); }
+
 	/** Crew leader: wait for nightfall (hub) / call the job off (heist). */
 	void RequestWaitForNight();
 	void RequestAbandonJob();
@@ -135,6 +144,10 @@ public:
 	UFUNCTION(Exec)
 	void HHSendNeighbour();
 
+	/** As if the thing in the house caught you: down, and dead if you already were (host, on a job). */
+	UFUNCTION(Exec)
+	void HHKnockDown();
+
 protected:
 	void HandleMenuAction();
 	void HandleInventoryAction();
@@ -171,4 +184,9 @@ protected:
 	FDelegateHandle ProfileHandle;
 	FDelegateHandle SettingsHandle;
 	FDelegateHandle VoiceHandle;
+
+	/** Dead: whose eyes we are looking through. Re-checked every tick (they may die or get in the van). */
+	TWeakObjectPtr<APawn> Spectated;
+	void UpdateSpectating();
+	virtual void PlayerTick(float DeltaTime) override;
 };

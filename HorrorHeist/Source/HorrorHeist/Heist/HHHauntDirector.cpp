@@ -772,11 +772,15 @@ void AHHHauntDirector::OnApparitionSeen(APawn* Witness)
 
 void AHHHauntDirector::OnApparitionCaught(APawn* Victim)
 {
+	// The game mode knocks them down (or finishes them) and calms the house.
 	if (AHHHeistGameMode* HeistMode = GetWorld()->GetAuthGameMode<AHHHeistGameMode>())
 	{
-		HeistMode->HandlePlayerBlackout(Victim, true);
+		HeistMode->HandleEntityCatch(Victim);
 	}
-	OnPlayerCaught();
+	else
+	{
+		OnPlayerCaught();
+	}
 }
 
 #undef LOCTEXT_NAMESPACE

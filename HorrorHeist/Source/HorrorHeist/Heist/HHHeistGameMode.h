@@ -14,8 +14,10 @@ class AHHPoliceCar;
 class AHHNeighbourNPC;
 class AHHEscapeZone;
 class AHHDoorActor;
+class AHHCharacter;
 class AHHPlayerController;
 class AHHPlayerState;
+class UHHInventoryComponent;
 class UHHMissionDefinition;
 class USoundBase;
 
@@ -56,8 +58,14 @@ public:
 	void HandleStash(AController* By, USoundBase* Sound, const FVector& Location);
 	/** Old maps: a "drive away" point at the van ends the job on the spot. */
 	void HandleDriveAway(AController* By, USoundBase* Sound, const FVector& Location);
-	/** Psyche hit zero or the thing in the house caught them: drop the loot, wake up outside. */
+	/** Psyche hit zero: drop the loot, wake up outside. */
 	void HandlePlayerBlackout(APawn* Pawn, bool bCaughtByEntity);
+	/** The thing in the house caught someone: down on the floor (or dead, if they already were). */
+	void HandleEntityCatch(APawn* Pawn);
+	/** Nobody got a downed crew member up in time. */
+	void HandleBleedOut(AHHCharacter* Character);
+	/** A crewmate got them back up. */
+	void HandleRevived(AHHCharacter* Character, AHHCharacter* Helper);
 	/** Crew leader from the pause menu. */
 	void HandleAbandon(AHHPlayerController* Requester);
 
@@ -87,6 +95,11 @@ protected:
 	void HandleNeighbourGaveUp();
 	void SendNeighbour(const FVector& Location);
 	void Arrest(AHHPlayerState* State);
+	void HandleCrewDeath(AHHCharacter* Character, bool bTakenByEntity);
+	/** Everyone dead or arrested (nobody left to drive): the job ends. */
+	void CheckCrewLost();
+	/** Drops the loot a pawn carries on the floor around it (the crew can still fetch it). */
+	void DropCarriedLoot(APawn* Pawn, UHHInventoryComponent* Inventory);
 	bool IsInVan(const AHHPlayerState* State) const;
 	EHHMissionOutcome GetGetawayOutcome() const;
 	void EndMission(EHHMissionOutcome Outcome);
@@ -125,6 +138,10 @@ protected:
 	UPROPERTY(EditDefaultsOnly, Category = "Rules")
 	float SceneRadius = 3500.f;
 
+	/** Seconds a crew member lies on the floor before it is too late to help them up. */
+	UPROPERTY(EditDefaultsOnly, Category = "Rules")
+	float DownedSeconds = 45.f;
+
 private:
 	FName MissionId;
 	FName SafehouseId;
@@ -138,6 +155,8 @@ private:
 	TWeakObjectPtr<AHHEscapeZone> Escape;
 	TSet<TWeakObjectPtr<AHHPlayerState>> InitializedInventories;
 	TSet<TWeakObjectPtr<AHHPlayerState>> Arrested;
+	/** Equipment the dead took into the house (lost from their profile at the end). */
+	TMap<TWeakObjectPtr<AHHPlayerState>, TArray<FName>> DeadGear;
 	TArray<FHHLootRecord> Stashed;
 	FDelegateHandle NoiseHandle;
 	FDelegateHandle SpottedHandle;

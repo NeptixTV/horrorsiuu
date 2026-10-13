@@ -313,6 +313,17 @@ void AHHLobbyHUD::CloseMenu()
 AActor* AHHLobbyHUD::GetExploreViewTarget() const
 {
 	APawn* Pawn = PlayerOwner ? PlayerOwner->GetPawn() : nullptr;
+	// Dead on a job: look through a crewmate's eyes (the interact key switches).
+	if (const AHHCharacter* Self = Cast<AHHCharacter>(Pawn); Self && Self->IsDead())
+	{
+		if (const AHHPlayerController* PC = Cast<AHHPlayerController>(PlayerOwner))
+		{
+			if (APawn* Watched = PC->GetSpectated())
+			{
+				Pawn = Watched;
+			}
+		}
+	}
 	// In the van everyone looks through its chase camera.
 	if (const AHHCharacter* Character = Cast<AHHCharacter>(Pawn))
 	{
@@ -658,6 +669,30 @@ void AHHLobbyHUD::PlayBlackout(bool bCaughtByEntity)
 			}
 		}
 	}), 2.2f, false);
+}
+
+void AHHLobbyHUD::PlayKnockdown()
+{
+	if (!Root.IsValid())
+	{
+		return;
+	}
+	Root->FadeToBlack(0.08f);
+	if (UHHAudioSubsystem* Audio = UHHAudioSubsystem::Get(this))
+	{
+		Audio->ShowCaption(LOCTEXT("KnockedDown", "[Something throws you to the floor. You can't get up.]"), 4.f, true);
+	}
+	TWeakObjectPtr<AHHLobbyHUD> WeakThis(this);
+	GetWorldTimerManager().SetTimer(BlackoutTimer, FTimerDelegate::CreateLambda([WeakThis]()
+	{
+		if (AHHLobbyHUD* HUD = WeakThis.Get())
+		{
+			if (HUD->Root.IsValid())
+			{
+				HUD->Root->FadeFromBlack(1.4f);
+			}
+		}
+	}), 0.6f, false);
 }
 
 void AHHLobbyHUD::UpdateJobAudio(float DeltaSeconds)

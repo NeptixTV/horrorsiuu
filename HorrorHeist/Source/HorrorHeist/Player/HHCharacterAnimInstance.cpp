@@ -27,6 +27,11 @@ void UHHCharacterAnimInstance::InitializeFromDefinition(const UHHCharacterDefini
 	CrouchIdleAnim = Definition->CrouchIdle.LoadSynchronous();
 	CrouchWalkAnim = Definition->CrouchWalk.LoadSynchronous();
 	FallAnim = Definition->Fall.LoadSynchronous();
+	DownedAnim = Definition->FindExtraAnim(TEXT("Downed"));
+	CrawlAnim = Definition->FindExtraAnim(TEXT("Crawl"));
+	DeadAnim = Definition->FindExtraAnim(TEXT("Dead"));
+	ReviveAnim = Definition->FindExtraAnim(TEXT("Revive"));
+	CrawlSpeedRef = FMath::Max(Definition->CrawlAnimSpeed, 1.f);
 
 	WalkSpeedRef = FMath::Max(Definition->WalkAnimSpeed, 1.f);
 	RunSpeedRef = FMath::Max(Definition->RunAnimSpeed, WalkSpeedRef + 1.f);
@@ -75,6 +80,7 @@ void UHHCharacterAnimInstance::NativeUpdateAnimation(float DeltaSeconds)
 	bool bCrouched = false;
 	bool bFalling = false;
 	float TargetPitch = 0.f;
+	EHHBodyPose Pose = EHHBodyPose::Normal;
 
 	if (const APawn* Pawn = TryGetPawnOwner())
 	{
@@ -87,8 +93,21 @@ void UHHCharacterAnimInstance::NativeUpdateAnimation(float DeltaSeconds)
 				bCrouched = Character->bIsCrouched;
 				bFalling = Character->GetCharacterMovement() && Character->GetCharacterMovement()->IsFalling();
 			}
+			if (const AHHCharacter* CrewMember = Cast<AHHCharacter>(Pawn))
+			{
+				Pose = CrewMember->GetBodyPose();
+			}
 		}
 	}
+	if (Pose != EHHBodyPose::Normal)
+	{
+		bFalling = false;
+	}
+	DownAlpha = FMath::FInterpTo(DownAlpha, Pose == EHHBodyPose::Downed ? 1.f : 0.f, DeltaSeconds, 5.f);
+	DeadAlpha = FMath::FInterpTo(DeadAlpha, Pose == EHHBodyPose::Dead ? 1.f : 0.f, DeltaSeconds, 5.f);
+	KneelAlpha = FMath::FInterpTo(KneelAlpha, Pose == EHHBodyPose::Kneeling ? 1.f : 0.f, DeltaSeconds, 7.f);
+	const float PoseAlpha = FMath::Clamp(DownAlpha + DeadAlpha + KneelAlpha, 0.f, 1.f);
+	const float Upright = 1.f - PoseAlpha;
 
 	Speed = FMath::FInterpTo(Speed, TargetSpeed, DeltaSeconds, 10.f);
 	CrouchAlpha = FMath::FInterpTo(CrouchAlpha, bCrouched ? 1.f : 0.f, DeltaSeconds, 9.f);
@@ -102,6 +121,10 @@ void UHHCharacterAnimInstance::NativeUpdateAnimation(float DeltaSeconds)
 	const UAnimSequence* CrouchIdle = CrouchIdleAnim ? CrouchIdleAnim.Get() : Idle;
 	const UAnimSequence* CrouchWalk = CrouchWalkAnim ? CrouchWalkAnim.Get() : Walk;
 	const UAnimSequence* Fall = FallAnim ? FallAnim.Get() : Idle;
+	const UAnimSequence* Downed = DownedAnim ? DownedAnim.Get() : CrouchIdle;
+	const UAnimSequence* Crawl = CrawlAnim ? CrawlAnim.Get() : Downed;
+	const UAnimSequence* Dead = DeadAnim ? DeadAnim.Get() : Downed;
+	const UAnimSequence* Revive = ReviveAnim ? ReviveAnim.Get() : CrouchIdle;
 
 	const float MoveAlpha = FMath::Clamp(Speed / WalkSpeedRef, 0.f, 1.f);
 	const float RunAlpha = FMath::Clamp((Speed - WalkSpeedRef) / (RunSpeedRef - WalkSpeedRef), 0.f, 1.f);
@@ -117,17 +140,27 @@ void UHHCharacterAnimInstance::NativeUpdateAnimation(float DeltaSeconds)
 	IdleTime += DeltaSeconds;
 	CrouchIdleTime += DeltaSeconds;
 	FallTime = bFalling ? FallTime + DeltaSeconds : 0.f;
+	PoseTime = PoseAlpha > 0.f ? PoseTime + DeltaSeconds : 0.f;
+	const float CrawlMoveAlpha = FMath::Clamp(Speed / CrawlSpeedRef, 0.f, 1.f);
+	if (DownAlpha > 0.f && Speed > 1.f)
+	{
+		CrawlPhase = FMath::Fmod(CrawlPhase + DeltaSeconds * Speed / CycleDistance(Crawl, CrawlSpeedRef), 1.f);
+	}
 
-	const float Stand = (1.f - CrouchAlpha) * (1.f - FallAlpha);
-	const float Crouch = CrouchAlpha * (1.f - FallAlpha);
+	const float Stand = (1.f - CrouchAlpha) * (1.f - FallAlpha) * Upright;
+	const float Crouch = CrouchAlpha * (1.f - FallAlpha) * Upright;
 
-	FHHAnimSample Candidates[6];
+	FHHAnimSample Candidates[10];
 	Candidates[0] = { Idle,			LoopTime(Idle, IdleTime),				Stand * (1.f - MoveAlpha) };
 	Candidates[1] = { Walk,			PhaseTime(Walk, GaitPhase),				Stand * MoveAlpha * (1.f - RunAlpha) };
 	Candidates[2] = { Run,			PhaseTime(Run, GaitPhase),				Stand * MoveAlpha * RunAlpha };
 	Candidates[3] = { CrouchIdle,	LoopTime(CrouchIdle, CrouchIdleTime),	Crouch * (1.f - CrouchMoveAlpha) };
 	Candidates[4] = { CrouchWalk,	PhaseTime(CrouchWalk, GaitPhase),		Crouch * CrouchMoveAlpha };
-	Candidates[5] = { Fall,			LoopTime(Fall, FallTime),				FallAlpha };
+	Candidates[5] = { Fall,			LoopTime(Fall, FallTime),				FallAlpha * Upright };
+	Candidates[6] = { Downed,		LoopTime(Downed, PoseTime),				DownAlpha * (1.f - CrawlMoveAlpha) };
+	Candidates[7] = { Crawl,		PhaseTime(Crawl, CrawlPhase),			DownAlpha * CrawlMoveAlpha };
+	Candidates[8] = { Dead,			LoopTime(Dead, PoseTime),				DeadAlpha };
+	Candidates[9] = { Revive,		LoopTime(Revive, PoseTime),				KneelAlpha };
 
 	// Keep the strongest samples (at most MaxSamples) and renormalize.
 	Algo::Sort(Candidates, [](const FHHAnimSample& A, const FHHAnimSample& B) { return A.Weight > B.Weight; });
@@ -153,7 +186,7 @@ void UHHCharacterAnimInstance::NativeUpdateAnimation(float DeltaSeconds)
 	{
 		Proxy.Samples[Index] = PendingSamples[Index];
 	}
-	Proxy.AimPitch = AimPitch;
+	Proxy.AimPitch = AimPitch * Upright;
 	Proxy.AimBones = AimBones;
 	Proxy.AimWeights = AimWeights;
 
@@ -170,7 +203,7 @@ void UHHCharacterAnimInstance::NativeUpdateAnimation(float DeltaSeconds)
 			if (const USkeletalMeshComponent* MeshComponent = GetSkelMeshComponent())
 			{
 				Proxy.HandTargetCS = MeshComponent->GetComponentTransform().InverseTransformPosition(HandWorld);
-				Proxy.HandIKAlpha = Alpha;
+				Proxy.HandIKAlpha = Alpha * Upright;
 			}
 		}
 	}

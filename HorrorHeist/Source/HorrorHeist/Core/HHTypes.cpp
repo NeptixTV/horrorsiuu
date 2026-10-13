@@ -107,6 +107,7 @@ namespace HHText
 		case EHHMissionOutcome::Abandoned:		return LOCTEXT("OutcomeAbandoned", "Job abandoned");
 		case EHHMissionOutcome::HotGetaway:		return LOCTEXT("OutcomeHot", "Hot getaway");
 		case EHHMissionOutcome::ChaseBusted:	return LOCTEXT("OutcomeChaseBusted", "Boxed in");
+		case EHHMissionOutcome::CrewLost:		return LOCTEXT("OutcomeCrewLost", "Nobody came back");
 		default:								return FText::GetEmpty();
 		}
 	}
@@ -121,6 +122,7 @@ namespace HHText
 		case EHHMissionOutcome::Abandoned:		return LOCTEXT("LineAbandoned", "Some houses aren't worth it. The crew walked away.");
 		case EHHMissionOutcome::HotGetaway:		return LOCTEXT("LineHot", "The police were called, but the van made it. The goods are hot - the fence takes more.");
 		case EHHMissionOutcome::ChaseBusted:	return LOCTEXT("LineChase", "The patrol car cut the van off. Everything in it is evidence now.");
+		case EHHMissionOutcome::CrewLost:		return LOCTEXT("LineCrewLost", "The van waited at the curb until morning. The house kept them.");
 		default:								return FText::GetEmpty();
 		}
 	}
@@ -138,6 +140,7 @@ namespace HHText
 		case EHHCrewFate::LeftBehind:	return LOCTEXT("FateLeft", "Left behind");
 		case EHHCrewFate::Caught:		return LOCTEXT("FateCaught", "Arrested");
 		case EHHCrewFate::Gone:			return LOCTEXT("FateGone", "Disconnected");
+		case EHHCrewFate::Dead:			return LOCTEXT("FateDead", "Dead");
 		default:						return FText::GetEmpty();
 		}
 	}
