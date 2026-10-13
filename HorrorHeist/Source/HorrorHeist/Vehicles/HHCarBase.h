@@ -197,4 +197,7 @@ protected:
 	double LastNetStateTime = 0.0;
 	bool bHasNetState = false;
 	bool bAirborne = false;
+	/** Set once a ground trace hit. Before that the car never falls: a streamed level (the town
+	 *  around the job house) may not have loaded its collision yet. */
+	bool bGroundFound = false;
 };

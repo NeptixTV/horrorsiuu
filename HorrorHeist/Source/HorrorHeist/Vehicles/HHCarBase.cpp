@@ -346,7 +346,7 @@ void AHHCarBase::FollowGround(float DeltaSeconds, bool bAllowFall)
 
 	if (Hits == 0)
 	{
-		if (!bAllowFall)
+		if (!bAllowFall || !bGroundFound)
 		{
 			return;
 		}
@@ -356,6 +356,7 @@ void AHHCarBase::FollowGround(float DeltaSeconds, bool bAllowFall)
 		SetActorLocation(Location + FVector(0.f, 0.f, VerticalSpeed * DeltaSeconds));
 		return;
 	}
+	bGroundFound = true;
 	// A wheel over a drop uses the average of the others.
 	const float Average = Sum / Hits;
 	for (float& Height : Heights)
