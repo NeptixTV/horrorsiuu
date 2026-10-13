@@ -18,7 +18,7 @@ import numpy as np
 HERE = os.path.dirname(os.path.abspath(__file__))
 sys.path.insert(0, HERE)
 import hhsynth as H  # noqa: E402
-from hhsynth import bp, env_exp, hp, lp, modal, place, reverb, seed, white  # noqa: E402
+from hhsynth import bp, env_exp, lp, modal, place, reverb, seed, white  # noqa: E402
 import gen_world_sfx as W  # noqa: E402
 
 H.SR = 48000

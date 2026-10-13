@@ -260,7 +260,7 @@ def south_side():
         for i in range(5):
             y = 5.8 + i * 1.5
             rail.cyl(0.022, 0.95, (x, y, ground_z + 0.45 + 0.475), 'MI_Metal_Rust', segs=8)
-    PL.static_m(PL.unique(rail, collision='box'), K.mat(), 'Town')
+    PL.static_m(PL.unique(rail, collision='complex'), K.mat(), 'Town')
 
     laundromat()
     brannigan()
@@ -625,7 +625,7 @@ def cemetery(x_east, y_front):
                 stones.box((0.8, 1.8, 0.35), (x, y + 0.9, 0.12), 'MI_Stone_Wall', rot=(0, 0, r.uniform(-4, 4)),
                            bevel=0.03)
             stones.box((0.7, 1.7, 0.04), (x, y + 0.95, 0.02), 'MI_Dirt')
-    PL.place(PL.unique(stones, collision='box'), (0, 0, SW), collection='Cemetery')
+    PL.place(PL.unique(stones, collision='complex'), (0, 0, SW), collection='Cemetery')
     # Iron fence along the road with a gate.
     xs = x0
     while xs < x1 - 2.0:
