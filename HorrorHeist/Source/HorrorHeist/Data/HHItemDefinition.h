@@ -57,6 +57,13 @@ public:
 	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Economy")
 	bool bHiddenInStore = false;
 
+	/**
+	 * Where it is sold: None = the Fence in the hideout, otherwise the shop id of a store counter
+	 * in town ("Hardware" = Cobb's Hardware, "Market" = Pick & Save). Each item is sold in one place.
+	 */
+	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Economy")
+	FName Shop;
+
 	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Item")
 	int32 SortOrder = 0;
 

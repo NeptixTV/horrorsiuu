@@ -1352,6 +1352,7 @@
    "desc": "Cheap, warm and just bright enough.",
    "flavor": "",
    "order": 1,
+   "shop": "",
    "tool": "Light"
   },
   {
@@ -1396,6 +1397,7 @@
    "desc": "Long, heavy, very bright. Also a club.",
    "flavor": "",
    "order": 2,
+   "shop": "Hardware",
    "tool": "Light"
   },
   {
@@ -1435,11 +1437,12 @@
    ],
    "price": 1200,
    "rarity": "Uncommon",
-   "level": 2,
+   "level": 1,
    "owned": false,
    "desc": "Hands free. Looks where you look.",
    "flavor": "",
    "order": 3,
+   "shop": "Hardware",
    "tool": "Light"
   },
   {
@@ -1479,11 +1482,12 @@
    ],
    "price": 1500,
    "rarity": "Rare",
-   "level": 3,
+   "level": 2,
    "owned": false,
    "desc": "Soft light all around. Like the painting.",
    "flavor": "",
    "order": 4,
+   "shop": "Hardware",
    "tool": "Light"
   },
   {
@@ -1514,6 +1518,7 @@
    "desc": "Slow and silent.",
    "flavor": "",
    "order": 1,
+   "shop": "",
    "tool": "Lockpick"
   },
   {
@@ -1544,6 +1549,7 @@
    "desc": "Fast and loud. Everyone will know.",
    "flavor": "",
    "order": 2,
+   "shop": "Hardware",
    "tool": "Crowbar"
   },
   {
@@ -1569,11 +1575,12 @@
    ],
    "price": 1100,
    "rarity": "Uncommon",
-   "level": 2,
+   "level": 1,
    "owned": false,
    "desc": "Windows are just doors that nobody locks properly.",
    "flavor": "",
    "order": 3,
+   "shop": "",
    "tool": "GlassCutter"
   },
   {
@@ -1601,9 +1608,10 @@
    "rarity": "Common",
    "level": 1,
    "owned": true,
-   "desc": "Hear the crew through walls. Sometimes something else.",
+   "desc": "Use it to mark a spot for the whole crew (they hear the click and see where).",
    "flavor": "",
    "order": 1,
+   "shop": "",
    "tool": "Walkie"
   },
   {
@@ -1627,14 +1635,46 @@
      "lower_better": false
     }
    ],
-   "price": 600,
-   "rarity": "Uncommon",
-   "level": 2,
+   "price": 250,
+   "rarity": "Common",
+   "level": 1,
    "owned": false,
-   "desc": "An old superstition. Pour a line across a doorway.",
+   "desc": "Use it to pour a line on the floor. Whatever walks the house stops at it - once.",
    "flavor": "",
    "order": 2,
+   "shop": "Market",
    "tool": "Salt"
+  },
+  {
+   "id": "EQ_Util_FirstAid",
+   "name": "First Aid Kit",
+   "slot": "Utility",
+   "mesh": "SM_EQ_FirstAid",
+   "stats": [
+    {
+     "id": "Speed",
+     "label": "Revive Speed",
+     "value": 80,
+     "max": 100.0,
+     "lower_better": false
+    },
+    {
+     "id": "Charges",
+     "label": "Uses",
+     "value": 2,
+     "max": 5,
+     "lower_better": false
+    }
+   ],
+   "price": 350,
+   "rarity": "Common",
+   "level": 1,
+   "owned": false,
+   "desc": "Gets a downed crewmate up in two seconds instead of five - and steadier. Two uses.",
+   "flavor": "",
+   "order": 3,
+   "shop": "Market",
+   "tool": "FirstAid"
   },
   {
    "id": "EQ_Gadget_Camera",
@@ -1661,9 +1701,10 @@
    "rarity": "Common",
    "level": 1,
    "owned": false,
-   "desc": "Proof for the client. The photos sometimes show more.",
+   "desc": "Use it to take a flash photo. The flash drives it off for a moment; every photo of it pays $150.",
    "flavor": "",
    "order": 1,
+   "shop": "Market",
    "tool": "Camera"
   },
   {
@@ -1689,11 +1730,12 @@
    ],
    "price": 1300,
    "rarity": "Rare",
-   "level": 3,
+   "level": 2,
    "owned": false,
-   "desc": "Shows how loud you are. And what else is.",
+   "desc": "Hold it: the needle jumps when something is close - and pins itself just before it hunts.",
    "flavor": "",
    "order": 2,
+   "shop": "",
    "tool": "NoiseMeter"
   },
   {
@@ -1721,9 +1763,10 @@
    "rarity": "Common",
    "level": 1,
    "owned": true,
-   "desc": "",
+   "desc": "Heavy loot slows you down less the more the bag holds.",
    "flavor": "",
    "order": 1,
+   "shop": "",
    "tool": "Bag"
   },
   {
@@ -1751,9 +1794,10 @@
    "rarity": "Common",
    "level": 1,
    "owned": false,
-   "desc": "Holds more. Clinks louder.",
+   "desc": "Holds more: heavy loot slows you down less. Clinks louder when you run.",
    "flavor": "",
    "order": 2,
+   "shop": "Hardware",
    "tool": "Bag"
   }
  ],

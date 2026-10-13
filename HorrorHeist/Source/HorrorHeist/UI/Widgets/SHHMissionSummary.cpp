@@ -314,6 +314,14 @@ TSharedRef<SWidget> SHHMissionSummary::BuildMoney()
 			Reveal(Row(LOCTEXT("Bonus", "CLIENT'S BONUS (THE TARGET)"), FText::Format(LOCTEXT("Plus", "+{0}"), HHText::Money(Summary.TargetBonus)), FHHStyle::Ready(), 16.f), CutAt, 0.35f)
 		];
 	}
+	if (Summary.PhotoBonus > 0)
+	{
+		Box->AddSlot().AutoHeight().Padding(0.f, 6.f, 0.f, 0.f)
+		[
+			Reveal(Row(FText::Format(LOCTEXT("Photos", "PHOTOS OF IT, SOLD TO A MAGAZINE ({0})"), FText::AsNumber(Summary.Photos)),
+				FText::Format(LOCTEXT("PlusPhotos", "+{0}"), HHText::Money(Summary.PhotoBonus)), FHHStyle::Ready(), 16.f), CutAt + 0.15f, 0.35f)
+		];
+	}
 	if (Summary.FenceCut > 0)
 	{
 		Box->AddSlot().AutoHeight().Padding(0.f, 6.f, 0.f, 0.f)

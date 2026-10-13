@@ -2028,5 +2028,45 @@
   "caption": "[A swing creaks]",
   "volume": 1.0,
   "seconds": 3.6
+ },
+ {
+  "file": "SourceArt/Audio/SFX/S_Camera_Flash_01.wav",
+  "category": "SFX",
+  "loop": false,
+  "spatial": true,
+  "radius": 1500,
+  "caption": "[Camera flash]",
+  "volume": 1.0,
+  "seconds": 1.9
+ },
+ {
+  "file": "SourceArt/Audio/UI/S_Walkie_Chirp_01.wav",
+  "category": "UI",
+  "loop": false,
+  "spatial": false,
+  "radius": 0,
+  "caption": "[Walkie click]",
+  "volume": 1.0,
+  "seconds": 0.75
+ },
+ {
+  "file": "SourceArt/Audio/SFX/S_Salt_Pour_01.wav",
+  "category": "SFX",
+  "loop": false,
+  "spatial": true,
+  "radius": 900,
+  "caption": "[Salt trickles onto the floor]",
+  "volume": 1.0,
+  "seconds": 1.6
+ },
+ {
+  "file": "SourceArt/Audio/UI/S_NoiseMeter_Tick_01.wav",
+  "category": "UI",
+  "loop": false,
+  "spatial": false,
+  "radius": 0,
+  "caption": "",
+  "volume": 1.0,
+  "seconds": 0.08
  }
 ]

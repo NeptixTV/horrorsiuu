@@ -5,6 +5,10 @@
 #include "Heist/HHLootActor.h"
 #include "Heist/HHVanPoint.h"
 #include "Heist/HHEscapeZone.h"
+#include "Heist/HHApparition.h"
+#include "Heist/HHSaltLine.h"
+#include "Data/HHEquipmentDefinition.h"
+#include "Core/HHGameData.h"
 #include "Interaction/HHDoorActor.h"
 #include "NPC/HHNeighbourNPC.h"
 #include "Vehicles/HHPoliceCar.h"
@@ -504,6 +508,24 @@ void AHHHeistGameMode::TickRules()
 			Blackouts.Add(Pawn);
 		}
 
+		// Running with loot in a rustling bag (the sack clinks louder than the duffel).
+		if (const UHHInventoryComponent* Bag = State->GetInventory(); Bag && Bag->CountLoot() > 0 && !bInVan && Pawn->GetVelocity().Size2D() > 300.f)
+		{
+			float& Rustle = RustleTime.FindOrAdd(State);
+			Rustle += Dt;
+			if (Rustle >= 1.5f)
+			{
+				Rustle = 0.f;
+				const UHHItemRegistrySubsystem* Registry = UHHItemRegistrySubsystem::Get(this);
+				const UHHEquipmentDefinition* BagItem = Registry ? Registry->FindEquipment(State->GetEquipment().Get(EHHEquipmentSlot::Bag)) : nullptr;
+				const float Loudness = (BagItem ? BagItem->GetStat(TEXT("Noise"), 30.f) : 30.f) / 100.f * 0.5f;
+				if (UHHNoiseSubsystem* NoiseBus = GetWorld()->GetSubsystem<UHHNoiseSubsystem>())
+				{
+					NoiseBus->ReportNoise(Location, Loudness, Pawn, TEXT("Rustle"));
+				}
+			}
+		}
+
 		// In the van counts as "at the van"; old maps without a drivable van use the drive point's radius.
 		if (bInVan || (!Van.IsValid() && OldVan && FVector::DistSquared(OldVan->GetActorLocation(), Location) < FMath::Square(OldVan->GetCrewRadius())))
 		{
@@ -923,6 +945,20 @@ void AHHHeistGameMode::HandleNoise(const FVector& Location, float Loudness, AAct
 		RaiseAlert(25.f * Loudness, LOCTEXT("AlertCrash", "That crash woke the street."));
 		return;
 	}
+	static const FName Rustle(TEXT("Rustle"));
+	if (Tag == Rustle)
+	{
+		// Clinking loot carries in the quiet street; inside, the house hears it too.
+		if (bInside && Director)
+		{
+			Director->AddAnger(Loudness * 0.6f);
+		}
+		else if (!bInside)
+		{
+			RaiseAlert(Loudness * 2.f, FText::GetEmpty());
+		}
+		return;
+	}
 
 	if (Loudness >= 0.6f)
 	{
@@ -1230,6 +1266,118 @@ void AHHHeistGameMode::HandleEntityCatch(APawn* Pawn)
 	}
 }
 
+void AHHHeistGameMode::HandleUseItem(AHHCharacter* Character, int32 SlotIndex, const FVector& ViewLocation, const FVector& ViewDirection)
+{
+	AHHPlayerState* State = Character ? Character->GetPlayerState<AHHPlayerState>() : nullptr;
+	UHHInventoryComponent* Inventory = State ? State->GetInventory() : nullptr;
+	AHHHeistGameState* HeistState = GetHeistState();
+	const UHHItemRegistrySubsystem* Registry = UHHItemRegistrySubsystem::Get(this);
+	if (bEnded || !Inventory || !Inventory->IsEnabled() || !HeistState || !Registry || Character->IsIncapacitated() || Character->IsSeated()
+		|| Arrested.Contains(State))
+	{
+		return;
+	}
+	const FHHInventorySlot& Slot = Inventory->GetSlot(SlotIndex);
+	const UHHEquipmentDefinition* Equipment = Slot.Kind == EHHInventoryKind::Equipment ? Registry->FindEquipment(Slot.ItemId) : nullptr;
+	if (!Equipment || FVector::DistSquared(ViewLocation, Character->GetActorLocation()) > FMath::Square(300.f))
+	{
+		return;
+	}
+	const double Now = GetWorld()->GetTimeSeconds();
+	double& Last = LastGearUse.FindOrAdd(State);
+	if (Now - Last < 1.2)
+	{
+		return;
+	}
+	Last = Now;
+
+	const FVector Direction = ViewDirection.GetSafeNormal();
+	FCollisionQueryParams Params(SCENE_QUERY_STAT(HHUseItem), false, Character);
+	UHHNoiseSubsystem* Noise = GetWorld()->GetSubsystem<UHHNoiseSubsystem>();
+	static const FName WalkieTag(TEXT("Walkie"));
+	static const FName SaltTag(TEXT("Salt"));
+	static const FName CameraTag(TEXT("Camera"));
+
+	if (Equipment->ToolTag == WalkieTag)
+	{
+		// Mark what you look at (up to 30 m) for the whole crew.
+		FHitResult Hit;
+		const FVector End = ViewLocation + Direction * 3000.f;
+		const FVector Spot = GetWorld()->LineTraceSingleByChannel(Hit, ViewLocation, End, ECC_Visibility, Params) ? FVector(Hit.ImpactPoint) : End;
+		HeistState->AddPing(Spot, State->GetCrewSlot(), State->GetPlayerName());
+		if (Noise)
+		{
+			Noise->ReportNoise(Character->GetActorLocation(), 0.06f, Character, TEXT("Walkie"));
+		}
+		return;
+	}
+
+	if (Equipment->ToolTag == SaltTag)
+	{
+		// A line across the floor where you look (within 2.5 m), at right angles to your view.
+		FHitResult Hit;
+		const FVector Aim = ViewLocation + Direction * 250.f;
+		FVector Spot = Character->GetActorLocation() + Character->GetActorForwardVector() * 80.f;
+		if (GetWorld()->LineTraceSingleByChannel(Hit, ViewLocation, Aim, ECC_Visibility, Params))
+		{
+			Spot = Hit.ImpactPoint;
+		}
+		else
+		{
+			Spot = Aim;
+		}
+		if (!GetWorld()->LineTraceSingleByChannel(Hit, Spot + FVector(0.f, 0.f, 30.f), Spot - FVector(0.f, 0.f, 250.f), ECC_Visibility, Params))
+		{
+			return;
+		}
+		if (!Inventory->ConsumeCharge(SlotIndex))
+		{
+			return;
+		}
+		const float Yaw = Direction.Rotation().Yaw + 90.f;
+		FActorSpawnParameters Spawn;
+		Spawn.SpawnCollisionHandlingOverride = ESpawnActorCollisionHandlingMethod::AlwaysSpawn;
+		GetWorld()->SpawnActor<AHHSaltLine>(AHHSaltLine::StaticClass(), FVector(Hit.ImpactPoint) + FVector(0.f, 0.f, 0.5f), FRotator(0.f, Yaw, 0.f), Spawn);
+		if (const UHHGameData* GameData = UHHGameData::Get(this))
+		{
+			HeistState->MulticastSoundAt(GameData->SaltPourSound.LoadSynchronous(), Hit.ImpactPoint, 1.f);
+		}
+		return;
+	}
+
+	if (Equipment->ToolTag == CameraTag)
+	{
+		if (!Inventory->ConsumeCharge(SlotIndex))
+		{
+			return;
+		}
+		HeistState->MulticastCameraFlash(ViewLocation, Direction);
+		if (Noise)
+		{
+			Noise->ReportNoise(Character->GetActorLocation(), 0.15f, Character, TEXT("Camera"));
+		}
+		AHHApparition* Ghost = nullptr;
+		for (TActorIterator<AHHApparition> It(GetWorld()); It; ++It)
+		{
+			Ghost = *It;
+			break;
+		}
+		if (Ghost && Ghost->IsInPhoto(ViewLocation, Direction))
+		{
+			Ghost->OnPhotographed();
+			HeistState->AddPhoto();
+			const bool bPays = HeistState->GetPhotos() <= MaxPhotos;
+			HeistState->MulticastCrewMessage(bPays
+				? FText::Format(LOCTEXT("Photo", "{0} got it on film. A magazine pays {1} for that."), FText::FromString(State->GetPlayerName()), HHText::Money(PhotoValue))
+				: FText::Format(LOCTEXT("PhotoMore", "{0} got it on film again."), FText::FromString(State->GetPlayerName())), EHHNotifyType::Success);
+			if (AHHHauntDirector* Director = Haunt.Get())
+			{
+				Director->AddAnger(4.f);
+			}
+		}
+	}
+}
+
 void AHHHeistGameMode::HandleBleedOut(AHHCharacter* Character)
 {
 	HandleCrewDeath(Character, false);
@@ -1449,7 +1597,10 @@ void AHHHeistGameMode::EndMission(EHHMissionOutcome Outcome)
 
 	// The money: target bonus, the fence's cut (hot goods, the getaway spot), split across the crew.
 	const float Bonus = bGotAway && bTargetStashed ? Secured * PrimaryTargetBonus : 0.f;
-	const float Gross = bGotAway ? Secured + Bonus : 0.f;
+	// Flash photos of the thing in the house sell to a magazine (whoever made it home brings the film).
+	Summary.Photos = HeistState->GetPhotos();
+	Summary.PhotoBonus = bGotAway ? FMath::Min(Summary.Photos, MaxPhotos) * PhotoValue : 0;
+	const float Gross = bGotAway ? Secured + Bonus + Summary.PhotoBonus : 0.f;
 	float CutShare = Escape.IsValid() ? Escape->GetFenceCut() : 0.f;
 	if (Outcome == EHHMissionOutcome::HotGetaway)
 	{

@@ -47,6 +47,8 @@ public:
 
 	/** Equipment carried with the given tool tag ("Lockpick", "Crowbar", "Light"...), or null. */
 	const UHHEquipmentDefinition* FindTool(FName ToolTag) const;
+	/** Slot holding equipment with the given tool tag, or INDEX_NONE. */
+	int32 FindToolSlot(FName ToolTag) const;
 
 	/** Display helpers shared by the HUD and the hand mesh. */
 	FText GetSlotName(int32 Index) const;
@@ -60,6 +62,8 @@ public:
 	void InitializeFromLoadout(const FHHEquipmentLoadout& Loadout);
 	/** Puts the item into the selected slot if it is empty, otherwise the first free one. */
 	bool AddItem(const FHHInventorySlot& Item);
+	/** Uses up one charge of the equipment in a slot (salt, film, first aid). False if none left. */
+	bool ConsumeCharge(int32 Index);
 	FHHInventorySlot RemoveSlot(int32 Index);
 	/** Empties every loot slot (stashing in the van, getting caught). Equipment stays. */
 	TArray<FHHInventorySlot> RemoveAllLoot();

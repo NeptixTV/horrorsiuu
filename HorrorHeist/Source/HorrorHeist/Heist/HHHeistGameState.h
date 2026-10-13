@@ -49,6 +49,12 @@ public:
 	int32 GetCrewAtVan() const { return CrewAtVan; }
 	int32 GetCrewTotal() const { return CrewTotal; }
 	EHHPoliceState GetPoliceState() const { return PoliceState; }
+	/** Spots marked with the walkie in the last few seconds. */
+	const TArray<FHHPing>& GetPings() const { return Pings; }
+	/** Flash photos of the thing in the house so far. */
+	int32 GetPhotos() const { return Photos; }
+	/** Game-state clock (server world time) on any machine. */
+	float GetServerTime() const;
 
 	// ---- Server ------------------------------------------------------------------------
 
@@ -64,10 +70,19 @@ public:
 	void SetSummary(const FHHMissionSummary& NewSummary);
 	void SetVanCount(int32 AtVan, int32 Total);
 	void SetPoliceState(EHHPoliceState NewState);
+	void AddPing(const FVector& Location, int32 CrewSlot, const FString& Name);
+	void AddPhoto();
 
 	/** One-shot sound at a location for everybody (reliable enough for feedback, cheap). */
 	UFUNCTION(NetMulticast, Unreliable)
 	void MulticastSoundAt(USoundBase* Sound, FVector Location, float Volume);
+
+	/** A camera flash: a short burst of white light and the shutter, seen and heard by everybody. */
+	UFUNCTION(NetMulticast, Unreliable)
+	void MulticastCameraFlash(FVector Location, FVector Direction);
+
+	/** Seconds a walkie mark stays on screen. */
+	static constexpr float PingLifetime = 12.f;
 
 	/** Fired locally whenever any replicated job value changes (HUD refresh). */
 	FHHOnHeistStateChanged OnHeistChanged;
@@ -119,4 +134,14 @@ private:
 
 	UPROPERTY(ReplicatedUsing = OnRep_Heist)
 	EHHPoliceState PoliceState = EHHPoliceState::None;
+
+	UPROPERTY(ReplicatedUsing = OnRep_Pings)
+	TArray<FHHPing> Pings;
+
+	UPROPERTY(ReplicatedUsing = OnRep_Heist)
+	int32 Photos = 0;
+
+	UFUNCTION()
+	void OnRep_Pings();
+	int32 LastPingCount = 0;
 };

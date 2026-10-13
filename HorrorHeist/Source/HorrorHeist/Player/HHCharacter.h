@@ -82,6 +82,13 @@ public:
 	UFUNCTION(Server, Reliable)
 	void ServerSetFlashlight(bool bNewOn);
 
+	/** Use the equipment in a slot (walkie mark, salt, camera) looking from ViewLocation along ViewDirection. */
+	UFUNCTION(Server, Reliable)
+	void ServerUseItem(int32 SlotIndex, FVector_NetQuantize10 ViewLocation, FVector_NetQuantizeNormal ViewDirection);
+
+	/** Speed factor while carrying bulky loot: a bigger bag (Capacity) carries it better. */
+	float GetHeavyCarryFactor() const;
+
 	// ---- The van ------------------------------------------------------------------------
 
 	AHHVanVehicle* GetVehicle() const { return Vehicle; }
@@ -158,6 +165,7 @@ protected:
 	void Input_SlotNext();
 	void Input_SlotPrev();
 	void Input_Drop();
+	void Input_UseItem();
 	void SelectSlot(int32 Index);
 	void Input_Flashlight();
 	void Input_ToggleView();
@@ -248,6 +256,13 @@ protected:
 	/** Psyche a revived crew member starts with. */
 	UPROPERTY(EditDefaultsOnly, Category = "Downed")
 	float RevivedPsyche = 35.f;
+
+	/** Revive time when the helper carries a first aid kit with uses left. */
+	UPROPERTY(EditDefaultsOnly, Category = "Downed")
+	float FirstAidReviveSeconds = 2.f;
+
+	/** Inventory slot of a first aid kit with uses left (INDEX_NONE if none). */
+	int32 FindFirstAidSlot() const;
 
 	/** Eye height above the (crouched) capsule centre while lying on the floor. */
 	UPROPERTY(EditDefaultsOnly, Category = "Camera")

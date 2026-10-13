@@ -6,6 +6,7 @@
 
 class UHHCharacterDefinition;
 class USoundBase;
+class UStaticMesh;
 class USoundClass;
 class USoundMix;
 class UMaterialInterface;
@@ -178,6 +179,26 @@ public:
 
 	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Audio|Heist")
 	TSoftObjectPtr<USoundBase> DriveAwaySound;
+
+	// ---- Gear in use -------------------------------------------------------------------
+
+	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Gear")
+	TSoftObjectPtr<USoundBase> CameraFlashSound;
+
+	/** 2D chirp everyone hears when a crew member marks a spot with the walkie. */
+	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Gear")
+	TSoftObjectPtr<USoundBase> WalkieChirpSound;
+
+	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Gear")
+	TSoftObjectPtr<USoundBase> SaltPourSound;
+
+	/** The noise meter ticks faster the higher it reads. */
+	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Gear")
+	TSoftObjectPtr<USoundBase> NoiseMeterTickSound;
+
+	/** The line of salt poured on the floor. */
+	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Gear")
+	TSoftObjectPtr<UStaticMesh> SaltLineMesh;
 
 	// ---- Character sounds --------------------------------------------------------------
 

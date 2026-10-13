@@ -524,6 +524,7 @@ void AHHCharacter::SetupPlayerInputComponent(UInputComponent* PlayerInputCompone
 	Input->BindAction(Actions->GetAction(EHHInputAction::Drop), ETriggerEvent::Started, this, &AHHCharacter::Input_Drop);
 	Input->BindAction(Actions->GetAction(EHHInputAction::Flashlight), ETriggerEvent::Started, this, &AHHCharacter::Input_Flashlight);
 	Input->BindAction(Actions->GetAction(EHHInputAction::ToggleView), ETriggerEvent::Started, this, &AHHCharacter::Input_ToggleView);
+	Input->BindAction(Actions->GetAction(EHHInputAction::UseItem), ETriggerEvent::Started, this, &AHHCharacter::Input_UseItem);
 }
 
 void AHHCharacter::Input_Move(const FInputActionValue& Value)
@@ -781,6 +782,86 @@ void AHHCharacter::Input_Drop()
 	}
 }
 
+void AHHCharacter::Input_UseItem()
+{
+	if (IsSeated() || bArrested || IsIncapacitated() || BodyPose == EHHBodyPose::Kneeling)
+	{
+		return;
+	}
+	const AHHPlayerState* State = BoundPlayerState.Get();
+	const UHHInventoryComponent* Inventory = State ? State->GetInventory() : nullptr;
+	if (!Inventory || !Inventory->IsEnabled())
+	{
+		return;
+	}
+	AHHPlayerController* PC = Cast<AHHPlayerController>(GetController());
+	const FHHInventorySlot& Slot = Inventory->GetSelected();
+	const UHHItemRegistrySubsystem* Registry = UHHItemRegistrySubsystem::Get(this);
+	const UHHEquipmentDefinition* Equipment = Slot.Kind == EHHInventoryKind::Equipment && Registry ? Registry->FindEquipment(Slot.ItemId) : nullptr;
+	if (!Equipment)
+	{
+		if (Slot.IsLoot() && PC)
+		{
+			PC->ClientNotify(LOCTEXT("UseLoot", "Loot goes into the van: walk up to its back doors and press the interact key."), EHHNotifyType::Info);
+		}
+		return;
+	}
+
+	static const FName LightTag(TEXT("Light"));
+	static const FName WalkieTag(TEXT("Walkie"));
+	static const FName SaltTag(TEXT("Salt"));
+	static const FName CameraTag(TEXT("Camera"));
+	static const FName MeterTag(TEXT("NoiseMeter"));
+	static const FName FirstAidTag(TEXT("FirstAid"));
+	const FName Tool = Equipment->ToolTag;
+	if (Tool == LightTag)
+	{
+		Input_Flashlight();
+		return;
+	}
+	if (Tool == WalkieTag || Tool == SaltTag || Tool == CameraTag)
+	{
+		if ((Tool == SaltTag || Tool == CameraTag) && Slot.Value <= 0)
+		{
+			if (PC)
+			{
+				PC->ClientNotify(Tool == SaltTag ? LOCTEXT("NoSalt", "The pouch is empty.") : LOCTEXT("NoFilm", "Out of film."), EHHNotifyType::Warning);
+			}
+			return;
+		}
+		FVector Eye;
+		FRotator View;
+		GetViewPoint(Eye, View);
+		ServerUseItem(Inventory->GetSelectedIndex(), Eye, View.Vector());
+		return;
+	}
+	if (PC)
+	{
+		const FText Hint = Tool == MeterTag ? LOCTEXT("UseMeter", "Keep it in your hand and watch the needle: it jumps when something is close and pins before it hunts.")
+			: (Tool == FirstAidTag ? LOCTEXT("UseFirstAid", "Kneel next to a downed crewmate: with the kit on you it takes two seconds.")
+			: LOCTEXT("UseEntry", "Look at a locked door or window and hold the interact key."));
+		PC->ClientNotify(Hint, EHHNotifyType::Info);
+	}
+}
+
+void AHHCharacter::ServerUseItem_Implementation(int32 SlotIndex, FVector_NetQuantize10 ViewLocation, FVector_NetQuantizeNormal ViewDirection)
+{
+	if (AHHHeistGameMode* HeistMode = GetWorld()->GetAuthGameMode<AHHHeistGameMode>())
+	{
+		HeistMode->HandleUseItem(this, SlotIndex, ViewLocation, ViewDirection);
+	}
+}
+
+float AHHCharacter::GetHeavyCarryFactor() const
+{
+	// Duffel (capacity 50) ~0.76, sack (75) ~0.82; no bag at all: the base factor.
+	const AHHPlayerState* State = GetPlayerState<AHHPlayerState>();
+	const UHHItemRegistrySubsystem* Registry = State ? UHHItemRegistrySubsystem::Get(this) : nullptr;
+	const UHHEquipmentDefinition* Bag = Registry ? Registry->FindEquipment(State->GetEquipment().Get(EHHEquipmentSlot::Bag)) : nullptr;
+	const float Capacity = Bag ? Bag->GetStat(TEXT("Capacity"), 0.f) : 0.f;
+	return FMath::Clamp(HeavyCarrySpeedFactor + Capacity * 0.0022f, 0.4f, 0.95f);
+}
+
 void AHHCharacter::Input_Flashlight()
 {
 	if (IsSeated())
@@ -983,9 +1064,20 @@ void AHHCharacter::ReviveBy(AHHCharacter* Helper)
 	BodyPose = EHHBodyPose::Normal;
 	BleedOutAt = 0.f;
 	bWasRevived = true;
+	// A first aid kit on the helper: one use, and they come round steadier.
+	float Psyche = RevivedPsyche;
+	if (Helper)
+	{
+		const int32 KitSlot = Helper->FindFirstAidSlot();
+		const AHHPlayerState* HelperState = Helper->GetPlayerState<AHHPlayerState>();
+		if (KitSlot != INDEX_NONE && HelperState && HelperState->GetInventory() && HelperState->GetInventory()->ConsumeCharge(KitSlot))
+		{
+			Psyche = 60.f;
+		}
+	}
 	if (AHHPlayerState* State = GetPlayerState<AHHPlayerState>())
 	{
-		State->SetPsyche(FMath::Max(State->GetPsyche(), RevivedPsyche));
+		State->SetPsyche(FMath::Max(State->GetPsyche(), Psyche));
 	}
 	if (Helper && Helper->GetBodyPose() == EHHBodyPose::Kneeling)
 	{
@@ -1123,7 +1215,20 @@ void AHHCharacter::Interact(AActor* Interactor)
 
 float AHHCharacter::GetInteractDuration(AActor* Interactor) const
 {
-	return ReviveSeconds;
+	const AHHCharacter* Helper = Cast<AHHCharacter>(Interactor);
+	return Helper && Helper->FindFirstAidSlot() != INDEX_NONE ? FirstAidReviveSeconds : ReviveSeconds;
+}
+
+int32 AHHCharacter::FindFirstAidSlot() const
+{
+	const AHHPlayerState* State = GetPlayerState<AHHPlayerState>();
+	const UHHInventoryComponent* Inventory = State ? State->GetInventory() : nullptr;
+	if (!Inventory || !Inventory->IsEnabled())
+	{
+		return INDEX_NONE;
+	}
+	const int32 Index = Inventory->FindToolSlot(TEXT("FirstAid"));
+	return Index != INDEX_NONE && Inventory->GetSlot(Index).Value > 0 ? Index : INDEX_NONE;
 }
 
 // ---------------------------------------------------------------------------------------
@@ -1163,8 +1268,8 @@ void AHHCharacter::ApplyMovementSpeed()
 		Movement->MaxWalkSpeedCrouched = 0.f;
 		return;
 	}
-	// Bulky loot: slower, and no sprinting with a TV in your arms.
-	const float CarryFactor = bCarryingHeavy ? HeavyCarrySpeedFactor : 1.f;
+	// Bulky loot: slower (less so with a bigger bag), and no sprinting with a TV in your arms.
+	const float CarryFactor = bCarryingHeavy ? GetHeavyCarryFactor() : 1.f;
 	Movement->MaxWalkSpeed = (bSprinting && !bCarryingHeavy ? SprintSpeed : WalkSpeed) * CarryFactor;
 	Movement->MaxWalkSpeedCrouched = CrouchSpeed * CarryFactor;
 }

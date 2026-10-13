@@ -90,6 +90,25 @@ bool UHHInventoryComponent::IsCarryingHeavy() const
 	return false;
 }
 
+int32 UHHInventoryComponent::FindToolSlot(FName ToolTag) const
+{
+	const UHHItemRegistrySubsystem* Registry = UHHItemRegistrySubsystem::Get(this);
+	if (!Registry || ToolTag.IsNone())
+	{
+		return INDEX_NONE;
+	}
+	for (int32 Index = 0; Index < Slots.Num(); ++Index)
+	{
+		const FHHInventorySlot& Slot = Slots[Index];
+		const UHHEquipmentDefinition* Equipment = Slot.Kind == EHHInventoryKind::Equipment ? Registry->FindEquipment(Slot.ItemId) : nullptr;
+		if (Equipment && Equipment->ToolTag == ToolTag)
+		{
+			return Index;
+		}
+	}
+	return INDEX_NONE;
+}
+
 const UHHEquipmentDefinition* UHHInventoryComponent::FindTool(FName ToolTag) const
 {
 	const UHHItemRegistrySubsystem* Registry = UHHItemRegistrySubsystem::Get(this);
@@ -176,10 +195,30 @@ void UHHInventoryComponent::InitializeFromLoadout(const FHHEquipmentLoadout& Loa
 			Target.Kind = EHHInventoryKind::Equipment;
 			Target.ItemId = Id;
 			Target.Value = 0;
+			// Salt, film and first aid run out: the charges travel with the item (dropped and picked up too).
+			if (const UHHItemRegistrySubsystem* Registry = UHHItemRegistrySubsystem::Get(this))
+			{
+				if (const UHHEquipmentDefinition* Equipment = Registry->FindEquipment(Id))
+				{
+					Target.Value = FMath::RoundToInt(FMath::Max(Equipment->GetStat(TEXT("Charges")), Equipment->GetStat(TEXT("Shots"))));
+				}
+			}
 		}
 	}
 	SelectedIndex = 0;
 	Broadcast();
+}
+
+bool UHHInventoryComponent::ConsumeCharge(int32 Index)
+{
+	if (!GetOwner() || !GetOwner()->HasAuthority() || !Slots.IsValidIndex(Index) || Slots[Index].Kind != EHHInventoryKind::Equipment
+		|| Slots[Index].Value <= 0)
+	{
+		return false;
+	}
+	--Slots[Index].Value;
+	Broadcast();
+	return true;
 }
 
 bool UHHInventoryComponent::AddItem(const FHHInventorySlot& Item)

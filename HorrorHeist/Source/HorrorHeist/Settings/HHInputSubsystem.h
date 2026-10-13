@@ -36,6 +36,8 @@ enum class EHHInputAction : uint8
 	Drop,
 	/** The van's horn (driver). */
 	Horn,
+	/** Use the item in your hand (camera flash, walkie mark, pour salt, light on/off). */
+	UseItem,
 	MAX UMETA(Hidden)
 };
 

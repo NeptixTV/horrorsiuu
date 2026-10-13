@@ -66,6 +66,8 @@ public:
 	void HandleBleedOut(AHHCharacter* Character);
 	/** A crewmate got them back up. */
 	void HandleRevived(AHHCharacter* Character, AHHCharacter* Helper);
+	/** Gear in use: walkie mark, salt line, camera flash (validated here). */
+	void HandleUseItem(AHHCharacter* Character, int32 SlotIndex, const FVector& ViewLocation, const FVector& ViewDirection);
 	/** Crew leader from the pause menu. */
 	void HandleAbandon(AHHPlayerController* Requester);
 
@@ -142,6 +144,13 @@ protected:
 	UPROPERTY(EditDefaultsOnly, Category = "Rules")
 	float DownedSeconds = 45.f;
 
+	/** What a paranormal magazine pays per flash photo of the thing in the house (at most MaxPhotos). */
+	UPROPERTY(EditDefaultsOnly, Category = "Rules")
+	int32 PhotoValue = 150;
+
+	UPROPERTY(EditDefaultsOnly, Category = "Rules")
+	int32 MaxPhotos = 5;
+
 private:
 	FName MissionId;
 	FName SafehouseId;
@@ -157,6 +166,9 @@ private:
 	TSet<TWeakObjectPtr<AHHPlayerState>> Arrested;
 	/** Equipment the dead took into the house (lost from their profile at the end). */
 	TMap<TWeakObjectPtr<AHHPlayerState>, TArray<FName>> DeadGear;
+	/** Last time each crew member used gear (spam guard) and ran with a rustling bag. */
+	TMap<TWeakObjectPtr<AHHPlayerState>, double> LastGearUse;
+	TMap<TWeakObjectPtr<AHHPlayerState>, float> RustleTime;
 	TArray<FHHLootRecord> Stashed;
 	FDelegateHandle NoiseHandle;
 	FDelegateHandle SpottedHandle;

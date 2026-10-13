@@ -25,9 +25,48 @@ SHHStorePanel::~SHHStorePanel()
 	}
 }
 
+namespace HHShops
+{
+	static FText Title(FName Shop)
+	{
+		if (Shop == TEXT("Hardware"))
+		{
+			return LOCTEXT("TitleHardware", "COBB'S HARDWARE");
+		}
+		if (Shop == TEXT("Market"))
+		{
+			return LOCTEXT("TitleMarket", "PICK & SAVE");
+		}
+		return LOCTEXT("Title", "THE FENCE");
+	}
+
+	static FText Subtitle(FName Shop)
+	{
+		if (Shop == TEXT("Hardware"))
+		{
+			return LOCTEXT("SubHardware", "Torches, crowbars, sacks. Tools for honest work.");
+		}
+		if (Shop == TEXT("Market"))
+		{
+			return LOCTEXT("SubMarket", "Salt, film, plasters. Open eight to eight.");
+		}
+		return LOCTEXT("Subtitle", "No receipts. No refunds. No questions.");
+	}
+
+	static FText Hint(FName Shop)
+	{
+		if (Shop.IsNone())
+		{
+			return LOCTEXT("HintFence", "The Fence only sells what you can't buy in town. Torches, crowbars and sacks: Cobb's Hardware. Salt, film and first aid: Pick & Save (both on Main Street, open by day).");
+		}
+		return LOCTEXT("HintShop", "Cash comes from jobs. Lock picks, glass cutters and noise meters: ask the Fence in the hideout.");
+	}
+}
+
 void SHHStorePanel::Construct(const FArguments& InArgs)
 {
 	HUD = InArgs._HUD;
+	ShopId = HUD.IsValid() ? HUD->GetActiveShop() : NAME_None;
 	if (UHHProfileSubsystem* Profile = HUD.IsValid() ? UHHProfileSubsystem::Get(HUD.Get()) : nullptr)
 	{
 		ProfileHandle = Profile->OnProfileChanged.AddSP(this, &SHHStorePanel::Refresh);
@@ -41,8 +80,7 @@ void SHHStorePanel::Construct(const FArguments& InArgs)
 			SNew(SHorizontalBox)
 			+ SHorizontalBox::Slot().FillWidth(1.f)
 			[
-				HHUI::PanelHeader(FText::FromString(TEXT("04")), LOCTEXT("Title", "THE FENCE"),
-					LOCTEXT("Subtitle", "No receipts. No refunds. No questions."))
+				HHUI::PanelHeader(FText::FromString(TEXT("04")), HHShops::Title(ShopId), HHShops::Subtitle(ShopId))
 			]
 			+ SHorizontalBox::Slot().AutoWidth().VAlign(VAlign_Top).Padding(20.f, 8.f, 0.f, 0.f)
 			[
@@ -96,7 +134,8 @@ void SHHStorePanel::Construct(const FArguments& InArgs)
 		+ SHorizontalBox::Slot().FillWidth(1.f).VAlign(VAlign_Center)
 		[
 			SNew(STextBlock)
-			.Text(LOCTEXT("Hint", "Cash comes from jobs. Development builds: console 'HHGiveCash 5000'."))
+			.Text(HHShops::Hint(ShopId))
+			.AutoWrapText(true)
 			.Font(FHHStyle::Font(EHHFont::Body, 13.f))
 			.ColorAndOpacity(FSlateColor(FHHStyle::TextFaint()))
 		]
@@ -121,6 +160,10 @@ void SHHStorePanel::Refresh()
 
 bool SHHStorePanel::PassesFilter(const UHHItemDefinition* Item) const
 {
+	if (Item->Shop != ShopId)
+	{
+		return false;
+	}
 	const UHHCosmeticDefinition* Cosmetic = Cast<UHHCosmeticDefinition>(Item);
 	switch (Category)
 	{

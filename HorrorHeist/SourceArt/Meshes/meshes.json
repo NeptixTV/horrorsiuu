@@ -1468,6 +1468,19 @@
   ],
   "nanite": false
  },
+ "SM_EQ_FirstAid": {
+  "collision": "box",
+  "file": "SourceArt/Meshes/Equipment/SM_EQ_FirstAid.fbx",
+  "folder": "Equipment",
+  "kind": "static",
+  "materials": [
+   "MI_Plastic_Red",
+   "MI_Plastic_White",
+   "MI_Chrome",
+   "MI_Nylon_Black"
+  ],
+  "nanite": false
+ },
  "SM_EQ_GlassCutter": {
   "collision": "none",
   "file": "SourceArt/Meshes/Equipment/SM_EQ_GlassCutter.fbx",
@@ -3591,6 +3604,16 @@
    "MI_Brass",
    "MI_Chrome",
    "MI_Metal_Black"
+  ],
+  "nanite": false
+ },
+ "SM_Salt_Line": {
+  "collision": "none",
+  "file": "SourceArt/Meshes/Equipment/SM_Salt_Line.fbx",
+  "folder": "Equipment",
+  "kind": "static",
+  "materials": [
+   "MI_Paint_White"
   ],
   "nanite": false
  },

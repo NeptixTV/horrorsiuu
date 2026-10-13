@@ -5,6 +5,7 @@
 #include "UI/Widgets/SHHLoadoutPanel.h"
 #include "UI/Widgets/SHHCustomizationPanel.h"
 #include "UI/Widgets/SHHStorePanel.h"
+#include "UI/Widgets/SHHInventoryPanel.h"
 #include "UI/Widgets/SHHSettingsPanel.h"
 #include "UI/Widgets/SHHHeistHud.h"
 #include "UI/Widgets/SHHMissionSummary.h"
@@ -170,6 +171,7 @@ TSharedRef<SWidget> SHHLobbyRoot::BuildPanel(EHHLobbyScreen Screen)
 	case EHHLobbyScreen::Customization:	return SNew(SHHCustomizationPanel).HUD(HUD);
 	case EHHLobbyScreen::Store:			return SNew(SHHStorePanel).HUD(HUD);
 	case EHHLobbyScreen::Settings:		return SNew(SHHSettingsPanel).HUD(HUD);
+	case EHHLobbyScreen::Inventory:		return SNew(SHHInventoryPanel).HUD(HUD);
 	default:							return SNullWidget::NullWidget;
 	}
 }
@@ -795,6 +797,10 @@ TSharedRef<SWidget> SHHLobbyRoot::BuildJobKeyHints()
 		+ SVerticalBox::Slot().AutoHeight().HAlign(HAlign_Right).Padding(0.f, 0.f, 0.f, 6.f)
 		[
 			SNew(SHHKeyHint).Key(LOCTEXT("SlotsKey", "1-5")).Label(LOCTEXT("Items", "Select item"))
+		]
+		+ SVerticalBox::Slot().AutoHeight().HAlign(HAlign_Right).Padding(0.f, 0.f, 0.f, 6.f)
+		[
+			SNew(SHHKeyHint).Key(KeyText(TEXT("UseItem"))).Label(LOCTEXT("UseHint", "Use item"))
 		]
 		+ SVerticalBox::Slot().AutoHeight().HAlign(HAlign_Right).Padding(0.f, 0.f, 0.f, 6.f)
 		[

@@ -48,6 +48,13 @@ public:
 
 	void SetDirector(AHHHauntDirector* InDirector) { Director = InDirector; }
 
+	/** Server: a camera flash from Eye along Direction - does it catch this in the picture? */
+	bool IsInPhoto(const FVector& Eye, const FVector& Direction) const;
+	/** Server: it was photographed. A glimpse is gone; a hunt freezes for a moment. */
+	void OnPhotographed();
+	/** Server: stops moving for a while (salt, the flash). */
+	void Stall(float Seconds);
+
 protected:
 	UFUNCTION()
 	void OnRep_Mode();
@@ -89,6 +96,7 @@ private:
 	TWeakObjectPtr<AHHHauntDirector> Director;
 	TWeakObjectPtr<APawn> HuntTarget;
 	double EndTime = 0.0;
+	double StallUntil = 0.0;
 	float LookedAtTime = 0.f;
 	TSet<TWeakObjectPtr<APawn>> Witnesses;
 };

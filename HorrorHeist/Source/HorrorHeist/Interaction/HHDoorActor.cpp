@@ -302,7 +302,16 @@ void AHHDoorActor::Interact(AActor* Interactor)
 		}
 		if (Noise)
 		{
-			const float Loudness = Action == EHHDoorAction::Pry ? 0.9f : (Action == EHHDoorAction::CutGlass ? 0.3f : 0.15f);
+			// The tool's own noise rating (crowbar 80, glass cutter 25, picks 12) sets how far it carries.
+			float Loudness = Action == EHHDoorAction::Pry ? 0.9f : (Action == EHHDoorAction::CutGlass ? 0.3f : 0.15f);
+			const FName UsedTool = Action == EHHDoorAction::Pry ? FName(TEXT("Crowbar")) : (Action == EHHDoorAction::CutGlass ? FName(TEXT("GlassCutter"))
+				: (Action == EHHDoorAction::Pick ? FName(TEXT("Lockpick")) : NAME_None));
+			const AHHPlayerState* UserState = Pawn ? Pawn->GetPlayerState<AHHPlayerState>() : nullptr;
+			const UHHInventoryComponent* UserInventory = UserState ? UserState->GetInventory() : nullptr;
+			if (const UHHEquipmentDefinition* Tool = UserInventory && !UsedTool.IsNone() ? UserInventory->FindTool(UsedTool) : nullptr)
+			{
+				Loudness = FMath::Clamp(Tool->GetStat(TEXT("Noise"), Loudness * 100.f) / 100.f + (Action == EHHDoorAction::Pry ? 0.1f : 0.03f), 0.05f, 1.f);
+			}
 			Noise->ReportNoise(GetActorLocation(), Loudness, Interactor, Action == EHHDoorAction::Pry ? TEXT("ForcedEntry") : TEXT("Unlock"));
 		}
 		return;

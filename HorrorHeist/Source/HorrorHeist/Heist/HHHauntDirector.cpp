@@ -17,6 +17,8 @@
 #include "GameFramework/Pawn.h"
 #include "GameFramework/PlayerController.h"
 #include "Kismet/GameplayStatics.h"
+#include "GameFramework/GameStateBase.h"
+#include "Net/UnrealNetwork.h"
 #include "Sound/SoundBase.h"
 #include "TimerManager.h"
 
@@ -66,9 +68,29 @@ void AHHHauntDirector::BeginPlay()
 	GetWorldTimerManager().SetTimer(ThinkTimer, this, &AHHHauntDirector::Think, 1.f, true, 1.f);
 }
 
+void AHHHauntDirector::GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& OutLifetimeProps) const
+{
+	Super::GetLifetimeReplicatedProps(OutLifetimeProps);
+	DOREPLIFETIME(AHHHauntDirector, LastEventLocation);
+	DOREPLIFETIME(AHHHauntDirector, LastEventTime);
+	DOREPLIFETIME(AHHHauntDirector, HuntWarningUntil);
+}
+
+float AHHHauntDirector::GetServerTime() const
+{
+	const AGameStateBase* GameState = GetWorld() ? GetWorld()->GetGameState() : nullptr;
+	return GameState ? static_cast<float>(GameState->GetServerWorldTimeSeconds()) : 0.f;
+}
+
+bool AHHHauntDirector::IsHuntImminent() const
+{
+	return HuntWarningUntil > 0.f && GetServerTime() < HuntWarningUntil;
+}
+
 void AHHHauntDirector::EndPlay(const EEndPlayReason::Type EndPlayReason)
 {
 	GetWorldTimerManager().ClearTimer(ThinkTimer);
+	GetWorldTimerManager().ClearTimer(HuntTimer);
 	Super::EndPlay(EndPlayReason);
 }
 
@@ -327,6 +349,7 @@ bool AHHHauntDirector::TriggerEvent(EHHHauntEvent Event)
 bool AHHHauntDirector::RunEvent(EHHHauntEvent Event)
 {
 	bool bDone = false;
+	EventAt = FVector::ZeroVector;
 	switch (Event)
 	{
 	case EHHHauntEvent::Settle:
@@ -371,6 +394,9 @@ bool AHHHauntDirector::RunEvent(EHHHauntEvent Event)
 	{
 		LastEvent = Event;
 		LastRun.Add(Event, GetWorld()->GetTimeSeconds());
+		// The noise meter reads this: where and when the house last did something.
+		LastEventLocation = EventAt;
+		LastEventTime = GetServerTime();
 		UE_LOG(LogHorrorHeist, Verbose, TEXT("Haunt event %s (anger %.1f, stage %d)"), *UEnum::GetValueAsString(Event), Anger, Stage);
 	}
 	return bDone;
@@ -532,6 +558,7 @@ bool AHHHauntDirector::DoSoundInOtherRoom(const TArray<TObjectPtr<USoundBase>>& 
 	const FVector Where = Candidates[Stream.RandRange(0, Candidates.Num() - 1)];
 	USoundBase* Sound = Sounds[Stream.RandRange(0, Sounds.Num() - 1)];
 	PlaySoundEverywhere(Sound, Where, CaptionText);
+	EventAt = Where;
 	HitPsycheNear(Where, 1800.f, 1.5f);
 	return Sound != nullptr;
 }
@@ -554,6 +581,7 @@ bool AHHHauntDirector::DoLightOut()
 	}
 	AHHPracticalLight* Light = Candidates[Stream.RandRange(0, Candidates.Num() - 1)];
 	Light->SetLightOn(false);
+	EventAt = Light->GetActorLocation();
 	PlaySoundEverywhere(BulbPopSound, Light->GetActorLocation(), LOCTEXT("BulbPop", "[A light bulb pops]"));
 	HitPsycheNear(Light->GetActorLocation(), 900.f, 3.f);
 	return true;
@@ -575,6 +603,7 @@ bool AHHHauntDirector::DoDoorOpen()
 		return false;
 	}
 	AHHDoorActor* Door = Candidates[Stream.RandRange(0, Candidates.Num() - 1)];
+	EventAt = Door->GetActorLocation();
 	Door->SetTargetAngle(Stream.FRandRange(55.f, 85.f) * (Stream.FRand() < 0.5f ? -1.f : 1.f), 16.f, true);
 	return true;
 }
@@ -594,7 +623,9 @@ bool AHHHauntDirector::DoObjectMoved()
 	{
 		return false;
 	}
-	Candidates[Stream.RandRange(0, Candidates.Num() - 1)]->MoveToAlternate();
+	AHHHauntProp* Moved = Candidates[Stream.RandRange(0, Candidates.Num() - 1)];
+	Moved->MoveToAlternate();
+	EventAt = Moved->GetActorLocation();
 	return true;
 }
 
@@ -621,6 +652,7 @@ bool AHHHauntDirector::DoDoorSlam()
 	}
 	AHHDoorActor* Door = Candidates[Stream.RandRange(0, Candidates.Num() - 1)];
 	Door->SetTargetAngle(0.f, 520.f, false);
+	EventAt = Door->GetActorLocation();
 	if (SlamSounds.Num() > 0)
 	{
 		PlaySoundEverywhere(SlamSounds[Stream.RandRange(0, SlamSounds.Num() - 1)], Door->GetActorLocation(), LOCTEXT("Slam", "[A door slams]"));
@@ -645,6 +677,7 @@ bool AHHHauntDirector::DoDeviceOn()
 		return false;
 	}
 	AHHHauntDevice* Device = Candidates[Stream.RandRange(0, Candidates.Num() - 1)];
+	EventAt = Device->GetActorLocation();
 	Device->TurnOn(Stream.FRandRange(18.f, 35.f));
 	HitPsycheNear(Device->GetActorLocation(), 1200.f, 3.f);
 	return true;
@@ -659,6 +692,7 @@ bool AHHHauntDirector::DoFlicker()
 	}
 	const APawn* Center = Inside[Stream.RandRange(0, Inside.Num() - 1)];
 	MulticastFlicker(Center->GetActorLocation(), 1600.f, Stream.FRandRange(1.5f, 3.f));
+	EventAt = Center->GetActorLocation();
 	return true;
 }
 
@@ -674,6 +708,7 @@ bool AHHHauntDirector::DoWhisper()
 	const FVector Where = Victim->GetActorLocation() - Victim->GetActorForwardVector() * 120.f + FVector(0.f, 0.f, 60.f);
 	PlaySoundEverywhere(WhisperSounds[Stream.RandRange(0, WhisperSounds.Num() - 1)], Where, LOCTEXT("Whisper", "[Something whispers behind you]"), 0.9f);
 	HitPsyche(Victim, 5.f);
+	EventAt = Where;
 	return true;
 }
 
@@ -699,6 +734,7 @@ bool AHHHauntDirector::DoGlassFall()
 	const FVector Where = Candidates[Stream.RandRange(0, Candidates.Num() - 1)];
 	PlaySoundEverywhere(GlassSounds[Stream.RandRange(0, GlassSounds.Num() - 1)], Where, LOCTEXT("Glass", "[Glass shatters]"));
 	HitPsycheNear(Where, 1100.f, 3.f);
+	EventAt = Where;
 	return true;
 }
 
@@ -728,13 +764,28 @@ bool AHHHauntDirector::DoApparition(bool bHunt)
 		{
 			return false;
 		}
-		Ghost->Hunt(Candidates[Stream.RandRange(0, Candidates.Num() - 1)], Target, 24.f);
+		// The lights go first: a few seconds of warning (and the noise meter pins), then it comes.
+		const FVector Start = Candidates[Stream.RandRange(0, Candidates.Num() - 1)];
 		LastHuntTime = GetWorld()->GetTimeSeconds();
-		MulticastFlicker(Target->GetActorLocation(), 2500.f, 4.f);
-		if (StingerSounds.Num() > 0)
+		HuntWarningUntil = GetServerTime() + HuntWarningSeconds;
+		EventAt = Start;
+		MulticastFlicker(Target->GetActorLocation(), 2500.f, HuntWarningSeconds + 1.f);
+		TWeakObjectPtr<AHHApparition> WeakGhost(Ghost);
+		TWeakObjectPtr<APawn> WeakTarget(Target);
+		GetWorldTimerManager().SetTimer(HuntTimer, FTimerDelegate::CreateWeakLambda(this, [this, WeakGhost, WeakTarget, Start]()
 		{
-			MulticastStinger(StingerSounds[Stream.RandRange(0, StingerSounds.Num() - 1)]);
-		}
+			AHHApparition* Hunter = WeakGhost.Get();
+			if (!bActive || !Hunter || Hunter->GetMode() != EHHApparitionMode::Hidden || GetPawnsInside().Num() == 0)
+			{
+				return;
+			}
+			// The chosen victim may have left; the apparition picks whoever is still inside.
+			Hunter->Hunt(Start, WeakTarget.Get(), 24.f);
+			if (StingerSounds.Num() > 0)
+			{
+				MulticastStinger(StingerSounds[Stream.RandRange(0, StingerSounds.Num() - 1)]);
+			}
+		}), HuntWarningSeconds, false);
 		return true;
 	}
 
@@ -759,6 +810,7 @@ bool AHHHauntDirector::DoApparition(bool bHunt)
 			continue;
 		}
 		Ghost->Glimpse(Point, Viewer->GetActorLocation(), Stream.FRandRange(2.f, 3.5f));
+		EventAt = Point;
 		return true;
 	}
 	return false;

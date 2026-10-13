@@ -129,9 +129,11 @@ def stat(stat_id, label, value, display_max=100.0, lower_better=False):
     return dict(id=stat_id, label=label, value=value, max=display_max, lower_better=lower_better)
 
 
-def E(item_id, name, slot, mesh, stats, price=0, rarity='Common', level=1, owned=False, desc='', flavor='', order=0):
+def E(item_id, name, slot, mesh, stats, price=0, rarity='Common', level=1, owned=False, desc='', flavor='', order=0,
+      shop=''):
+    """shop: where it is sold - '' the Fence in the hideout, 'Hardware' Cobb's Hardware, 'Market' Pick & Save."""
     return dict(id=item_id, name=name, slot=slot, mesh=mesh, stats=stats, price=price, rarity=rarity, level=level,
-                owned=owned, desc=desc, flavor=flavor, order=order)
+                owned=owned, desc=desc, flavor=flavor, order=order, shop=shop)
 
 
 def light_stats(intensity, rng, cone, warmth):
@@ -143,41 +145,48 @@ EQUIPMENT = [
     E('EQ_Light_Pocket', 'Pocket Torch', 'Light', 'SM_EQ_Torch_Pocket', light_stats(900, 1400, 22, 0.75), owned=True,
       desc='Cheap, warm and just bright enough.', order=1),
     E('EQ_Light_Patrol', 'Patrol Torch', 'Light', 'SM_EQ_Torch_Patrol', light_stats(2600, 2600, 16, 0.3), price=900,
-      desc='Long, heavy, very bright. Also a club.', order=2),
+      desc='Long, heavy, very bright. Also a club.', order=2, shop='Hardware'),
     E('EQ_Light_Headlamp', 'Headlamp', 'Light', 'SM_EQ_Headlamp', light_stats(1100, 1500, 34, 0.5), price=1200,
-      rarity='Uncommon', level=2, desc='Hands free. Looks where you look.', order=3),
+      rarity='Uncommon', desc='Hands free. Looks where you look.', order=3, shop='Hardware'),
     E('EQ_Light_Lantern', 'Storm Lantern', 'Light', 'SM_EQ_Lantern', light_stats(700, 1000, 70, 1.0), price=1500,
-      rarity='Rare', level=3, desc='Soft light all around. Like the painting.', order=4),
+      rarity='Rare', level=2, desc='Soft light all around. Like the painting.', order=4, shop='Hardware'),
 
     E('EQ_Entry_Lockpicks', 'Lockpick Roll', 'Entry', 'SM_EQ_Lockpicks',
       [stat('Speed', 'Speed', 40), stat('Noise', 'Noise', 12, lower_better=True)], owned=True,
       desc='Slow and silent.', order=1),
     E('EQ_Entry_Crowbar', 'Crowbar', 'Entry', 'SM_EQ_Crowbar',
       [stat('Speed', 'Speed', 85), stat('Noise', 'Noise', 80, lower_better=True)], price=400,
-      desc='Fast and loud. Everyone will know.', order=2),
+      desc='Fast and loud. Everyone will know.', order=2, shop='Hardware'),
     E('EQ_Entry_GlassCutter', 'Glass Cutter', 'Entry', 'SM_EQ_GlassCutter',
       [stat('Speed', 'Speed', 60), stat('Noise', 'Noise', 25, lower_better=True)], price=1100, rarity='Uncommon',
-      level=2, desc='Windows are just doors that nobody locks properly.', order=3),
+      desc='Windows are just doors that nobody locks properly.', order=3),
 
     E('EQ_Util_Walkie', 'Walkie-Talkie', 'Utility', 'SM_EQ_Walkie',
       [stat('Range', 'Range', 60), stat('Battery', 'Battery', 70)], owned=True,
-      desc='Hear the crew through walls. Sometimes something else.', order=1),
+      desc='Use it to mark a spot for the whole crew (they hear the click and see where).', order=1),
     E('EQ_Util_Salt', 'Salt Pouch', 'Utility', 'SM_EQ_SaltPouch',
-      [stat('Charges', 'Charges', 3, 5), stat('Strength', 'Strength', 45)], price=600, rarity='Uncommon', level=2,
-      desc='An old superstition. Pour a line across a doorway.', order=2),
+      [stat('Charges', 'Charges', 3, 5), stat('Strength', 'Strength', 45)], price=250,
+      desc='Use it to pour a line on the floor. Whatever walks the house stops at it - once.', order=2,
+      shop='Market'),
+    E('EQ_Util_FirstAid', 'First Aid Kit', 'Utility', 'SM_EQ_FirstAid',
+      [stat('Speed', 'Revive Speed', 80), stat('Charges', 'Uses', 2, 5)], price=350,
+      desc='Gets a downed crewmate up in two seconds instead of five - and steadier. Two uses.', order=3,
+      shop='Market'),
 
     E('EQ_Gadget_Camera', 'Instant Camera', 'Gadget', 'SM_EQ_Camera',
       [stat('Flash', 'Flash', 60), stat('Shots', 'Film', 10, 12)], price=800,
-      desc='Proof for the client. The photos sometimes show more.', order=1),
+      desc='Use it to take a flash photo. The flash drives it off for a moment; every photo of it pays $150.',
+      order=1, shop='Market'),
     E('EQ_Gadget_NoiseMeter', 'Noise Meter', 'Gadget', 'SM_EQ_NoiseMeter',
-      [stat('Sensitivity', 'Sensitivity', 70), stat('Range', 'Range', 50)], price=1300, rarity='Rare', level=3,
-      desc='Shows how loud you are. And what else is.', order=2),
+      [stat('Sensitivity', 'Sensitivity', 70), stat('Range', 'Range', 50)], price=1300, rarity='Rare', level=2,
+      desc='Hold it: the needle jumps when something is close - and pins itself just before it hunts.', order=2),
 
     E('EQ_Bag_Duffel', 'Duffel Bag', 'Bag', 'SM_EQ_Duffel',
-      [stat('Capacity', 'Capacity', 50), stat('Noise', 'Rustle', 20, lower_better=True)], owned=True, order=1),
+      [stat('Capacity', 'Capacity', 50), stat('Noise', 'Rustle', 20, lower_better=True)], owned=True, order=1,
+      desc='Heavy loot slows you down less the more the bag holds.'),
     E('EQ_Bag_Sack', 'Burlap Sack', 'Bag', 'SM_EQ_Sack',
       [stat('Capacity', 'Capacity', 75), stat('Noise', 'Rustle', 45, lower_better=True)], price=500,
-      desc='Holds more. Clinks louder.', order=2),
+      desc='Holds more: heavy loot slows you down less. Clinks louder when you run.', order=2, shop='Hardware'),
 ]
 
 MISSIONS = [
@@ -280,6 +289,7 @@ FLOOR_PLANS = {'JOB_Vance': 'T_Blueprint_Vance'}
 TOOL_TAGS = {
     'Light': 'Light', 'EQ_Entry_Lockpicks': 'Lockpick', 'EQ_Entry_Crowbar': 'Crowbar',
     'EQ_Entry_GlassCutter': 'GlassCutter', 'EQ_Util_Walkie': 'Walkie', 'EQ_Util_Salt': 'Salt',
+    'EQ_Util_FirstAid': 'FirstAid',
     'EQ_Gadget_Camera': 'Camera', 'EQ_Gadget_NoiseMeter': 'NoiseMeter', 'Bag': 'Bag',
 }
 for _e in EQUIPMENT:

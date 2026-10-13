@@ -1,5 +1,8 @@
 #include "Heist/HHHeistGameState.h"
 #include "Heist/HHHeistGameMode.h"
+#include "Core/HHGameData.h"
+#include "Components/PointLightComponent.h"
+#include "TimerManager.h"
 #include "Engine/Engine.h"
 #include "Engine/World.h"
 #include "GameFramework/WorldSettings.h"
@@ -39,6 +42,94 @@ void AHHHeistGameState::GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& Ou
 	DOREPLIFETIME(AHHHeistGameState, CrewAtVan);
 	DOREPLIFETIME(AHHHeistGameState, CrewTotal);
 	DOREPLIFETIME(AHHHeistGameState, PoliceState);
+	DOREPLIFETIME(AHHHeistGameState, Pings);
+	DOREPLIFETIME(AHHHeistGameState, Photos);
+}
+
+float AHHHeistGameState::GetServerTime() const
+{
+	return static_cast<float>(GetServerWorldTimeSeconds());
+}
+
+void AHHHeistGameState::AddPing(const FVector& Location, int32 CrewSlot, const FString& Name)
+{
+	if (!HasAuthority())
+	{
+		return;
+	}
+	const float Now = GetServerTime();
+	Pings.RemoveAll([Now, CrewSlot](const FHHPing& Ping) { return Now - Ping.Time > PingLifetime || Ping.CrewSlot == CrewSlot; });
+	FHHPing Ping;
+	Ping.Location = Location;
+	Ping.CrewSlot = CrewSlot;
+	Ping.Name = Name;
+	Ping.Time = Now;
+	Pings.Add(Ping);
+	OnRep_Pings();
+	ForceNetUpdate();
+}
+
+void AHHHeistGameState::OnRep_Pings()
+{
+	// Everyone hears the click of a new mark (the crew carries walkies by default).
+	const float Now = GetServerTime();
+	const bool bNew = Pings.ContainsByPredicate([Now](const FHHPing& Ping) { return Now - Ping.Time < 2.f; });
+	if (bNew && Pings.Num() >= LastPingCount && GetNetMode() != NM_DedicatedServer)
+	{
+		if (const UHHGameData* GameData = UHHGameData::Get(this))
+		{
+			if (USoundBase* Chirp = GameData->WalkieChirpSound.LoadSynchronous())
+			{
+				UGameplayStatics::PlaySound2D(this, Chirp);
+			}
+		}
+	}
+	LastPingCount = Pings.Num();
+	Changed();
+}
+
+void AHHHeistGameState::AddPhoto()
+{
+	if (HasAuthority())
+	{
+		++Photos;
+		Changed();
+		ForceNetUpdate();
+	}
+}
+
+void AHHHeistGameState::MulticastCameraFlash_Implementation(FVector Location, FVector Direction)
+{
+	if (GetNetMode() == NM_DedicatedServer)
+	{
+		return;
+	}
+	if (const UHHGameData* GameData = UHHGameData::Get(this))
+	{
+		if (USoundBase* Shutter = GameData->CameraFlashSound.LoadSynchronous())
+		{
+			UGameplayStatics::PlaySoundAtLocation(this, Shutter, Location);
+		}
+	}
+	// A brief, very bright point light a little in front of the lens.
+	UPointLightComponent* Flash = NewObject<UPointLightComponent>(this);
+	Flash->SetMobility(EComponentMobility::Movable);
+	Flash->SetIntensityUnits(ELightUnits::Candelas);
+	Flash->SetIntensity(9000.f);
+	Flash->SetAttenuationRadius(1400.f);
+	Flash->SetLightColor(FLinearColor(0.95f, 0.97f, 1.f));
+	Flash->SetCastShadows(true);
+	Flash->RegisterComponent();
+	Flash->SetWorldLocation(Location + Direction.GetSafeNormal() * 40.f);
+	TWeakObjectPtr<UPointLightComponent> WeakFlash(Flash);
+	FTimerHandle Handle;
+	GetWorldTimerManager().SetTimer(Handle, FTimerDelegate::CreateLambda([WeakFlash]()
+	{
+		if (UPointLightComponent* Light = WeakFlash.Get())
+		{
+			Light->DestroyComponent();
+		}
+	}), 0.12f, false);
 }
 
 void AHHHeistGameState::SetPoliceState(EHHPoliceState NewState)

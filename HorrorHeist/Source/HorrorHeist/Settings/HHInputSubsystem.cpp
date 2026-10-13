@@ -36,6 +36,7 @@ const TArray<FHHBindingInfo>& UHHInputSubsystem::GetRebindableBindings()
 		MakeBinding(TEXT("Crouch"),			LOCTEXT("Crouch", "Crouch"),				EHHInputAction::Crouch,		EKeys::LeftControl),
 		MakeBinding(TEXT("Jump"),			LOCTEXT("Jump", "Jump"),					EHHInputAction::Jump,		EKeys::SpaceBar),
 		MakeBinding(TEXT("Interact"),		LOCTEXT("Interact", "Interact"),			EHHInputAction::Interact,	EKeys::E),
+		MakeBinding(TEXT("UseItem"),		LOCTEXT("UseItem", "Use Item In Hand"),		EHHInputAction::UseItem,	EKeys::LeftMouseButton),
 		MakeBinding(TEXT("Flashlight"),		LOCTEXT("Flashlight", "Flashlight"),		EHHInputAction::Flashlight,	EKeys::F),
 		MakeBinding(TEXT("PushToTalk"),		LOCTEXT("PushToTalk", "Push To Talk"),		EHHInputAction::PushToTalk,	EKeys::V),
 		MakeBinding(TEXT("Inventory"),		LOCTEXT("Inventory", "Inventory / Loadout"), EHHInputAction::Inventory,	EKeys::Tab),
@@ -175,6 +176,7 @@ void UHHInputSubsystem::BuildGamepadContext()
 	GamepadContext->MapKey(GetAction(EHHInputAction::SlotPrev), EKeys::Gamepad_DPad_Left);
 	GamepadContext->MapKey(GetAction(EHHInputAction::Drop), EKeys::Gamepad_LeftShoulder);
 	GamepadContext->MapKey(GetAction(EHHInputAction::Horn), EKeys::Gamepad_LeftTrigger);
+	GamepadContext->MapKey(GetAction(EHHInputAction::UseItem), EKeys::Gamepad_RightTrigger);
 }
 
 void UHHInputSubsystem::ApplyMappings()

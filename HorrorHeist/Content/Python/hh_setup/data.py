@@ -37,6 +37,8 @@ def _item_common(asset, entry, order):
          unlock_level=int(entry.get('level', 1)),
          owned_by_default=bool(entry.get('owned')),
          sort_order=int(entry.get('order') or order))
+    # Where it is sold ('' = the Fence in the hideout; shop ids match the store counters in town).
+    _set(asset, shop=unreal.Name(entry.get('shop') or 'None'))
     icon = U.find('T_Icon_' + entry['id'], required=False)
     if icon is not None:
         _set(asset, icon=icon)
@@ -207,6 +209,9 @@ def build_game_data(cat, character):
         'haunt_drone': 'A_Haunt_Drone_Loop', 'heartbeat': 'S_Heartbeat_Loop', 'heist_ambience': 'A_Rain_Light_Loop',
         'mission_complete_sting': 'M_Mission_Complete_Sting', 'mission_failed_sting': 'M_Mission_Failed_Sting',
         'drive_away_sound': 'S_Van_Drive_Away_01',
+        'camera_flash_sound': 'S_Camera_Flash_01', 'walkie_chirp_sound': 'S_Walkie_Chirp_01',
+        'salt_pour_sound': 'S_Salt_Pour_01', 'noise_meter_tick_sound': 'S_NoiseMeter_Tick_01',
+        'salt_line_mesh': 'SM_Salt_Line',
     }
     for key, name in sounds.items():
         obj = U.find(name)

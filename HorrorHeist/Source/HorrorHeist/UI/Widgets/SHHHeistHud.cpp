@@ -100,6 +100,10 @@ void SHHHeistHud::Construct(const FArguments& InArgs)
 		[
 			BuildHotbar()
 		]
+		+ SOverlay::Slot().HAlign(HAlign_Right).VAlign(VAlign_Bottom).Padding(FMargin(0.f, 0.f, 36.f, 150.f))
+		[
+			BuildNoiseMeter()
+		]
 		// Arrested: you watch the rest of the job from the back of the patrol car.
 		+ SOverlay::Slot().HAlign(HAlign_Center).VAlign(VAlign_Center)
 		[
@@ -642,9 +646,30 @@ TSharedRef<SWidget> SHHHeistHud::BuildHotbar()
 					return LOCTEXT("EmptyHands", "Empty hands");
 				}
 				const UHHItemRegistrySubsystem* Registry = HUD.IsValid() ? UHHItemRegistrySubsystem::Get(HUD.Get()) : nullptr;
-				const UHHLootDefinition* Loot = Registry ? Registry->FindLoot(Inventory->GetSelected().ItemId) : nullptr;
+				const FHHInventorySlot& Selected = Inventory->GetSelected();
+				const UHHLootDefinition* Loot = Registry ? Registry->FindLoot(Selected.ItemId) : nullptr;
 				const FText Name = Inventory->GetSlotName(Inventory->GetSelectedIndex());
-				return Loot && Loot->bHeavy ? FText::Format(LOCTEXT("HeavyName", "{0}  -  heavy"), Name) : Name;
+				if (Loot)
+				{
+					return Loot->bHeavy ? FText::Format(LOCTEXT("HeavyName", "{0}  -  heavy"), Name) : Name;
+				}
+				// Gear: charges left and the key that uses it.
+				const UHHEquipmentDefinition* Equipment = Registry && Selected.Kind == EHHInventoryKind::Equipment ? Registry->FindEquipment(Selected.ItemId) : nullptr;
+				if (!Equipment)
+				{
+					return Name;
+				}
+				static const TSet<FName> Usable = { TEXT("Light"), TEXT("Walkie"), TEXT("Salt"), TEXT("Camera") };
+				FText Line = Name;
+				if (Equipment->GetStat(TEXT("Charges")) > 0.f || Equipment->GetStat(TEXT("Shots")) > 0.f)
+				{
+					Line = FText::Format(LOCTEXT("ChargesLeft", "{0}  -  {1} left"), Line, FText::AsNumber(Selected.Value));
+				}
+				if (Usable.Contains(Equipment->ToolTag))
+				{
+					Line = FText::Format(LOCTEXT("UseKey", "{0}   [{1}] use"), Line, GetKeyText(TEXT("UseItem")));
+				}
+				return Line;
 			})
 			.Font(FHHStyle::Font(EHHFont::BodyMedium, 14.f))
 			.ColorAndOpacity(FSlateColor(FHHStyle::Text()))
@@ -655,6 +680,87 @@ TSharedRef<SWidget> SHHHeistHud::BuildHotbar()
 		[
 			Row
 		];
+}
+
+TSharedRef<SWidget> SHHHeistHud::BuildNoiseMeter()
+{
+	TSharedRef<SHorizontalBox> Segments = SNew(SHorizontalBox);
+	for (int32 Index = 0; Index < 5; ++Index)
+	{
+		Segments->AddSlot().AutoWidth().Padding(2.f, 0.f)
+		[
+			SNew(SBox).WidthOverride(26.f).HeightOverride(14.f)
+			[
+				SNew(SBorder)
+				.BorderImage(FHHStyle::Brush("HH.White"))
+				.BorderBackgroundColor_Lambda([this, Index]()
+				{
+					const float Reading = GetMeterReading();
+					const FLinearColor Lit = Index >= 4 ? FHHStyle::Danger() : (Index >= 2 ? FHHStyle::Accent() : FHHStyle::Ready());
+					return FSlateColor(Reading > Index + 0.15f ? Lit : FLinearColor(0.08f, 0.08f, 0.08f, 0.8f));
+				})
+			]
+		];
+	}
+	return SNew(SBorder)
+		.BorderImage(FHHStyle::Brush("HH.Card"))
+		.Padding(FMargin(12.f, 10.f))
+		.Visibility_Lambda([this]() { return GetHeldTool() == TEXT("NoiseMeter") ? EVisibility::HitTestInvisible : EVisibility::Collapsed; })
+		[
+			SNew(SVerticalBox)
+			+ SVerticalBox::Slot().AutoHeight()
+			[
+				SNew(STextBlock)
+				.Text(LOCTEXT("Meter", "NOISE METER"))
+				.Font(FHHStyle::Font(EHHFont::CondensedSemi, 11.f, 260))
+				.ColorAndOpacity(FSlateColor(FHHStyle::TextFaint()))
+			]
+			+ SVerticalBox::Slot().AutoHeight().Padding(0.f, 6.f, 0.f, 6.f)
+			[
+				Segments
+			]
+			+ SVerticalBox::Slot().AutoHeight()
+			[
+				SNew(STextBlock)
+				.Text_Lambda([this]()
+				{
+					const float Reading = GetMeterReading();
+					if (Reading >= 4.8f)
+					{
+						return LOCTEXT("MeterHunt", "PINNED - GET OUT OR HIDE");
+					}
+					if (Reading >= 3.f)
+					{
+						return LOCTEXT("MeterNear", "Something is very close");
+					}
+					if (Reading >= 1.5f)
+					{
+						return LOCTEXT("MeterSome", "Something moved nearby");
+					}
+					return LOCTEXT("MeterQuiet", "Quiet");
+				})
+				.Font(FHHStyle::Font(EHHFont::Typewriter, 13.f))
+				.ColorAndOpacity_Lambda([this]() { return FSlateColor(GetMeterReading() >= 4.8f ? FHHStyle::Danger() : FHHStyle::Text()); })
+			]
+		];
+}
+
+float SHHHeistHud::GetMeterReading() const
+{
+	const AHHLobbyHUD* LobbyHUD = HUD.Get();
+	return LobbyHUD ? LobbyHUD->GetNoiseMeterReading() : 0.f;
+}
+
+FName SHHHeistHud::GetHeldTool() const
+{
+	const UHHInventoryComponent* Inventory = GetInventory();
+	const UHHItemRegistrySubsystem* Registry = HUD.IsValid() ? UHHItemRegistrySubsystem::Get(HUD.Get()) : nullptr;
+	if (!Inventory || !Inventory->IsEnabled() || !Registry || Inventory->GetSelected().Kind != EHHInventoryKind::Equipment)
+	{
+		return NAME_None;
+	}
+	const UHHEquipmentDefinition* Equipment = Registry->FindEquipment(Inventory->GetSelected().ItemId);
+	return Equipment ? Equipment->ToolTag : NAME_None;
 }
 
 void SHHHeistHud::RefreshSlots()

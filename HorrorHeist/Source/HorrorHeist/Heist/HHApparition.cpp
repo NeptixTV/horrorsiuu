@@ -1,5 +1,6 @@
 #include "Heist/HHApparition.h"
 #include "Heist/HHHauntDirector.h"
+#include "Heist/HHSaltLine.h"
 #include "Heist/HHHeistGameMode.h"
 #include "Player/HHPlayerState.h"
 #include "Player/HHCharacter.h"
@@ -115,6 +116,51 @@ void AHHApparition::Hunt(const FVector& Location, APawn* Target, float Duration)
 	Witnesses.Reset();
 	OnRep_Mode();
 	ForceNetUpdate();
+}
+
+bool AHHApparition::IsInPhoto(const FVector& Eye, const FVector& Direction) const
+{
+	if (Mode == EHHApparitionMode::Hidden)
+	{
+		return false;
+	}
+	const FVector Center = GetActorLocation() + FVector(0.f, 0.f, 100.f);
+	const FVector ToMe = Center - Eye;
+	const float Distance = ToMe.Size();
+	if (Distance > 1800.f || FVector::DotProduct(Direction.GetSafeNormal(), ToMe / FMath::Max(Distance, 1.f)) < FMath::Cos(FMath::DegreesToRadians(28.f)))
+	{
+		return false;
+	}
+	FHitResult Hit;
+	FCollisionQueryParams Params(SCENE_QUERY_STAT(HHApparitionPhoto), false);
+	Params.AddIgnoredActor(this);
+	return !GetWorld()->LineTraceSingleByChannel(Hit, Eye, Center, ECC_Visibility, Params)
+		|| FVector::DistSquared(Hit.ImpactPoint, Center) < FMath::Square(80.f);
+}
+
+void AHHApparition::OnPhotographed()
+{
+	if (!HasAuthority())
+	{
+		return;
+	}
+	if (Mode == EHHApparitionMode::Glimpse)
+	{
+		Vanish();
+	}
+	else if (Mode == EHHApparitionMode::Hunt)
+	{
+		Stall(2.5f);
+	}
+}
+
+void AHHApparition::Stall(float Seconds)
+{
+	if (HasAuthority())
+	{
+		StallUntil = FMath::Max(StallUntil, GetWorld()->GetTimeSeconds() + Seconds);
+		// The hunt does not last longer because of it.
+	}
 }
 
 void AHHApparition::Vanish()
@@ -252,6 +298,15 @@ void AHHApparition::TickHunt(float DeltaSeconds)
 	if (!Target || GetWorld()->GetTimeSeconds() > EndTime)
 	{
 		Vanish();
+		return;
+	}
+	// Salt on the floor or the flash in its face: it stands still for a moment.
+	if (AHHSaltLine::TryCross(this, GetActorLocation(), 75.f))
+	{
+		Stall(3.5f);
+	}
+	if (GetWorld()->GetTimeSeconds() < StallUntil)
+	{
 		return;
 	}
 

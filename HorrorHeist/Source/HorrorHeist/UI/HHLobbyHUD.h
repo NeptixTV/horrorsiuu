@@ -70,7 +70,14 @@ public:
 	void PlayBlackout(bool bCaughtByEntity);
 	/** Knocked down by the thing in the house: a short black flash. */
 	void PlayKnockdown();
+
+	/** 0..5 while the local player holds a noise meter on a job (0 otherwise). */
+	float GetNoiseMeterReading() const { return MeterReading; }
+
+	virtual void DrawHUD() override;
 	AHHPreviewStation* GetPreviewStation() const;
+	/** Shop of the store counter the menu was opened at (None = the Fence). */
+	FName GetActiveShop() const;
 	UHHInteractionComponent* GetInteraction() const;
 
 	/** Title card shown once per application start. */
@@ -89,6 +96,10 @@ private:
 	void HandleCaption(const FText& Text, float Duration, bool bIsSoundCaption);
 	void HandleSessionStatus(bool bSuccess, const FText& Message);
 	void UpdateJobAudio(float DeltaSeconds);
+	/** Noise meter in hand: read the house (0..5) and tick faster the higher it reads. */
+	void UpdateNoiseMeter(float DeltaSeconds);
+	/** Walkie marks of the crew, drawn over the world. */
+	void DrawPings();
 	void StopJobAudio();
 
 	TSharedPtr<SHHLobbyRoot> Root;
@@ -122,4 +133,7 @@ private:
 	float DroneLevel = 0.f;
 	float HeartLevel = 0.f;
 	bool bShowedSummary = false;
+
+	float MeterReading = 0.f;
+	float MeterTickTimer = 0.f;
 };

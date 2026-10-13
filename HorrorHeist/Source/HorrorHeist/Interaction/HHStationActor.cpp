@@ -2,6 +2,7 @@
 #include "Player/HHPlayerController.h"
 #include "Settings/HHGameUserSettings.h"
 #include "UI/HHLobbyHUD.h"
+#include "World/HHTimeOfDay.h"
 #include "Camera/CameraComponent.h"
 #include "Components/StaticMeshComponent.h"
 #include "EngineUtils.h"
@@ -20,9 +21,24 @@ AHHStationActor::AHHStationActor()
 	ViewCamera->bConstrainAspectRatio = false;
 }
 
+bool AHHStationActor::IsClosedNow() const
+{
+	const AHHTimeOfDay* Clock = bOpenByDayOnly ? AHHTimeOfDay::Get(this) : nullptr;
+	return Clock && Clock->IsNight();
+}
+
 bool AHHStationActor::CanInteract(AActor* Interactor) const
 {
-	return bUsable && Super::CanInteract(Interactor);
+	return bUsable && !IsClosedNow() && Super::CanInteract(Interactor);
+}
+
+FText AHHStationActor::GetInteractionPrompt(AActor* Interactor) const
+{
+	if (IsClosedNow())
+	{
+		return NSLOCTEXT("HHStation", "Closed", "Closed - opens in the morning");
+	}
+	return Super::GetInteractionPrompt(Interactor);
 }
 
 void AHHStationActor::Interact(AActor* Interactor)
@@ -85,10 +101,11 @@ AHHStationActor* AHHStationActor::FindForScreen(const UWorld* World, EHHLobbyScr
 	{
 		return nullptr;
 	}
+	// The menu's "Store" means the Fence in the hideout, not one of the shops in town.
 	AHHStationActor* Fallback = nullptr;
 	for (TActorIterator<AHHStationActor> It(World); It; ++It)
 	{
-		if (It->Screen != InScreen)
+		if (It->Screen != InScreen || !It->ShopId.IsNone())
 		{
 			continue;
 		}

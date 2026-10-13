@@ -182,9 +182,38 @@ def sack():
     return b
 
 
+@prop('SM_EQ_FirstAid', 'Equipment', 'box')
+def first_aid():
+    """Small red soft case with a white cross, zip and a carry loop."""
+    b = Builder('SM_EQ_FirstAid')
+    b.box((0.2, 0.13, 0.07), (0, 0, 0.035), 'MI_Plastic_Red', bevel=0.02)
+    for k, (w, h) in enumerate(((0.05, 0.016), (0.016, 0.05))):
+        b.box((w, h, 0.002), (0, 0, 0.0705 + 0.0006 * k), 'MI_Plastic_White')  # no coplanar overlap
+    b.tube([(-0.095, -0.065, 0.05), (0.095, -0.065, 0.05)], 0.003, 'MI_Chrome', segs=6)
+    b.box((0.012, 0.006, 0.02), (0.07, -0.068, 0.05), 'MI_Chrome', bevel=0.002)
+    b.torus(0.025, 0.006, (-0.1, 0, 0.05), 'MI_Nylon_Black', rot=(0, 90, 0), segs=14, rsegs=5, arc=180)
+    return b
+
+
+@prop('SM_Salt_Line', 'Equipment', 'none')
+def salt_line():
+    """A poured line of coarse salt, 1.2 m along X, centred on the origin (no collision)."""
+    import random
+    rng = random.Random(7)
+    b = Builder('SM_Salt_Line')
+    for i in range(46):
+        x = -0.6 + 1.2 * i / 45 + rng.uniform(-0.01, 0.01)
+        w = 0.05 + 0.025 * math.sin(i * 0.7) + rng.uniform(-0.01, 0.01)
+        b.sphere(w * 0.5, (x, rng.uniform(-0.012, 0.012), 0.0), 'MI_Paint_White',
+                 scale=(1.6, 1.0, 0.18), segs=8, rings=4)
+    for _ in range(40):  # stray grains
+        b.box((0.006, 0.006, 0.004), (rng.uniform(-0.62, 0.62), rng.uniform(-0.07, 0.07), 0.002), 'MI_Paint_White')
+    return b
+
+
 EQUIPMENT_MESHES = ['SM_EQ_Torch_Pocket', 'SM_EQ_Torch_Patrol', 'SM_EQ_Headlamp', 'SM_EQ_Lantern', 'SM_EQ_Lockpicks',
                     'SM_EQ_Crowbar', 'SM_EQ_GlassCutter', 'SM_EQ_Walkie', 'SM_EQ_SaltPouch', 'SM_EQ_Camera',
-                    'SM_EQ_NoiseMeter', 'SM_EQ_Duffel', 'SM_EQ_Sack']
+                    'SM_EQ_NoiseMeter', 'SM_EQ_Duffel', 'SM_EQ_Sack', 'SM_EQ_FirstAid', 'SM_Salt_Line']
 
 
 def main():

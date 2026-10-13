@@ -1,5 +1,6 @@
 #include "Player/HHPlayerController.h"
 #include "Player/HHPlayerState.h"
+#include "Player/HHInventoryComponent.h"
 #include "Player/HHCharacter.h"
 #include "Lobby/HHLobbyGameMode.h"
 #include "Lobby/HHLobbyGameState.h"
@@ -140,10 +141,17 @@ void AHHPlayerController::HandleMenuAction()
 
 void AHHPlayerController::HandleInventoryAction()
 {
-	if (AHHLobbyHUD* LobbyHUD = GetLobbyHUD())
+	AHHLobbyHUD* LobbyHUD = GetLobbyHUD();
+	if (!LobbyHUD)
 	{
-		LobbyHUD->OpenScreen(EHHLobbyScreen::Loadout);
+		return;
 	}
+	// On a job Tab shows the bag; changing the loadout there would do nothing until the next job.
+	const AHHPlayerState* State = GetHHPlayerState();
+	const UHHInventoryComponent* Inventory = State ? State->GetInventory() : nullptr;
+	const bool bOnJob = Inventory && Inventory->IsEnabled();
+	const EHHLobbyScreen Wanted = bOnJob ? EHHLobbyScreen::Inventory : EHHLobbyScreen::Loadout;
+	LobbyHUD->OpenScreen(LobbyHUD->GetScreen() == Wanted ? EHHLobbyScreen::None : Wanted);
 }
 
 void AHHPlayerController::HandleMapAction()

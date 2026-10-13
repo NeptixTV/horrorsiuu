@@ -2,6 +2,7 @@
 
 #include "CoreMinimal.h"
 #include "Misc/EnumRange.h"
+#include "Engine/NetSerialization.h"
 #include "HHTypes.generated.h"
 
 /** Where a cosmetic is worn. Order defines the order of the customization tabs. */
@@ -65,7 +66,9 @@ enum class EHHLobbyScreen : uint8
 	Loadout,
 	Customization,
 	Store,
-	Settings
+	Settings,
+	/** On a job: the five carry slots in detail (Tab). */
+	Inventory
 };
 
 UENUM(BlueprintType)
@@ -231,7 +234,7 @@ struct HORRORHEIST_API FHHInventorySlot
 	UPROPERTY(BlueprintReadOnly, Category = "Inventory")
 	FName ItemId;
 
-	/** Rolled value of this particular piece of loot (0 for equipment). */
+	/** Loot: its rolled value. Equipment: charges left (salt, film, first aid), 0 if it has none. */
 	UPROPERTY(BlueprintReadOnly, Category = "Inventory")
 	int32 Value = 0;
 
@@ -399,6 +402,26 @@ struct HORRORHEIST_API FHHCrewRecord
 	bool bRevived = false;
 };
 
+/** A spot a crew member marked with the walkie (shown to the whole crew for a few seconds). */
+USTRUCT(BlueprintType)
+struct HORRORHEIST_API FHHPing
+{
+	GENERATED_BODY()
+
+	UPROPERTY(BlueprintReadOnly, Category = "Ping")
+	FVector_NetQuantize Location = FVector::ZeroVector;
+
+	UPROPERTY(BlueprintReadOnly, Category = "Ping")
+	int32 CrewSlot = 0;
+
+	UPROPERTY(BlueprintReadOnly, Category = "Ping")
+	FString Name;
+
+	/** Game-state clock (server world time) when it was placed. */
+	UPROPERTY(BlueprintReadOnly, Category = "Ping")
+	float Time = 0.f;
+};
+
 USTRUCT(BlueprintType)
 struct HORRORHEIST_API FHHMissionSummary
 {
@@ -425,6 +448,13 @@ struct HORRORHEIST_API FHHMissionSummary
 	/** What the fence keeps for hot goods / lying low (already taken off the payout). */
 	UPROPERTY(BlueprintReadOnly, Category = "Summary")
 	int32 FenceCut = 0;
+
+	/** Flash photos of the thing in the house, and what a magazine pays for them (part of the payout). */
+	UPROPERTY(BlueprintReadOnly, Category = "Summary")
+	int32 Photos = 0;
+
+	UPROPERTY(BlueprintReadOnly, Category = "Summary")
+	int32 PhotoBonus = 0;
 
 	UPROPERTY(BlueprintReadOnly, Category = "Summary")
 	int32 PayoutPerPlayer = 0;

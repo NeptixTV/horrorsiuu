@@ -46,6 +46,11 @@ private:
 	TSharedRef<SWidget> BuildAlert();
 	TSharedRef<SWidget> BuildPsyche();
 	TSharedRef<SWidget> BuildHotbar();
+	TSharedRef<SWidget> BuildNoiseMeter();
+	/** Tool tag of the equipment in the local player's hand (None for loot / empty hands). */
+	FName GetHeldTool() const;
+	/** 0..5, from the HUD (it also drives the ticking). */
+	float GetMeterReading() const;
 	TSharedRef<SWidget> BuildSlot(int32 Index);
 
 	void RebuildObjectives();

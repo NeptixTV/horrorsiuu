@@ -10,7 +10,10 @@ class SWrapBox;
 class UHHItemDefinition;
 struct FSlateBrush;
 
-/** "The Fence": buy gear and clothes with cash earned on jobs. */
+/**
+ * Buy gear and clothes with cash earned on jobs. In the hideout this is the Fence; the store
+ * counters in town (Cobb's Hardware, Pick & Save) open the same panel with their own range.
+ */
 class SHHStorePanel : public SCompoundWidget
 {
 public:
@@ -33,6 +36,8 @@ private:
 	TSharedPtr<SBox> Details;
 	int32 Category = 0;
 	FName Selected;
+	/** Which shop this is (None = the Fence). */
+	FName ShopId;
 	TArray<TSharedPtr<FSlateBrush>> Brushes;
 	FDelegateHandle ProfileHandle;
 };

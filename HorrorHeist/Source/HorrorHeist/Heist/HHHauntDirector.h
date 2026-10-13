@@ -2,6 +2,7 @@
 
 #include "CoreMinimal.h"
 #include "GameFramework/Actor.h"
+#include "Engine/NetSerialization.h"
 #include "HHHauntDirector.generated.h"
 
 class USoundBase;
@@ -53,8 +54,18 @@ public:
 
 	virtual void BeginPlay() override;
 	virtual void EndPlay(const EEndPlayReason::Type EndPlayReason) override;
+	virtual void GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& OutLifetimeProps) const override;
 
 	static AHHHauntDirector* Get(const UObject* WorldContextObject);
+
+	// ---- Read by the noise meter (any machine) -----------------------------------------
+
+	/** Where and when (game-state clock) the house last did something. */
+	FVector GetLastEventLocation() const { return LastEventLocation; }
+	float GetLastEventTime() const { return LastEventTime; }
+	/** The lights are going: a hunt starts within seconds. */
+	bool IsHuntImminent() const;
+	float GetServerTime() const;
 
 	float GetAnger() const { return Anger; }
 	int32 GetStage() const { return Stage; }
@@ -138,6 +149,10 @@ protected:
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Haunt")
 	float AngerPerSecond = 0.2f;
 
+	/** Lights flicker (and the noise meter pins) this long before a hunt starts. */
+	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Haunt")
+	float HuntWarningSeconds = 4.f;
+
 	UPROPERTY(EditAnywhere, Category = "Sounds")
 	TArray<TObjectPtr<USoundBase>> SettleSounds;
 
@@ -172,6 +187,18 @@ protected:
 	TArray<TObjectPtr<USoundBase>> StingerSounds;
 
 private:
+	UPROPERTY(Replicated)
+	FVector_NetQuantize LastEventLocation = FVector::ZeroVector;
+
+	UPROPERTY(Replicated)
+	float LastEventTime = -1000.f;
+
+	UPROPERTY(Replicated)
+	float HuntWarningUntil = 0.f;
+
+	/** Location of the event being run (set by the Do* functions). */
+	FVector EventAt = FVector::ZeroVector;
+	FTimerHandle HuntTimer;
 	FTimerHandle ThinkTimer;
 	bool bActive = true;
 	float Anger = 0.f;

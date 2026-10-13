@@ -9,6 +9,14 @@
 #include "Heist/HHHeistGameState.h"
 #include "Player/HHPlayerController.h"
 #include "Player/HHCharacter.h"
+#include "EngineUtils.h"
+#include "Engine/Engine.h"
+#include "Engine/Canvas.h"
+#include "Data/HHEquipmentDefinition.h"
+#include "Data/HHItemRegistrySubsystem.h"
+#include "Player/HHInventoryComponent.h"
+#include "Heist/HHApparition.h"
+#include "Heist/HHHauntDirector.h"
 #include "Vehicles/HHVanVehicle.h"
 #include "Player/HHInteractionComponent.h"
 #include "Core/HHGameInstance.h"
@@ -310,6 +318,12 @@ void AHHLobbyHUD::CloseMenu()
 	OpenScreen(EHHLobbyScreen::None);
 }
 
+FName AHHLobbyHUD::GetActiveShop() const
+{
+	const AHHStationActor* Station = ActiveStation.Get();
+	return Station && Station->GetScreen() == EHHLobbyScreen::Store ? Station->GetShopId() : NAME_None;
+}
+
 AActor* AHHLobbyHUD::GetExploreViewTarget() const
 {
 	APawn* Pawn = PlayerOwner ? PlayerOwner->GetPawn() : nullptr;
@@ -383,6 +397,7 @@ void AHHLobbyHUD::Tick(float DeltaSeconds)
 
 	TryBindGameState();
 	UpdateJobAudio(DeltaSeconds);
+	UpdateNoiseMeter(DeltaSeconds);
 
 	// Joined late / missed the reward RPC: still show the summary once the job has ended.
 	if (const AHHHeistGameState* HeistState = GetHeistState())
@@ -750,6 +765,106 @@ void AHHLobbyHUD::UpdateJobAudio(float DeltaSeconds)
 		// The street bed fades while inside the house.
 		const bool bInside = MyState && MyState->IsInsideHouse();
 		NightAudio->SetVolumeMultiplier(FMath::FInterpTo(NightAudio->VolumeMultiplier, bInside ? 0.25f : 0.8f, DeltaSeconds, 1.f));
+	}
+}
+
+void AHHLobbyHUD::UpdateNoiseMeter(float DeltaSeconds)
+{
+	const AHHPlayerController* PC = GetHHController();
+	const AHHCharacter* Me = PC ? Cast<AHHCharacter>(PC->GetPawn()) : nullptr;
+	const AHHPlayerState* MyState = PC ? PC->GetHHPlayerState() : nullptr;
+	const UHHInventoryComponent* Inventory = MyState ? MyState->GetInventory() : nullptr;
+	const UHHItemRegistrySubsystem* Registry = UHHItemRegistrySubsystem::Get(this);
+	const UHHEquipmentDefinition* Held = Inventory && Inventory->IsEnabled() && Registry && Inventory->GetSelected().Kind == EHHInventoryKind::Equipment
+		? Registry->FindEquipment(Inventory->GetSelected().ItemId) : nullptr;
+	const AHHHauntDirector* Director = AHHHauntDirector::Get(this);
+	if (!Me || !Held || Held->ToolTag != TEXT("NoiseMeter") || !Director || Me->IsIncapacitated())
+	{
+		MeterReading = 0.f;
+		return;
+	}
+
+	// The house in general, then where it last did something (fading), then the thing itself.
+	const float Sensitivity = FMath::Clamp(Held->GetStat(TEXT("Sensitivity"), 70.f) / 70.f, 0.5f, 1.5f);
+	const AHHHeistGameState* HeistState = GetHeistState();
+	float Target = 0.3f + (HeistState ? HeistState->GetHauntStage() * 0.3f : 0.f);
+	const float Age = Director->GetServerTime() - Director->GetLastEventTime();
+	if (Age >= 0.f && Age < 12.f)
+	{
+		const float Distance = FVector::Dist(Me->GetActorLocation(), Director->GetLastEventLocation());
+		Target = FMath::Max(Target, 4.6f * FMath::Clamp(1.f - Distance / (1300.f * Sensitivity), 0.f, 1.f) * (1.f - Age / 12.f));
+	}
+	for (TActorIterator<AHHApparition> It(GetWorld()); It; ++It)
+	{
+		if (It->GetMode() != EHHApparitionMode::Hidden)
+		{
+			const float Distance = FVector::Dist(Me->GetActorLocation(), It->GetActorLocation());
+			Target = FMath::Max(Target, 5.f * FMath::Clamp(1.f - Distance / (1600.f * Sensitivity), 0.f, 1.f));
+		}
+	}
+	if (Director->IsHuntImminent())
+	{
+		Target = 5.f;
+	}
+	// A needle with a little life in it.
+	Target += 0.15f * FMath::Sin(GetWorld()->GetTimeSeconds() * 7.3f) * FMath::Clamp(Target / 2.f, 0.f, 1.f);
+	MeterReading = FMath::FInterpTo(MeterReading, FMath::Clamp(Target, 0.f, 5.f), DeltaSeconds, 6.f);
+
+	MeterTickTimer -= DeltaSeconds;
+	if (MeterTickTimer <= 0.f)
+	{
+		MeterTickTimer = FMath::Lerp(1.4f, 0.07f, MeterReading / 5.f);
+		if (const UHHGameData* GameData = UHHGameData::Get(this))
+		{
+			if (USoundBase* Tick = GameData->NoiseMeterTickSound.LoadSynchronous())
+			{
+				UGameplayStatics::PlaySound2D(this, Tick, 0.5f + 0.1f * MeterReading);
+			}
+		}
+	}
+}
+
+void AHHLobbyHUD::DrawHUD()
+{
+	Super::DrawHUD();
+	DrawPings();
+}
+
+void AHHLobbyHUD::DrawPings()
+{
+	const AHHHeistGameState* HeistState = GetHeistState();
+	if (!HeistState || !Canvas || !PlayerOwner || !PlayerOwner->PlayerCameraManager || bShowedSummary)
+	{
+		return;
+	}
+	const FVector CameraLocation = PlayerOwner->PlayerCameraManager->GetCameraLocation();
+	const FVector CameraForward = PlayerOwner->PlayerCameraManager->GetCameraRotation().Vector();
+	const float Now = HeistState->GetServerTime();
+	UFont* Font = GEngine ? GEngine->GetSmallFont() : nullptr;
+	for (const FHHPing& Ping : HeistState->GetPings())
+	{
+		const float Age = Now - Ping.Time;
+		if (Age < 0.f || Age > AHHHeistGameState::PingLifetime)
+		{
+			continue;
+		}
+		const FVector Spot = FVector(Ping.Location) + FVector(0.f, 0.f, 25.f);
+		if (FVector::DotProduct(Spot - CameraLocation, CameraForward) <= 0.f)
+		{
+			continue;
+		}
+		const FVector Screen = Project(Spot, false);
+		const float Fade = FMath::Clamp((AHHHeistGameState::PingLifetime - Age) / 3.f, 0.f, 1.f);
+		FLinearColor Color = AHHPlayerState::CrewColorForSlot(Ping.CrewSlot);
+		Color.A = Fade;
+		// A small diamond and "Name  12 m".
+		const float Size = 7.f;
+		DrawLine(Screen.X, Screen.Y - Size, Screen.X + Size, Screen.Y, Color, 2.f);
+		DrawLine(Screen.X + Size, Screen.Y, Screen.X, Screen.Y + Size, Color, 2.f);
+		DrawLine(Screen.X, Screen.Y + Size, Screen.X - Size, Screen.Y, Color, 2.f);
+		DrawLine(Screen.X - Size, Screen.Y, Screen.X, Screen.Y - Size, Color, 2.f);
+		const int32 Meters = FMath::RoundToInt(FVector::Dist(CameraLocation, Spot) / 100.f);
+		DrawText(FString::Printf(TEXT("%s  %d m"), *Ping.Name, Meters), Color, Screen.X + Size + 4.f, Screen.Y - 7.f, Font, 1.f);
 	}
 }
 
