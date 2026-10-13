@@ -36,6 +36,8 @@ public:
 	bool IsCrewLeader() const { return bCrewLeader; }
 	int32 GetCrewSlot() const { return CrewSlot; }
 	FLinearColor GetCrewColor() const;
+	/** The crew colour of a slot (also used where the player state is gone, e.g. the summary). */
+	static FLinearColor CrewColorForSlot(int32 Slot);
 	UHHInventoryComponent* GetInventory() const { return Inventory; }
 
 	// --- Job state (replicated, written by the heist rules) ---

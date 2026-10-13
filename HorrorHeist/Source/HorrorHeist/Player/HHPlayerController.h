@@ -30,6 +30,8 @@ public:
 
 	void RequestToggleReady();
 	void RequestSelectMission(FName MissionId);
+	/** Crew leader: where the van goes at the end of the job (AHHEscapeZone id). */
+	void RequestSelectSafehouse(FName ZoneId);
 	/** Sends the current profile (name, level, loadouts) to the server. */
 	void PushProfileToServer();
 
@@ -72,6 +74,13 @@ public:
 	void ServerSelectMission(FName MissionId);
 
 	UFUNCTION(Server, Reliable)
+	void ServerSelectSafehouse(FName ZoneId);
+
+	/** A joining player adds what they scouted before to the crew's notebook. */
+	UFUNCTION(Server, Reliable)
+	void ServerShareIntel(const TArray<FName>& IntelIds);
+
+	UFUNCTION(Server, Reliable)
 	void ServerWaitForNight();
 
 	UFUNCTION(Server, Reliable)
@@ -110,9 +119,21 @@ public:
 	UFUNCTION(Exec)
 	void HHHauntEvent(int32 EventIndex);
 
-	/** End the job: 1 success, 2 partial, 3 caught, 4 abandoned (host, on a job). */
+	/** End the job: 1 success, 2 partial, 3 caught, 4 abandoned, 5 hot getaway, 6 boxed in (host, on a job). */
 	UFUNCTION(Exec)
 	void HHEndJob(int32 Outcome);
+
+	/** Learn all intel of the pinned / current job (host). "HHLearnIntel 0" forgets the crew's notebook for this session. */
+	UFUNCTION(Exec)
+	void HHLearnIntel(int32 bLearn);
+
+	/** Call the police now (host, on a job). */
+	UFUNCTION(Exec)
+	void HHCallPolice();
+
+	/** Send the neighbour out to look around (host, on a job). */
+	UFUNCTION(Exec)
+	void HHSendNeighbour();
 
 protected:
 	void HandleMenuAction();

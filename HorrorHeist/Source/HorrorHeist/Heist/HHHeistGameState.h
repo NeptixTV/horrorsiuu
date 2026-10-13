@@ -23,6 +23,12 @@ class HORRORHEIST_API AHHHeistGameState : public AHHLobbyGameState
 public:
 	virtual void GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& OutLifetimeProps) const override;
 
+	/**
+	 * True in a job map, also on clients before the game state has replicated (the map's game
+	 * mode override in its world settings says so).
+	 */
+	static bool IsJobWorld(const UObject* WorldContextObject);
+
 	EHHHeistPhase GetHeistPhase() const { return HeistPhase; }
 	const TArray<FHHObjective>& GetObjectives() const { return Objectives; }
 	int32 GetSecuredValue() const { return SecuredValue; }
@@ -39,8 +45,10 @@ public:
 	const FHHMissionSummary& GetSummary() const { return Summary; }
 	/** Seconds since the crew arrived. */
 	float GetElapsed() const;
+	/** Crew members sitting in the van / in the crew. */
 	int32 GetCrewAtVan() const { return CrewAtVan; }
 	int32 GetCrewTotal() const { return CrewTotal; }
+	EHHPoliceState GetPoliceState() const { return PoliceState; }
 
 	// ---- Server ------------------------------------------------------------------------
 
@@ -55,6 +63,7 @@ public:
 	void AddKey(FName KeyId);
 	void SetSummary(const FHHMissionSummary& NewSummary);
 	void SetVanCount(int32 AtVan, int32 Total);
+	void SetPoliceState(EHHPoliceState NewState);
 
 	/** One-shot sound at a location for everybody (reliable enough for feedback, cheap). */
 	UFUNCTION(NetMulticast, Unreliable)
@@ -107,4 +116,7 @@ private:
 
 	UPROPERTY(ReplicatedUsing = OnRep_Heist)
 	int32 CrewTotal = 0;
+
+	UPROPERTY(ReplicatedUsing = OnRep_Heist)
+	EHHPoliceState PoliceState = EHHPoliceState::None;
 };

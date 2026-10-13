@@ -14,6 +14,7 @@ oscillators, filters, modal resonators and algorithmic impulse responses.
 | `gen_sfx.py` | First batch: hideout ambience, rain, thunder, creaks, whispers, door/locker/switch SFX, indoor footsteps, UI sounds. |
 | `gen_music.py` | Hideout theme, title and departure stings, the two in-world radio stations. |
 | `gen_world_sfx.py` | Second batch: town and house ambience, haunting events, lights/devices, gameplay SFX, outdoor footsteps, extra UI, haunting drone/stingers and mission stings. |
+| `gen_vehicle_sfx.py` | Third batch: the van's engine loop and horn, the patrol car siren, the garage door motor, a car bump and the neighbour's shout. |
 
 Run any script from the `HorrorHeist` folder (e.g. `python Tools/AssetGen/audio/gen_world_sfx.py`)
 to regenerate its files bit-for-bit; all randomness is seeded.

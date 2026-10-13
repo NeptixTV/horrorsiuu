@@ -265,8 +265,11 @@ def south_side():
     laundromat()
     brannigan()
     # The hideout's garage door and basement windows belong to the street front (seen from both
-    # sides; the job maps stream the town without the hideout).
-    PL.place('SM_RollUpDoor', (-3.6, 5.0, 0), collection='Laundromat')
+    # sides; the job maps stream the town without the hideout). The door opens (from the van too).
+    BH.actor('HHGarageDoor', K.mat((-3.6, 5.0, 0)), 'Gameplay', mesh='SM_RollUpDoor_Curtain', name='Hideout_GarageDoor',
+             properties={'MotorSound': BH.asset('S_Garage_Door_Motor_01'), 'bHubOnly': True},
+             components={'Frame': {'StaticMesh': BH.asset('SM_RollUpDoor_Frame')}})
+    BH.obj_from_mesh('SM_RollUpDoor_Frame', K.mat((-3.6, 5.0, 0)), 'Laundromat')
     PL.place('SM_Window_Basement', (1.5, 5.125, 2.8), collection='Laundromat')
     PL.place('SM_Window_Basement', (-7.125, 3.0, 2.8), rot=90, collection='Laundromat')
 
@@ -962,6 +965,60 @@ def decals():
                  depth=0.4, name=mat_name.replace('MI_Decal_', 'Decal_'))
 
 
+# =======================================================================================
+# Getaway: where the van can go at the end of a job, and the roads the police drive on
+
+ESCAPES = [
+    # id, name, description, centre (m), half size (m), accepts while chased, fence cut, stop seconds
+    ('Hideout', 'Home: the laundromat garage',
+     "Down the ramp behind Marlowe's. No extra cut - but don't lead the police home: it won't work with a "
+     "patrol car on your tail.", (-3.6, 8.2, 1.4), (1.9, 2.6, 2.0), False, 0.0, 0.0),
+    ('Quarry', 'The quarry road (out of town)',
+     'East end of Main Street, past the roadworks. Even a chase ends out there - the fence takes 10% for '
+     'collecting from the woods.', (75.0, 20.5, TZ + 1.5), (4.0, 4.0, 2.5), True, 0.10, 0.0),
+    ('CarPark', 'Municipal car park',
+     'Park between the cars by Main Street and kill the engine (6 seconds still). Close to Ashgrove Lane; '
+     'someone has to fetch the van later (5%). Not while you are being chased.', (29.0, 4.0, TZ + 1.5),
+     (10.5, 9.5, 2.5), False, 0.05, 6.0),
+]
+
+ROAD_Z = TZ + 0.5
+ROAD_NODES = [
+    # id, (x, y), links (both ways)
+    ('M_W', (-78.0, 20.5), ['M_MAR']),
+    ('M_MAR', (-48.0, 20.5), ['M_LOT', 'R1']),
+    ('M_LOT', (-3.6, 20.5), ['M_PARK', 'L1']),
+    ('M_PARK', (29.0, 20.5), ['M_ASH', 'P1']),
+    ('M_ASH', (48.0, 20.5), ['M_E', 'A1']),
+    ('M_E', (78.0, 20.5), []),
+    ('A1', (48.0, 36.0), ['A_VANCE']),
+    ('A_VANCE', (47.0, 52.0), ['A2']),
+    ('A2', (48.0, 78.0), ['A_CH']),
+    ('A_CH', (48.0, 102.5), ['C_RECT']),
+    ('C_RECT', (21.0, 102.5), ['R_CH']),
+    ('R_CH', (-48.0, 102.5), ['R_MARROW']),
+    ('R_MARROW', (-48.0, 83.0), ['R1']),
+    ('R1', (-48.0, 40.0), []),
+    ('L1', (-3.6, 14.5), []),
+    ('P1', (29.0, 8.0), []),
+]
+# The patrol: in from the west, round the block past the Vance house and the church, back out west.
+PATROL_ROUTE = ['M_W', 'M_MAR', 'M_LOT', 'M_PARK', 'M_ASH', 'A1', 'A_VANCE', 'A2', 'A_CH', 'C_RECT', 'R_CH',
+                'R_MARROW', 'R1', 'M_MAR', 'M_W']
+
+
+def getaway():
+    for zid, name, desc, c, half, chased, cut, stop in ESCAPES:
+        BH.actor('HHEscapeZone', K.mat(c), 'Gameplay', name='Escape_' + zid,
+                 properties={'ZoneId': zid, 'DisplayName': BH.text(name), 'Description': BH.text(desc),
+                             'bAcceptWhileChased': chased, 'FenceCut': cut, 'StopSeconds': stop,
+                             'SortOrder': [e[0] for e in ESCAPES].index(zid)},
+                 components={'Zone': {'BoxExtent': [half[0] * 100.0, half[1] * 100.0, half[2] * 100.0]}})
+    for nid, (x, y), links in ROAD_NODES:
+        BH.actor('HHRoadNode', K.mat((x, y, ROAD_Z)), 'Roads', name='Road_' + nid,
+                 properties={'NodeId': nid, 'Links': links})
+
+
 def build():
     streets()
     south_side()
@@ -973,3 +1030,4 @@ def build():
     edges()
     decals()
     ambience()
+    getaway()

@@ -487,124 +487,13 @@
    ]
   },
   {
-   "name": "SM_Van_Body_1",
-   "cls": "StaticMeshActor",
-   "folder": "Van",
-   "mesh": "SM_Van_Body",
+   "name": "Van",
+   "cls": "HHVanVehicle",
+   "folder": "Gameplay",
    "location": [
     -360.0,
     -160.0,
-    0.0
-   ],
-   "quat": [
-    0.0,
-    0.0,
-    0.0,
-    1.0
-   ],
-   "scale": [
-    1.0,
-    1.0,
-    1.0
-   ]
-  },
-  {
-   "name": "SM_Van_Wheel_1",
-   "cls": "StaticMeshActor",
-   "folder": "Van",
-   "mesh": "SM_Van_Wheel",
-   "location": [
-    -272.0,
-    -5.0,
-    37.5
-   ],
-   "quat": [
-    0.0,
-    0.0,
-    0.0,
-    1.0
-   ],
-   "scale": [
-    1.0,
-    1.0,
-    1.0
-   ]
-  },
-  {
-   "name": "SM_Van_Wheel_2",
-   "cls": "StaticMeshActor",
-   "folder": "Van",
-   "mesh": "SM_Van_Wheel",
-   "location": [
-    -448.0,
-    -5.0,
-    37.5
-   ],
-   "quat": [
-    0.0,
-    0.0,
-    1.0,
-    0.0
-   ],
-   "scale": [
-    1.0,
-    1.0,
-    1.0
-   ]
-  },
-  {
-   "name": "SM_Van_Wheel_3",
-   "cls": "StaticMeshActor",
-   "folder": "Van",
-   "mesh": "SM_Van_Wheel",
-   "location": [
-    -272.0,
-    -305.0,
-    37.5
-   ],
-   "quat": [
-    0.0,
-    0.0,
-    0.0,
-    1.0
-   ],
-   "scale": [
-    1.0,
-    1.0,
-    1.0
-   ]
-  },
-  {
-   "name": "SM_Van_Wheel_4",
-   "cls": "StaticMeshActor",
-   "folder": "Van",
-   "mesh": "SM_Van_Wheel",
-   "location": [
-    -448.0,
-    -305.0,
-    37.5
-   ],
-   "quat": [
-    0.0,
-    0.0,
-    1.0,
-    0.0
-   ],
-   "scale": [
-    1.0,
-    1.0,
-    1.0
-   ]
-  },
-  {
-   "name": "SM_Van_Livery_1",
-   "cls": "StaticMeshActor",
-   "folder": "Van",
-   "mesh": "SM_Van_Livery",
-   "location": [
-    -258.8,
-    -22.0,
-    145.0
+    127.0
    ],
    "quat": [
     0.0,
@@ -617,30 +506,32 @@
     1.0,
     1.0
    ],
-   "cast_shadow": false
-  },
-  {
-   "name": "SM_Van_Livery_2",
-   "cls": "StaticMeshActor",
-   "folder": "Van",
-   "mesh": "SM_Van_Livery",
-   "location": [
-    -461.2,
-    -140.0,
-    145.0
-   ],
-   "quat": [
-    0.0,
-    0.0,
-    0.707107,
-    0.707107
-   ],
-   "scale": [
-    1.0,
-    1.0,
-    1.0
-   ],
-   "cast_shadow": false
+   "properties": {
+    "BodyMesh": {
+     "asset": "SM_Van_Body"
+    },
+    "WheelMesh": {
+     "asset": "SM_Van_Wheel"
+    },
+    "LiveryMesh": {
+     "asset": "SM_Van_Livery"
+    },
+    "EngineLoop": {
+     "asset": "S_Van_Engine_Loop"
+    },
+    "BumpSound": {
+     "asset": "S_Car_Bump_01"
+    },
+    "DoorSound": {
+     "asset": "S_Car_Door_Close_01"
+    },
+    "EngineStartSound": {
+     "asset": "S_Van_Engine_Start_01"
+    },
+    "HornSound": {
+     "asset": "S_Van_Horn_01"
+    }
+   }
   },
   {
    "name": "VanDoor_Ready",

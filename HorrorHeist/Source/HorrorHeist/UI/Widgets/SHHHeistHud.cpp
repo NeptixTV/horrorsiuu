@@ -3,6 +3,10 @@
 #include "UI/HHLobbyHUD.h"
 #include "UI/HHStyle.h"
 #include "Heist/HHHeistGameState.h"
+#include "Heist/HHEscapeZone.h"
+#include "NPC/HHNeighbourNPC.h"
+#include "Player/HHCharacter.h"
+#include "Vehicles/HHVanVehicle.h"
 #include "Player/HHPlayerController.h"
 #include "Player/HHPlayerState.h"
 #include "Player/HHInventoryComponent.h"
@@ -55,18 +59,6 @@ namespace HHHud
 			.ShadowColorAndOpacity(FLinearColor(0.f, 0.f, 0.f, 0.8f));
 	}
 
-	static FText StageName(int32 Stage)
-	{
-		switch (Stage)
-		{
-		case 1:		return LOCTEXT("Stage1", "uneasy");
-		case 2:		return LOCTEXT("Stage2", "disturbed");
-		case 3:		return LOCTEXT("Stage3", "hostile");
-		case 4:		return LOCTEXT("Stage4", "it showed itself");
-		default:	return LOCTEXT("Stage0", "quiet");
-		}
-	}
-
 	static FText Duration(float Seconds)
 	{
 		const int32 Total = FMath::Max(0, FMath::RoundToInt(Seconds));
@@ -107,6 +99,36 @@ void SHHHeistHud::Construct(const FArguments& InArgs)
 		+ SOverlay::Slot().HAlign(HAlign_Center).VAlign(VAlign_Bottom).Padding(FMargin(0.f, 0.f, 0.f, 26.f))
 		[
 			BuildHotbar()
+		]
+		// Arrested: you watch the rest of the job from the back of the patrol car.
+		+ SOverlay::Slot().HAlign(HAlign_Center).VAlign(VAlign_Center)
+		[
+			SNew(SVerticalBox)
+			.Visibility_Lambda([this]()
+			{
+				const AHHLobbyHUD* LobbyHUD = HUD.Get();
+				const AHHCharacter* Character = LobbyHUD && LobbyHUD->GetHHController() ? Cast<AHHCharacter>(LobbyHUD->GetHHController()->GetPawn()) : nullptr;
+				const AHHHeistGameState* State = GetState();
+				return Character && Character->IsArrested() && State && State->GetHeistPhase() != EHHHeistPhase::Ended ? EVisibility::HitTestInvisible : EVisibility::Collapsed;
+			})
+			+ SVerticalBox::Slot().AutoHeight().HAlign(HAlign_Center)
+			[
+				SNew(STextBlock)
+				.Text(LOCTEXT("Arrested", "ARRESTED"))
+				.Font(FHHStyle::Font(EHHFont::Display, 54.f, 300))
+				.ColorAndOpacity(FSlateColor(FHHStyle::Danger()))
+				.ShadowOffset(FVector2D(0.0, 2.0))
+				.ShadowColorAndOpacity(FLinearColor(0.f, 0.f, 0.f, 0.9f))
+			]
+			+ SVerticalBox::Slot().AutoHeight().HAlign(HAlign_Center).Padding(0.f, 8.f, 0.f, 0.f)
+			[
+				SNew(STextBlock)
+				.Text(LOCTEXT("ArrestedBody", "In the back of the patrol car. The crew can still get away with the van."))
+				.Font(FHHStyle::Font(EHHFont::Typewriter, 16.f))
+				.ColorAndOpacity(FSlateColor(FHHStyle::Text()))
+				.ShadowOffset(FVector2D(0.0, 1.0))
+				.ShadowColorAndOpacity(FLinearColor(0.f, 0.f, 0.f, 0.9f))
+			]
 		]
 	];
 }
@@ -309,10 +331,38 @@ TSharedRef<SWidget> SHHHeistHud::BuildTopRight()
 			.Text_Lambda([this]()
 			{
 				const AHHHeistGameState* State = GetState();
-				return State ? FText::Format(LOCTEXT("AtVan", "AT THE VAN  {0}/{1}"), FText::AsNumber(State->GetCrewAtVan()), FText::AsNumber(State->GetCrewTotal())) : FText::GetEmpty();
+				return State ? FText::Format(LOCTEXT("AtVan", "IN THE VAN  {0}/{1}"), FText::AsNumber(State->GetCrewAtVan()), FText::AsNumber(State->GetCrewTotal())) : FText::GetEmpty();
 			})
 			.Font(FHHStyle::Font(EHHFont::CondensedSemi, 12.f, 240))
 			.ColorAndOpacity(FSlateColor(FHHStyle::TextDim()))
+		]
+		// Where the van has to go, and how far it is.
+		+ SVerticalBox::Slot().AutoHeight().HAlign(HAlign_Right).Padding(0.f, 6.f, 0.f, 0.f)
+		[
+			SNew(STextBlock)
+			.Visibility_Lambda([this]() { return GetState() && AHHEscapeZone::Find(HUD.Get(), GetState()->GetSafehouse()) ? EVisibility::HitTestInvisible : EVisibility::Collapsed; })
+			.Text_Lambda([this]()
+			{
+				const AHHHeistGameState* State = GetState();
+				const AHHEscapeZone* Zone = State ? AHHEscapeZone::Find(HUD.Get(), State->GetSafehouse()) : nullptr;
+				const AHHLobbyHUD* LobbyHUD = HUD.Get();
+				const APawn* Pawn = LobbyHUD && LobbyHUD->GetHHController() ? LobbyHUD->GetHHController()->GetPawn() : nullptr;
+				if (!Zone || !Pawn)
+				{
+					return FText::GetEmpty();
+				}
+				const FVector Delta = Zone->GetActorLocation() - Pawn->GetActorLocation();
+				// Compass in town terms: north is +Y in the plans, which is -Y in the engine.
+				static const TCHAR* Points[] = { TEXT("E"), TEXT("SE"), TEXT("S"), TEXT("SW"), TEXT("W"), TEXT("NW"), TEXT("N"), TEXT("NE") };
+				const float Angle = FMath::RadiansToDegrees(FMath::Atan2(Delta.Y, Delta.X));
+				const int32 Sector = (FMath::RoundToInt(Angle / 45.f) % 8 + 8) % 8;
+				return FText::Format(LOCTEXT("Getaway", "GETAWAY  {0}  -  {1} M {2}"), Zone->GetDisplayName().ToUpper(),
+					FText::AsNumber(FMath::RoundToInt(Delta.Size2D() / 100.f)), FText::FromString(Points[Sector]));
+			})
+			.Font(FHHStyle::Font(EHHFont::CondensedSemi, 12.f, 240))
+			.ColorAndOpacity(FSlateColor(FHHStyle::Accent()))
+			.ShadowOffset(FVector2D(0.0, 1.0))
+			.ShadowColorAndOpacity(FLinearColor(0.f, 0.f, 0.f, 0.8f))
 		];
 }
 
@@ -325,7 +375,7 @@ TSharedRef<SWidget> SHHHeistHud::BuildAlert()
 		.Visibility_Lambda([this]()
 		{
 			const AHHHeistGameState* State = GetState();
-			return State && (State->GetAlert() > 1.f || State->IsPoliceCalled()) && State->GetHeistPhase() != EHHHeistPhase::Ended
+			return State && (State->GetAlert() > 1.f || State->IsPoliceCalled() || State->GetPoliceState() != EHHPoliceState::None) && State->GetHeistPhase() != EHHHeistPhase::Ended
 				? EVisibility::HitTestInvisible : EVisibility::Collapsed;
 		})
 		+ SVerticalBox::Slot().AutoHeight().HAlign(HAlign_Center)
@@ -336,7 +386,7 @@ TSharedRef<SWidget> SHHHeistHud::BuildAlert()
 				SNew(SImage)
 				.Image(FHHStyle::Brush("HH.Icon.Siren"))
 				.DesiredSizeOverride(FVector2D(16.0, 16.0))
-				.Visibility_Lambda([this]() { const AHHHeistGameState* State = GetState(); return State && State->IsPoliceCalled() ? EVisibility::HitTestInvisible : EVisibility::Collapsed; })
+				.Visibility_Lambda([this]() { const AHHHeistGameState* State = GetState(); return State && (State->IsPoliceCalled() || State->GetPoliceState() != EHHPoliceState::None) ? EVisibility::HitTestInvisible : EVisibility::Collapsed; })
 				.ColorAndOpacity_Lambda([this]() { return FSlateColor(FHHStyle::WithAlpha(FHHStyle::Danger(), 0.6f + 0.4f * FMath::Abs(FMath::Sin(static_cast<float>(Now) * 4.f)))); })
 			]
 			+ SHorizontalBox::Slot().AutoWidth().VAlign(VAlign_Center).Padding(8.f, 0.f, 0.f, 0.f)
@@ -345,9 +395,23 @@ TSharedRef<SWidget> SHHHeistHud::BuildAlert()
 				.Text_Lambda([this]()
 				{
 					const AHHHeistGameState* State = GetState();
-					if (State && State->IsPoliceCalled())
+					if (!State)
 					{
-						return FText::Format(LOCTEXT("Police", "POLICE ARRIVE IN {0}"), HHHud::Duration(State->GetPoliceRemaining()));
+						return FText::GetEmpty();
+					}
+					switch (State->GetPoliceState())
+					{
+					case EHHPoliceState::Patrol:	return LOCTEXT("PolicePatrol", "PATROL CAR IN THE STREET - STAY OUT OF SIGHT");
+					case EHHPoliceState::AtHouse:	return LOCTEXT("PoliceAtHouse", "POLICE AT THE HOUSE");
+					case EHHPoliceState::Chasing:	return LOCTEXT("PoliceChase", "POLICE ON YOUR TAIL - LOSE THEM");
+					case EHHPoliceState::Searching:	return LOCTEXT("PoliceSearch", "POLICE SEARCHING THE AREA");
+					default:						break;
+					}
+					if (State->IsPoliceCalled())
+					{
+						return State->GetPoliceRemaining() > 0.f
+							? FText::Format(LOCTEXT("Police", "POLICE ARRIVE IN {0}"), HHHud::Duration(State->GetPoliceRemaining()))
+							: LOCTEXT("PoliceAny", "POLICE ANY MOMENT");
 					}
 					return LOCTEXT("Neighbours", "THE NEIGHBOURS");
 				})
@@ -355,7 +419,7 @@ TSharedRef<SWidget> SHHHeistHud::BuildAlert()
 				.ColorAndOpacity_Lambda([this]()
 				{
 					const AHHHeistGameState* State = GetState();
-					return FSlateColor(State && (State->IsPoliceCalled() || State->GetAlert() > 60.f) ? FHHStyle::Danger() : FHHStyle::TextDim());
+					return FSlateColor(State && (State->IsPoliceCalled() || State->GetPoliceState() != EHHPoliceState::None || State->GetAlert() > 60.f) ? FHHStyle::Danger() : FHHStyle::TextDim());
 				})
 				.ShadowOffset(FVector2D(0.0, 1.0))
 				.ShadowColorAndOpacity(FLinearColor(0.f, 0.f, 0.f, 0.8f))
@@ -372,6 +436,35 @@ TSharedRef<SWidget> SHHHeistHud::BuildAlert()
 					return FSlateColor(FMath::Lerp(FHHStyle::Accent(), FHHStyle::Danger(), Alert));
 				}),
 				220.f, 3.f)
+		]
+		// The neighbour is out looking: how close he is to recognising someone.
+		+ SVerticalBox::Slot().AutoHeight().HAlign(HAlign_Center).Padding(0.f, 10.f, 0.f, 0.f)
+		[
+			SNew(SVerticalBox)
+			.Visibility_Lambda([this]()
+			{
+				const AHHNeighbourNPC* Npc = HUD.IsValid() ? AHHNeighbourNPC::Get(HUD.Get()) : nullptr;
+				return Npc && Npc->IsOut() && Npc->GetState() != EHHNeighbourState::Fleeing ? EVisibility::HitTestInvisible : EVisibility::Collapsed;
+			})
+			+ SVerticalBox::Slot().AutoHeight().HAlign(HAlign_Center)
+			[
+				SNew(STextBlock)
+				.Text_Lambda([this]()
+				{
+					const AHHNeighbourNPC* Npc = HUD.IsValid() ? AHHNeighbourNPC::Get(HUD.Get()) : nullptr;
+					return Npc ? FText::Format(LOCTEXT("NeighbourLooking", "{0} IS LOOKING AROUND"), Npc->GetDisplayName().ToUpper()) : FText::GetEmpty();
+				})
+				.Font(FHHStyle::Font(EHHFont::CondensedSemi, 12.f, 260))
+				.ColorAndOpacity(FSlateColor(FHHStyle::Accent()))
+				.ShadowOffset(FVector2D(0.0, 1.0))
+				.ShadowColorAndOpacity(FLinearColor(0.f, 0.f, 0.f, 0.8f))
+			]
+			+ SVerticalBox::Slot().AutoHeight().HAlign(HAlign_Center).Padding(0.f, 4.f, 0.f, 0.f)
+			[
+				HHHud::Meter(
+					TAttribute<float>::CreateLambda([this]() { const AHHNeighbourNPC* Npc = HUD.IsValid() ? AHHNeighbourNPC::Get(HUD.Get()) : nullptr; return Npc ? Npc->GetSuspicion() : 0.f; }),
+					TAttribute<FSlateColor>(FSlateColor(FHHStyle::Danger())), 140.f, 3.f)
+			]
 		];
 }
 
@@ -628,135 +721,6 @@ void SHHHeistHud::Tick(const FGeometry& AllottedGeometry, const double InCurrent
 			RefreshSlots();
 		}
 	}
-}
-
-// ---------------------------------------------------------------------------------------
-// Summary
-
-TSharedRef<SWidget> SHHHeistHud::MakeSummary(const FHHMissionSummary& Summary, TWeakObjectPtr<AHHLobbyHUD> OwnerHUD)
-{
-	const UHHItemRegistrySubsystem* Registry = OwnerHUD.IsValid() ? UHHItemRegistrySubsystem::Get(OwnerHUD.Get()) : nullptr;
-	const UHHMissionDefinition* Job = Registry ? Registry->FindMission(Summary.MissionId) : nullptr;
-	const bool bGood = Summary.Outcome == EHHMissionOutcome::Success;
-	const bool bBad = Summary.Outcome == EHHMissionOutcome::Caught || Summary.Outcome == EHHMissionOutcome::Abandoned;
-	const FLinearColor OutcomeColor = bGood ? FHHStyle::Ready() : (bBad ? FHHStyle::Danger() : FHHStyle::Accent());
-
-	auto Stat = [](const FText& Label, const FText& Value, const FLinearColor& Color)
-	{
-		return SNew(SVerticalBox)
-			+ SVerticalBox::Slot().AutoHeight()
-			[
-				SNew(STextBlock).Text(Label).Font(FHHStyle::Font(EHHFont::CondensedSemi, 11.f, 260)).ColorAndOpacity(FSlateColor(FHHStyle::TextFaint()))
-			]
-			+ SVerticalBox::Slot().AutoHeight().Padding(0.f, 2.f, 0.f, 0.f)
-			[
-				SNew(STextBlock).Text(Value).Font(FHHStyle::Font(EHHFont::MonoMedium, 22.f)).ColorAndOpacity(FSlateColor(Color))
-			];
-	};
-
-	TSharedRef<SVerticalBox> LootList = SNew(SVerticalBox);
-	const int32 Shown = FMath::Min(Summary.Loot.Num(), 9);
-	for (int32 Index = 0; Index < Shown; ++Index)
-	{
-		const FHHLootRecord& Record = Summary.Loot[Index];
-		const UHHItemDefinition* Item = Registry ? Registry->FindItem(Record.ItemId) : nullptr;
-		LootList->AddSlot().AutoHeight().Padding(0.f, 0.f, 0.f, 4.f)
-		[
-			SNew(SHorizontalBox)
-			+ SHorizontalBox::Slot().FillWidth(1.f)
-			[
-				SNew(STextBlock).Text(Item ? Item->DisplayName : FText::FromName(Record.ItemId)).Font(FHHStyle::Font(EHHFont::Body, 14.f)).ColorAndOpacity(FSlateColor(FHHStyle::Text()))
-			]
-			+ SHorizontalBox::Slot().AutoWidth().Padding(16.f, 0.f, 0.f, 0.f)
-			[
-				SNew(STextBlock).Text(FText::FromString(Record.StolenBy)).Font(FHHStyle::Font(EHHFont::Condensed, 12.f)).ColorAndOpacity(FSlateColor(FHHStyle::TextFaint()))
-			]
-			+ SHorizontalBox::Slot().AutoWidth().Padding(16.f, 0.f, 0.f, 0.f)
-			[
-				SNew(SBox).WidthOverride(90.f).HAlign(HAlign_Right)
-				[
-					SNew(STextBlock).Text(HHText::Money(Record.Value)).Font(FHHStyle::Font(EHHFont::Mono, 13.f)).ColorAndOpacity(FSlateColor(FHHStyle::Accent()))
-				]
-			]
-		];
-	}
-	if (Summary.Loot.Num() > Shown)
-	{
-		LootList->AddSlot().AutoHeight()
-		[
-			SNew(STextBlock)
-			.Text(FText::Format(LOCTEXT("MoreLoot", "... and {0} more"), FText::AsNumber(Summary.Loot.Num() - Shown)))
-			.Font(FHHStyle::Font(EHHFont::Condensed, 12.f))
-			.ColorAndOpacity(FSlateColor(FHHStyle::TextFaint()))
-		];
-	}
-	if (Summary.Loot.Num() == 0)
-	{
-		LootList->AddSlot().AutoHeight()
-		[
-			SNew(STextBlock).Text(LOCTEXT("NoLoot", "Nothing made it into the van.")).Font(FHHStyle::Font(EHHFont::Typewriter, 14.f)).ColorAndOpacity(FSlateColor(FHHStyle::TextDim()))
-		];
-	}
-
-	return SNew(SOverlay)
-		+ SOverlay::Slot()
-		[
-			SNew(SImage).Image(FHHStyle::Brush("HH.White")).ColorAndOpacity(FSlateColor(FLinearColor(0.f, 0.f, 0.f, 0.82f)))
-		]
-		+ SOverlay::Slot().HAlign(HAlign_Center).VAlign(VAlign_Center)
-		[
-			SNew(SBox)
-			.WidthOverride(760.f)
-			[
-				SNew(SVerticalBox)
-				+ SVerticalBox::Slot().AutoHeight()
-				[
-					SNew(STextBlock).Text(Job ? Job->DisplayName.ToUpper() : LOCTEXT("JobOver", "THE JOB")).Font(FHHStyle::Font(EHHFont::Condensed, 14.f, 400)).ColorAndOpacity(FSlateColor(FHHStyle::TextDim()))
-				]
-				+ SVerticalBox::Slot().AutoHeight().Padding(0.f, 4.f, 0.f, 0.f)
-				[
-					SNew(STextBlock).Text(HHText::OutcomeName(Summary.Outcome).ToUpper()).Font(FHHStyle::Font(EHHFont::Display, 54.f, 200)).ColorAndOpacity(FSlateColor(OutcomeColor))
-				]
-				+ SVerticalBox::Slot().AutoHeight().Padding(0.f, 26.f, 0.f, 0.f)
-				[
-					SNew(SHorizontalBox)
-					+ SHorizontalBox::Slot().FillWidth(1.f)[Stat(LOCTEXT("SumHaul", "IN THE VAN"), HHText::Money(Summary.SecuredValue), FHHStyle::Text())]
-					+ SHorizontalBox::Slot().FillWidth(1.f)[Stat(LOCTEXT("SumPayout", "YOUR CUT"), HHText::Money(Summary.PayoutPerPlayer), FHHStyle::Accent())]
-					+ SHorizontalBox::Slot().FillWidth(1.f)[Stat(LOCTEXT("SumXP", "REPUTATION"), FText::Format(LOCTEXT("XPFmt", "+{0} XP"), FText::AsNumber(Summary.XPPerPlayer)), FHHStyle::Text())]
-					+ SHorizontalBox::Slot().FillWidth(1.f)[Stat(LOCTEXT("SumTime", "TIME INSIDE"), HHHud::Duration(Summary.DurationSeconds), FHHStyle::Text())]
-				]
-				+ SVerticalBox::Slot().AutoHeight().Padding(0.f, 18.f, 0.f, 0.f)
-				[
-					SNew(STextBlock)
-					.Text(FText::Format(LOCTEXT("HouseState", "The house was {0} when you left."), HHHud::StageName(Summary.HauntStage)))
-					.Font(FHHStyle::Font(EHHFont::Typewriter, 15.f))
-					.ColorAndOpacity(FSlateColor(Summary.HauntStage >= 3 ? FHHStyle::Danger() : FHHStyle::TextDim()))
-				]
-				+ SVerticalBox::Slot().AutoHeight().Padding(0.f, 6.f, 0.f, 0.f)
-				[
-					SNew(STextBlock)
-					.Visibility(Summary.LostValue > 0 ? EVisibility::HitTestInvisible : EVisibility::Collapsed)
-					.Text(FText::Format(LOCTEXT("Lost", "Left behind: {0}"), HHText::Money(Summary.LostValue)))
-					.Font(FHHStyle::Font(EHHFont::Body, 14.f))
-					.ColorAndOpacity(FSlateColor(FHHStyle::TextFaint()))
-				]
-				+ SVerticalBox::Slot().AutoHeight().Padding(0.f, 24.f, 0.f, 8.f)
-				[
-					HHUI::SectionLabel(LOCTEXT("TheHaul", "THE HAUL"))
-				]
-				+ SVerticalBox::Slot().AutoHeight()
-				[
-					LootList
-				]
-				+ SVerticalBox::Slot().AutoHeight().Padding(0.f, 28.f, 0.f, 0.f)
-				[
-					SNew(STextBlock)
-					.Text(LOCTEXT("Returning", "Back to the hideout shortly..."))
-					.Font(FHHStyle::Font(EHHFont::Condensed, 13.f, 200))
-					.ColorAndOpacity(FSlateColor(FHHStyle::TextFaint()))
-				]
-			]
-		];
 }
 
 #undef LOCTEXT_NAMESPACE

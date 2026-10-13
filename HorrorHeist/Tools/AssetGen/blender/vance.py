@@ -369,10 +369,51 @@ def yard():
                 intensity=20, radius=650, source=2, emissive=10)
 
 
+# =======================================================================================
+# Day scouting (L_Town): where the crew learns about the Vances (ids from catalog.py INTEL)
+
+def intel_spot(name, loc_world, prompt, intel, time='Any', hold=2.0, extent=(40, 40, 60), found='', sound=None):
+    props = {'Prompt': BH.text(prompt), 'IntelIds': list(intel), 'TimeRule': BH.enum('EHHIntelTime', time),
+             'HoldSeconds': float(hold), 'UseExtent': list(extent), 'FoundText': BH.text(found)}
+    if sound:
+        props['InteractSound'] = BH.asset(sound)
+    BH.actor('HHIntelSpot', K.mat(loc_world), 'Scouting', name='Intel_' + name, properties=props)
+
+
+def scouting():
+    intel_spot('Mailbox', L(1.2, -5.9, 1.05), 'Check the mailbox', ['Vance_Harold', 'Vance_Ring', 'Vance_Youngest'],
+               hold=2.0, extent=(35, 35, 45), sound='S_Cabinet_Open_01',
+               found='Bills for Harold Vance. A jeweller\'s appraisal of Margaret\'s diamond ring ("kept in the bathroom '
+                     'cabinet"). And a birthday card for Thomas Vance, aged 9 - postmarked 1987.')
+    intel_spot('LivingWindow', L(-4.5, -0.3, G + 1.45), 'Peek through the window', ['Vance_LivingRoom'], time='DayOnly',
+               hold=3.0, extent=(60, 30, 60),
+               found='A big TV and a game console, a mantel clock, a silver candlestick. The TV is on. Nobody is watching it.')
+    intel_spot('StudyWindow', L(3.2, -0.3, G + 1.45), 'Peek into the study', ['Vance_StudyDesk'], time='DayOnly',
+               hold=3.0, extent=(70, 30, 60),
+               found='A laptop on the desk, an old camera by the bookcase. The desk drawer has a little lock.')
+    intel_spot('Gnome', L(2.15, -1.1, 0.25), 'Look under the garden gnome', ['Vance_SpareKey'], hold=1.5,
+               extent=(28, 28, 30), sound='S_Key_Pickup_01', found='A spare key, taped under the gnome. You pocket it.')
+    intel_spot('Watch', (T.ASH[0] - 1.3, 57.0, T.SW + 1.0), 'Watch the house for a while',
+               ['Vance_Margaret', 'Vance_Pearls', 'Vance_NoAlarm'], time='DayOnly', hold=6.0, extent=(60, 120, 90),
+               found='Mrs Vance at the upstairs window, pearls on, not moving. Nobody comes or goes. No alarm box, no '
+                     'dog. You get the feeling she watched you back.')
+    put('SM_Window_Basement', -2.0, D + 0.02, 0.02, rot=180)
+    intel_spot('BasementWindow', L(-2.0, D + 0.35, 0.3), 'Look through the basement window', ['Vance_Locket'],
+               time='DayOnly', hold=3.0, extent=(45, 30, 35),
+               found='Shelves, a furnace, an old trunk. On the trunk lies a child\'s drawing of this house - every '
+                     'window coloured in black.')
+    # Mrs Vance at the master bedroom window, by day.
+    BH.actor('HHResidentFigure', M @ K.mat((-4.5, 0.75, U), -90), 'Scouting', name='Vance_Margaret',
+             properties={'CosmeticIds': ['CO_Skin_Porcelain', 'CO_Hair_Messy_Grey', 'CO_Top_Turtleneck', 'CO_Pants_Slacks',
+                                         'CO_Shoes_Dress', 'CO_Acc_Chain'],
+                         'VisibleWhen': BH.enum('EHHIntelTime', 'DayOnly')})
+
+
 def build():
     h = build_house()
     furnish()
     yard()
+    scouting()
     return h
 
 
@@ -456,21 +497,14 @@ def job_layout():
     haunt_director()
     haunt_elements()
 
-    # The van, parked at the curb in front of the house, nose north.
+    # The van, parked at the curb in front of the house, nose north. It is driven to the getaway
+    # spot at the end; the rear-door stash point rides along.
     van = K.mat((T.ASH[1] - 1.25, 57.0, T.TZ), 0)
-    BH.static('SM_Van_Body', parent=van, collection='Van')
-    for y in (-1.55, 1.45):
-        BH.static('SM_Van_Wheel', (0.88, y, 0.375), parent=van, collection='Van')
-        BH.static('SM_Van_Wheel', (-0.88, y, 0.375), rot=180, parent=van, collection='Van')
-    BH.static('SM_Van_Livery', (1.012, -1.38, 1.45), rot=90, parent=van, collection='Van', shadow=False)
-    BH.static('SM_Van_Livery', (-1.012, -0.2, 1.45), rot=-90, parent=van, collection='Van', shadow=False)
-    BH.static('SM_Van_SlidingDoor', (0.99, 0.2, 1.2), parent=van, collection='Van')
+    BH.van_vehicle(van, 'Van')
     BH.actor('HHVanPoint', van @ K.mat((0.0, -2.75, 1.0)), 'Gameplay', name='Van_Stash',
              properties={'PointType': BH.enum('EHHVanPointType', 'Stash'), 'InteractSound': BH.asset('S_Bag_Zip_01'),
                          'Prompt': BH.text('Stash the loot in the van')})
-    BH.actor('HHVanPoint', van @ K.mat((-1.15, 1.0, 1.0)), 'Gameplay', name='Van_Drive',
-             properties={'PointType': BH.enum('EHHVanPointType', 'Drive'), 'InteractSound': BH.asset('S_Van_Engine_Start_01'),
-                         'Prompt': BH.text('Drive away')})
+    neighbour_and_police()
     # Crew starts beside the van on the sidewalk side, facing the house.
     for i, (dx, dy) in enumerate(((2.3, -1.5), (2.3, 0.0), (2.3, 1.5), (3.4, 0.7))):
         BH.actor('PlayerStart', van @ K.mat((dx, dy, 0.15 + 0.92), 0.0), 'Gameplay', name=f'PlayerStart_{i}',
@@ -478,6 +512,27 @@ def job_layout():
     BH.tag_point('HH_WakePoint', (T.ASH[1] + 1.8, 52.0, T.SW + 0.1))
     BH.tag_point('HH_WakePoint', (T.ASH[1] + 1.8, 61.0, T.SW + 0.1))
     return van
+
+
+# Mr Pruitt's way from his porch (Ash10, south of the Vances) along the sidewalk, up the Vances'
+# driveway into their back yard (world metres). Point 0 is his porch.
+NEIGHBOUR_PATH = [(59.3, 36.5), (55.6, 36.5), (53.4, 37.5), (53.4, 49.7), (57.0, 49.7), (63.5, 49.7), (68.0, 50.6)]
+
+
+def neighbour_and_police():
+    for i, (x, y) in enumerate(NEIGHBOUR_PATH):
+        BH.tag_point(f'HH_NeighbourPath_{i}', (x, y, T.SW + 0.1))
+    x0, y0 = NEIGHBOUR_PATH[0]
+    BH.actor('HHNeighbourNPC', K.mat((x0 + 1.2, y0, T.SW + 0.97), 180), 'NPC', name='Neighbour_Pruitt',
+             properties={'DisplayName': BH.text('Mr Pruitt'),
+                         'CosmeticIds': ['CO_Skin_Fair', 'CO_Hair_Messy_Grey', 'CO_Top_Sweater_Stripe', 'CO_Jacket_Rain',
+                                         'CO_Pants_Slacks', 'CO_Shoes_Boots', 'CO_Acc_Glasses'],
+                         'DoorSound': BH.asset('S_Door_Wood_Open'), 'ShoutSound': BH.asset('S_Neighbour_Shout_01')})
+    # The patrol car waits out of town at the west end of Main Street.
+    BH.actor('HHPoliceCar', K.mat((-78.0, 20.5, T.TZ + 0.85)), 'NPC', name='PoliceCar',
+             properties={'BodyMesh': BH.asset('SM_Car_Police'), 'SirenLoop': BH.asset('S_Police_Siren_Loop'),
+                         'EngineLoop': BH.asset('S_Van_Engine_Loop'), 'BumpSound': BH.asset('S_Car_Bump_01'),
+                         'PatrolRoute': list(T.PATROL_ROUTE), 'HomeNode': 'M_W'})
 
 
 def haunt_director():

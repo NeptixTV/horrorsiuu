@@ -216,17 +216,10 @@ def _job(M, w, d, tag, van_pos, van_yaw, name):
              components={'Box': {'BoxExtent': [ex * 100.0 + 10, ey * 100.0 + 10, 400.0]}})
     BH.actor('HHHauntDirector', K.mat(c), 'Haunt', name=f'{name}_Haunt', properties={'HouseTag': tag})
     van = K.mat(van_pos, van_yaw)
-    BH.static('SM_Van_Body', parent=van, collection='Van')
-    for y in (-1.55, 1.45):
-        BH.static('SM_Van_Wheel', (0.88, y, 0.375), parent=van, collection='Van')
-        BH.static('SM_Van_Wheel', (-0.88, y, 0.375), rot=180, parent=van, collection='Van')
-    BH.static('SM_Van_SlidingDoor', (0.99, 0.2, 1.2), parent=van, collection='Van')
+    BH.van_vehicle(van, 'Van')
     BH.actor('HHVanPoint', van @ K.mat((0.0, -2.75, 1.0)), 'Gameplay', name='Van_Stash',
              properties={'PointType': BH.enum('EHHVanPointType', 'Stash'), 'InteractSound': BH.asset('S_Bag_Zip_01'),
                          'Prompt': BH.text('Stash the loot in the van')})
-    BH.actor('HHVanPoint', van @ K.mat((-1.15, 1.0, 1.0)), 'Gameplay', name='Van_Drive',
-             properties={'PointType': BH.enum('EHHVanPointType', 'Drive'),
-                         'InteractSound': BH.asset('S_Van_Engine_Start_01'), 'Prompt': BH.text('Drive away')})
     for i, (dx, dy) in enumerate(((2.3, -1.5), (2.3, 0.0), (2.3, 1.5), (3.4, 0.7))):
         BH.actor('PlayerStart', van @ K.mat((dx, dy, 0.15 + 0.92), 0.0), 'Gameplay', name=f'PlayerStart_{i}',
                  properties={'PlayerStartTag': f'Crew{i}'})

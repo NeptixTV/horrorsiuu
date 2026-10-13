@@ -1106,10 +1106,9 @@
    ]
   },
   {
-   "name": "SM_RollUpDoor_2",
-   "cls": "StaticMeshActor",
-   "folder": "Laundromat",
-   "mesh": "SM_RollUpDoor",
+   "name": "Hideout_GarageDoor",
+   "cls": "HHGarageDoor",
+   "folder": "Gameplay",
    "location": [
     -360.0,
     -500.0,
@@ -1125,7 +1124,25 @@
     1.0,
     1.0,
     1.0
-   ]
+   ],
+   "properties": {
+    "MotorSound": {
+     "asset": "S_Garage_Door_Motor_01"
+    },
+    "bHubOnly": true
+   },
+   "components": {
+    "Frame": {
+     "StaticMesh": {
+      "asset": "SM_RollUpDoor_Frame"
+     }
+    },
+    "Mesh": {
+     "StaticMesh": {
+      "asset": "SM_RollUpDoor_Curtain"
+     }
+    }
+   }
   },
   {
    "name": "SM_Window_Basement_1",
@@ -26353,6 +26370,563 @@
    }
   },
   {
+   "name": "Escape_Hideout",
+   "cls": "HHEscapeZone",
+   "folder": "Gameplay",
+   "location": [
+    -360.0,
+    -820.0,
+    140.0
+   ],
+   "quat": [
+    0.0,
+    0.0,
+    0.0,
+    1.0
+   ],
+   "scale": [
+    1.0,
+    1.0,
+    1.0
+   ],
+   "properties": {
+    "ZoneId": "Hideout",
+    "DisplayName": {
+     "text": "Home: the laundromat garage"
+    },
+    "Description": {
+     "text": "Down the ramp behind Marlowe's. No extra cut - but don't lead the police home: it won't work with a patrol car on your tail."
+    },
+    "bAcceptWhileChased": false,
+    "FenceCut": 0.0,
+    "StopSeconds": 0.0,
+    "SortOrder": 0
+   },
+   "components": {
+    "Zone": {
+     "BoxExtent": [
+      190.0,
+      260.0,
+      200.0
+     ]
+    }
+   }
+  },
+  {
+   "name": "Escape_Quarry",
+   "cls": "HHEscapeZone",
+   "folder": "Gameplay",
+   "location": [
+    7500.0,
+    -2050.0,
+    395.0
+   ],
+   "quat": [
+    0.0,
+    0.0,
+    0.0,
+    1.0
+   ],
+   "scale": [
+    1.0,
+    1.0,
+    1.0
+   ],
+   "properties": {
+    "ZoneId": "Quarry",
+    "DisplayName": {
+     "text": "The quarry road (out of town)"
+    },
+    "Description": {
+     "text": "East end of Main Street, past the roadworks. Even a chase ends out there - the fence takes 10% for collecting from the woods."
+    },
+    "bAcceptWhileChased": true,
+    "FenceCut": 0.1,
+    "StopSeconds": 0.0,
+    "SortOrder": 1
+   },
+   "components": {
+    "Zone": {
+     "BoxExtent": [
+      400.0,
+      400.0,
+      250.0
+     ]
+    }
+   }
+  },
+  {
+   "name": "Escape_CarPark",
+   "cls": "HHEscapeZone",
+   "folder": "Gameplay",
+   "location": [
+    2900.0,
+    -400.0,
+    395.0
+   ],
+   "quat": [
+    0.0,
+    0.0,
+    0.0,
+    1.0
+   ],
+   "scale": [
+    1.0,
+    1.0,
+    1.0
+   ],
+   "properties": {
+    "ZoneId": "CarPark",
+    "DisplayName": {
+     "text": "Municipal car park"
+    },
+    "Description": {
+     "text": "Park between the cars by Main Street and kill the engine (6 seconds still). Close to Ashgrove Lane; someone has to fetch the van later (5%). Not while you are being chased."
+    },
+    "bAcceptWhileChased": false,
+    "FenceCut": 0.05,
+    "StopSeconds": 6.0,
+    "SortOrder": 2
+   },
+   "components": {
+    "Zone": {
+     "BoxExtent": [
+      1050.0,
+      950.0,
+      250.0
+     ]
+    }
+   }
+  },
+  {
+   "name": "Road_M_W",
+   "cls": "HHRoadNode",
+   "folder": "Roads",
+   "location": [
+    -7800.0,
+    -2050.0,
+    295.0
+   ],
+   "quat": [
+    0.0,
+    0.0,
+    0.0,
+    1.0
+   ],
+   "scale": [
+    1.0,
+    1.0,
+    1.0
+   ],
+   "properties": {
+    "NodeId": "M_W",
+    "Links": [
+     "M_MAR"
+    ]
+   }
+  },
+  {
+   "name": "Road_M_MAR",
+   "cls": "HHRoadNode",
+   "folder": "Roads",
+   "location": [
+    -4800.0,
+    -2050.0,
+    295.0
+   ],
+   "quat": [
+    0.0,
+    0.0,
+    0.0,
+    1.0
+   ],
+   "scale": [
+    1.0,
+    1.0,
+    1.0
+   ],
+   "properties": {
+    "NodeId": "M_MAR",
+    "Links": [
+     "M_LOT",
+     "R1"
+    ]
+   }
+  },
+  {
+   "name": "Road_M_LOT",
+   "cls": "HHRoadNode",
+   "folder": "Roads",
+   "location": [
+    -360.0,
+    -2050.0,
+    295.0
+   ],
+   "quat": [
+    0.0,
+    0.0,
+    0.0,
+    1.0
+   ],
+   "scale": [
+    1.0,
+    1.0,
+    1.0
+   ],
+   "properties": {
+    "NodeId": "M_LOT",
+    "Links": [
+     "M_PARK",
+     "L1"
+    ]
+   }
+  },
+  {
+   "name": "Road_M_PARK",
+   "cls": "HHRoadNode",
+   "folder": "Roads",
+   "location": [
+    2900.0,
+    -2050.0,
+    295.0
+   ],
+   "quat": [
+    0.0,
+    0.0,
+    0.0,
+    1.0
+   ],
+   "scale": [
+    1.0,
+    1.0,
+    1.0
+   ],
+   "properties": {
+    "NodeId": "M_PARK",
+    "Links": [
+     "M_ASH",
+     "P1"
+    ]
+   }
+  },
+  {
+   "name": "Road_M_ASH",
+   "cls": "HHRoadNode",
+   "folder": "Roads",
+   "location": [
+    4800.0,
+    -2050.0,
+    295.0
+   ],
+   "quat": [
+    0.0,
+    0.0,
+    0.0,
+    1.0
+   ],
+   "scale": [
+    1.0,
+    1.0,
+    1.0
+   ],
+   "properties": {
+    "NodeId": "M_ASH",
+    "Links": [
+     "M_E",
+     "A1"
+    ]
+   }
+  },
+  {
+   "name": "Road_M_E",
+   "cls": "HHRoadNode",
+   "folder": "Roads",
+   "location": [
+    7800.0,
+    -2050.0,
+    295.0
+   ],
+   "quat": [
+    0.0,
+    0.0,
+    0.0,
+    1.0
+   ],
+   "scale": [
+    1.0,
+    1.0,
+    1.0
+   ],
+   "properties": {
+    "NodeId": "M_E",
+    "Links": []
+   }
+  },
+  {
+   "name": "Road_A1",
+   "cls": "HHRoadNode",
+   "folder": "Roads",
+   "location": [
+    4800.0,
+    -3600.0,
+    295.0
+   ],
+   "quat": [
+    0.0,
+    0.0,
+    0.0,
+    1.0
+   ],
+   "scale": [
+    1.0,
+    1.0,
+    1.0
+   ],
+   "properties": {
+    "NodeId": "A1",
+    "Links": [
+     "A_VANCE"
+    ]
+   }
+  },
+  {
+   "name": "Road_A_VANCE",
+   "cls": "HHRoadNode",
+   "folder": "Roads",
+   "location": [
+    4700.0,
+    -5200.0,
+    295.0
+   ],
+   "quat": [
+    0.0,
+    0.0,
+    0.0,
+    1.0
+   ],
+   "scale": [
+    1.0,
+    1.0,
+    1.0
+   ],
+   "properties": {
+    "NodeId": "A_VANCE",
+    "Links": [
+     "A2"
+    ]
+   }
+  },
+  {
+   "name": "Road_A2",
+   "cls": "HHRoadNode",
+   "folder": "Roads",
+   "location": [
+    4800.0,
+    -7800.0,
+    295.0
+   ],
+   "quat": [
+    0.0,
+    0.0,
+    0.0,
+    1.0
+   ],
+   "scale": [
+    1.0,
+    1.0,
+    1.0
+   ],
+   "properties": {
+    "NodeId": "A2",
+    "Links": [
+     "A_CH"
+    ]
+   }
+  },
+  {
+   "name": "Road_A_CH",
+   "cls": "HHRoadNode",
+   "folder": "Roads",
+   "location": [
+    4800.0,
+    -10250.0,
+    295.0
+   ],
+   "quat": [
+    0.0,
+    0.0,
+    0.0,
+    1.0
+   ],
+   "scale": [
+    1.0,
+    1.0,
+    1.0
+   ],
+   "properties": {
+    "NodeId": "A_CH",
+    "Links": [
+     "C_RECT"
+    ]
+   }
+  },
+  {
+   "name": "Road_C_RECT",
+   "cls": "HHRoadNode",
+   "folder": "Roads",
+   "location": [
+    2100.0,
+    -10250.0,
+    295.0
+   ],
+   "quat": [
+    0.0,
+    0.0,
+    0.0,
+    1.0
+   ],
+   "scale": [
+    1.0,
+    1.0,
+    1.0
+   ],
+   "properties": {
+    "NodeId": "C_RECT",
+    "Links": [
+     "R_CH"
+    ]
+   }
+  },
+  {
+   "name": "Road_R_CH",
+   "cls": "HHRoadNode",
+   "folder": "Roads",
+   "location": [
+    -4800.0,
+    -10250.0,
+    295.0
+   ],
+   "quat": [
+    0.0,
+    0.0,
+    0.0,
+    1.0
+   ],
+   "scale": [
+    1.0,
+    1.0,
+    1.0
+   ],
+   "properties": {
+    "NodeId": "R_CH",
+    "Links": [
+     "R_MARROW"
+    ]
+   }
+  },
+  {
+   "name": "Road_R_MARROW",
+   "cls": "HHRoadNode",
+   "folder": "Roads",
+   "location": [
+    -4800.0,
+    -8300.0,
+    295.0
+   ],
+   "quat": [
+    0.0,
+    0.0,
+    0.0,
+    1.0
+   ],
+   "scale": [
+    1.0,
+    1.0,
+    1.0
+   ],
+   "properties": {
+    "NodeId": "R_MARROW",
+    "Links": [
+     "R1"
+    ]
+   }
+  },
+  {
+   "name": "Road_R1",
+   "cls": "HHRoadNode",
+   "folder": "Roads",
+   "location": [
+    -4800.0,
+    -4000.0,
+    295.0
+   ],
+   "quat": [
+    0.0,
+    0.0,
+    0.0,
+    1.0
+   ],
+   "scale": [
+    1.0,
+    1.0,
+    1.0
+   ],
+   "properties": {
+    "NodeId": "R1",
+    "Links": []
+   }
+  },
+  {
+   "name": "Road_L1",
+   "cls": "HHRoadNode",
+   "folder": "Roads",
+   "location": [
+    -360.0,
+    -1450.0,
+    295.0
+   ],
+   "quat": [
+    0.0,
+    0.0,
+    0.0,
+    1.0
+   ],
+   "scale": [
+    1.0,
+    1.0,
+    1.0
+   ],
+   "properties": {
+    "NodeId": "L1",
+    "Links": []
+   }
+  },
+  {
+   "name": "Road_P1",
+   "cls": "HHRoadNode",
+   "folder": "Roads",
+   "location": [
+    2900.0,
+    -800.0,
+    295.0
+   ],
+   "quat": [
+    0.0,
+    0.0,
+    0.0,
+    1.0
+   ],
+   "scale": [
+    1.0,
+    1.0,
+    1.0
+   ],
+   "properties": {
+    "NodeId": "P1",
+    "Links": []
+   }
+  },
+  {
    "name": "SM_Vance_House_Shell_1",
    "cls": "StaticMeshActor",
    "folder": "Vance",
@@ -30740,6 +31314,325 @@
     "HH_HouseLight",
     "HH_House_Vance"
    ]
+  },
+  {
+   "name": "Intel_Mailbox",
+   "cls": "HHIntelSpot",
+   "folder": "Scouting",
+   "location": [
+    5510.0,
+    -5580.0,
+    365.0
+   ],
+   "quat": [
+    0.0,
+    0.0,
+    0.0,
+    1.0
+   ],
+   "scale": [
+    1.0,
+    1.0,
+    1.0
+   ],
+   "properties": {
+    "Prompt": {
+     "text": "Check the mailbox"
+    },
+    "IntelIds": [
+     "Vance_Harold",
+     "Vance_Ring",
+     "Vance_Youngest"
+    ],
+    "TimeRule": {
+     "enum": "EHHIntelTime",
+     "value": "Any"
+    },
+    "HoldSeconds": 2.0,
+    "UseExtent": [
+     35,
+     35,
+     45
+    ],
+    "FoundText": {
+     "text": "Bills for Harold Vance. A jeweller's appraisal of Margaret's diamond ring (\"kept in the bathroom cabinet\"). And a birthday card for Thomas Vance, aged 9 - postmarked 1987."
+    },
+    "InteractSound": {
+     "asset": "S_Cabinet_Open_01"
+    }
+   }
+  },
+  {
+   "name": "Intel_LivingWindow",
+   "cls": "HHIntelSpot",
+   "folder": "Scouting",
+   "location": [
+    6070.0,
+    -6150.0,
+    465.0
+   ],
+   "quat": [
+    0.0,
+    0.0,
+    0.0,
+    1.0
+   ],
+   "scale": [
+    1.0,
+    1.0,
+    1.0
+   ],
+   "properties": {
+    "Prompt": {
+     "text": "Peek through the window"
+    },
+    "IntelIds": [
+     "Vance_LivingRoom"
+    ],
+    "TimeRule": {
+     "enum": "EHHIntelTime",
+     "value": "DayOnly"
+    },
+    "HoldSeconds": 3.0,
+    "UseExtent": [
+     60,
+     30,
+     60
+    ],
+    "FoundText": {
+     "text": "A big TV and a game console, a mantel clock, a silver candlestick. The TV is on. Nobody is watching it."
+    }
+   }
+  },
+  {
+   "name": "Intel_StudyWindow",
+   "cls": "HHIntelSpot",
+   "folder": "Scouting",
+   "location": [
+    6070.0,
+    -5380.0,
+    465.0
+   ],
+   "quat": [
+    0.0,
+    0.0,
+    0.0,
+    1.0
+   ],
+   "scale": [
+    1.0,
+    1.0,
+    1.0
+   ],
+   "properties": {
+    "Prompt": {
+     "text": "Peek into the study"
+    },
+    "IntelIds": [
+     "Vance_StudyDesk"
+    ],
+    "TimeRule": {
+     "enum": "EHHIntelTime",
+     "value": "DayOnly"
+    },
+    "HoldSeconds": 3.0,
+    "UseExtent": [
+     70,
+     30,
+     60
+    ],
+    "FoundText": {
+     "text": "A laptop on the desk, an old camera by the bookcase. The desk drawer has a little lock."
+    }
+   }
+  },
+  {
+   "name": "Intel_Gnome",
+   "cls": "HHIntelSpot",
+   "folder": "Scouting",
+   "location": [
+    5990.0,
+    -5485.0,
+    285.0
+   ],
+   "quat": [
+    0.0,
+    0.0,
+    0.0,
+    1.0
+   ],
+   "scale": [
+    1.0,
+    1.0,
+    1.0
+   ],
+   "properties": {
+    "Prompt": {
+     "text": "Look under the garden gnome"
+    },
+    "IntelIds": [
+     "Vance_SpareKey"
+    ],
+    "TimeRule": {
+     "enum": "EHHIntelTime",
+     "value": "Any"
+    },
+    "HoldSeconds": 1.5,
+    "UseExtent": [
+     28,
+     28,
+     30
+    ],
+    "FoundText": {
+     "text": "A spare key, taped under the gnome. You pocket it."
+    },
+    "InteractSound": {
+     "asset": "S_Key_Pickup_01"
+    }
+   }
+  },
+  {
+   "name": "Intel_Watch",
+   "cls": "HHIntelSpot",
+   "folder": "Scouting",
+   "location": [
+    4270.0,
+    -5700.0,
+    360.0
+   ],
+   "quat": [
+    0.0,
+    0.0,
+    0.0,
+    1.0
+   ],
+   "scale": [
+    1.0,
+    1.0,
+    1.0
+   ],
+   "properties": {
+    "Prompt": {
+     "text": "Watch the house for a while"
+    },
+    "IntelIds": [
+     "Vance_Margaret",
+     "Vance_Pearls",
+     "Vance_NoAlarm"
+    ],
+    "TimeRule": {
+     "enum": "EHHIntelTime",
+     "value": "DayOnly"
+    },
+    "HoldSeconds": 6.0,
+    "UseExtent": [
+     60,
+     120,
+     90
+    ],
+    "FoundText": {
+     "text": "Mrs Vance at the upstairs window, pearls on, not moving. Nobody comes or goes. No alarm box, no dog. You get the feeling she watched you back."
+    }
+   }
+  },
+  {
+   "name": "SM_Window_Basement_3",
+   "cls": "StaticMeshActor",
+   "folder": "Vance",
+   "mesh": "SM_Window_Basement",
+   "location": [
+    7002.0,
+    -5900.0,
+    262.0
+   ],
+   "quat": [
+    0.0,
+    0.0,
+    -0.707107,
+    0.707107
+   ],
+   "scale": [
+    1.0,
+    1.0,
+    1.0
+   ]
+  },
+  {
+   "name": "Intel_BasementWindow",
+   "cls": "HHIntelSpot",
+   "folder": "Scouting",
+   "location": [
+    7035.0,
+    -5900.0,
+    290.0
+   ],
+   "quat": [
+    0.0,
+    0.0,
+    0.0,
+    1.0
+   ],
+   "scale": [
+    1.0,
+    1.0,
+    1.0
+   ],
+   "properties": {
+    "Prompt": {
+     "text": "Look through the basement window"
+    },
+    "IntelIds": [
+     "Vance_Locket"
+    ],
+    "TimeRule": {
+     "enum": "EHHIntelTime",
+     "value": "DayOnly"
+    },
+    "HoldSeconds": 3.0,
+    "UseExtent": [
+     45,
+     30,
+     35
+    ],
+    "FoundText": {
+     "text": "Shelves, a furnace, an old trunk. On the trunk lies a child's drawing of this house - every window coloured in black."
+    }
+   }
+  },
+  {
+   "name": "Vance_Margaret",
+   "cls": "HHResidentFigure",
+   "folder": "Scouting",
+   "location": [
+    6175.0,
+    -6150.0,
+    610.0
+   ],
+   "quat": [
+    -0.0,
+    -0.0,
+    -1.0,
+    0.0
+   ],
+   "scale": [
+    1.0,
+    1.0,
+    1.0
+   ],
+   "properties": {
+    "CosmeticIds": [
+     "CO_Skin_Porcelain",
+     "CO_Hair_Messy_Grey",
+     "CO_Top_Turtleneck",
+     "CO_Pants_Slacks",
+     "CO_Shoes_Dress",
+     "CO_Acc_Chain"
+    ],
+    "VisibleWhen": {
+     "enum": "EHHIntelTime",
+     "value": "DayOnly"
+    }
+   }
   },
   {
    "name": "SM_Marrow_AtticWindow_1",

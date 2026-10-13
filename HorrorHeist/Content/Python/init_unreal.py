@@ -1,11 +1,16 @@
 """
-Runs when the editor starts. Adds a "The Quiet Job" menu and, on the first launch (no hideout
-map yet), offers to build all content from SourceArt.
+Runs when the editor starts. Adds a "The Quiet Job" menu and offers to build all content from
+SourceArt when it is missing or was built by an older version of the project (the C++ then
+expects maps, jobs and data the old content does not have - e.g. jobs without a map can't be
+pinned on the job board).
 """
 import unreal
 
 MAP = '/Game/HorrorHeist/Maps/L_Hideout'
 GAME_DATA = '/Game/HorrorHeist/Data/DA_GameData'
+# Everything the current code needs to start a job from the hideout.
+REQUIRED = (MAP, '/Game/HorrorHeist/Maps/L_Town', '/Game/HorrorHeist/Maps/L_Job_Vance', GAME_DATA,
+            '/Game/HorrorHeist/Data/Missions/DA_JOB_Vance', '/Game/HorrorHeist/Data/Loot/DA_LT_CoinCollection')
 
 
 def _add_menu():
@@ -35,6 +40,24 @@ def _add_menu():
 _handle = None
 
 
+def _content_problems():
+    """Why the built content does not match this version of the project (empty list = up to date)."""
+    from hh_setup.version import CONTENT_VERSION
+    lib = unreal.EditorAssetLibrary
+    missing = [p.rsplit('/', 1)[1] for p in REQUIRED if not lib.does_asset_exist(p)]
+    if missing:
+        return ['missing: ' + ', '.join(missing)]
+    problems = []
+    data = unreal.load_asset(GAME_DATA)
+    try:
+        built = int(data.get_editor_property('content_version')) if data else 0
+    except Exception:  # noqa: BLE001 - the property is newer than the compiled editor
+        built = 0
+    if built < CONTENT_VERSION:
+        problems.append(f'content version {built}, this project needs {CONTENT_VERSION}')
+    return problems
+
+
 def _first_run_check(_delta):
     global _handle
     registry = unreal.AssetRegistryHelpers.get_asset_registry()
@@ -43,17 +66,24 @@ def _first_run_check(_delta):
     unreal.unregister_slate_post_tick_callback(_handle)
     _handle = None
     lib = unreal.EditorAssetLibrary
-    if lib.does_asset_exist(MAP) and lib.does_asset_exist(GAME_DATA):
+    first_build = not (lib.does_asset_exist(MAP) and lib.does_asset_exist(GAME_DATA))
+    problems = [] if first_build else _content_problems()
+    if not first_build and not problems:
         return
+    if first_build:
+        text = ('The game content has not been built yet.\n\nImport the generated art, sounds and music, create the '
+                'materials and data assets and build the hideout, town and job maps now? This takes a few minutes.')
+    else:
+        text = ('The game content was built by an older version of the project and does not match the code '
+                '(' + '; '.join(problems) + ').\n\nWithout a rebuild, jobs can\'t be pinned or started.\n\n'
+                'Rebuild all content now? This takes a few minutes and replaces the generated maps and data '
+                '(assets under /Game/HorrorHeist).')
+    unreal.log_warning('[HH Setup] content check: ' + ('first build' if first_build else '; '.join(problems)))
     answer = unreal.EditorDialog.show_message(
-        'The Quiet Job',
-        'The game content has not been built yet.\n\nImport the generated art, sounds and music, create the '
-        'materials and data assets and build the hideout level now? This takes a few minutes.\n\n'
-        '(You can do this later via the "The Quiet Job" menu.)',
-        unreal.AppMsgType.YES_NO)
+        'The Quiet Job', text + '\n\n(You can do this later via the "The Quiet Job" menu.)', unreal.AppMsgType.YES_NO)
     if answer == unreal.AppReturnType.YES:
         import hh_setup.run as run
-        run.run_all(reload_modules=False)
+        run.run_all(reload_modules=not first_build)
         unreal.get_editor_subsystem(unreal.LevelEditorSubsystem).load_level(MAP)
 
 

@@ -143,6 +143,26 @@ const UHHLootDefinition* UHHItemRegistrySubsystem::FindLoot(FName ItemId) const
 	return Cast<UHHLootDefinition>(FindItem(ItemId));
 }
 
+const FHHJobIntel* UHHItemRegistrySubsystem::FindIntel(FName IntelId, const UHHMissionDefinition** OutMission) const
+{
+	if (IntelId.IsNone())
+	{
+		return nullptr;
+	}
+	for (const UHHMissionDefinition* Mission : Missions)
+	{
+		if (const FHHJobIntel* Entry = Mission ? Mission->FindIntel(IntelId) : nullptr)
+		{
+			if (OutMission)
+			{
+				*OutMission = Mission;
+			}
+			return Entry;
+		}
+	}
+	return nullptr;
+}
+
 const UHHMissionDefinition* UHHItemRegistrySubsystem::FindMission(FName MissionId) const
 {
 	if (MissionId.IsNone())

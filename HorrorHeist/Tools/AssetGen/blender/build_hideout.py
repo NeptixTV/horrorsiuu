@@ -131,6 +131,30 @@ def actor(cls, matrix, collection='Gameplay', mesh=None, mesh_component='Mesh', 
     return obj, entry
 
 
+# The van's parts in its own frame (origin on the ground, nose +Y): for Blender previews only.
+VAN_PARTS = ([('SM_Van_Body', (0, 0, 0), 0)]
+             + [('SM_Van_Wheel', (sx * 0.88, y, 0.375), 0 if sx > 0 else 180) for y in (-1.55, 1.45) for sx in (1, -1)]
+             + [('SM_Van_Livery', (1.012, -1.38, 1.45), 90), ('SM_Van_Livery', (-1.012, -0.2, 1.45), -90)])
+VAN_CENTER_HEIGHT = 1.27     # AHHCarBase::CenterHeight (m): the actor origin is the collision box centre
+
+
+def van_vehicle(van, name='Van', sliding_door=True, collection='Van'):
+    """The drivable HHVanVehicle at a van frame (origin on the road, nose +Y). Its meshes are set
+    as properties; actors placed within 4.2 m (ready station, stash point) ride along with it.
+    sliding_door=False where a ready station carries the door mesh (hideout)."""
+    for part, loc, rot in VAN_PARTS + ([('SM_Van_SlidingDoor', (0.99, 0.2, 1.2), 0)] if sliding_door else []):
+        obj_from_mesh(part, van @ mat(loc, (0, 0, rot)), collection)
+    props = {'BodyMesh': asset('SM_Van_Body'), 'WheelMesh': asset('SM_Van_Wheel'), 'LiveryMesh': asset('SM_Van_Livery'),
+             'EngineLoop': asset('S_Van_Engine_Loop'), 'BumpSound': asset('S_Car_Bump_01'),
+             'DoorSound': asset('S_Car_Door_Close_01'), 'EngineStartSound': asset('S_Van_Engine_Start_01'),
+             'HornSound': asset('S_Van_Horn_01')}
+    if sliding_door:
+        props['SlidingDoorMesh'] = asset('SM_Van_SlidingDoor')
+    # Actor +X = the van's nose (+Y in the van frame).
+    return actor('HHVanVehicle', van @ mat((0, 0, VAN_CENTER_HEIGHT), (0, 0, 90)), 'Gameplay', properties=props,
+                 name=name)
+
+
 def look_at_matrix(loc, target, roll=0.0):
     loc = Vector(loc)
     q = (Vector(target) - loc).to_track_quat('-Z', 'Y')
@@ -427,13 +451,9 @@ def build_architecture():
 # Areas
 
 def van_area():
+    # The drivable van, nose towards the garage door and the ramp up to the street.
     van = mat((-3.6, 1.6, 0))
-    static('SM_Van_Body', parent=van, collection='Van')
-    for y in (-1.55, 1.45):
-        static('SM_Van_Wheel', (0.88, y, 0.375), parent=van, collection='Van')
-        static('SM_Van_Wheel', (-0.88, y, 0.375), rot=180, parent=van, collection='Van')
-    static('SM_Van_Livery', (1.012, -1.38, 1.45), rot=90, parent=van, collection='Van', shadow=False)
-    static('SM_Van_Livery', (-1.012, -0.2, 1.45), rot=-90, parent=van, collection='Van', shadow=False)
+    van_vehicle(van, 'Van', sliding_door=False)
     actor('HHReadyStation', van @ mat((0.99, 0.2, 1.2)), 'Gameplay', mesh='SM_Van_SlidingDoor',
           properties={'InteractSound': asset('S_Van_Door_Slide')}, name='VanDoor_Ready')
     decal('MI_Decal_Oil', (-3.5, 2.0, 0), (2.2, 2.2), name='OilStain')

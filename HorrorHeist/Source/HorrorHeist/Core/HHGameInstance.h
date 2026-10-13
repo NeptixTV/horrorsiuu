@@ -35,6 +35,10 @@ public:
 	void SetActiveMission(FName MissionId) { ActiveMission = MissionId; }
 	FName GetActiveMission() const { return ActiveMission; }
 
+	/** Getaway destination picked on the job board (AHHEscapeZone id), kept across maps. */
+	void SetSafehouse(FName ZoneId) { Safehouse = ZoneId; }
+	FName GetSafehouse() const { return Safehouse; }
+
 	/**
 	 * In-game clock carried across map loads (hub -> job -> hub). Negative = not set yet,
 	 * the time-of-day actor then starts at its configured hour.
@@ -54,5 +58,6 @@ private:
 	bool bHasPendingMessage = false;
 	bool bTitleShown = false;
 	FName ActiveMission;
+	FName Safehouse;
 	float CarriedTimeOfDay = -1.f;
 };

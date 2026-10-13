@@ -32,9 +32,6 @@ public:
 	void Construct(const FArguments& InArgs);
 	virtual void Tick(const FGeometry& AllottedGeometry, const double InCurrentTime, const float InDeltaTime) override;
 
-	/** Full-screen end-of-job card. */
-	static TSharedRef<SWidget> MakeSummary(const FHHMissionSummary& Summary, TWeakObjectPtr<AHHLobbyHUD> OwnerHUD);
-
 private:
 	AHHHeistGameState* GetState() const;
 	AHHPlayerState* GetMyState() const;

@@ -57,6 +57,11 @@ void AHHPlayerState::CopyProperties(APlayerState* PlayerState)
 
 FLinearColor AHHPlayerState::GetCrewColor() const
 {
+	return CrewColorForSlot(CrewSlot);
+}
+
+FLinearColor AHHPlayerState::CrewColorForSlot(int32 Slot)
+{
 	static const FLinearColor Colors[] =
 	{
 		FLinearColor::FromSRGBColor(FColor(214, 168, 92)),	// sodium amber
@@ -64,7 +69,7 @@ FLinearColor AHHPlayerState::GetCrewColor() const
 		FLinearColor::FromSRGBColor(FColor(186, 104, 82)),	// brick
 		FLinearColor::FromSRGBColor(FColor(150, 134, 186))	// faded violet
 	};
-	return Colors[FMath::Abs(CrewSlot) % UE_ARRAY_COUNT(Colors)];
+	return Colors[FMath::Abs(Slot) % UE_ARRAY_COUNT(Colors)];
 }
 
 void AHHPlayerState::SetReady(bool bNewReady)

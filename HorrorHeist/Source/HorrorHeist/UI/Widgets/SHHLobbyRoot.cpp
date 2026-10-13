@@ -7,12 +7,15 @@
 #include "UI/Widgets/SHHStorePanel.h"
 #include "UI/Widgets/SHHSettingsPanel.h"
 #include "UI/Widgets/SHHHeistHud.h"
+#include "UI/Widgets/SHHMissionSummary.h"
 #include "UI/HHLobbyHUD.h"
 #include "UI/HHStyle.h"
 #include "Lobby/HHLobbyGameState.h"
 #include "Player/HHPlayerController.h"
 #include "Player/HHPlayerState.h"
 #include "Player/HHInteractionComponent.h"
+#include "Player/HHCharacter.h"
+#include "Vehicles/HHVanVehicle.h"
 #include "World/HHTimeOfDay.h"
 #include "Engine/Texture2D.h"
 #include "Settings/HHGameUserSettings.h"
@@ -150,7 +153,7 @@ void SHHLobbyRoot::ShowSummary(const FHHMissionSummary& Summary)
 {
 	if (SummaryHost.IsValid())
 	{
-		SummaryHost->SetContent(SHHHeistHud::MakeSummary(Summary, HUD));
+		SummaryHost->SetContent(SNew(SHHMissionSummary).Summary(Summary).HUD(HUD));
 		bSummaryVisible = true;
 	}
 }
@@ -566,6 +569,63 @@ TSharedRef<SWidget> SHHLobbyRoot::BuildExplorationHud()
 						.ShadowOffset(FVector2D(0.0, 1.0))
 						.ShadowColorAndOpacity(FLinearColor(0.f, 0.f, 0.f, 0.8f))
 					]
+				]
+			]
+			// In the van: speed and the driving keys.
+			+ SVerticalBox::Slot().AutoHeight().HAlign(HAlign_Center).Padding(0.f, 0.f, 0.f, 10.f)
+			[
+				SNew(SVerticalBox)
+				.Visibility_Lambda([this]()
+				{
+					const AHHLobbyHUD* LobbyHUD = HUD.Get();
+					const AHHCharacter* Character = LobbyHUD && LobbyHUD->GetHHController() ? Cast<AHHCharacter>(LobbyHUD->GetHHController()->GetPawn()) : nullptr;
+					return Character && Character->IsSeated() ? EVisibility::HitTestInvisible : EVisibility::Collapsed;
+				})
+				+ SVerticalBox::Slot().AutoHeight().HAlign(HAlign_Center)
+				[
+					SNew(STextBlock)
+					.Text_Lambda([this]()
+					{
+						const AHHLobbyHUD* LobbyHUD = HUD.Get();
+						const AHHCharacter* Character = LobbyHUD && LobbyHUD->GetHHController() ? Cast<AHHCharacter>(LobbyHUD->GetHHController()->GetPawn()) : nullptr;
+						const AHHVanVehicle* Van = Character ? Character->GetVehicle() : nullptr;
+						return Van ? FText::Format(LOCTEXT("VanSpeed", "{0} KM/H"), FText::AsNumber(FMath::RoundToInt(Van->GetSpeedKmh()))) : FText::GetEmpty();
+					})
+					.Font(FHHStyle::Font(EHHFont::MonoMedium, 22.f))
+					.ColorAndOpacity(FSlateColor(FHHStyle::Text()))
+					.ShadowOffset(FVector2D(0.0, 1.0))
+					.ShadowColorAndOpacity(FLinearColor(0.f, 0.f, 0.f, 0.8f))
+				]
+				+ SVerticalBox::Slot().AutoHeight().HAlign(HAlign_Center).Padding(0.f, 4.f, 0.f, 0.f)
+				[
+					SNew(STextBlock)
+					.Text_Lambda([this]()
+					{
+						const AHHLobbyHUD* LobbyHUD = HUD.Get();
+						const AHHPlayerController* PC = LobbyHUD ? LobbyHUD->GetHHController() : nullptr;
+						const AHHCharacter* Character = PC ? Cast<AHHCharacter>(PC->GetPawn()) : nullptr;
+						const UHHInputSubsystem* Input = PC ? UHHInputSubsystem::Get(PC) : nullptr;
+						auto Key = [Input](const TCHAR* Binding) { return Input ? Input->GetKeyDisplayText(Binding) : FText::FromString(TEXT("?")); };
+						if (Character && Character->IsDriving())
+						{
+							FFormatNamedArguments Args;
+							Args.Add(TEXT("Fwd"), Key(TEXT("MoveForward")));
+							Args.Add(TEXT("Back"), Key(TEXT("MoveBackward")));
+							Args.Add(TEXT("Left"), Key(TEXT("MoveLeft")));
+							Args.Add(TEXT("Right"), Key(TEXT("MoveRight")));
+							Args.Add(TEXT("Brake"), Key(TEXT("Jump")));
+							Args.Add(TEXT("Garage"), Key(TEXT("Drop")));
+							Args.Add(TEXT("Lights"), Key(TEXT("Flashlight")));
+							Args.Add(TEXT("Horn"), Key(TEXT("Horn")));
+							Args.Add(TEXT("Exit"), Key(TEXT("Interact")));
+							return FText::Format(LOCTEXT("DriveKeys", "{Fwd}/{Back} GAS - BRAKE    {Left}/{Right} STEER    {Brake} HANDBRAKE    {Garage} GARAGE DOOR    {Lights} LIGHTS    {Horn} HORN    {Exit} GET OUT"), Args);
+						}
+						return FText::Format(LOCTEXT("RideKeys", "MOUSE LOOK AROUND    {0} GET OUT"), Key(TEXT("Interact")));
+					})
+					.Font(FHHStyle::Font(EHHFont::CondensedSemi, 12.f, 220))
+					.ColorAndOpacity(FSlateColor(FHHStyle::TextDim()))
+					.ShadowOffset(FVector2D(0.0, 1.0))
+					.ShadowColorAndOpacity(FLinearColor(0.f, 0.f, 0.f, 0.8f))
 				]
 			]
 			// Hold progress (lockpicking, searching, lifting)

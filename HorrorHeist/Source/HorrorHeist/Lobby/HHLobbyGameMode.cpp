@@ -8,6 +8,9 @@
 #include "Data/HHItemRegistrySubsystem.h"
 #include "Data/HHMissionDefinition.h"
 #include "Core/HHGameInstance.h"
+#include "Heist/HHEscapeZone.h"
+#include "Online/HHSessionSubsystem.h"
+#include "Progression/HHProfileSubsystem.h"
 #include "World/HHTimeOfDay.h"
 #include "HorrorHeist.h"
 #include "Engine/World.h"
@@ -30,21 +33,46 @@ void AHHLobbyGameMode::BeginPlay()
 	Super::BeginPlay();
 
 	// Pre-select the first unlocked job so the board is never empty.
-	if (AHHLobbyGameState* LobbyState = GetLobbyState())
+	AHHLobbyGameState* LobbyState = GetLobbyState();
+	const UHHItemRegistrySubsystem* Registry = UHHItemRegistrySubsystem::Get(this);
+	if (LobbyState && Registry)
 	{
-		if (const UHHItemRegistrySubsystem* Registry = UHHItemRegistrySubsystem::Get(this))
+		const TArray<const UHHMissionDefinition*> Missions = Registry->GetMissions();
+		for (const UHHMissionDefinition* Mission : Missions)
 		{
-			const TArray<const UHHMissionDefinition*> Missions = Registry->GetMissions();
-			for (const UHHMissionDefinition* Mission : Missions)
+			if (Mission->UnlockLevel <= 1 && Mission->IsPlayable())
 			{
-				if (Mission->UnlockLevel <= 1 && Mission->IsPlayable())
-				{
-					LobbyState->SetSelectedMission(Mission->GetMissionId());
-					break;
-				}
+				LobbyState->SetSelectedMission(Mission->GetMissionId());
+				break;
 			}
 		}
+		if (LobbyState->GetSelectedMission().IsNone())
+		{
+			// Usually content built by an older version of the project: the jobs have no maps yet.
+			UE_LOG(LogHorrorHeist, Warning, TEXT("No playable job found (%d jobs registered). Rebuild the content: The Quiet Job > Build / Rebuild All Content."), Missions.Num());
+		}
 	}
+	if (LobbyState)
+	{
+		// The crew's notebook lives in the host's profile; the escape plan defaults to home.
+		if (const UHHProfileSubsystem* Profile = UHHProfileSubsystem::Get(this))
+		{
+			LobbyState->MergeIntel(Profile->GetKnownIntel());
+		}
+		const UHHGameInstance* GameInstance = GetGameInstance<UHHGameInstance>();
+		const FName Remembered = GameInstance ? GameInstance->GetSafehouse() : NAME_None;
+		LobbyState->SetSafehouse(Remembered.IsNone() ? FName(TEXT("Hideout")) : Remembered);
+		const UHHSessionSubsystem* Sessions = UHHSessionSubsystem::Get(this);
+		LobbyState->SetLobbyCode(Sessions && Sessions->HasSession() ? Sessions->GetLobbyCode() : FString());
+	}
+	GetWorldTimerManager().SetTimer(PollTimer, this, &AHHLobbyGameMode::PollDeparture, 1.f, true, 1.f);
+}
+
+void AHHLobbyGameMode::EndPlay(const EEndPlayReason::Type EndPlayReason)
+{
+	GetWorldTimerManager().ClearTimer(PollTimer);
+	GetWorldTimerManager().ClearTimer(CountdownTimer);
+	Super::EndPlay(EndPlayReason);
 }
 
 void AHHLobbyGameMode::PreLogin(const FString& Options, const FString& Address, const FUniqueNetIdRepl& UniqueId, FString& ErrorMessage)
@@ -114,7 +142,7 @@ void AHHLobbyGameMode::Logout(AController* Exiting)
 	}
 
 	// Re-evaluate on the next tick, once the player state is gone from the array.
-	GetWorldTimerManager().SetTimerForNextTick(this, &AHHLobbyGameMode::EvaluateDeparture);
+	GetWorldTimerManager().SetTimerForNextTick(this, &AHHLobbyGameMode::PollDeparture);
 }
 
 void AHHLobbyGameMode::HandleReadyChanged(AHHPlayerState* PlayerState)
@@ -162,6 +190,33 @@ void AHHLobbyGameMode::HandleMissionRequest(AHHPlayerController* Requester, FNam
 		CancelCountdown(LOCTEXT("PlanChanged", "The plan changed. Departure cancelled."));
 	}
 	ResetReadyStates();
+	EvaluateDeparture(false);
+}
+
+void AHHLobbyGameMode::HandleSafehouseRequest(AHHPlayerController* Requester, FName ZoneId)
+{
+	AHHLobbyGameState* LobbyState = GetLobbyState();
+	const AHHPlayerState* PlayerState = Requester ? Requester->GetPlayerState<AHHPlayerState>() : nullptr;
+	if (!LobbyState || !PlayerState || LobbyState->GetPhase() == EHHLobbyPhase::Departing || LobbyState->GetSafehouse() == ZoneId)
+	{
+		return;
+	}
+	if (!PlayerState->IsCrewLeader())
+	{
+		Requester->ClientNotify(LOCTEXT("NotLeaderSafehouse", "Only the crew leader plans the getaway."), EHHNotifyType::Warning);
+		return;
+	}
+	const AHHEscapeZone* Zone = AHHEscapeZone::Find(this, ZoneId);
+	if (!Zone)
+	{
+		return;
+	}
+	LobbyState->SetSafehouse(ZoneId);
+	if (UHHGameInstance* GameInstance = GetGameInstance<UHHGameInstance>())
+	{
+		GameInstance->SetSafehouse(ZoneId);
+	}
+	LobbyState->MulticastCrewMessage(FText::Format(LOCTEXT("SafehousePicked", "Getaway: {0}"), Zone->GetDisplayName()), EHHNotifyType::Info);
 }
 
 void AHHLobbyGameMode::ResetReadyStates()
@@ -175,7 +230,19 @@ void AHHLobbyGameMode::ResetReadyStates()
 	}
 }
 
-void AHHLobbyGameMode::EvaluateDeparture()
+const UHHMissionDefinition* AHHLobbyGameMode::GetPinnedMission() const
+{
+	const AHHLobbyGameState* LobbyState = GetLobbyState();
+	const UHHItemRegistrySubsystem* Registry = UHHItemRegistrySubsystem::Get(this);
+	return LobbyState && Registry ? Registry->FindMission(LobbyState->GetSelectedMission()) : nullptr;
+}
+
+void AHHLobbyGameMode::PollDeparture()
+{
+	EvaluateDeparture(false);
+}
+
+void AHHLobbyGameMode::EvaluateDeparture(bool bAnnounce)
 {
 	AHHLobbyGameState* LobbyState = GetLobbyState();
 	if (!LobbyState || LobbyState->GetPhase() == EHHLobbyPhase::Departing)
@@ -183,14 +250,40 @@ void AHHLobbyGameMode::EvaluateDeparture()
 		return;
 	}
 
-	const bool bAllReady = LobbyState->IsEveryoneReady() && !LobbyState->GetSelectedMission().IsNone();
-	if (bAllReady && LobbyState->GetPhase() == EHHLobbyPhase::Gathering)
+	FText Reason;
+	const EHHDepartureBlock Block = GetDepartureBlock(GetPinnedMission(), Reason);
+	LobbyState->SetDepartureBlock(Block);
+	const bool bEveryoneReady = LobbyState->IsEveryoneReady();
+
+	if (LobbyState->GetPhase() == EHHLobbyPhase::Countdown)
 	{
-		StartCountdown();
+		if (!bEveryoneReady)
+		{
+			CancelCountdown(LOCTEXT("NotReady", "Someone isn't ready. Departure on hold."));
+		}
+		else if (Block != EHHDepartureBlock::None)
+		{
+			CancelCountdown(Reason);
+		}
+		return;
 	}
-	else if (!bAllReady && LobbyState->GetPhase() == EHHLobbyPhase::Countdown)
+
+	if (!bEveryoneReady)
 	{
-		CancelCountdown(LOCTEXT("NotReady", "Someone isn't ready. Departure on hold."));
+		LastAnnouncedBlock = EHHDepartureBlock::None;
+		return;
+	}
+	if (Block == EHHDepartureBlock::None)
+	{
+		LastAnnouncedBlock = EHHDepartureBlock::None;
+		StartCountdown();
+		return;
+	}
+	// Everyone is ready but the van can't leave: say why instead of silently doing nothing.
+	if (bAnnounce || Block != LastAnnouncedBlock)
+	{
+		LastAnnouncedBlock = Block;
+		LobbyState->MulticastCrewMessage(Reason, EHHNotifyType::Warning);
 	}
 }
 
@@ -230,27 +323,33 @@ void AHHLobbyGameMode::CountdownTick()
 	}
 }
 
-FText AHHLobbyGameMode::GetDepartureBlocker(const UHHMissionDefinition* Mission) const
+EHHDepartureBlock AHHLobbyGameMode::GetDepartureBlock(const UHHMissionDefinition* Mission, FText& OutReason) const
 {
 	if (!Mission)
 	{
-		return LOCTEXT("NoJob", "No job is pinned to the board.");
+		OutReason = LOCTEXT("NoJob", "Everyone's ready, but no job is pinned. The crew leader picks a house on the job board and presses PIN THIS JOB.");
+		return EHHDepartureBlock::NoJob;
 	}
 	if (!Mission->IsPlayable())
 	{
 		// The job exists on the board but its house is not ready yet. Say so honestly.
-		return FText::Format(LOCTEXT("NotPlayable", "{0} is still being cased - this job is not available yet."), Mission->DisplayName);
+		OutReason = Mission->Map.IsNull() && Mission->bAvailable
+			? FText::Format(LOCTEXT("NoMap", "{0} has no map assigned - the game content is out of date. Rebuild it in the editor: The Quiet Job > Build / Rebuild All Content."), Mission->DisplayName)
+			: FText::Format(LOCTEXT("NotPlayable", "{0} is still being cased - this job is not available yet."), Mission->DisplayName);
+		return EHHDepartureBlock::NotPlayable;
 	}
 	if (Mission->bRequiresNight)
 	{
 		const AHHTimeOfDay* Clock = AHHTimeOfDay::Get(this);
 		if (Clock && !Clock->IsNight())
 		{
-			return FText::Format(LOCTEXT("NotNight", "It's {0}. Jobs start after dark ({1}). Wait for nightfall or use 'Wait until dark' on the job board."),
+			OutReason = FText::Format(LOCTEXT("NotNight", "Ready - but it's {0}. The van leaves after dark ({1}), on its own once night falls. The leader can press WAIT UNTIL DARK on the job board."),
 				HHText::ClockTime(Clock->GetTimeOfDay()), HHText::ClockTime(UHHDeveloperSettings::Get()->NightStartHour));
+			return EHHDepartureBlock::NotNight;
 		}
 	}
-	return FText::GetEmpty();
+	OutReason = FText::GetEmpty();
+	return EHHDepartureBlock::None;
 }
 
 void AHHLobbyGameMode::HandleWaitForNight(AHHPlayerController* Requester)
@@ -274,20 +373,20 @@ void AHHLobbyGameMode::HandleWaitForNight(AHHPlayerController* Requester)
 	}
 	Clock->SkipTo(UHHDeveloperSettings::Get()->NightStartHour + 0.25f);
 	LobbyState->MulticastCrewMessage(FText::Format(LOCTEXT("Waited", "The crew waits for nightfall. It's {0}."), HHText::ClockTime(Clock->GetTimeOfDay())), EHHNotifyType::Info);
+	EvaluateDeparture(false);
 }
 
 void AHHLobbyGameMode::Depart()
 {
 	AHHLobbyGameState* LobbyState = GetLobbyState();
-	const UHHItemRegistrySubsystem* Registry = UHHItemRegistrySubsystem::Get(this);
-	const UHHMissionDefinition* Mission = Registry && LobbyState ? Registry->FindMission(LobbyState->GetSelectedMission()) : nullptr;
+	const UHHMissionDefinition* Mission = GetPinnedMission();
 	if (!LobbyState)
 	{
 		return;
 	}
 
-	const FText Blocker = GetDepartureBlocker(Mission);
-	if (!Blocker.IsEmpty())
+	FText Blocker;
+	if (GetDepartureBlock(Mission, Blocker) != EHHDepartureBlock::None)
 	{
 		LobbyState->SetPhase(EHHLobbyPhase::Gathering);
 		LobbyState->MulticastCrewMessage(Blocker, EHHNotifyType::Warning);
@@ -301,11 +400,17 @@ void AHHLobbyGameMode::Depart()
 	if (UHHGameInstance* GameInstance = GetGameInstance<UHHGameInstance>())
 	{
 		GameInstance->SetActiveMission(Mission->GetMissionId());
+		GameInstance->SetSafehouse(LobbyState->GetSafehouse());
 	}
 
 	const FString MapPath = Mission->Map.ToSoftObjectPath().GetLongPackageName();
-	UE_LOG(LogHorrorHeist, Log, TEXT("Departing to %s"), *MapPath);
-	if (!TravelCrewTo(MapPath, FString::Printf(TEXT("?Mission=%s"), *Mission->GetMissionId().ToString())))
+	UE_LOG(LogHorrorHeist, Log, TEXT("Departing to %s (getaway: %s)"), *MapPath, *LobbyState->GetSafehouse().ToString());
+	FString Options = FString::Printf(TEXT("?Mission=%s"), *Mission->GetMissionId().ToString());
+	if (!LobbyState->GetSafehouse().IsNone())
+	{
+		Options += FString::Printf(TEXT("?Escape=%s"), *LobbyState->GetSafehouse().ToString());
+	}
+	if (!TravelCrewTo(MapPath, Options))
 	{
 		LobbyState->SetPhase(EHHLobbyPhase::Gathering);
 		LobbyState->MulticastCrewMessage(LOCTEXT("TravelFailed", "The van would not start (travel failed, see the log)."), EHHNotifyType::Error);

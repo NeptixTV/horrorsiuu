@@ -81,6 +81,12 @@ public:
 
 	int32 GetJobsCompleted() const;
 
+	// --- Scouting notebook ---
+	TArray<FName> GetKnownIntel() const;
+	/** Adds the ids that are new (saves when anything changed). */
+	void RememberIntel(const TArray<FName>& IntelIds);
+	void ForgetAllIntel();
+
 	/** Books a finished job: payout, XP, job counter (one save). */
 	void RecordJob(const FHHMissionSummary& Summary);
 	/** Summary of the last job of this session, shown once back in the hideout. */

@@ -307,6 +307,41 @@ int32 UHHProfileSubsystem::GetJobsCompleted() const
 	return Profile ? Profile->JobsCompleted : 0;
 }
 
+TArray<FName> UHHProfileSubsystem::GetKnownIntel() const
+{
+	return Profile ? Profile->KnownIntel : TArray<FName>();
+}
+
+void UHHProfileSubsystem::RememberIntel(const TArray<FName>& IntelIds)
+{
+	if (!Profile)
+	{
+		return;
+	}
+	bool bChanged = false;
+	for (const FName Id : IntelIds)
+	{
+		if (!Id.IsNone() && !Profile->KnownIntel.Contains(Id))
+		{
+			Profile->KnownIntel.Add(Id);
+			bChanged = true;
+		}
+	}
+	if (bChanged)
+	{
+		Save();
+	}
+}
+
+void UHHProfileSubsystem::ForgetAllIntel()
+{
+	if (Profile && Profile->KnownIntel.Num() > 0)
+	{
+		Profile->KnownIntel.Reset();
+		Save();
+	}
+}
+
 void UHHProfileSubsystem::RecordJob(const FHHMissionSummary& Summary)
 {
 	LastJob = Summary;
@@ -325,7 +360,7 @@ void UHHProfileSubsystem::RecordJob(const FHHMissionSummary& Summary)
 	{
 		Profile->TotalXP += Summary.XPPerPlayer;
 	}
-	if (Summary.Outcome == EHHMissionOutcome::Success || Summary.Outcome == EHHMissionOutcome::Partial)
+	if (HHText::IsGetaway(Summary.Outcome))
 	{
 		++Profile->JobsCompleted;
 	}

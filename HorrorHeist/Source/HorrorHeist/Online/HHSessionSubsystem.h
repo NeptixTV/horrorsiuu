@@ -15,6 +15,8 @@ struct FHHSessionInfo
 	int32 MaxSlots = 0;
 	int32 PingMs = 0;
 	int32 ResultIndex = INDEX_NONE;
+	/** Lobby code the host advertises (empty for hosts of older versions). */
+	FString Code;
 };
 
 DECLARE_MULTICAST_DELEGATE_TwoParams(FHHOnSessionsFound, bool /*bSuccess*/, const TArray<FHHSessionInfo>& /*Results*/);
@@ -23,6 +25,8 @@ DECLARE_MULTICAST_DELEGATE_TwoParams(FHHOnSessionStatus, bool /*bSuccess*/, cons
 /**
  * Host / browse / join crews through the Online Subsystem (Null = LAN out of the box,
  * Steam or EOS later by config) plus direct IP connect for internet play without a backend.
+ * Every hosted lobby gets a six-character code; JoinByCode searches for the session that
+ * advertises it (the search reaches as far as the online subsystem does: LAN with Null).
  */
 UCLASS()
 class HORRORHEIST_API UHHSessionSubsystem : public UGameInstanceSubsystem
@@ -40,6 +44,12 @@ public:
 	void JoinSession(int32 ResultIndex);
 	/** "192.168.0.12" or "my.host:7777" */
 	void JoinByAddress(const FString& Address);
+	/** Searches for the lobby that advertises this code and joins it. */
+	void JoinByCode(const FString& Code);
+	/** Code of the lobby this machine hosts (empty when not hosting). */
+	const FString& GetLobbyCode() const { return LobbyCode; }
+	/** "k7q-2mx " -> "K7Q2MX"; empty when it can't be a code. */
+	static FString NormalizeCode(const FString& Code);
 	/** Leave / close the crew and return to a private hideout. */
 	void LeaveSession();
 	/** Destroys a leftover session when we are back in a standalone world. */
@@ -64,7 +74,11 @@ private:
 	void HandleJoinComplete(FName SessionName, EOnJoinSessionCompleteResult::Type Result);
 	void HandleDestroyComplete(FName SessionName, bool bWasSuccessful);
 
+	static FString MakeLobbyCode();
+
 	TSharedPtr<FOnlineSessionSearch> Search;
+	FString LobbyCode;
+	FString PendingJoinCode;
 	TFunction<void()> PendingAfterDestroy;
 
 	FDelegateHandle CreateHandle;

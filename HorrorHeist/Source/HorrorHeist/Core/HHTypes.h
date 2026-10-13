@@ -76,6 +76,19 @@ enum class EHHLobbyPhase : uint8
 	Departing
 };
 
+/** Why the van cannot leave yet although the crew may be ready (shown on the job board). */
+UENUM(BlueprintType)
+enum class EHHDepartureBlock : uint8
+{
+	None,
+	/** Nobody pinned a job to the board. */
+	NoJob,
+	/** The pinned job has no map / is not released (content outdated or still being cased). */
+	NotPlayable,
+	/** The job only starts after dark. */
+	NotNight
+};
+
 UENUM(BlueprintType)
 enum class EHHNotifyType : uint8
 {
@@ -233,14 +246,75 @@ UENUM(BlueprintType)
 enum class EHHMissionOutcome : uint8
 {
 	None,
-	/** Drove away with at least the minimum haul. */
+	/** Clean getaway: the van reached the safehouse with at least the minimum haul, no police. */
 	Success,
-	/** Drove away, but with less than the minimum haul. */
+	/** Got away, but with less than the minimum haul. */
 	Partial,
-	/** The police arrived before the van left. */
+	/** The police arrived at the house before the van left. */
 	Caught,
 	/** The crew leader called the job off. */
-	Abandoned
+	Abandoned,
+	/** Reached the safehouse with the full haul after the police had been called. */
+	HotGetaway,
+	/** The police boxed the van in during the chase. */
+	ChaseBusted
+};
+
+/** What became of one crew member when the job ended (end-of-job roll call). */
+UENUM(BlueprintType)
+enum class EHHCrewFate : uint8
+{
+	/** In the van when it reached the safehouse. */
+	Escaped,
+	/** Not in the van when it left - walked home, lost what they carried. */
+	LeftBehind,
+	/** Picked up by the police. */
+	Caught,
+	/** Left the session during the job. */
+	Gone
+};
+
+/** Police activity on a job (replicated for the HUD). */
+UENUM(BlueprintType)
+enum class EHHPoliceState : uint8
+{
+	None,
+	/** A patrol car drives through the street (it reacts to what it sees). */
+	Patrol,
+	/** Called: a car is on its way to the house. */
+	Responding,
+	/** At the house, searching. */
+	AtHouse,
+	/** Following the van. */
+	Chasing,
+	/** Lost the van; driving around looking for it. */
+	Searching
+};
+
+/** Kinds of job intel on the board (dossier sections). */
+UENUM(BlueprintType)
+enum class EHHIntelKind : uint8
+{
+	/** Who lives there and how they behave. */
+	Owner,
+	/** Something worth stealing and where it is. */
+	Valuable,
+	/** A way in (keys, weak doors, windows). */
+	Entry,
+	/** Alarms, dogs, neighbours, patrols. */
+	Security,
+	/** Anything else worth knowing. */
+	Note
+};
+
+/** When an intel spot can be scouted. */
+UENUM(BlueprintType)
+enum class EHHIntelTime : uint8
+{
+	Any,
+	/** Needs daylight (looking through windows, watching the owners). */
+	DayOnly,
+	NightOnly
 };
 
 USTRUCT(BlueprintType)
@@ -277,6 +351,33 @@ struct HORRORHEIST_API FHHLootRecord
 	FString StolenBy;
 };
 
+/** One crew member in the end-of-job roll call. */
+USTRUCT(BlueprintType)
+struct HORRORHEIST_API FHHCrewRecord
+{
+	GENERATED_BODY()
+
+	UPROPERTY(BlueprintReadOnly, Category = "Summary")
+	FString Name;
+
+	UPROPERTY(BlueprintReadOnly, Category = "Summary")
+	int32 CrewSlot = 0;
+
+	UPROPERTY(BlueprintReadOnly, Category = "Summary")
+	EHHCrewFate Fate = EHHCrewFate::Escaped;
+
+	/** Value this member put into the van. */
+	UPROPERTY(BlueprintReadOnly, Category = "Summary")
+	int32 Stashed = 0;
+
+	/** Value still in their bag when the job ended without them in the van. */
+	UPROPERTY(BlueprintReadOnly, Category = "Summary")
+	int32 Lost = 0;
+
+	UPROPERTY(BlueprintReadOnly, Category = "Summary")
+	bool bDrove = false;
+};
+
 USTRUCT(BlueprintType)
 struct HORRORHEIST_API FHHMissionSummary
 {
@@ -296,6 +397,14 @@ struct HORRORHEIST_API FHHMissionSummary
 	UPROPERTY(BlueprintReadOnly, Category = "Summary")
 	int32 LostValue = 0;
 
+	/** Bonus for the client's primary target (already part of the payout). */
+	UPROPERTY(BlueprintReadOnly, Category = "Summary")
+	int32 TargetBonus = 0;
+
+	/** What the fence keeps for hot goods / lying low (already taken off the payout). */
+	UPROPERTY(BlueprintReadOnly, Category = "Summary")
+	int32 FenceCut = 0;
+
 	UPROPERTY(BlueprintReadOnly, Category = "Summary")
 	int32 PayoutPerPlayer = 0;
 
@@ -309,8 +418,22 @@ struct HORRORHEIST_API FHHMissionSummary
 	UPROPERTY(BlueprintReadOnly, Category = "Summary")
 	int32 HauntStage = 0;
 
+	/** The police were called during the job. */
+	UPROPERTY(BlueprintReadOnly, Category = "Summary")
+	bool bPoliceCalled = false;
+
+	/** Where the van went (escape zone id) and its name for the summary. */
+	UPROPERTY(BlueprintReadOnly, Category = "Summary")
+	FName Safehouse;
+
+	UPROPERTY(BlueprintReadOnly, Category = "Summary")
+	FText SafehouseName;
+
 	UPROPERTY(BlueprintReadOnly, Category = "Summary")
 	TArray<FHHLootRecord> Loot;
+
+	UPROPERTY(BlueprintReadOnly, Category = "Summary")
+	TArray<FHHCrewRecord> Crew;
 };
 
 /** Shared helpers for display names and colors of the enums above. */
@@ -325,6 +448,11 @@ namespace HHText
 	/** "$12,450" */
 	HORRORHEIST_API FText Money(int64 Amount);
 	HORRORHEIST_API FText OutcomeName(EHHMissionOutcome Outcome);
+	/** One line under the ending stamp ("Clean getaway", "They boxed the van in") */
+	HORRORHEIST_API FText OutcomeLine(EHHMissionOutcome Outcome);
+	HORRORHEIST_API bool IsGetaway(EHHMissionOutcome Outcome);
+	HORRORHEIST_API FText CrewFateName(EHHCrewFate Fate);
+	HORRORHEIST_API FText IntelKindName(EHHIntelKind Kind);
 	/** "22:43" from hours since midnight (0..24). */
 	HORRORHEIST_API FText ClockTime(float Hours);
 }

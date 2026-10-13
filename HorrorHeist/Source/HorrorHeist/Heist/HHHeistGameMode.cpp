@@ -4,7 +4,12 @@
 #include "Heist/HHHouseVolume.h"
 #include "Heist/HHLootActor.h"
 #include "Heist/HHVanPoint.h"
+#include "Heist/HHEscapeZone.h"
 #include "Interaction/HHDoorActor.h"
+#include "NPC/HHNeighbourNPC.h"
+#include "Vehicles/HHPoliceCar.h"
+#include "Vehicles/HHRoadNode.h"
+#include "Vehicles/HHVanVehicle.h"
 #include "Player/HHCharacter.h"
 #include "Player/HHPlayerController.h"
 #include "Player/HHPlayerState.h"
@@ -15,6 +20,8 @@
 #include "Core/HHDeveloperSettings.h"
 #include "Core/HHGameInstance.h"
 #include "Core/HHNoiseSubsystem.h"
+#include "Online/HHSessionSubsystem.h"
+#include "Progression/HHProfileSubsystem.h"
 #include "World/HHTimeOfDay.h"
 #include "HorrorHeist.h"
 #include "CollisionQueryParams.h"
@@ -36,6 +43,7 @@ namespace HHHeistIds
 	static const FName Escape(TEXT("Escape"));
 	static const FName Police(TEXT("Police"));
 	static const FName WakePointTag(TEXT("HH_WakePoint"));
+	static const FName DefaultSafehouse(TEXT("Hideout"));
 }
 
 AHHHeistGameMode::AHHHeistGameMode()
@@ -98,6 +106,21 @@ void AHHHeistGameMode::ResolveMission(const FString& Options)
 		}
 	}
 
+	// Where the van goes at the end: ?Escape= from the job board, the remembered plan, or home.
+	const FString EscapeOption = UGameplayStatics::ParseOption(Options, TEXT("Escape"));
+	SafehouseId = EscapeOption.IsEmpty() ? NAME_None : FName(*EscapeOption);
+	if (SafehouseId.IsNone())
+	{
+		if (const UHHGameInstance* GameInstance = GetGameInstance<UHHGameInstance>())
+		{
+			SafehouseId = GameInstance->GetSafehouse();
+		}
+	}
+	if (SafehouseId.IsNone())
+	{
+		SafehouseId = HHHeistIds::DefaultSafehouse;
+	}
+
 	Mission = Found;
 	if (Found)
 	{
@@ -116,9 +139,56 @@ void AHHHeistGameMode::BeginPlay()
 	Super::BeginPlay();
 
 	UWorld* World = GetWorld();
+	FindWorldActors();
+	Haunt = AHHHauntDirector::Get(this);
+	if (AHHHauntDirector* Director = Haunt.Get())
+	{
+		Director->SetAggression(Mission.IsValid() ? Mission->HauntAggression : 1.f);
+	}
+	if (HouseVolumes.Num() == 0 || (!Van.IsValid() && !DrivePoint.IsValid()) || !Haunt.IsValid())
+	{
+		UE_LOG(LogHorrorHeist, Warning, TEXT("Heist map is incomplete: %d house volumes, van %s, haunt director %s."),
+			HouseVolumes.Num(), Van.IsValid() || DrivePoint.IsValid() ? TEXT("yes") : TEXT("NO"), Haunt.IsValid() ? TEXT("yes") : TEXT("NO"));
+	}
+
+	if (AHHHeistGameState* HeistState = GetHeistState())
+	{
+		HeistState->SetSelectedMission(MissionId);
+		HeistState->SetSafehouse(Escape.IsValid() ? Escape->GetZoneId() : SafehouseId);
+		if (const UHHProfileSubsystem* Profile = UHHProfileSubsystem::Get(this))
+		{
+			HeistState->MergeIntel(Profile->GetKnownIntel());
+		}
+		const UHHSessionSubsystem* Sessions = UHHSessionSubsystem::Get(this);
+		HeistState->SetLobbyCode(Sessions && Sessions->HasSession() ? Sessions->GetLobbyCode() : FString());
+		HeistState->StartClock();
+	}
+	StartTime = World->GetTimeSeconds();
+	PatrolAt = FMath::FRandRange(PatrolWindow.X, FMath::Max(PatrolWindow.X, PatrolWindow.Y));
+	ApplyKnownIntel();
+	SetupObjectives();
+
+	if (UHHNoiseSubsystem* Noise = World->GetSubsystem<UHHNoiseSubsystem>())
+	{
+		NoiseHandle = Noise->OnNoise.AddUObject(this, &AHHHeistGameMode::HandleNoise);
+	}
+	if (AHHNeighbourNPC* Npc = Neighbour.Get())
+	{
+		SpottedHandle = Npc->OnSpotted.AddUObject(this, &AHHHeistGameMode::HandleNeighbourSpotted);
+		GaveUpHandle = Npc->OnGaveUp.AddUObject(this, &AHHHeistGameMode::HandleNeighbourGaveUp);
+	}
+	GetWorldTimerManager().SetTimer(RulesTimer, this, &AHHHeistGameMode::TickRules, 0.5f, true, 0.5f);
+}
+
+void AHHHeistGameMode::FindWorldActors()
+{
+	UWorld* World = GetWorld();
+	HouseVolumes.Reset();
+	FVector Sum = FVector::ZeroVector;
 	for (TActorIterator<AHHHouseVolume> It(World); It; ++It)
 	{
 		HouseVolumes.Add(*It);
+		Sum += It->GetActorLocation();
 	}
 	for (TActorIterator<AHHVanPoint> It(World); It; ++It)
 	{
@@ -127,30 +197,49 @@ void AHHHeistGameMode::BeginPlay()
 			DrivePoint = *It;
 		}
 	}
-	Haunt = AHHHauntDirector::Get(this);
-	if (AHHHauntDirector* Director = Haunt.Get())
+	Van = AHHVanVehicle::Get(this);
+	Police = AHHPoliceCar::Get(this);
+	Neighbour = AHHNeighbourNPC::Get(this);
+	Escape = AHHEscapeZone::Find(this, SafehouseId);
+	if (!Escape.IsValid())
 	{
-		Director->SetAggression(Mission.IsValid() ? Mission->HauntAggression : 1.f);
+		// Unknown id (older board, renamed zone): the first getaway spot of the town.
+		const TArray<AHHEscapeZone*> Zones = AHHEscapeZone::GetAll(this);
+		Escape = Zones.Num() > 0 ? Zones[0] : nullptr;
+		if (Escape.IsValid())
+		{
+			UE_LOG(LogHorrorHeist, Warning, TEXT("Heist: no escape zone '%s'; using '%s'."), *SafehouseId.ToString(), *Escape->GetZoneId().ToString());
+			SafehouseId = Escape->GetZoneId();
+		}
 	}
-	if (HouseVolumes.Num() == 0 || !DrivePoint.IsValid() || !Haunt.IsValid())
-	{
-		UE_LOG(LogHorrorHeist, Warning, TEXT("Heist map is incomplete: %d house volumes, drive point %s, haunt director %s."),
-			HouseVolumes.Num(), DrivePoint.IsValid() ? TEXT("yes") : TEXT("NO"), Haunt.IsValid() ? TEXT("yes") : TEXT("NO"));
-	}
+	HouseCenter = HouseVolumes.Num() > 0 ? Sum / HouseVolumes.Num() : (Van.IsValid() ? Van->GetActorLocation() : FVector::ZeroVector);
+}
 
-	if (AHHHeistGameState* HeistState = GetHeistState())
+void AHHHeistGameMode::ApplyKnownIntel()
+{
+	// Keys the crew picked up while scouting by day are in their pocket tonight.
+	const UHHMissionDefinition* Job = Mission.Get();
+	AHHHeistGameState* HeistState = GetHeistState();
+	if (!Job || !HeistState)
 	{
-		HeistState->SetSelectedMission(MissionId);
-		HeistState->StartClock();
+		return;
 	}
-	StartTime = World->GetTimeSeconds();
-	SetupObjectives();
-
-	if (UHHNoiseSubsystem* Noise = World->GetSubsystem<UHHNoiseSubsystem>())
+	for (const FHHJobIntel& Intel : Job->Intel)
 	{
-		NoiseHandle = Noise->OnNoise.AddUObject(this, &AHHHeistGameMode::HandleNoise);
+		if (Intel.KeyId.IsNone() || !(Intel.bKnownFromStart || HeistState->IsIntelKnown(Intel.IntelId)))
+		{
+			continue;
+		}
+		HeistState->AddKey(Intel.KeyId);
+		for (TActorIterator<AHHLootActor> It(GetWorld()); It; ++It)
+		{
+			if (It->IsKey() && It->GetKeyId() == Intel.KeyId)
+			{
+				It->Destroy();
+			}
+		}
+		HeistState->MulticastCrewMessage(FText::Format(LOCTEXT("KeyFromScouting", "You have {0} from scouting by day."), Intel.Title), EHHNotifyType::Success);
 	}
-	GetWorldTimerManager().SetTimer(RulesTimer, this, &AHHHeistGameMode::TickRules, 0.5f, true, 0.5f);
 }
 
 void AHHHeistGameMode::EndPlay(const EEndPlayReason::Type EndPlayReason)
@@ -158,6 +247,11 @@ void AHHHeistGameMode::EndPlay(const EEndPlayReason::Type EndPlayReason)
 	if (UHHNoiseSubsystem* Noise = GetWorld() ? GetWorld()->GetSubsystem<UHHNoiseSubsystem>() : nullptr)
 	{
 		Noise->OnNoise.Remove(NoiseHandle);
+	}
+	if (AHHNeighbourNPC* Npc = Neighbour.Get())
+	{
+		Npc->OnSpotted.Remove(SpottedHandle);
+		Npc->OnGaveUp.Remove(GaveUpHandle);
 	}
 	GetWorldTimerManager().ClearTimer(RulesTimer);
 	GetWorldTimerManager().ClearTimer(ReturnTimer);
@@ -203,7 +297,7 @@ void AHHHeistGameMode::SetupObjectives()
 	}
 	for (TActorIterator<AHHLootActor> It(GetWorld()); It; ++It)
 	{
-		if (It->IsKey())
+		if (It->IsKey() && !HeistState->HasKey(It->GetKeyId()))
 		{
 			bHasKeyObjective = true;
 			break;
@@ -214,9 +308,30 @@ void AHHHeistGameMode::SetupObjectives()
 		Add(HHHeistIds::Key, LOCTEXT("ObjKey", "Optional: find the spare key"), true);
 	}
 
+	if (Van.IsValid() && Escape.IsValid())
+	{
+		bHasEscapeObjective = true;
+		Add(HHHeistIds::Escape, FText::GetEmpty(), false);
+	}
+
 	HeistState->SetObjectives(List);
 	HeistState->SetSecured(0, MinimumHaul);
 	UpdateHaulObjective();
+	UpdateEscapeObjective();
+}
+
+void AHHHeistGameMode::UpdateEscapeObjective()
+{
+	AHHHeistGameState* HeistState = GetHeistState();
+	if (!HeistState || !bHasEscapeObjective || !Escape.IsValid())
+	{
+		return;
+	}
+	const FText Text = HeistState->IsPoliceCalled()
+		? FText::Format(LOCTEXT("ObjEscapePolice", "Police! Everyone into the van - drive to {0}"), Escape->GetDisplayName())
+		: FText::Format(LOCTEXT("ObjEscapeDrive", "Get away: everyone into the van, drive to {0} ({1}/{2} in the van)"),
+			Escape->GetDisplayName(), FText::AsNumber(HeistState->GetCrewAtVan()), FText::AsNumber(HeistState->GetCrewTotal()));
+	HeistState->UpdateObjective(HHHeistIds::Escape, &Text, nullptr);
 }
 
 void AHHHeistGameMode::UpdateHaulObjective()
@@ -304,23 +419,24 @@ void AHHHeistGameMode::TickRules()
 	const float Dt = 0.5f;
 	const int32 Stage = Haunt.IsValid() ? Haunt->GetStage() : 0;
 	const TArray<AHHPlayerState*> Crew = HeistState->GetCrew();
-	const AHHVanPoint* Van = DrivePoint.Get();
+	const AHHVanPoint* OldVan = DrivePoint.Get();
 
 	int32 AtVan = 0;
 	TArray<APawn*> Blackouts;
 	for (AHHPlayerState* State : Crew)
 	{
 		APawn* Pawn = State->GetPawn();
-		if (!Pawn)
+		if (!Pawn || Arrested.Contains(State))
 		{
 			continue;
 		}
 		const FVector Location = Pawn->GetActorLocation();
+		const bool bInVan = IsInVan(State);
 
 		bool bInside = false;
 		for (const TWeakObjectPtr<AHHHouseVolume>& Volume : HouseVolumes)
 		{
-			if (Volume.IsValid() && Volume->ContainsPoint(Location))
+			if (!bInVan && Volume.IsValid() && Volume->ContainsPoint(Location))
 			{
 				bInside = true;
 				break;
@@ -368,31 +484,358 @@ void AHHHeistGameMode::TickRules()
 			Blackouts.Add(Pawn);
 		}
 
-		if (Van && FVector::DistSquared(Van->GetActorLocation(), Location) < FMath::Square(Van->GetCrewRadius()))
+		// In the van counts as "at the van"; old maps without a drivable van use the drive point's radius.
+		if (bInVan || (!Van.IsValid() && OldVan && FVector::DistSquared(OldVan->GetActorLocation(), Location) < FMath::Square(OldVan->GetCrewRadius())))
 		{
 			++AtVan;
 		}
 	}
 	HeistState->SetVanCount(AtVan, Crew.Num());
+	UpdateEscapeObjective();
 
 	for (APawn* Pawn : Blackouts)
 	{
 		HandlePlayerBlackout(Pawn, false);
 	}
 
-	if (HeistState->IsPoliceCalled())
+	TickPolice(Dt);
+	if (bEnded)
 	{
-		if (HeistState->GetPoliceRemaining() <= 0.f)
-		{
-			HeistState->MulticastCrewMessage(LOCTEXT("PoliceArrived", "Blue lights at the end of the street. Too late."), EHHNotifyType::Error);
-			EndMission(EHHMissionOutcome::Caught);
-		}
+		return;
 	}
-	else
+	TickEscape();
+
+	if (!HeistState->IsPoliceCalled())
 	{
 		Alert = FMath::Max(0.f, Alert - AlertDecay * Dt);
 		HeistState->SetAlert(Alert);
 	}
+}
+
+bool AHHHeistGameMode::IsInVan(const AHHPlayerState* State) const
+{
+	const AHHCharacter* Character = State ? Cast<AHHCharacter>(State->GetPawn()) : nullptr;
+	return Character && Van.IsValid() && Character->GetVehicle() == Van.Get();
+}
+
+// ---------------------------------------------------------------------------------------
+// Police: patrol, response, arrests, chase
+
+void AHHHeistGameMode::TickPolice(float DeltaSeconds)
+{
+	AHHHeistGameState* HeistState = GetHeistState();
+	AHHPoliceCar* Car = Police.Get();
+	if (!HeistState)
+	{
+		return;
+	}
+	const double Now = GetWorld()->GetTimeSeconds();
+
+	// No police car in this map (older content): the old countdown rule.
+	if (!Car)
+	{
+		if (HeistState->IsPoliceCalled() && HeistState->GetPoliceRemaining() <= 0.f)
+		{
+			HeistState->MulticastCrewMessage(LOCTEXT("PoliceArrived", "Blue lights at the end of the street. Too late."), EHHNotifyType::Error);
+			EndMission(EHHMissionOutcome::Caught);
+		}
+		return;
+	}
+
+	// A patrol drives through once, some time into the job.
+	if (!bPatrolDone && !HeistState->IsPoliceCalled() && Now - StartTime > PatrolAt)
+	{
+		bPatrolDone = true;
+		Car->StartPatrol();
+		if (Car->GetMode() == EHHPoliceCarMode::Patrol)
+		{
+			HeistState->SetPoliceState(EHHPoliceState::Patrol);
+			HeistState->MulticastCrewMessage(LOCTEXT("PatrolComing", "Headlights on Main Street - a patrol car. Get off the lawn and out of sight!"), EHHNotifyType::Warning);
+		}
+	}
+	if (Car->GetMode() == EHHPoliceCarMode::Patrol)
+	{
+		for (AHHPlayerState* State : HeistState->GetCrew())
+		{
+			const APawn* Pawn = State->GetPawn();
+			if (!Pawn || IsInVan(State) || State->IsInsideHouse() || Arrested.Contains(State))
+			{
+				continue;
+			}
+			if (Car->CanSee(Pawn, 2200.f, 55.f))
+			{
+				// They saw someone creeping around a house at night: backup is minutes away, this car is right here.
+				Car->HoldPosition();
+				Alert = 100.f;
+				CallPolice(25.f, FText::Format(LOCTEXT("PatrolSaw", "The patrol car saw {0}! It stopped - more police in 25 seconds."), FText::FromString(State->GetPlayerName())));
+				break;
+			}
+		}
+	}
+	else if (HeistState->GetPoliceState() == EHHPoliceState::Patrol && Car->GetMode() == EHHPoliceCarMode::Parked)
+	{
+		HeistState->SetPoliceState(EHHPoliceState::None);
+		HeistState->MulticastCrewMessage(LOCTEXT("PatrolGone", "The patrol car turned the corner. Quiet again."), EHHNotifyType::Info);
+	}
+
+	if (!HeistState->IsPoliceCalled())
+	{
+		return;
+	}
+
+	// Called: the car leaves late enough to arrive about when the countdown ends.
+	if (!bPoliceDispatched && Now >= PoliceCallTime + PoliceDelay)
+	{
+		DispatchPoliceCar();
+	}
+	if (bPoliceDispatched && !bPoliceArrived && Car->HasArrived())
+	{
+		HandlePoliceArrived();
+		if (bEnded)
+		{
+			return;
+		}
+	}
+
+	// The chase.
+	AHHVanVehicle* TheVan = Van.Get();
+	if (Car->GetMode() == EHHPoliceCarMode::Chase && TheVan)
+	{
+		if (Car->GetTimeWithoutSight() > 10.f)
+		{
+			HeistState->SetPoliceState(EHHPoliceState::Searching);
+			HeistState->MulticastCrewMessage(LOCTEXT("LostThem", "You lost them. Get to the getaway spot before they find you again."), EHHNotifyType::Success);
+			Car->Leave();
+		}
+		else
+		{
+			HeistState->SetPoliceState(EHHPoliceState::Chasing);
+			const float Distance = FVector::Dist2D(Car->GetActorLocation(), TheVan->GetActorLocation());
+			BustTimer = Distance < 750.f && TheVan->GetSpeedKmh() < 8.f ? BustTimer + DeltaSeconds : 0.f;
+			if (BustTimer >= 2.5f)
+			{
+				HeistState->MulticastCrewMessage(LOCTEXT("Boxed", "The patrol car cut you off. Hands where they can see them."), EHHNotifyType::Error);
+				EndMission(EHHMissionOutcome::ChaseBusted);
+				return;
+			}
+		}
+	}
+	else if (HeistState->GetPoliceState() == EHHPoliceState::Searching && TheVan && TheVan->GetNumOccupants() > 0
+		&& Car->GetMode() != EHHPoliceCarMode::Parked && Car->CanSee(TheVan, 3000.f, 70.f))
+	{
+		Car->Chase(TheVan);
+		HeistState->SetPoliceState(EHHPoliceState::Chasing);
+		HeistState->MulticastCrewMessage(LOCTEXT("FoundAgain", "They spotted the van again!"), EHHNotifyType::Error);
+	}
+}
+
+void AHHHeistGameMode::CallPolice(float Seconds, const FText& Message)
+{
+	AHHHeistGameState* HeistState = GetHeistState();
+	if (!HeistState || HeistState->IsPoliceCalled())
+	{
+		return;
+	}
+	HeistState->CallPolice(Seconds);
+	HeistState->SetPoliceState(EHHPoliceState::Responding);
+	PoliceCallTime = GetWorld()->GetTimeSeconds();
+	// The car needs ~10-20 s through town; it leaves the station accordingly.
+	PoliceDelay = FMath::Max(0.f, Seconds - 18.f);
+	bPoliceDispatched = false;
+	HeistState->MulticastCrewMessage(Message, EHHNotifyType::Error);
+
+	TArray<FHHObjective> List = HeistState->GetObjectives();
+	FHHObjective Objective;
+	Objective.Id = HHHeistIds::Police;
+	Objective.Text = Escape.IsValid()
+		? FText::Format(LOCTEXT("ObjPoliceZone", "Police on the way - into the van and off to {0}!"), Escape->GetDisplayName())
+		: LOCTEXT("ObjPolice", "Police on the way - get everyone to the van and drive!");
+	List.Insert(Objective, 0);
+	HeistState->SetObjectives(List);
+	UpdateEscapeObjective();
+}
+
+void AHHHeistGameMode::DispatchPoliceCar()
+{
+	AHHPoliceCar* Car = Police.Get();
+	AHHHeistGameState* HeistState = GetHeistState();
+	if (!Car || !HeistState)
+	{
+		return;
+	}
+	bPoliceDispatched = true;
+	const AHHRoadNode* Node = AHHRoadNode::FindNearest(this, HouseCenter);
+	const FVector Scene = Node ? Node->GetActorLocation() : HouseCenter;
+	// From the edge of town, or - when the patrol saw them - from where it stopped.
+	Car->Respond(Scene, HeistState->GetPoliceRemaining() + 20.f);
+	HeistState->MulticastCrewMessage(LOCTEXT("Sirens", "Sirens. They're coming down Main Street."), EHHNotifyType::Error);
+}
+
+void AHHHeistGameMode::HandlePoliceArrived()
+{
+	AHHHeistGameState* HeistState = GetHeistState();
+	AHHPoliceCar* Car = Police.Get();
+	if (!HeistState || !Car)
+	{
+		return;
+	}
+	bPoliceArrived = true;
+	HeistState->SetPoliceState(EHHPoliceState::AtHouse);
+
+	// Everyone still at the house on foot is arrested.
+	int32 Free = 0;
+	for (AHHPlayerState* State : HeistState->GetCrew())
+	{
+		const APawn* Pawn = State->GetPawn();
+		if (!Pawn || Arrested.Contains(State))
+		{
+			continue;
+		}
+		if (!IsInVan(State) && FVector::Dist2D(Pawn->GetActorLocation(), HouseCenter) < SceneRadius)
+		{
+			Arrest(State);
+			continue;
+		}
+		++Free;
+	}
+	if (Free == 0)
+	{
+		HeistState->MulticastCrewMessage(LOCTEXT("AllCaught", "Blue lights in the driveway. Nobody got away."), EHHNotifyType::Error);
+		EndMission(EHHMissionOutcome::Caught);
+		return;
+	}
+
+	// The van: still in the street means a chase, otherwise they search the area.
+	AHHVanVehicle* TheVan = Van.Get();
+	if (TheVan && TheVan->GetNumOccupants() > 0 && (FVector::Dist2D(TheVan->GetActorLocation(), HouseCenter) < SceneRadius || Car->CanSee(TheVan, 4000.f, 180.f)))
+	{
+		Car->Chase(TheVan);
+		HeistState->SetPoliceState(EHHPoliceState::Chasing);
+		HeistState->MulticastCrewMessage(LOCTEXT("ChaseStart", "They saw the van - lose them!"), EHHNotifyType::Error);
+	}
+	else
+	{
+		HeistState->SetPoliceState(EHHPoliceState::Searching);
+		HeistState->MulticastCrewMessage(LOCTEXT("Searching", "The police are at the house, looking around. Stay out of their sight."), EHHNotifyType::Warning);
+	}
+}
+
+void AHHHeistGameMode::Arrest(AHHPlayerState* State)
+{
+	AHHHeistGameState* HeistState = GetHeistState();
+	if (!State || Arrested.Contains(State) || !HeistState)
+	{
+		return;
+	}
+	Arrested.Add(State);
+	State->SetInsideHouse(false);
+	if (AHHCharacter* Character = Cast<AHHCharacter>(State->GetPawn()))
+	{
+		if (Character->IsSeated() && Character->GetVehicle())
+		{
+			Character->GetVehicle()->Exit(Character);
+		}
+		Character->SetArrested(true);
+	}
+	if (AHHPlayerController* PC = Cast<AHHPlayerController>(State->GetOwningController()))
+	{
+		PC->ClientNotify(LOCTEXT("YouArrested", "You were arrested. Your bag is evidence now - the crew can still get away."), EHHNotifyType::Error);
+	}
+	HeistState->MulticastCrewMessage(FText::Format(LOCTEXT("Arrested", "{0} was arrested."), FText::FromString(State->GetPlayerName())), EHHNotifyType::Error);
+}
+
+// ---------------------------------------------------------------------------------------
+// The neighbour
+
+void AHHHeistGameMode::SendNeighbour(const FVector& Location)
+{
+	AHHNeighbourNPC* Npc = Neighbour.Get();
+	AHHHeistGameState* HeistState = GetHeistState();
+	if (!Npc || !HeistState || HeistState->IsPoliceCalled() || NeighbourVisits >= 2)
+	{
+		return;
+	}
+	if (Npc->SendOut(Location))
+	{
+		++NeighbourVisits;
+		HeistState->MulticastCrewMessage(FText::Format(LOCTEXT("NeighbourOut", "A door opens next door: {0} is coming out with a torch. Stay out of his sight!"),
+			Npc->GetDisplayName()), EHHNotifyType::Warning);
+	}
+}
+
+void AHHHeistGameMode::HandleNeighbourSpotted(APawn* Who)
+{
+	const AHHNeighbourNPC* Npc = Neighbour.Get();
+	const AHHPlayerState* State = Who ? Who->GetPlayerState<AHHPlayerState>() : nullptr;
+	Alert = 100.f;
+	if (AHHHeistGameState* HeistState = GetHeistState())
+	{
+		HeistState->SetAlert(Alert);
+	}
+	CallPolice(UHHDeveloperSettings::Get()->PoliceResponseSeconds * 0.6f, FText::Format(LOCTEXT("NeighbourSaw", "{0} saw {1} and is running inside to call the police!"),
+		Npc ? Npc->GetDisplayName() : LOCTEXT("TheNeighbour", "The neighbour"), State ? FText::FromString(State->GetPlayerName()) : LOCTEXT("Someone", "someone")));
+}
+
+void AHHHeistGameMode::HandleNeighbourGaveUp()
+{
+	AHHHeistGameState* HeistState = GetHeistState();
+	if (!HeistState || HeistState->IsPoliceCalled())
+	{
+		return;
+	}
+	Alert = FMath::Max(0.f, Alert - 25.f);
+	HeistState->SetAlert(Alert);
+	const AHHNeighbourNPC* Npc = Neighbour.Get();
+	HeistState->MulticastCrewMessage(FText::Format(LOCTEXT("NeighbourIn", "{0} found nothing and went back inside."),
+		Npc ? Npc->GetDisplayName() : LOCTEXT("TheNeighbourCap", "The neighbour")), EHHNotifyType::Info);
+}
+
+// ---------------------------------------------------------------------------------------
+// The getaway
+
+EHHMissionOutcome AHHHeistGameMode::GetGetawayOutcome() const
+{
+	const AHHHeistGameState* HeistState = GetHeistState();
+	if (!HeistState || HeistState->GetSecuredValue() < MinimumHaul)
+	{
+		return EHHMissionOutcome::Partial;
+	}
+	return HeistState->IsPoliceCalled() ? EHHMissionOutcome::HotGetaway : EHHMissionOutcome::Success;
+}
+
+void AHHHeistGameMode::TickEscape()
+{
+	AHHHeistGameState* HeistState = GetHeistState();
+	const AHHVanVehicle* TheVan = Van.Get();
+	const AHHEscapeZone* Zone = Escape.Get();
+	if (!HeistState || !TheVan || !Zone || TheVan->GetNumOccupants() == 0 || !Zone->ContainsPoint(TheVan->GetGroundLocation() + FVector(0.f, 0.f, 50.f)))
+	{
+		return;
+	}
+	const double Now = GetWorld()->GetTimeSeconds();
+	auto Hint = [this, HeistState, Now](const FText& Text)
+	{
+		if (Now - LastEscapeHint > 6.0)
+		{
+			LastEscapeHint = Now;
+			HeistState->MulticastCrewMessage(Text, EHHNotifyType::Warning);
+		}
+	};
+	if (HeistState->GetPoliceState() == EHHPoliceState::Chasing && !Zone->AcceptsWhileChased())
+	{
+		Hint(FText::Format(LOCTEXT("NotWhileChased", "Not {0} - not with the police on your tail. Lose them first."), Zone->GetDisplayName()));
+		return;
+	}
+	if (Zone->GetStopSeconds() > 0.f && TheVan->GetStoppedSeconds() < Zone->GetStopSeconds())
+	{
+		Hint(FText::Format(LOCTEXT("ParkHere", "Park it here and kill the engine ({0}s standing still)."), FText::AsNumber(FMath::RoundToInt(Zone->GetStopSeconds()))));
+		return;
+	}
+	if (TheVan->GetNumOccupants() < HeistState->GetCrewTotal() - Arrested.Num())
+	{
+		HeistState->MulticastCrewMessage(LOCTEXT("LeftSomeone", "The van made it - but not everyone was in it."), EHHNotifyType::Warning);
+	}
+	EndMission(GetGetawayOutcome());
 }
 
 // ---------------------------------------------------------------------------------------
@@ -412,7 +855,13 @@ void AHHHeistGameMode::HandleNoise(const FVector& Location, float Loudness, AAct
 	static const FName ForcedEntry(TEXT("ForcedEntry"));
 	static const FName Footstep(TEXT("Footstep"));
 	static const FName DoorRattle(TEXT("DoorRattle"));
+	static const FName Horn(TEXT("Horn"));
+	static const FName Crash(TEXT("Crash"));
 
+	if (Loudness >= 0.3f)
+	{
+		LastNoise = Location;
+	}
 	if (Tag == ForcedEntry)
 	{
 		RaiseAlert(42.f, LOCTEXT("AlertForced", "Somebody must have heard that."));
@@ -440,6 +889,16 @@ void AHHHeistGameMode::HandleNoise(const FVector& Location, float Loudness, AAct
 		RaiseAlert(1.5f, FText::GetEmpty());
 		return;
 	}
+	if (Tag == Horn)
+	{
+		RaiseAlert(30.f, LOCTEXT("AlertHorn", "A horn at night. Lights go on along the street."));
+		return;
+	}
+	if (Tag == Crash)
+	{
+		RaiseAlert(25.f * Loudness, LOCTEXT("AlertCrash", "That crash woke the street."));
+		return;
+	}
 
 	if (Loudness >= 0.6f)
 	{
@@ -454,7 +913,7 @@ void AHHHeistGameMode::HandleNoise(const FVector& Location, float Loudness, AAct
 void AHHHeistGameMode::RaiseAlert(float Amount, const FText& Reason)
 {
 	AHHHeistGameState* HeistState = GetHeistState();
-	if (!HeistState || HeistState->IsPoliceCalled() || Amount <= 0.f)
+	if (!HeistState || HeistState->IsPoliceCalled() || Amount <= 0.f || bEnded)
 	{
 		return;
 	}
@@ -465,14 +924,13 @@ void AHHHeistGameMode::RaiseAlert(float Amount, const FText& Reason)
 	if (Alert >= 100.f)
 	{
 		const float Seconds = UHHDeveloperSettings::Get()->PoliceResponseSeconds;
-		HeistState->CallPolice(Seconds);
-		HeistState->MulticastCrewMessage(FText::Format(LOCTEXT("PoliceCalled", "A neighbour called the police. You have about {0} seconds."), FText::AsNumber(FMath::RoundToInt(Seconds))), EHHNotifyType::Error);
-		TArray<FHHObjective> List = HeistState->GetObjectives();
-		FHHObjective Objective;
-		Objective.Id = HHHeistIds::Police;
-		Objective.Text = LOCTEXT("ObjPolice", "Police on the way - get everyone to the van and drive!");
-		List.Insert(Objective, 0);
-		HeistState->SetObjectives(List);
+		CallPolice(Seconds, FText::Format(LOCTEXT("PoliceCalled", "A neighbour called the police. You have about {0} seconds."), FText::AsNumber(FMath::RoundToInt(Seconds))));
+		return;
+	}
+	if (Before < NeighbourAlert && Alert >= NeighbourAlert && Neighbour.IsValid() && !Neighbour->IsOut())
+	{
+		// Someone next door wants to know what that was.
+		SendNeighbour(LastNoise.IsZero() ? HouseCenter : LastNoise);
 	}
 	else if (Before < 50.f && Alert >= 50.f)
 	{
@@ -626,7 +1084,7 @@ void AHHHeistGameMode::HandleDriveAway(AController* By, USoundBase* Sound, const
 	{
 		HeistState->MulticastSoundAt(Sound, Location, 1.f);
 	}
-	EndMission(HeistState->GetSecuredValue() >= MinimumHaul ? EHHMissionOutcome::Success : EHHMissionOutcome::Partial);
+	EndMission(GetGetawayOutcome());
 }
 
 AActor* AHHHeistGameMode::FindWakePoint(const FVector& Near) const
@@ -659,7 +1117,7 @@ void AHHHeistGameMode::HandlePlayerBlackout(APawn* Pawn, bool bCaughtByEntity)
 {
 	AHHPlayerState* State = Pawn ? Pawn->GetPlayerState<AHHPlayerState>() : nullptr;
 	AHHHeistGameState* HeistState = GetHeistState();
-	if (!State || !HeistState || bEnded)
+	if (!State || !HeistState || bEnded || Arrested.Contains(State) || IsInVan(State))
 	{
 		return;
 	}
@@ -732,6 +1190,22 @@ void AHHHeistGameMode::DebugEnd(EHHMissionOutcome Outcome)
 	EndMission(Outcome);
 }
 
+void AHHHeistGameMode::DebugCallPolice()
+{
+	Alert = 100.f;
+	if (AHHHeistGameState* HeistState = GetHeistState())
+	{
+		HeistState->SetAlert(Alert);
+	}
+	CallPolice(30.f, LOCTEXT("DebugPolice", "(debug) The police were called - 30 seconds."));
+}
+
+void AHHHeistGameMode::DebugSendNeighbour()
+{
+	NeighbourVisits = 0;
+	SendNeighbour(HouseCenter);
+}
+
 // ---------------------------------------------------------------------------------------
 // End of the job
 
@@ -749,60 +1223,138 @@ void AHHHeistGameMode::EndMission(EHHMissionOutcome Outcome)
 		Director->SetActive(false);
 	}
 
-	const bool bGotAway = Outcome == EHHMissionOutcome::Success || Outcome == EHHMissionOutcome::Partial;
+	const bool bGotAway = HHText::IsGetaway(Outcome);
 	const TArray<AHHPlayerState*> Crew = HeistState->GetCrew();
+	if (AHHVanVehicle* TheVan = Van.Get())
+	{
+		TheVan->SetDrivable(false);
+	}
+	if (AHHPoliceCar* Car = Police.Get())
+	{
+		if (Car->GetMode() == EHHPoliceCarMode::Chase)
+		{
+			Car->HoldPosition();
+		}
+	}
 
 	int32 Secured = 0;
 	for (const FHHLootRecord& Record : Stashed)
 	{
 		Secured += Record.Value;
 	}
-	int32 Carried = 0;
-	for (const AHHPlayerState* State : Crew)
-	{
-		if (const UHHInventoryComponent* Inventory = State->GetInventory())
-		{
-			Carried += Inventory->GetCarriedLootValue();
-		}
-	}
 
 	FHHMissionSummary Summary;
 	Summary.Outcome = Outcome;
 	Summary.MissionId = MissionId;
 	Summary.SecuredValue = bGotAway ? Secured : 0;
-	Summary.LostValue = Carried + (bGotAway ? 0 : Secured);
 	Summary.DurationSeconds = HeistState->GetElapsed();
 	Summary.HauntStage = Haunt.IsValid() ? Haunt->GetHighestStage() : 0;
 	Summary.Loot = Stashed;
+	Summary.bPoliceCalled = HeistState->IsPoliceCalled();
+	if (const AHHEscapeZone* Zone = Escape.Get())
+	{
+		Summary.Safehouse = Zone->GetZoneId();
+		Summary.SafehouseName = Zone->GetDisplayName();
+	}
 
-	const float Bonus = bTargetStashed ? 1.f + PrimaryTargetBonus : 1.f;
-	const float Total = bGotAway ? Secured * Bonus : 0.f;
+	// Roll call: who was in the van, who was left behind, who was taken away.
+	const AHHVanVehicle* TheVan = Van.Get();
+	int32 LostCarried = 0;
+	for (const AHHPlayerState* State : Crew)
+	{
+		FHHCrewRecord Record;
+		Record.Name = State->GetPlayerName();
+		Record.CrewSlot = State->GetCrewSlot();
+		Record.Stashed = State->GetStashedValue();
+		const bool bInVan = IsInVan(State);
+		Record.bDrove = TheVan && State->GetPawn() && TheVan->GetDriver() == State->GetPawn();
+		if (Arrested.Contains(State) || Outcome == EHHMissionOutcome::Caught)
+		{
+			Record.Fate = EHHCrewFate::Caught;
+		}
+		else if (Outcome == EHHMissionOutcome::ChaseBusted)
+		{
+			Record.Fate = bInVan ? EHHCrewFate::Caught : EHHCrewFate::LeftBehind;
+		}
+		else if (bGotAway && (TheVan || DrivePoint.IsValid()))
+		{
+			// Old maps (drive point) end with everyone at the van.
+			Record.Fate = bInVan || !TheVan ? EHHCrewFate::Escaped : EHHCrewFate::LeftBehind;
+		}
+		else
+		{
+			Record.Fate = EHHCrewFate::Escaped;
+		}
+		if (Record.Fate != EHHCrewFate::Escaped)
+		{
+			if (const UHHInventoryComponent* Inventory = State->GetInventory())
+			{
+				Record.Lost = Inventory->GetCarriedLootValue();
+				LostCarried += Record.Lost;
+			}
+		}
+		Summary.Crew.Add(Record);
+	}
+	Summary.LostValue = LostCarried + (bGotAway ? 0 : Secured);
+
+	// The money: target bonus, the fence's cut (hot goods, the getaway spot), split across the crew.
+	const float Bonus = bGotAway && bTargetStashed ? Secured * PrimaryTargetBonus : 0.f;
+	const float Gross = bGotAway ? Secured + Bonus : 0.f;
+	float CutShare = Escape.IsValid() ? Escape->GetFenceCut() : 0.f;
+	if (Outcome == EHHMissionOutcome::HotGetaway)
+	{
+		CutShare += HotGoodsCut;
+	}
+	const float Cut = Gross * FMath::Clamp(CutShare, 0.f, 0.9f);
+	const float Net = Gross - Cut;
+	Summary.TargetBonus = FMath::RoundToInt(Bonus);
+	Summary.FenceCut = FMath::RoundToInt(Cut);
 	const int32 People = FMath::Max(1, Crew.Num());
-	Summary.PayoutPerPlayer = FMath::RoundToInt(Total / People / 5.f) * 5;
+	Summary.PayoutPerPlayer = FMath::RoundToInt(Net / People / 5.f) * 5;
 
 	const int32 XPPerThousand = UHHDeveloperSettings::Get()->XPPerThousand;
-	const int32 BaseXP = FMath::RoundToInt(Total / 1000.f * XPPerThousand) + 12 * Summary.HauntStage;
+	const int32 BaseXP = FMath::RoundToInt(Net / 1000.f * XPPerThousand) + 12 * Summary.HauntStage;
 	switch (Outcome)
 	{
-	case EHHMissionOutcome::Success:	Summary.XPPerPlayer = 40 + BaseXP; break;
-	case EHHMissionOutcome::Partial:	Summary.XPPerPlayer = 15 + BaseXP / 2; break;
-	case EHHMissionOutcome::Caught:		Summary.XPPerPlayer = 10; break;
-	default:							Summary.XPPerPlayer = 0; break;
+	case EHHMissionOutcome::Success:		Summary.XPPerPlayer = 40 + BaseXP; break;
+	case EHHMissionOutcome::HotGetaway:		Summary.XPPerPlayer = 30 + BaseXP; break;
+	case EHHMissionOutcome::Partial:		Summary.XPPerPlayer = 15 + BaseXP / 2; break;
+	case EHHMissionOutcome::Caught:
+	case EHHMissionOutcome::ChaseBusted:	Summary.XPPerPlayer = 10; break;
+	default:								Summary.XPPerPlayer = 0; break;
 	}
 
 	HeistState->SetSummary(Summary);
 	HeistState->SetHeistPhase(EHHHeistPhase::Ended);
+	HeistState->SetPoliceState(EHHPoliceState::None);
 
+	// Each crew member books their own share: arrested people get nothing, those left behind
+	// keep their cut of the van but learn less.
 	for (FConstPlayerControllerIterator It = GetWorld()->GetPlayerControllerIterator(); It; ++It)
 	{
-		if (AHHPlayerController* PC = Cast<AHHPlayerController>(It->Get()))
+		AHHPlayerController* PC = Cast<AHHPlayerController>(It->Get());
+		const AHHPlayerState* State = PC ? PC->GetPlayerState<AHHPlayerState>() : nullptr;
+		if (!PC || !State)
 		{
-			PC->ClientMissionReward(Summary);
+			continue;
 		}
+		FHHMissionSummary Personal = Summary;
+		const FHHCrewRecord* Mine = Summary.Crew.FindByPredicate([State](const FHHCrewRecord& Record) { return Record.CrewSlot == State->GetCrewSlot() && Record.Name == State->GetPlayerName(); });
+		if (Mine && Mine->Fate == EHHCrewFate::Caught)
+		{
+			Personal.PayoutPerPlayer = 0;
+			Personal.XPPerPlayer = FMath::Min(Summary.XPPerPlayer, 10);
+		}
+		else if (Mine && Mine->Fate == EHHCrewFate::LeftBehind)
+		{
+			Personal.XPPerPlayer = FMath::RoundToInt(Summary.XPPerPlayer * 0.6f);
+		}
+		PC->ClientMissionReward(Personal);
 	}
 
-	UE_LOG(LogHorrorHeist, Log, TEXT("Heist %s ended: %s, secured %d, payout %d each, xp %d, stage %d."),
-		*MissionId.ToString(), *UEnum::GetValueAsString(Outcome), Summary.SecuredValue, Summary.PayoutPerPlayer, Summary.XPPerPlayer, Summary.HauntStage);
+	UE_LOG(LogHorrorHeist, Log, TEXT("Heist %s ended: %s at %s, secured %d, cut %d, payout %d each, xp %d, stage %d."),
+		*MissionId.ToString(), *UEnum::GetValueAsString(Outcome), *Summary.Safehouse.ToString(), Summary.SecuredValue, Summary.FenceCut,
+		Summary.PayoutPerPlayer, Summary.XPPerPlayer, Summary.HauntStage);
 
 	GetWorldTimerManager().SetTimer(ReturnTimer, this, &AHHHeistGameMode::ReturnToHideout, UHHDeveloperSettings::Get()->SummarySeconds, false);
 }

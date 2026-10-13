@@ -42,7 +42,8 @@ const TArray<FHHBindingInfo>& UHHInputSubsystem::GetRebindableBindings()
 		MakeBinding(TEXT("Map"),			LOCTEXT("Map", "Map / Job Board"),			EHHInputAction::Map,		EKeys::M),
 		MakeBinding(TEXT("Ready"),			LOCTEXT("Ready", "Toggle Ready"),			EHHInputAction::Ready,		EKeys::R),
 		MakeBinding(TEXT("ToggleView"),		LOCTEXT("ToggleView", "First / Third Person"), EHHInputAction::ToggleView, EKeys::T),
-		MakeBinding(TEXT("Drop"),			LOCTEXT("Drop", "Drop Item"),				EHHInputAction::Drop,		EKeys::G),
+		MakeBinding(TEXT("Drop"),			LOCTEXT("Drop", "Drop Item / Garage Remote (van)"), EHHInputAction::Drop, EKeys::G),
+		MakeBinding(TEXT("Horn"),			LOCTEXT("Horn", "Horn (van)"),				EHHInputAction::Horn,		EKeys::H),
 		MakeBinding(TEXT("Slot1"),			LOCTEXT("Slot1", "Inventory Slot 1"),		EHHInputAction::Slot1,		EKeys::One),
 		MakeBinding(TEXT("Slot2"),			LOCTEXT("Slot2", "Inventory Slot 2"),		EHHInputAction::Slot2,		EKeys::Two),
 		MakeBinding(TEXT("Slot3"),			LOCTEXT("Slot3", "Inventory Slot 3"),		EHHInputAction::Slot3,		EKeys::Three),
@@ -173,6 +174,7 @@ void UHHInputSubsystem::BuildGamepadContext()
 	GamepadContext->MapKey(GetAction(EHHInputAction::SlotNext), EKeys::Gamepad_DPad_Right);
 	GamepadContext->MapKey(GetAction(EHHInputAction::SlotPrev), EKeys::Gamepad_DPad_Left);
 	GamepadContext->MapKey(GetAction(EHHInputAction::Drop), EKeys::Gamepad_LeftShoulder);
+	GamepadContext->MapKey(GetAction(EHHInputAction::Horn), EKeys::Gamepad_LeftTrigger);
 }
 
 void UHHInputSubsystem::ApplyMappings()

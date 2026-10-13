@@ -206,6 +206,76 @@ MISSIONS = [
          rumor='The red light in the barn has been on since 1998.'),
 ]
 
+def I(id_, kind, title, detail, value=(0, 0), known=False, how='', key=''):
+    """One piece of job intel (FHHJobIntel). Ids are unique across all jobs."""
+    return dict(id=id_, kind=kind, title=title, detail=detail, value=list(value), known=known, how=how, key=key)
+
+
+MAILBOX = 'Check the Vances\' mailbox by the lane.'
+WATCH = 'Watch the house by day from the bench across Ashgrove Lane.'
+# What the crew knows about each job (dossier). Unknown entries are learned by scouting in town
+# (HHIntelSpot actors placed by vance.py). Keys found by day are in the crew's hands on the job.
+INTEL = {
+    'JOB_Vance': [
+        I('Vance_Coins', 'Valuable', 'Coin collection (the target)',
+          'Master bedroom - upstairs, front left. On the dresser, under glass.', (1200, 2200), known=True),
+        I('Vance_StudyCash', 'Valuable', 'Cash in the study',
+          'Study - ground floor, front right. Desk drawer: search the desk.', (300, 700), known=True),
+        I('Vance_LivingRoom', 'Valuable', 'Living room electronics and the mantel',
+          'Living room - ground floor, front left. Flat-screen TV (heavy, slows you down), a game console, '
+          'a mantel clock and a silver candlestick.', (700, 1400),
+          how='Peek through the living-room window by day (front yard, left of the porch).'),
+        I('Vance_StudyDesk', 'Valuable', 'Laptop and an old camera',
+          'Study - a laptop on the desk, a vintage camera on the floor by the bookcase.', (370, 750),
+          how='Peek through the study window by day (front yard, right of the porch).'),
+        I('Vance_Pearls', 'Valuable', "Mrs Vance's pearls and his gold watch",
+          'Master bedroom nightstand. She wears the pearls at the window every day.', (750, 1700), how=WATCH),
+        I('Vance_Ring', 'Valuable', 'Diamond ring',
+          'An insurance letter says she keeps it "in the bathroom cabinet" - upstairs, back right.', (500, 1200),
+          how=MAILBOX),
+        I('Vance_Locket', 'Valuable', 'Old locket in the basement trunk',
+          'Basement, in the old trunk. Worth a lot. Whatever lives in the house wants it to stay there.', (600, 1400),
+          how='Look through the basement window at the back of the house by day.'),
+        I('Vance_Harold', 'Owner', 'Harold Vance',
+          'Sixties, retired bank clerk. Nobody has seen him outside in years; his car has not moved since spring.',
+          how=MAILBOX),
+        I('Vance_Margaret', 'Owner', 'Margaret Vance',
+          'Sits at the upstairs window all day. She does not read, does not knit. She watches the lane.', how=WATCH),
+        I('Vance_Youngest', 'Owner', '"The youngest"',
+          'Letters for a Thomas Vance, aged 9, postmarked 1987. Still delivered. There is no Thomas in the phone book.',
+          how=MAILBOX),
+        I('Vance_FrontDoor', 'Entry', 'Front door',
+          'Old pin lock. Lockpicks get you in in about seven seconds.', known=True),
+        I('Vance_BackDoor', 'Entry', 'Back door (kitchen)',
+          'Sticks. A crowbar opens it, loudly. The glass panel can be cut quietly.', known=True),
+        I('Vance_SpareKey', 'Entry', 'Spare key under the garden gnome',
+          'Taken by day: the crew walks in through the front door at night, no picking.',
+          how='Look under the garden gnome by the porch.', key='VanceSpareKey'),
+        I('Vance_Neighbour', 'Security', 'Mr Pruitt next door',
+          'Sleeps lightly. If he hears something he comes out with a torch to look - and calls the police if he '
+          'sees anyone. Stay out of his light, or be gone before he gets there.', known=True),
+        I('Vance_Patrol', 'Security', 'Night patrol',
+          'A patrol car drives down Ashgrove Lane some nights. Do not be standing on the lawn when it passes.',
+          known=True),
+        I('Vance_NoAlarm', 'Security', 'No alarm, no dog',
+          'No alarm box on the wall, no dog bowl. The upstairs lights go out around eleven.', how=WATCH),
+        I('Vance_Basement', 'Note', 'Basement - stay out of it',
+          'The crew who cased it before you wrote this on the plan. The house gets angrier down there.', known=True),
+    ],
+    'JOB_Rectory': [
+        I('Rectory_Safe', 'Valuable', 'Collection money', 'Vestry safe, until Monday.', (2000, 3500), known=True),
+        I('Rectory_Doyle', 'Owner', 'Father Doyle', 'Old, half deaf. Talks to someone in the empty church at night.',
+          known=True),
+    ],
+    'JOB_Marrow': [
+        I('Marrow_Study', 'Valuable', 'The study sketch', 'Upstairs study - "The Lantern Bearer" sketch.',
+          (3000, 5000), known=True),
+        I('Marrow_Empty', 'Owner', 'Nobody', 'Empty since 1974. The family left everything behind.', known=True),
+    ],
+}
+FLOOR_PLANS = {'JOB_Vance': 'T_Blueprint_Vance'}
+
+
 # Tool tags: which lock / interaction an item counts as when it sits in the 5-slot inventory on a job.
 TOOL_TAGS = {
     'Light': 'Light', 'EQ_Entry_Lockpicks': 'Lockpick', 'EQ_Entry_Crowbar': 'Crowbar',
@@ -227,6 +297,8 @@ for _m in MISSIONS:
                            target_item='', aggression=1.6, house='HH_House_Marrow'),
     }.get(_m['id'], dict(map='', available=False, night=True, min_haul=8000, target_item='', aggression=2.0,
                          house='')))
+    _m['intel'] = INTEL.get(_m['id'], [])
+    _m['floor_plan'] = FLOOR_PLANS.get(_m['id'], '')
 
 
 def L(id_, name, mesh, lo, hi, anger=2.0, heavy=False, cursed=False, desc='', rarity='Common'):

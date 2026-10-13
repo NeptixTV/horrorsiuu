@@ -11,6 +11,7 @@
 #include "Data/HHItemRegistrySubsystem.h"
 #include "Data/HHCosmeticDefinition.h"
 #include "Data/HHEquipmentDefinition.h"
+#include "Data/HHMissionDefinition.h"
 #include "Progression/HHProfileSubsystem.h"
 #include "Settings/HHGameUserSettings.h"
 #include "Settings/HHInputSubsystem.h"
@@ -221,6 +222,11 @@ void AHHPlayerController::RequestSelectMission(FName MissionId)
 	ServerSelectMission(MissionId);
 }
 
+void AHHPlayerController::RequestSelectSafehouse(FName ZoneId)
+{
+	ServerSelectSafehouse(ZoneId);
+}
+
 void AHHPlayerController::PushProfileToServer()
 {
 	const UHHProfileSubsystem* Profile = UHHProfileSubsystem::Get(this);
@@ -229,6 +235,15 @@ void AHHPlayerController::PushProfileToServer()
 		return;
 	}
 	ServerSetProfile(Profile->GetPlayerName(), Profile->GetLevel(), Profile->GetCosmetics(), Profile->GetEquipment());
+	// Remote players bring their scouting notebook (the host's comes from its own profile).
+	if (!HasAuthority())
+	{
+		const TArray<FName> Intel = Profile->GetKnownIntel();
+		if (Intel.Num() > 0)
+		{
+			ServerShareIntel(Intel);
+		}
+	}
 }
 
 void AHHPlayerController::HandleProfileChanged()
@@ -337,6 +352,27 @@ void AHHPlayerController::ServerWaitForNight_Implementation()
 	if (AHHLobbyGameMode* GameMode = GetWorld()->GetAuthGameMode<AHHLobbyGameMode>())
 	{
 		GameMode->HandleWaitForNight(this);
+	}
+}
+
+void AHHPlayerController::ServerSelectSafehouse_Implementation(FName ZoneId)
+{
+	if (AHHLobbyGameMode* GameMode = GetWorld()->GetAuthGameMode<AHHLobbyGameMode>())
+	{
+		GameMode->HandleSafehouseRequest(this, ZoneId);
+	}
+}
+
+void AHHPlayerController::ServerShareIntel_Implementation(const TArray<FName>& IntelIds)
+{
+	// Bounded: a notebook never holds more than every intel entry of every job.
+	if (IntelIds.Num() > 512)
+	{
+		return;
+	}
+	if (AHHLobbyGameState* LobbyState = GetWorld()->GetGameState<AHHLobbyGameState>())
+	{
+		LobbyState->MergeIntel(IntelIds);
 	}
 }
 
@@ -604,7 +640,53 @@ void AHHPlayerController::HHEndJob(int32 Outcome)
 	AHHHeistGameMode* HeistMode = GetWorld()->GetAuthGameMode<AHHHeistGameMode>();
 	if (HasAuthority() && HeistMode)
 	{
-		HeistMode->DebugEnd(static_cast<EHHMissionOutcome>(FMath::Clamp(Outcome, 1, 4)));
+		HeistMode->DebugEnd(static_cast<EHHMissionOutcome>(FMath::Clamp(Outcome, 1, 6)));
+	}
+}
+
+void AHHPlayerController::HHLearnIntel(int32 bLearn)
+{
+	AHHLobbyGameState* LobbyState = GetWorld()->GetGameState<AHHLobbyGameState>();
+	const UHHItemRegistrySubsystem* Registry = UHHItemRegistrySubsystem::Get(this);
+	if (!HasAuthority() || !LobbyState || !Registry)
+	{
+		return;
+	}
+	if (bLearn == 0)
+	{
+		LobbyState->ClearIntel();
+		if (UHHProfileSubsystem* Profile = UHHProfileSubsystem::Get(this))
+		{
+			Profile->ForgetAllIntel();
+		}
+		ClientNotify(LOCTEXT("IntelCleared", "The crew's notebook is empty."), EHHNotifyType::Info);
+		return;
+	}
+	if (const UHHMissionDefinition* Mission = Registry->FindMission(LobbyState->GetSelectedMission()))
+	{
+		TArray<FName> Ids;
+		for (const FHHJobIntel& Intel : Mission->Intel)
+		{
+			Ids.Add(Intel.IntelId);
+		}
+		LobbyState->MergeIntel(Ids);
+		ClientNotify(FText::Format(LOCTEXT("IntelLearned", "Notebook: everything about {0}."), Mission->DisplayName), EHHNotifyType::Info);
+	}
+}
+
+void AHHPlayerController::HHCallPolice()
+{
+	if (AHHHeistGameMode* HeistMode = HasAuthority() ? GetWorld()->GetAuthGameMode<AHHHeistGameMode>() : nullptr)
+	{
+		HeistMode->DebugCallPolice();
+	}
+}
+
+void AHHPlayerController::HHSendNeighbour()
+{
+	if (AHHHeistGameMode* HeistMode = HasAuthority() ? GetWorld()->GetAuthGameMode<AHHHeistGameMode>() : nullptr)
+	{
+		HeistMode->DebugSendNeighbour();
 	}
 }
 

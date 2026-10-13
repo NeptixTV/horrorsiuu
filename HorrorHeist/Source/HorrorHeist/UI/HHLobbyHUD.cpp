@@ -9,6 +9,7 @@
 #include "Heist/HHHeistGameState.h"
 #include "Player/HHPlayerController.h"
 #include "Player/HHCharacter.h"
+#include "Vehicles/HHVanVehicle.h"
 #include "Player/HHInteractionComponent.h"
 #include "Core/HHGameInstance.h"
 #include "Core/HHGameData.h"
@@ -258,11 +259,11 @@ void AHHLobbyHUD::OpenScreen(EHHLobbyScreen NewScreen, AHHStationActor* Station)
 
 	if (NewScreen == EHHLobbyScreen::None)
 	{
-		DesiredViewTarget = PlayerOwner->GetPawn();
+		DesiredViewTarget = GetExploreViewTarget();
 	}
 	else
 	{
-		DesiredViewTarget = NewStation ? static_cast<AActor*>(NewStation) : static_cast<AActor*>(PlayerOwner->GetPawn());
+		DesiredViewTarget = NewStation ? static_cast<AActor*>(NewStation) : GetExploreViewTarget();
 	}
 
 	if (AHHPlayerController* PC = GetHHController())
@@ -307,6 +308,20 @@ void AHHLobbyHUD::Back()
 void AHHLobbyHUD::CloseMenu()
 {
 	OpenScreen(EHHLobbyScreen::None);
+}
+
+AActor* AHHLobbyHUD::GetExploreViewTarget() const
+{
+	APawn* Pawn = PlayerOwner ? PlayerOwner->GetPawn() : nullptr;
+	// In the van everyone looks through its chase camera.
+	if (const AHHCharacter* Character = Cast<AHHCharacter>(Pawn))
+	{
+		if (AHHVanVehicle* Van = Character->GetVehicle())
+		{
+			return Van;
+		}
+	}
+	return Pawn;
 }
 
 void AHHLobbyHUD::ApplyViewTarget(float BlendTime)
@@ -374,7 +389,7 @@ void AHHLobbyHUD::Tick(float DeltaSeconds)
 		ViewTargetRetry = 0.25f;
 		if (Screen == EHHLobbyScreen::None)
 		{
-			DesiredViewTarget = PlayerOwner ? PlayerOwner->GetPawn() : nullptr;
+			DesiredViewTarget = GetExploreViewTarget();
 		}
 		ApplyViewTarget(0.6f);
 	}
@@ -484,6 +499,38 @@ void AHHLobbyHUD::ShowNameEntry(bool bFirstTime)
 		})
 		.CanCancel(!bFirstTime)
 		.OnCancel(Cancel), bFirstTime ? FSimpleDelegate() : Cancel);
+}
+
+void AHHLobbyHUD::ShowCodeEntry()
+{
+	if (!Root.IsValid())
+	{
+		return;
+	}
+	TWeakPtr<SHHLobbyRoot> WeakRoot = Root;
+	TWeakObjectPtr<AHHLobbyHUD> WeakThis(this);
+	Root->ShowModal(SNew(SHHTextEntryModal)
+		.Title(LOCTEXT("CodeTitle", "JOIN BY CODE"))
+		.Body(LOCTEXT("CodeBody", "Type the six-character lobby code your crew leader sees on the job board (CREW & LOBBY)."))
+		.InitialText(FText::GetEmpty())
+		.MaxLength(9)
+		.ConfirmLabel(LOCTEXT("CodeConfirm", "JOIN"))
+		.OnSubmit_Lambda([WeakRoot, WeakThis](const FText& Text)
+		{
+			if (TSharedPtr<SHHLobbyRoot> Pinned = WeakRoot.Pin())
+			{
+				Pinned->CloseModal();
+			}
+			if (AHHLobbyHUD* HUD = WeakThis.Get())
+			{
+				if (UHHSessionSubsystem* Sessions = UHHSessionSubsystem::Get(HUD))
+				{
+					Sessions->JoinByCode(Text.ToString());
+				}
+			}
+		})
+		.OnCancel(FSimpleDelegate::CreateLambda([WeakRoot]() { if (TSharedPtr<SHHLobbyRoot> Pinned = WeakRoot.Pin()) { Pinned->CloseModal(); } })),
+		FSimpleDelegate::CreateLambda([WeakRoot]() { if (TSharedPtr<SHHLobbyRoot> Pinned = WeakRoot.Pin()) { Pinned->CloseModal(); } }));
 }
 
 void AHHLobbyHUD::ShowAddressEntry()

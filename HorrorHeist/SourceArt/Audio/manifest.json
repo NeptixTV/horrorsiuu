@@ -1748,5 +1748,65 @@
   "caption": "",
   "volume": 1.0,
   "seconds": 6.6
+ },
+ {
+  "file": "SourceArt/Audio/SFX/S_Van_Engine_Loop.wav",
+  "category": "SFX",
+  "loop": true,
+  "spatial": true,
+  "radius": 2500,
+  "caption": "",
+  "volume": 1.0,
+  "seconds": 2.0
+ },
+ {
+  "file": "SourceArt/Audio/SFX/S_Van_Horn_01.wav",
+  "category": "SFX",
+  "loop": false,
+  "spatial": true,
+  "radius": 6000,
+  "caption": "[A horn blares]",
+  "volume": 1.0,
+  "seconds": 0.9
+ },
+ {
+  "file": "SourceArt/Audio/SFX/S_Police_Siren_Loop.wav",
+  "category": "SFX",
+  "loop": true,
+  "spatial": true,
+  "radius": 9000,
+  "caption": "[Police siren]",
+  "volume": 1.0,
+  "seconds": 4.0
+ },
+ {
+  "file": "SourceArt/Audio/SFX/S_Garage_Door_Motor_01.wav",
+  "category": "SFX",
+  "loop": false,
+  "spatial": true,
+  "radius": 2500,
+  "caption": "[The garage door rattles]",
+  "volume": 1.0,
+  "seconds": 3.6
+ },
+ {
+  "file": "SourceArt/Audio/SFX/S_Car_Bump_01.wav",
+  "category": "SFX",
+  "loop": false,
+  "spatial": true,
+  "radius": 3000,
+  "caption": "",
+  "volume": 1.0,
+  "seconds": 0.7
+ },
+ {
+  "file": "SourceArt/Audio/SFX/S_Neighbour_Shout_01.wav",
+  "category": "SFX",
+  "loop": false,
+  "spatial": true,
+  "radius": 4000,
+  "caption": "[The neighbour: \"Hey! Who's out there?\"]",
+  "volume": 1.0,
+  "seconds": 0.85
  }
 ]

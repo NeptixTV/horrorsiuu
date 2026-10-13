@@ -50,6 +50,8 @@ public:
 	void ShowConfirm(const FText& Title, const FText& Body, const FText& ConfirmLabel, TFunction<void()> OnConfirm);
 	void ShowNameEntry(bool bFirstTime);
 	void ShowAddressEntry();
+	/** JOIN BY CODE: asks for a six-character lobby code and searches for it. */
+	void ShowCodeEntry();
 	void RequestQuit();
 
 	AHHPlayerController* GetHHController() const;
@@ -75,6 +77,8 @@ public:
 
 private:
 	void ApplyViewTarget(float BlendTime);
+	/** The pawn, or the van it sits in. */
+	AActor* GetExploreViewTarget() const;
 	void TryBindGameState();
 	void HandleCrewMessage(const FText& Message, EHHNotifyType Type);
 	void HandlePhaseChanged();

@@ -6,6 +6,7 @@
 #include "Player/HHCharacterAnimInstance.h"
 #include "Player/HHPlayerController.h"
 #include "Player/HHInventoryComponent.h"
+#include "Vehicles/HHVanVehicle.h"
 #include "Audio/HHAudioSubsystem.h"
 #include "Core/HHGameData.h"
 #include "Data/HHCharacterDefinition.h"
@@ -132,6 +133,9 @@ void AHHCharacter::GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& OutLife
 	Super::GetLifetimeReplicatedProps(OutLifetimeProps);
 	DOREPLIFETIME_CONDITION(AHHCharacter, bFlashlightOn, COND_SkipOwner);
 	DOREPLIFETIME_CONDITION(AHHCharacter, bSprinting, COND_SkipOwner);
+	DOREPLIFETIME(AHHCharacter, Vehicle);
+	DOREPLIFETIME(AHHCharacter, SeatIndex);
+	DOREPLIFETIME(AHHCharacter, bArrested);
 }
 
 void AHHCharacter::BeginPlay()
@@ -464,6 +468,8 @@ void AHHCharacter::SetupPlayerInputComponent(UInputComponent* PlayerInputCompone
 	}
 
 	Input->BindAction(Actions->GetAction(EHHInputAction::Move), ETriggerEvent::Triggered, this, &AHHCharacter::Input_Move);
+	Input->BindAction(Actions->GetAction(EHHInputAction::Move), ETriggerEvent::Completed, this, &AHHCharacter::Input_MoveCompleted);
+	Input->BindAction(Actions->GetAction(EHHInputAction::Horn), ETriggerEvent::Started, this, &AHHCharacter::Input_Horn);
 	Input->BindAction(Actions->GetAction(EHHInputAction::Look), ETriggerEvent::Triggered, this, &AHHCharacter::Input_Look);
 	Input->BindAction(Actions->GetAction(EHHInputAction::LookGamepad), ETriggerEvent::Triggered, this, &AHHCharacter::Input_LookGamepad);
 	Input->BindAction(Actions->GetAction(EHHInputAction::Jump), ETriggerEvent::Started, this, &AHHCharacter::Input_JumpStarted);
@@ -489,7 +495,16 @@ void AHHCharacter::SetupPlayerInputComponent(UInputComponent* PlayerInputCompone
 void AHHCharacter::Input_Move(const FInputActionValue& Value)
 {
 	const FVector2D Axis = Value.Get<FVector2D>();
-	if (!Controller || Axis.IsNearlyZero())
+	if (IsSeated())
+	{
+		// In the van the movement keys are the pedals and the wheel (driver only).
+		if (IsDriving())
+		{
+			Vehicle->SetDriverInput(Axis);
+		}
+		return;
+	}
+	if (!Controller || Axis.IsNearlyZero() || bArrested)
 	{
 		return;
 	}
@@ -497,6 +512,22 @@ void AHHCharacter::Input_Move(const FInputActionValue& Value)
 	const FRotationMatrix Basis(YawRotation);
 	AddMovementInput(Basis.GetUnitAxis(EAxis::X), Axis.Y);
 	AddMovementInput(Basis.GetUnitAxis(EAxis::Y), Axis.X);
+}
+
+void AHHCharacter::Input_MoveCompleted(const FInputActionValue& Value)
+{
+	if (IsDriving())
+	{
+		Vehicle->SetDriverInput(FVector2D::ZeroVector);
+	}
+}
+
+void AHHCharacter::Input_Horn()
+{
+	if (IsDriving())
+	{
+		Vehicle->ServerHorn();
+	}
 }
 
 void AHHCharacter::ApplyLookDelta(float YawDegrees, float PitchDegrees)
@@ -539,6 +570,14 @@ void AHHCharacter::Input_LookGamepad(const FInputActionValue& Value)
 
 void AHHCharacter::Input_JumpStarted()
 {
+	if (IsSeated() || bArrested)
+	{
+		if (IsDriving())
+		{
+			Vehicle->SetHandbrake(true);
+		}
+		return;
+	}
 	if (bIsCrouched)
 	{
 		UnCrouch();
@@ -549,11 +588,19 @@ void AHHCharacter::Input_JumpStarted()
 
 void AHHCharacter::Input_JumpCompleted()
 {
+	if (IsDriving())
+	{
+		Vehicle->SetHandbrake(false);
+	}
 	StopJumping();
 }
 
 void AHHCharacter::Input_SprintStarted()
 {
+	if (IsSeated())
+	{
+		return;
+	}
 	const UHHGameUserSettings* Settings = UHHGameUserSettings::Get();
 	if (Settings && Settings->bToggleSprint)
 	{
@@ -576,6 +623,10 @@ void AHHCharacter::Input_SprintCompleted()
 
 void AHHCharacter::Input_CrouchStarted()
 {
+	if (IsSeated())
+	{
+		return;
+	}
 	const UHHGameUserSettings* Settings = UHHGameUserSettings::Get();
 	const bool bToggle = !Settings || Settings->bToggleCrouch;
 	if (bToggle && bIsCrouched)
@@ -601,6 +652,11 @@ void AHHCharacter::Input_CrouchCompleted()
 
 void AHHCharacter::Input_Interact()
 {
+	if (IsSeated())
+	{
+		ServerExitVehicle();
+		return;
+	}
 	Interaction->TryInteract();
 }
 
@@ -652,6 +708,15 @@ void AHHCharacter::Input_SlotPrev()
 
 void AHHCharacter::Input_Drop()
 {
+	if (IsSeated())
+	{
+		// G in the van: the garage door remote.
+		if (IsDriving())
+		{
+			Vehicle->ServerGarageRemote();
+		}
+		return;
+	}
 	const AHHPlayerState* State = BoundPlayerState.Get();
 	UHHInventoryComponent* Inventory = State ? State->GetInventory() : nullptr;
 	if (Inventory && Inventory->IsEnabled() && !Inventory->GetSelected().IsEmpty())
@@ -663,6 +728,14 @@ void AHHCharacter::Input_Drop()
 
 void AHHCharacter::Input_Flashlight()
 {
+	if (IsSeated())
+	{
+		if (IsDriving())
+		{
+			Vehicle->ServerToggleHeadlights();
+		}
+		return;
+	}
 	if (GetUsableLightId().IsNone())
 	{
 		if (AHHPlayerController* PC = Cast<AHHPlayerController>(GetController()))
@@ -687,7 +760,120 @@ void AHHCharacter::Input_Flashlight()
 
 void AHHCharacter::Input_ToggleView()
 {
+	if (IsSeated())
+	{
+		return;
+	}
 	SetThirdPerson(!bThirdPerson);
+}
+
+// ---------------------------------------------------------------------------------------
+// The van and the police
+
+void AHHCharacter::SetSeat(AHHVanVehicle* InVehicle, int32 InSeat)
+{
+	if (!HasAuthority())
+	{
+		return;
+	}
+	Vehicle = InVehicle;
+	SeatIndex = InVehicle ? InSeat : INDEX_NONE;
+	if (Vehicle)
+	{
+		AttachToComponent(Vehicle->GetRootComponent(), FAttachmentTransformRules::KeepWorldTransform);
+		SetActorRelativeLocation(Vehicle->GetSeatOffset(SeatIndex));
+		SetActorRelativeRotation(FRotator::ZeroRotator);
+	}
+	else
+	{
+		DetachFromActor(FDetachmentTransformRules::KeepWorldTransform);
+		SetActorRotation(FRotator(0.f, GetActorRotation().Yaw, 0.f));
+	}
+	OnRep_Seat();
+	ForceNetUpdate();
+}
+
+void AHHCharacter::SetArrested(bool bInArrested)
+{
+	if (HasAuthority() && bArrested != bInArrested)
+	{
+		bArrested = bInArrested;
+		OnRep_Seat();
+		ForceNetUpdate();
+	}
+}
+
+void AHHCharacter::ServerExitVehicle_Implementation()
+{
+	if (Vehicle)
+	{
+		Vehicle->Exit(this);
+	}
+}
+
+void AHHCharacter::ClientExitedVehicle_Implementation(FVector Location, FRotator Rotation)
+{
+	if (IsSeated())
+	{
+		// The seat replication may arrive after this RPC: let go of the van right away.
+		Vehicle = nullptr;
+		SeatIndex = INDEX_NONE;
+		ApplyBodyState();
+	}
+	SetActorLocationAndRotation(Location, FRotator(0.f, Rotation.Yaw, 0.f), false, nullptr, ETeleportType::TeleportPhysics);
+	if (Controller)
+	{
+		Controller->SetControlRotation(FRotator(0.f, Rotation.Yaw, 0.f));
+	}
+}
+
+void AHHCharacter::OnRep_Seat()
+{
+	ApplyBodyState();
+}
+
+void AHHCharacter::ApplyBodyState()
+{
+	const bool bStow = Vehicle != nullptr || bArrested;
+	UCharacterMovementComponent* Movement = GetCharacterMovement();
+	if (Vehicle && GetAttachParentActor() != Vehicle)
+	{
+		AttachToComponent(Vehicle->GetRootComponent(), FAttachmentTransformRules::KeepWorldTransform);
+		SetActorRelativeLocation(Vehicle->GetSeatOffset(SeatIndex));
+		SetActorRelativeRotation(FRotator::ZeroRotator);
+	}
+	else if (!Vehicle && Cast<AHHVanVehicle>(GetAttachParentActor()))
+	{
+		DetachFromActor(FDetachmentTransformRules::KeepWorldTransform);
+	}
+	if (bStow == bBodyStowed)
+	{
+		return;
+	}
+	bBodyStowed = bStow;
+
+	if (bStow)
+	{
+		Interaction->StopInteract();
+		if (bFlashlightOn)
+		{
+			bFlashlightOn = false;
+			OnRep_Flashlight();
+		}
+		Movement->StopMovementImmediately();
+		Movement->DisableMovement();
+		Movement->SetComponentTickEnabled(false);
+		SetActorEnableCollision(false);
+		SetActorHiddenInGame(true);
+	}
+	else
+	{
+		SetActorHiddenInGame(false);
+		SetActorEnableCollision(true);
+		Movement->SetComponentTickEnabled(true);
+		Movement->SetMovementMode(MOVE_Walking);
+	}
+	UpdateLocalVisibility();
 }
 
 // ---------------------------------------------------------------------------------------

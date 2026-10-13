@@ -41,6 +41,12 @@ der SIL Open Font License (`Content/Slate/Fonts/Licenses`).
 3. **Play** (Map `L_Hideout`). Multiplayer im Editor: Play-Dropdown → *Number of Players* 2–4,
    *Net Mode* **Play As Listen Server**.
 
+> **Nach einem Update immer neu aufbauen.** Die Inhalte (Maps, Jobs, Data Assets) werden lokal aus `SourceArt/`
+> erzeugt und tragen eine **Inhaltsversion** (`DA_GameData`, aktuell **2**). Passt sie nicht zum Code oder fehlen
+> Maps/Jobs, fragt der Editor beim Start: *„The game content was built by an older version …“* → **Yes**.
+> Ohne Neuaufbau haben Jobs keine Map – genau das war der Grund, warum man den Job nicht anpinnen und nicht
+> starten konnte. Die Jobtafel zeigt in diesem Fall jetzt einen roten Hinweis statt still nichts zu tun.
+
 > **Ehrlicher Hinweis:** Code und Setup-Skript wurden ohne installierte Unreal Engine geschrieben und gegen die
 > UE-5.5-APIs und Build-Regeln geprüft – aber **nicht mit einem echten Compiler übersetzt und nicht im Editor
 > gespielt**. Siehe Abschnitt *Stand & Grenzen*.
@@ -51,9 +57,9 @@ der SIL Open Font License (`Content/Slate/Fonts/Licenses`).
 
 | Map | Inhalt |
 |---|---|
-| `L_Hideout` | Persistente Hub-Map: das Versteck im Keller (Jobboard, Werkbank/Loadout, Spiegel/Kosmetik, Hehler-Shop, Überwachungs-Pult, **neuer Planungstisch** mit dem Grundriss des Vance-Hauses, Spinde, Van-Stellplatz), Uhr/Himmel, Licht. Streamt `L_Town`. |
-| `L_Town` | Die Stadt Hollowmere, als **always-loaded Streaming-Level** in jeder persistenten Map: Main Street mit Waschsalon (über dem Versteck), Brannigan & Sons, Diner, Kleiderladen, Eisenwarenladen, Museum (mit dem Gemälde „The Lantern Bearer“ hinter einem beleuchteten Schaufenster), öffentlicher Parkplatz; Ashgrove Lane, Marrow Street, Church Road mit St.-Agnes-Kirche und Friedhof, Founders' Park mit Pavillon; 9 Nachbarhäuser, die drei Job-Häuser, Laternen, Autos, Bäume, Zäune, Hecken, Hydranten, Briefkästen, Mülltonnen, Schilder, Pfützen/Laub-Decals, unsichtbare Begrenzungswände und Wald am Stadtrand. |
-| `L_Job_Vance` | **Erster Job, voll spielbar.** Heist-GameMode, Nacht-Uhr, Van am Bordstein vor 14 Ashgrove Lane, Crew-Startpunkte, 25 Beutestücke, durchsuchbare Behälter, Ersatzschlüssel, Spuk (Director, bewegliche Gegenstände, Geräte, Erscheinung). |
+| `L_Hideout` | Persistente Hub-Map: das Versteck im Keller (Jobboard, Werkbank/Loadout, Spiegel/Kosmetik, Hehler-Shop, Überwachungs-Pult, Planungstisch mit dem Grundriss des Vance-Hauses, Spinde) und der **fahrbare Van** in der Garage (Schiebetür = Ready), Uhr/Himmel, Licht. Streamt `L_Town`. |
+| `L_Town` | Die Stadt Hollowmere, als **always-loaded Streaming-Level** in jeder persistenten Map: Main Street mit Waschsalon (über dem Versteck), Brannigan & Sons, Diner, Kleiderladen, Eisenwarenladen, Museum (mit dem Gemälde „The Lantern Bearer“ hinter einem beleuchteten Schaufenster), öffentlicher Parkplatz; Ashgrove Lane, Marrow Street, Church Road mit St.-Agnes-Kirche und Friedhof, Founders' Park mit Pavillon; 9 Nachbarhäuser, die drei Job-Häuser, Laternen, Autos, Bäume, Zäune, Hecken, Hydranten, Briefkästen, Mülltonnen, Schilder, Pfützen/Laub-Decals, unsichtbare Begrenzungswände und Wald am Stadtrand. Dazu: das **Garagen-Rolltor** des Verstecks (öffnet sich, auch per Fernbedienung aus dem Van), **3 Fluchtziele**, ein **Straßennetz** (16 Knoten) für die Polizei, **6 Erkundungspunkte** am Vance-Haus und Mrs Vance am Fenster (tagsüber). |
+| `L_Job_Vance` | **Erster Job, voll spielbar.** Heist-GameMode, Nacht-Uhr, **fahrbarer Van** am Bordstein vor 14 Ashgrove Lane (Heck = Beute verstauen), Crew-Startpunkte, 25 Beutestücke, durchsuchbare Behälter, Ersatzschlüssel, Spuk (Director, bewegliche Gegenstände, Geräte, Erscheinung), **Nachbar Mr Pruitt** (Haus Nr. 10) mit seinem Weg, **Streifenwagen** am westlichen Stadtrand. |
 | `L_Job_Marrow` | Vorbereitet (Van, Starts, Hausvolumen, Spuk-Director; noch keine Beute). Job auf dem Board als „wird ausgekundschaftet“ gesperrt. |
 | `L_Job_Rectory` | Vorbereitet wie Marrow. |
 
@@ -80,28 +86,61 @@ Hüllen.
 
 ## Ein Einbruch – der Ablauf
 
-1. **Jobboard (PLAY):** Der Crew-Leader pinnt *The Vance Residence*. Nicht freigegebene Jobs zeigen
-   „still being cased“ und lassen sich nicht pinnen. Jobs starten **nur nachts** (20:00–05:00); tagsüber
-   erscheint **WAIT UNTIL DARK** (Crew-Leader) und spult die Uhr bis zur Dämmerung vor.
-2. **Ready-Check** (Van-Schiebetür oder `R`) → Countdown → Server-Travel aller Spieler nach `L_Job_Vance`
-   (die Uhrzeit wird mitgenommen).
-3. **Einsteigen:** Ziele erscheinen oben links. Lärm (Brecheisen, Klappern an Türen, Rennen) erhöht die
-   **Nachbarschafts-Alarmstufe** (oben Mitte); bei 100 % ruft jemand die Polizei – danach läuft ein Countdown.
-4. **Beute:** **5 Inventarplätze pro Spieler, Werkzeuge eingeschlossen** (Licht, Einbruchwerkzeug, Utility,
-   Gadget). Platz schaffen = Gegenstand fallen lassen (`G`). Halten-Interaktionen (Dietrich, Durchsuchen, schwere
-   Beute) werden serverseitig validiert. Der Fernseher ist schwer (beide Hände, langsamer, kein Sprinten).
-   Der Wert jedes Gegenstands wird beim Jobstart auf dem Server ausgewürfelt und im HUD angezeigt.
-5. **Der Spuk eskaliert** – je länger die Crew im Haus ist, je mehr sie mitnimmt und je größer sie ist: erst
-   Knarren und ferne Geräusche, dann erlöschende Lichter, sich öffnende Türen, verstellte Gegenstände, ein
-   Bildschirm voller Rauschen, Flüstern, fallendes Glas, eine Gestalt am Ende des Flurs … und ganz am Ende die
-   Jagd. Verfluchte Beute (das Medaillon im Keller) beschleunigt das massiv. Psyche sinkt im Dunkeln und allein,
-   bei 0 wird man ohnmächtig, verliert die getragene Beute und wacht draußen am Van auf.
-6. **Abhauen:** Beute im Van verstauen (Heckklappe). Erst wenn **alle** am Van sind, kann gefahren werden
-   (Fahrertür, gedrückt halten). Ergebnis: *Success* (Mindestbeute erreicht), *Partial*, *Caught* (Polizei)
-   oder *Abandoned* (Crew-Leader bricht im Pausenmenü ab).
-7. **Auswertung:** Karte mit gesicherter/verlorener Beute, Anteil pro Spieler (+20 % mit dem Hauptziel),
-   XP, Dauer und Spukstufe → automatische Rückkehr ins Versteck (morgens), Geld und XP sind gespeichert;
-   im Versteck erscheint noch einmal eine kurze Nachbesprechung.
+1. **Jobtafel (PLAY → JOBS):** Links die Häuser (mit Intel-Stand, z. B. „intel 8/17“), rechts das **Dossier**:
+   Zielbeute (Mindestwert für einen sauberen Job), was der Auftraggeber zahlt, Bewohner, Crew-Größe und – direkt
+   unter der Überschrift – die Aktionsleiste: **PIN THIS JOB** (Crew-Leader; auch als **PIN** direkt auf der
+   Karte), **WAIT UNTIL DARK** (tagsüber) und der Grund, warum es gerade nicht geht. Darunter:
+   * **Wertsachen** mit Ort im Haus und geschätztem Wert, Summe des bisher Bekannten,
+   * **die Besitzer**, **Wege hinein** (Türen, Schlüssel), **Sicherheit** (Nachbar, Streife, Alarm), **Notizen**,
+   * unbekannte Einträge als **„???“ mit Hinweis, wo man es tagsüber herausfindet**,
+   * **THE GETAWAY:** wohin der Van am Ende fährt (Crew-Leader wählt, siehe unten),
+   * der annotierte **Grundriss** und die alte Akte/das Gerücht.
+2. **Tagsüber auskundschaften (optional):** Die Crew geht oder fährt in die Stadt. Am Vance-Haus gibt es sechs
+   Stellen: **Briefkasten** (Besitzer, Diamantring im Badschrank, „der Jüngste“), **Wohnzimmerfenster** und
+   **Arbeitszimmerfenster** spähen (nur bei Tag), **Gartenzwerg** (der **Ersatzschlüssel** – wer ihn tagsüber
+   holt, hat ihn nachts schon in der Tasche und geht durch die Vordertür), **das Haus beobachten** von der Bank
+   gegenüber (Mrs Vance am Fenster, Perlenkette, kein Alarm; nur bei Tag), **Kellerfenster** hinten (das Medaillon in
+   der Truhe). Jeder Fund erscheint sofort im Dossier aller Crew-Mitglieder und bleibt im Profil gespeichert
+   (Notizbuch der Crew; wer einer Lobby beitritt, bringt seins mit).
+3. **Ready-Check** (Van-Schiebetür oder `R`). Ist niemand fertig, ohne Job oder tagsüber, **sagt das Spiel jetzt
+   warum** (Meldung + Fußzeile der Jobtafel). Sind alle bereit, fährt der Van **von selbst los, sobald es dunkel
+   wird** – oder sofort mit WAIT UNTIL DARK. Countdown → Server-Travel nach `L_Job_Vance`.
+4. **Einsteigen:** Ziele oben links. Lärm (Brecheisen, Rütteln an Türen, Rennen, **Hupe**, **Unfälle mit dem
+   Van**) erhöht die **Nachbarschafts-Alarmstufe** (oben Mitte).
+   * Ab ~45 % kommt **Mr Pruitt** von nebenan mit der Taschenlampe heraus, läuft den Gehweg hoch, die Einfahrt
+     der Vances entlang in den Garten, sieht sich um und geht wieder rein. Sieht er jemanden lange genug
+     (näher, im Lichtkegel, mit eingeschalteter Taschenlampe = schneller; geduckt = langsamer; Wände blocken die
+     Sicht), rennt er ins Haus und **ruft die Polizei**. Findet er nichts, sinkt die Alarmstufe wieder.
+   * Irgendwann zwischen Minute 2½ und 5½ fährt eine **Streife** durch die Straßen (Main Street → Ashgrove Lane
+     → Church Road → Marrow Street). Sieht sie jemanden draußen herumschleichen, hält sie an – Verstärkung in
+     25 Sekunden.
+   * Bei 100 % wird die Polizei gerufen (Countdown oben). Der Streifenwagen kommt mit Blaulicht und Sirene über
+     die Main Street. **Wer bei seiner Ankunft zu Fuß am Haus ist, wird festgenommen.** Steht der Van noch in
+     der Straße, beginnt eine **Verfolgung**.
+5. **Beute:** 5 Inventarplätze pro Spieler, Werkzeuge eingeschlossen; Halten-Interaktionen werden serverseitig
+   geprüft; der Fernseher ist schwer. Werte werden beim Jobstart auf dem Server ausgewürfelt.
+6. **Der Spuk eskaliert** wie bisher (Geräusche → Lichter → Türen → Gegenstände → Flüstern → Erscheinung → Jagd);
+   Psyche 0 = Ohnmacht, Beute bleibt liegen, man wacht draußen auf.
+7. **Abhauen mit dem Van:** Beute hinten im Van verstauen, **einsteigen** (Fahrer + drei Plätze) und zum
+   **Fluchtziel** fahren, das auf der Jobtafel gewählt wurde:
+   * **Home: the laundromat garage** – die Rampe hinter dem Waschsalon hinunter. Kein Abzug, aber **nicht mit
+     der Polizei im Nacken** (sonst führt man sie nach Hause).
+   * **The quarry road** – östliches Ende der Main Street hinter der Baustelle. Funktioniert **auch während einer
+     Verfolgung**; der Hehler nimmt 10 %.
+   * **Municipal car park** – zwischen den Autos parken und **6 Sekunden stillstehen**. Nah an der Ashgrove
+     Lane, 5 % Abzug, nicht während einer Verfolgung.
+   * **Die Verfolgung:** Ist der Streifenwagen nah dran und der Van steht (oder wird eingekeilt), ist es vorbei.
+     Wer 10 Sekunden außer Sicht bleibt, **hängt sie ab**.
+   * Wer beim Erreichen des Ziels **nicht im Van sitzt, bleibt zurück** (geht zu Fuß heim, seine Tasche ist
+     verloren).
+8. **Endings:** *Clean getaway* (volle Beute, keine Polizei), *Hot getaway* (Polizei gerufen, trotzdem
+   entkommen – der Hehler nimmt 15 % mehr), *Got away light* (unter der Mindestbeute), *Busted* (Polizei am
+   Haus, niemand entkommen), *Boxed in* (in der Verfolgung gestellt), *Job abandoned* (Crew-Leader bricht ab).
+9. **Auswertung (animiert, ~10 s):** Das Ending wird als Stempel aufs Bild geschlagen, die Beuteliste läuft
+   Stück für Stück ein, der Wert im Van zählt hoch, dann Bonus für das Hauptziel, Abzug des Hehlers, verlorene
+   Taschen und **dein Anteil** (zählt hoch, Kassenklingeln). Danach der **Crew-Appell**: jedes Mitglied mit
+   Farbe, *Made it / Left behind / Arrested*, wer gefahren ist, was er verstaut oder verloren hat, und die XP.
+   Festgenommene bekommen kein Geld, Zurückgelassene ihren Anteil, aber weniger XP. Danach zurück ins Versteck.
 
 ---
 
@@ -130,28 +169,51 @@ Tempo einstellbar unter *Settings → Gameplay → World → Time Speed*; Uhr im
 | Ich- ↔ Third-Person | T | R3 |
 | Menü / Pause | Esc | Menu |
 
-Alle Tastatur-Belegungen sind unter *Settings → Controls* änderbar.
+**Im Van** (an der Fahrerseite vorne „Get in and drive“, sonst „Get in the van“; die Ansicht wechselt auf eine
+Verfolgerkamera, die man mit der Maus dreht):
+
+| Aktion | Tastatur | Gamepad |
+|---|---|---|
+| Gas / Bremse-Rückwärts / Lenken | W / S / A, D | Linker Stick |
+| Handbremse | Leertaste | A |
+| Garagentor auf/zu (Fernbedienung) | G | LB |
+| Scheinwerfer | F | Steuerkreuz ↑ |
+| Hupe (laut – auf einem Job hört das die Nachbarschaft) | H | LT |
+| Aussteigen | E | X |
+
+Alle Tastatur-Belegungen sind unter *Settings → Controls* änderbar (die Hinweise im HUD zeigen die aktuelle
+Belegung).
 
 **Entwickler-Konsolenbefehle** (`~`, Host): `HHGiveCash 5000`, `HHGiveXP 10000`, `HHUnlockAll`,
 `HHResetProfile`, `HHForceAmbientEvent 0..6`, `HHSetTime 21.5`, `HHTimeSpeed 10`, `HHAddAnger 30`,
 `HHHauntEvent 0..11` (0 Settle, 1 DistantSound, 2 LightOut, 3 DoorOpen, 4 ObjectMoved, 5 DoorSlam,
-6 DeviceOn, 7 Flicker, 8 Whisper, 9 GlassFall, 10 Apparition, 11 Hunt), `HHEndJob 1..4`
-(Success/Partial/Caught/Abandoned), `hh.DebugNoise 1`.
+6 DeviceOn, 7 Flicker, 8 Whisper, 9 GlassFall, 10 Apparition, 11 Hunt), `HHEndJob 1..6`
+(Success/Partial/Caught/Abandoned/Hot getaway/Boxed in), `HHLearnIntel 1` (alles über den gepinnten Job
+lernen) bzw. `HHLearnIntel 0` (Notizbuch leeren), `HHCallPolice` (Polizei in 30 s), `HHSendNeighbour`,
+`hh.DebugNoise 1`.
 
 ---
 
 ## Testen im Editor (Checkliste)
 
-1. `L_Hideout` öffnen, Play (Listen Server, 2 Spieler). Erwartung: beide Spieler stehen sichtbar im Keller;
-   im Ich-Modus sieht man den eigenen Körper (Kopf ausgeblendet) und die Hand mit dem Licht; `T` zeigt den
-   ganzen Charakter. *Settings → Audio*: Master/Music/SFX/Ambient hörbar wirksam, Werte bleiben nach Neustart.
-2. Treppe hoch → **Stahltür „Go outside“** → Parkplatz des Waschsalons → Main Street → Ashgrove Lane.
-   Vance-Haustür: „Locked – Nobody lets you in. Come back with the crew after dark.“
-3. `HHTimeSpeed 30`: Dämmerung, Laternen und Fenster gehen an, Grillen ersetzen Vögel.
-4. Zurück zum Jobboard: Vance pinnen → **WAIT UNTIL DARK** → beide **Ready** → Reise nach `L_Job_Vance`.
-5. Im Job: Gartenzwerg durchsuchen → Schlüssel → Vordertür aufschließen; Beute aufheben (Slots füllen sich,
-   Wert im HUD), Kommode oben durchsuchen (Münzsammlung), mit `HHAddAnger 60` den Spuk vorspulen,
-   Beute am Van verstauen, alle zum Van, Fahrertür halten → Auswertung → Rückkehr ins Versteck.
+1. Editor starten → bei der Inhaltsversions-Meldung **Yes** (oder Menü *Build / Rebuild All Content*).
+2. `L_Hideout`, Play (Listen Server, 2 Spieler). Beide stehen sichtbar im Keller.
+3. **Jobtafel:** Vance anklicken → Dossier mit Zielbeute, Wertsachen (2 bekannt, Rest „???“ mit Hinweis),
+   Besitzern, Wegen hinein, Fluchtziel-Auswahl, Grundriss. **PIN THIS JOB** (Leader). Beide **READY UP** am Tag →
+   Meldung „Ready – but it's 16:30 …“; Fußzeile zeigt „2 of 2 ready – the van leaves after dark“.
+4. **Lobby-Code:** Tab *CREW & LOBBY* → **CREATE LOBBY** → Code erscheint (COPY). Zweite Instanz/zweiter PC im
+   selben Netz: **JOIN BY CODE** → Code eingeben.
+5. **Van:** in der Garage an die Fahrerseite → *Get in and drive* → `G` öffnet das Rolltor → Rampe hoch, über den
+   Parkplatz auf die Main Street. `F` Licht, `H` Hupe, `E` aussteigen.
+6. **Auskundschaften:** zum Vance-Haus (Ashgrove Lane, Ostseite). Briefkasten, Fenster, Gartenzwerg, Bank
+   gegenüber, Kellerfenster hinten – Meldungen „… scouted The Vance Residence: …“, Dossier füllt sich.
+   `HHTimeSpeed 30` bis es dunkel ist: Fenster/Beobachten sagen „Too dark …“.
+7. **Job:** WAIT UNTIL DARK → Reise. Mit Ersatzschlüssel vom Tag: Meldung „You have … from scouting by day“,
+   Vordertür geht mit Schlüssel auf. Beute verstauen (Van-Heck), alle einsteigen, zum gewählten Ziel fahren
+   → animierte Auswertung → Rückkehr.
+8. **Bedrohungen:** `HHSendNeighbour` (Mr Pruitt kommt heraus; sich in seinen Lichtkegel stellen →
+   Polizei), `HHCallPolice` (Streifenwagen kommt; zu Fuß am Haus bleiben = festgenommen; mit dem Van davon
+   = Verfolgung; abhängen oder zum Steinbruch). `HHEndJob 5` / `6` für die übrigen Endings.
 
 ---
 
@@ -165,15 +227,18 @@ HorrorHeist/
 │  ├─ Progression/ Profil-SaveGame, Geld, XP, Besitz, Loadouts, Job-Ergebnisse
 │  ├─ Settings/    GameUserSettings-Erweiterung, Enhanced-Input-Subsystem (Laufzeit-Actions)
 │  ├─ Audio/       Lautstärke-Routing (Sound-Mix je Kategorie), UI-Sounds, Musik, Captions
-│  ├─ Online/      Sessions (Host/Suche/Beitritt/IP)
-│  ├─ Lobby/       Hub-GameMode (Ready, Nacht-Prüfung, Abreise) und GameState
-│  ├─ Heist/       Heist-GameMode/-GameState (Regeln, Ziele, Alarm, Auszahlung), Beute, Behälter, Van,
-│  │               Hausvolumen, Begrenzung, Spuk-Director, Spuk-Requisiten/-Geräte, Erscheinung
+│  ├─ Online/      Sessions (Host/Suche/Beitritt/IP/Lobby-Code)
+│  ├─ Lobby/       Hub-GameMode (Ready, Nacht-Prüfung, Abreise, Fluchtziel) und GameState (Intel-Notizbuch, Code)
+│  ├─ Heist/       Heist-GameMode/-GameState (Regeln, Ziele, Alarm, Polizei, Endings, Auszahlung), Beute,
+│  │               Behälter, Van-Punkte, Fluchtzonen, Hausvolumen, Begrenzung, Spuk-Director, Spuk-Requisiten, Erscheinung
+│  ├─ Vehicles/    Kinematisches Fahrzeug (Bodenhaftung, Kollision, Netz-Glättung), Van mit Sitzen, Streifenwagen-KI,
+│  │               Straßenknoten, Garagen-Rolltor
+│  ├─ NPC/         Nachbar (Sicht, Taschenlampe, Weg), Bewohnerin am Fenster, Körper/Kosmetik für NPCs
 │  ├─ Player/      Charakter, Controller, PlayerState, Inventar (5 Plätze), AnimInstance (Kopf/Hand-IK),
 │  │               Kosmetik, Interaktion (Halten), Schritte
 │  ├─ Interaction/ Interaktions-Interface, Stationen, Türen mit Schlössern, Schalter, Radio, Van
-│  ├─ World/       Tageszeit, Praxis-Lichter, Ambience-Director, Gewitter, Emitter, Vorschau-Mannequin
-│  └─ UI/          Slate-Stil + alle Menüs und das Heist-HUD (keine UMG-Assets nötig)
+│  ├─ World/       Tageszeit, Praxis-Lichter, Ambience-Director, Gewitter, Emitter, Vorschau-Mannequin, Erkundungspunkte
+│  └─ UI/          Slate-Stil + alle Menüs, Jobtafel/Dossier, Heist-HUD, animierte Auswertung (keine UMG-Assets nötig)
 ├─ Content/Python/ init_unreal.py + hh_setup (Import, Materialien, Maps, Data Assets, Bericht)
 ├─ SourceArt/      Generierte Quell-Assets (FBX, PNG/JPG, WAV) + Layout-JSONs + Katalog-JSON
 └─ Tools/AssetGen/ Generatoren: audio/, textures/, blender/ (Props, Stadt, Häuser, Maps)
@@ -183,7 +248,10 @@ HorrorHeist/
 Actor mit klarer Aufgabe; Kommunikation über Delegates. Häuser und Jobs sind **daten- und tag-getrieben**: Ein
 neues Haus braucht kein C++ – nur einen Missions-Eintrag (Map, Haus-Tag, Mindestbeute, Hauptziel) und eine Map
 mit getaggten Actors (`HH_HouseLight`, `HH_HouseDoor`, `HH_HauntPoint`, `HH_ApparitionPoint`, `HH_WakePoint`,
-Hausvolumen, Van-Punkte). Der Server validiert alle Anfragen (Interaktionen, Haltezeiten, Inventar, Reisen).
+Hausvolumen, Van, Polizei, Nachbar). Intel (Besitzer, Wertsachen mit Ort, Wege hinein …) steht im
+Missions-Asset (`catalog.py → INTEL`), Erkundungspunkte verweisen nur auf Intel-IDs. Der Server validiert alle
+Anfragen (Interaktionen, Haltezeiten, Inventar, Reisen); den Van bewegt der Rechner des Fahrers (Koop-Vertrauen
+mit Plausibilitätsprüfung auf dem Server), alle anderen glätten die replizierte Position.
 
 ### Inhalte neu erzeugen (optional)
 
@@ -192,6 +260,7 @@ Python 3.11+ mit `numpy scipy pillow bpy` (bpy = Blender als Modul, getestet mit
 ```bash
 cd HorrorHeist
 python Tools/AssetGen/audio/gen_sfx.py && python Tools/AssetGen/audio/gen_music.py && python Tools/AssetGen/audio/gen_world_sfx.py
+python Tools/AssetGen/audio/gen_vehicle_sfx.py                # Van-Motor, Hupe, Sirene, Rolltor, Aufprall, Nachbar
 python Tools/AssetGen/textures/gen_textures.py && python Tools/AssetGen/textures/gen_unique.py
 python Tools/AssetGen/textures/gen_world_textures.py && python Tools/AssetGen/textures/gen_world_images.py
 python Tools/AssetGen/textures/gen_blueprint.py
@@ -208,14 +277,27 @@ sich ihr Inhalts-Hash geändert hat). Danach im Editor **The Quiet Job → Build
 
 ## Stand & Grenzen
 
-- **Implementiert:** alles oben Beschriebene (C++, Python-Setup, Assets, Maps-Layouts).
+- **Implementiert:** alles oben Beschriebene (C++, Python-Setup, Assets, Map-Layouts).
 - **Kompiliert:** *nein* – in dieser Umgebung gibt es keine Unreal Engine. Der Code wurde statisch geprüft
   (Signaturen, Includes, Variablen-Verdeckung als Fehler, Unity-Build-Kollisionen), die Layouts automatisch gegen
-  die C++-Properties und Asset-Listen abgeglichen, und die Blender-Generatoren laufen hier vollständig durch.
-- **Im Spiel getestet:** *nein*. Nur die Blender-Vorschaubilder wurden geprüft. Belichtung, Lichtstärken,
-  Lautstärken, Spuk-Timing und Bewegungsgefühl werden im Editor Feintuning brauchen.
-- **Voice-Chat:** nutzt die VoIP-Schnittstelle des Online Subsystems (Push-to-Talk/Offenes Mikro, Lautstärke über
-  die Voice-Klasse) – ohne echte Mehrspieler-Sitzung ungetestet.
-- **Jobs 2 und 3** (Marrow, Pfarrhaus) haben Häuser und vorbereitete Maps, aber noch keine Beute/Spuk-Elemente;
-  sie sind auf dem Board bewusst gesperrt. Whitlock hat noch kein Haus.
+  die C++-Properties, Enums und Asset-Listen abgeglichen (0 Probleme), Intel-IDs/Kosmetik/Straßenknoten
+  gegengeprüft, und die Blender- und Audio-Generatoren laufen hier vollständig durch.
+- **Im Spiel getestet:** *nein*. Das betrifft besonders die neuen Systeme: Fahrgefühl und Kollisionen des
+  Vans (Rampe, Bordsteine), Netzwerk-Glättung, Polizei-Fahrweg, der Nachbar, die Kamera im Van und das Timing
+  der Auswertung brauchen Feintuning im Editor.
+- **Fahrzeuge:** bewusst einfache kinematische Fahrzeuge (Fahrradmodell, vier Bodenstrahlen, verschobene
+  Box) statt Chaos-Vehicle-Physik – kein Überschlagen, keine Federung. Die Richtung, in die sich die Räder
+  drehen, ist ungeprüft. Im Van sind die Mitfahrer unsichtbar (die Scheiben sind undurchsichtig); gefahren wird
+  aus der Verfolgerkamera.
+- **Polizei:** ein Streifenwagen pro Job; er fährt über die Straßenknoten (kein NavMesh), kann sich festfahren
+  (setzt dann zurück; ein „zweiter Wagen“ kommt notfalls näher heran). Festgenommene sehen bis zum Ende zu.
+- **Nachbar:** läuft einen festen Weg (Tag-Punkte), kein NavMesh/Ausweichen; Vorhänge/Fensterglas blocken seine
+  Sicht.
+- **Lobby-Codes:** funktionieren mit dem Standard-Online-Subsystem (Null) **nur im selben Netzwerk (LAN)**. Für
+  Internet-Lobbys per Code braucht es Steam oder EOS als Online Subsystem (Konfiguration, nicht enthalten); bis
+  dahin übers Internet **JOIN BY IP** (Port 7777).
+- **Voice-Chat:** nutzt die VoIP-Schnittstelle des Online Subsystems – ohne echte Mehrspieler-Sitzung ungetestet.
+- **Jobs 2 und 3** (Marrow, Pfarrhaus) haben Häuser, vorbereitete Maps (inzwischen mit fahrbarem Van) und erste
+  Dossier-Einträge, aber noch keine Beute/Spuk-Elemente/Erkundungspunkte; sie sind auf der Tafel bewusst
+  gesperrt. Whitlock hat noch kein Haus.
 - **Upscaler** (DLSS/FSR/XeSS) erscheinen nur mit installiertem Plugin.

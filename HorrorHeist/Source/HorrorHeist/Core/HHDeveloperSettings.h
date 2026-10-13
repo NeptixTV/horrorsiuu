@@ -56,7 +56,7 @@ public:
 
 	/** Seconds the summary stays on screen before the crew is sent back to the hideout. */
 	UPROPERTY(Config, EditAnywhere, Category = "Heist", meta = (ClampMin = 3.0))
-	float SummarySeconds = 14.f;
+	float SummarySeconds = 22.f;
 
 	/** Seconds between the police being called and their arrival. */
 	UPROPERTY(Config, EditAnywhere, Category = "Heist", meta = (ClampMin = 10.0))

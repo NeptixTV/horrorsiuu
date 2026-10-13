@@ -1054,40 +1054,58 @@ def window_basement():
     return b
 
 
-@prop('SM_RollUpDoor', 'Architecture/Doors', 'complex')
-def rollup_door():
-    """3.2 m wide, 2.9 m tall; centred on x, wall face at y = 0 (door slightly inside)."""
-    b = Builder('SM_RollUpDoor')
+def _rollup(name, curtain=True, frame=True):
+    """3.2 m wide, 2.9 m tall; centred on x, wall face at y = 0 (door slightly inside).
+    The curtain (slats, windows, handle) and the frame (rails, drum) are also built separately for
+    the animated hideout door (HHGarageDoor squashes the curtain up into the drum)."""
+    b = Builder(name)
     w, h = 3.2, 2.9
     slat = 0.1
     win_row = 1.6
     rows = int(h / slat)
-    for i in range(rows):
-        z = i * slat + slat / 2
-        depth = 0.03 if i % 2 == 0 else 0.022
-        if abs(z - win_row) < 0.13:
-            for k in range(5):
-                x0 = -w / 2 + k * w / 5
-                b.box((w / 5 - 0.3, depth, slat - 0.004), (x0 + (w / 5 - 0.3) / 2, -0.03, z), 'MI_Metal_Grey',
-                      uv_offset=(0, i * 0.37))
-                b.box((0.3, 0.004, slat), (x0 + w / 5 - 0.15, -0.025, z), 'MI_Glass_Dirty')
-            continue
-        b.box((w, depth, slat - 0.004), (0, -0.03, z), 'MI_Metal_Grey', bevel=0.003, uv_offset=(0, i * 0.37))
-    b.box((w, 0.05, 0.06), (0, -0.04, 0.03), 'MI_Metal_Black', bevel=0.005)
-    for k in range(5):
-        x0 = -w / 2 + k * w / 5 + w / 5 - 0.15
-        for zz in (win_row - 0.13, win_row + 0.13):
-            b.box((0.32, 0.03, 0.02), (x0, -0.035, zz), 'MI_Metal_Black')
-        for xx in (x0 - 0.15, x0 + 0.15):
-            b.box((0.02, 0.03, 0.27), (xx, -0.035, win_row), 'MI_Metal_Black')
-    for s in (-1, 1):
-        b.box((0.08, 0.1, h + 0.1), (s * (w / 2 + 0.04), -0.06, (h + 0.1) / 2), 'MI_Steel', bevel=0.004)
-    b.cyl(0.25, w + 0.2, (0, -0.28, h + 0.25), 'MI_Metal_Grey', rot=(0, 90, 0), segs=24)
-    for s in (-1, 1):
-        b.box((0.02, 0.55, 0.55), (s * (w / 2 + 0.11), -0.28, h + 0.25), 'MI_Steel', bevel=0.004)
-    b.tube([(w / 2 - 0.2, -0.05, 1.0), (w / 2 - 0.2, -0.08, 1.0)], 0.02, 'MI_Chrome', segs=8)
-    b.box((0.15, 0.04, 0.03), (w / 2 - 0.2, -0.1, 1.0), 'MI_Chrome', bevel=0.006)
+    if curtain:
+        for i in range(rows):
+            z = i * slat + slat / 2
+            depth = 0.03 if i % 2 == 0 else 0.022
+            if abs(z - win_row) < 0.13:
+                for k in range(5):
+                    x0 = -w / 2 + k * w / 5
+                    b.box((w / 5 - 0.3, depth, slat - 0.004), (x0 + (w / 5 - 0.3) / 2, -0.03, z), 'MI_Metal_Grey',
+                          uv_offset=(0, i * 0.37))
+                    b.box((0.3, 0.004, slat), (x0 + w / 5 - 0.15, -0.025, z), 'MI_Glass_Dirty')
+                continue
+            b.box((w, depth, slat - 0.004), (0, -0.03, z), 'MI_Metal_Grey', bevel=0.003, uv_offset=(0, i * 0.37))
+        b.box((w, 0.05, 0.06), (0, -0.04, 0.03), 'MI_Metal_Black', bevel=0.005)
+        for k in range(5):
+            x0 = -w / 2 + k * w / 5 + w / 5 - 0.15
+            for zz in (win_row - 0.13, win_row + 0.13):
+                b.box((0.32, 0.03, 0.02), (x0, -0.035, zz), 'MI_Metal_Black')
+            for xx in (x0 - 0.15, x0 + 0.15):
+                b.box((0.02, 0.03, 0.27), (xx, -0.035, win_row), 'MI_Metal_Black')
+        b.tube([(w / 2 - 0.2, -0.05, 1.0), (w / 2 - 0.2, -0.08, 1.0)], 0.02, 'MI_Chrome', segs=8)
+        b.box((0.15, 0.04, 0.03), (w / 2 - 0.2, -0.1, 1.0), 'MI_Chrome', bevel=0.006)
+    if frame:
+        for s in (-1, 1):
+            b.box((0.08, 0.1, h + 0.1), (s * (w / 2 + 0.04), -0.06, (h + 0.1) / 2), 'MI_Steel', bevel=0.004)
+        b.cyl(0.25, w + 0.2, (0, -0.28, h + 0.25), 'MI_Metal_Grey', rot=(0, 90, 0), segs=24)
+        for s in (-1, 1):
+            b.box((0.02, 0.55, 0.55), (s * (w / 2 + 0.11), -0.28, h + 0.25), 'MI_Steel', bevel=0.004)
     return b
+
+
+@prop('SM_RollUpDoor', 'Architecture/Doors', 'complex')
+def rollup_door():
+    return _rollup('SM_RollUpDoor')
+
+
+@prop('SM_RollUpDoor_Curtain', 'Architecture/Doors', 'complex')
+def rollup_door_curtain():
+    return _rollup('SM_RollUpDoor_Curtain', frame=False)
+
+
+@prop('SM_RollUpDoor_Frame', 'Architecture/Doors', 'complex')
+def rollup_door_frame():
+    return _rollup('SM_RollUpDoor_Frame', curtain=False)
 
 
 # =======================================================================================

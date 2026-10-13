@@ -2120,124 +2120,13 @@
    ]
   },
   {
-   "name": "SM_Van_Body_2",
-   "cls": "StaticMeshActor",
-   "folder": "Van",
-   "mesh": "SM_Van_Body",
+   "name": "Van",
+   "cls": "HHVanVehicle",
+   "folder": "Gameplay",
    "location": [
     5075.0,
     -5700.0,
-    245.0
-   ],
-   "quat": [
-    0.0,
-    0.0,
-    0.0,
-    1.0
-   ],
-   "scale": [
-    1.0,
-    1.0,
-    1.0
-   ]
-  },
-  {
-   "name": "SM_Van_Wheel_5",
-   "cls": "StaticMeshActor",
-   "folder": "Van",
-   "mesh": "SM_Van_Wheel",
-   "location": [
-    5163.0,
-    -5545.0,
-    282.5
-   ],
-   "quat": [
-    0.0,
-    0.0,
-    0.0,
-    1.0
-   ],
-   "scale": [
-    1.0,
-    1.0,
-    1.0
-   ]
-  },
-  {
-   "name": "SM_Van_Wheel_6",
-   "cls": "StaticMeshActor",
-   "folder": "Van",
-   "mesh": "SM_Van_Wheel",
-   "location": [
-    4987.0,
-    -5545.0,
-    282.5
-   ],
-   "quat": [
-    0.0,
-    0.0,
-    1.0,
-    0.0
-   ],
-   "scale": [
-    1.0,
-    1.0,
-    1.0
-   ]
-  },
-  {
-   "name": "SM_Van_Wheel_7",
-   "cls": "StaticMeshActor",
-   "folder": "Van",
-   "mesh": "SM_Van_Wheel",
-   "location": [
-    5163.0,
-    -5845.0,
-    282.5
-   ],
-   "quat": [
-    0.0,
-    0.0,
-    0.0,
-    1.0
-   ],
-   "scale": [
-    1.0,
-    1.0,
-    1.0
-   ]
-  },
-  {
-   "name": "SM_Van_Wheel_8",
-   "cls": "StaticMeshActor",
-   "folder": "Van",
-   "mesh": "SM_Van_Wheel",
-   "location": [
-    4987.0,
-    -5845.0,
-    282.5
-   ],
-   "quat": [
-    0.0,
-    0.0,
-    1.0,
-    0.0
-   ],
-   "scale": [
-    1.0,
-    1.0,
-    1.0
-   ]
-  },
-  {
-   "name": "SM_Van_Livery_3",
-   "cls": "StaticMeshActor",
-   "folder": "Van",
-   "mesh": "SM_Van_Livery",
-   "location": [
-    5176.2,
-    -5562.0,
-    390.0
+    372.0
    ],
    "quat": [
     0.0,
@@ -2250,52 +2139,35 @@
     1.0,
     1.0
    ],
-   "cast_shadow": false
-  },
-  {
-   "name": "SM_Van_Livery_4",
-   "cls": "StaticMeshActor",
-   "folder": "Van",
-   "mesh": "SM_Van_Livery",
-   "location": [
-    4973.8,
-    -5680.0,
-    390.0
-   ],
-   "quat": [
-    0.0,
-    0.0,
-    0.707107,
-    0.707107
-   ],
-   "scale": [
-    1.0,
-    1.0,
-    1.0
-   ],
-   "cast_shadow": false
-  },
-  {
-   "name": "SM_Van_SlidingDoor_2",
-   "cls": "StaticMeshActor",
-   "folder": "Van",
-   "mesh": "SM_Van_SlidingDoor",
-   "location": [
-    5174.0,
-    -5720.0,
-    365.0
-   ],
-   "quat": [
-    0.0,
-    0.0,
-    0.0,
-    1.0
-   ],
-   "scale": [
-    1.0,
-    1.0,
-    1.0
-   ]
+   "properties": {
+    "BodyMesh": {
+     "asset": "SM_Van_Body"
+    },
+    "WheelMesh": {
+     "asset": "SM_Van_Wheel"
+    },
+    "LiveryMesh": {
+     "asset": "SM_Van_Livery"
+    },
+    "EngineLoop": {
+     "asset": "S_Van_Engine_Loop"
+    },
+    "BumpSound": {
+     "asset": "S_Car_Bump_01"
+    },
+    "DoorSound": {
+     "asset": "S_Car_Door_Close_01"
+    },
+    "EngineStartSound": {
+     "asset": "S_Van_Engine_Start_01"
+    },
+    "HornSound": {
+     "asset": "S_Van_Horn_01"
+    },
+    "SlidingDoorMesh": {
+     "asset": "SM_Van_SlidingDoor"
+    }
+   }
   },
   {
    "name": "Van_Stash",
@@ -2331,13 +2203,222 @@
    }
   },
   {
-   "name": "Van_Drive",
-   "cls": "HHVanPoint",
+   "name": "HH_NeighbourPath_0_1",
+   "cls": "TargetPoint",
    "folder": "Gameplay",
    "location": [
-    4960.0,
-    -5800.0,
-    345.0
+    5930.0,
+    -3650.0,
+    270.0
+   ],
+   "quat": [
+    0.0,
+    0.0,
+    0.0,
+    1.0
+   ],
+   "scale": [
+    1.0,
+    1.0,
+    1.0
+   ],
+   "tags": [
+    "HH_NeighbourPath_0"
+   ]
+  },
+  {
+   "name": "HH_NeighbourPath_1_1",
+   "cls": "TargetPoint",
+   "folder": "Gameplay",
+   "location": [
+    5560.0,
+    -3650.0,
+    270.0
+   ],
+   "quat": [
+    0.0,
+    0.0,
+    0.0,
+    1.0
+   ],
+   "scale": [
+    1.0,
+    1.0,
+    1.0
+   ],
+   "tags": [
+    "HH_NeighbourPath_1"
+   ]
+  },
+  {
+   "name": "HH_NeighbourPath_2_1",
+   "cls": "TargetPoint",
+   "folder": "Gameplay",
+   "location": [
+    5340.0,
+    -3750.0,
+    270.0
+   ],
+   "quat": [
+    0.0,
+    0.0,
+    0.0,
+    1.0
+   ],
+   "scale": [
+    1.0,
+    1.0,
+    1.0
+   ],
+   "tags": [
+    "HH_NeighbourPath_2"
+   ]
+  },
+  {
+   "name": "HH_NeighbourPath_3_1",
+   "cls": "TargetPoint",
+   "folder": "Gameplay",
+   "location": [
+    5340.0,
+    -4970.0,
+    270.0
+   ],
+   "quat": [
+    0.0,
+    0.0,
+    0.0,
+    1.0
+   ],
+   "scale": [
+    1.0,
+    1.0,
+    1.0
+   ],
+   "tags": [
+    "HH_NeighbourPath_3"
+   ]
+  },
+  {
+   "name": "HH_NeighbourPath_4_1",
+   "cls": "TargetPoint",
+   "folder": "Gameplay",
+   "location": [
+    5700.0,
+    -4970.0,
+    270.0
+   ],
+   "quat": [
+    0.0,
+    0.0,
+    0.0,
+    1.0
+   ],
+   "scale": [
+    1.0,
+    1.0,
+    1.0
+   ],
+   "tags": [
+    "HH_NeighbourPath_4"
+   ]
+  },
+  {
+   "name": "HH_NeighbourPath_5_1",
+   "cls": "TargetPoint",
+   "folder": "Gameplay",
+   "location": [
+    6350.0,
+    -4970.0,
+    270.0
+   ],
+   "quat": [
+    0.0,
+    0.0,
+    0.0,
+    1.0
+   ],
+   "scale": [
+    1.0,
+    1.0,
+    1.0
+   ],
+   "tags": [
+    "HH_NeighbourPath_5"
+   ]
+  },
+  {
+   "name": "HH_NeighbourPath_6_1",
+   "cls": "TargetPoint",
+   "folder": "Gameplay",
+   "location": [
+    6800.0,
+    -5060.0,
+    270.0
+   ],
+   "quat": [
+    0.0,
+    0.0,
+    0.0,
+    1.0
+   ],
+   "scale": [
+    1.0,
+    1.0,
+    1.0
+   ],
+   "tags": [
+    "HH_NeighbourPath_6"
+   ]
+  },
+  {
+   "name": "Neighbour_Pruitt",
+   "cls": "HHNeighbourNPC",
+   "folder": "NPC",
+   "location": [
+    6050.0,
+    -3650.0,
+    357.0
+   ],
+   "quat": [
+    0.0,
+    0.0,
+    1.0,
+    0.0
+   ],
+   "scale": [
+    1.0,
+    1.0,
+    1.0
+   ],
+   "properties": {
+    "DisplayName": {
+     "text": "Mr Pruitt"
+    },
+    "CosmeticIds": [
+     "CO_Skin_Fair",
+     "CO_Hair_Messy_Grey",
+     "CO_Top_Sweater_Stripe",
+     "CO_Jacket_Rain",
+     "CO_Pants_Slacks",
+     "CO_Shoes_Boots",
+     "CO_Acc_Glasses"
+    ],
+    "DoorSound": {
+     "asset": "S_Door_Wood_Open"
+    },
+    "ShoutSound": {
+     "asset": "S_Neighbour_Shout_01"
+    }
+   }
+  },
+  {
+   "name": "PoliceCar",
+   "cls": "HHPoliceCar",
+   "folder": "NPC",
+   "location": [
+    -7800.0,
+    -2050.0,
+    330.0
    ],
    "quat": [
     0.0,
@@ -2351,16 +2432,36 @@
     1.0
    ],
    "properties": {
-    "PointType": {
-     "enum": "EHHVanPointType",
-     "value": "Drive"
+    "BodyMesh": {
+     "asset": "SM_Car_Police"
     },
-    "InteractSound": {
-     "asset": "S_Van_Engine_Start_01"
+    "SirenLoop": {
+     "asset": "S_Police_Siren_Loop"
     },
-    "Prompt": {
-     "text": "Drive away"
-    }
+    "EngineLoop": {
+     "asset": "S_Van_Engine_Loop"
+    },
+    "BumpSound": {
+     "asset": "S_Car_Bump_01"
+    },
+    "PatrolRoute": [
+     "M_W",
+     "M_MAR",
+     "M_LOT",
+     "M_PARK",
+     "M_ASH",
+     "A1",
+     "A_VANCE",
+     "A2",
+     "A_CH",
+     "C_RECT",
+     "R_CH",
+     "R_MARROW",
+     "R1",
+     "M_MAR",
+     "M_W"
+    ],
+    "HomeNode": "M_W"
    }
   },
   {

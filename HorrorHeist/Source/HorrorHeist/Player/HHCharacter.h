@@ -13,6 +13,7 @@ class UHHInventoryComponent;
 class UHHInteractionComponent;
 class UHHFootstepComponent;
 class AHHPlayerState;
+class AHHVanVehicle;
 struct FInputActionValue;
 
 /**
@@ -74,9 +75,32 @@ public:
 	UFUNCTION(Server, Reliable)
 	void ServerSetFlashlight(bool bNewOn);
 
+	// ---- The van ------------------------------------------------------------------------
+
+	AHHVanVehicle* GetVehicle() const { return Vehicle; }
+	int32 GetSeatIndex() const { return SeatIndex; }
+	bool IsSeated() const { return Vehicle != nullptr; }
+	bool IsDriving() const { return Vehicle != nullptr && SeatIndex == 0; }
+
+	/** Server (called by the van): sit down in / get up from a seat. */
+	void SetSeat(AHHVanVehicle* InVehicle, int32 InSeat);
+
+	UFUNCTION(Server, Reliable)
+	void ServerExitVehicle();
+
+	/** Owner: put the body where the server let it out (no waiting for a movement correction). */
+	UFUNCTION(Client, Reliable)
+	void ClientExitedVehicle(FVector Location, FRotator Rotation);
+
+	/** Server: taken away by the police (hidden, frozen until the job ends). */
+	void SetArrested(bool bInArrested);
+	bool IsArrested() const { return bArrested; }
+
 protected:
 	// Input
 	void Input_Move(const FInputActionValue& Value);
+	void Input_MoveCompleted(const FInputActionValue& Value);
+	void Input_Horn();
 	void Input_Look(const FInputActionValue& Value);
 	void Input_LookGamepad(const FInputActionValue& Value);
 	void Input_JumpStarted();
@@ -124,6 +148,12 @@ protected:
 
 	UFUNCTION()
 	void OnRep_Sprinting();
+
+	UFUNCTION()
+	void OnRep_Seat();
+
+	/** Hidden, no collision, no movement while seated or arrested (every machine). */
+	void ApplyBodyState();
 
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Components")
 	TObjectPtr<UCameraComponent> FirstPersonCamera;
@@ -193,6 +223,17 @@ private:
 
 	UPROPERTY(ReplicatedUsing = OnRep_Sprinting)
 	bool bSprinting = false;
+
+	UPROPERTY(ReplicatedUsing = OnRep_Seat)
+	TObjectPtr<AHHVanVehicle> Vehicle;
+
+	UPROPERTY(ReplicatedUsing = OnRep_Seat)
+	int32 SeatIndex = INDEX_NONE;
+
+	UPROPERTY(ReplicatedUsing = OnRep_Seat)
+	bool bArrested = false;
+
+	bool bBodyStowed = false;
 
 	bool bThirdPerson = false;
 	bool bLocallyHidden = false;

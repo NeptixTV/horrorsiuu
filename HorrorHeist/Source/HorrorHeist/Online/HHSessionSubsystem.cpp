@@ -16,6 +16,40 @@
 namespace
 {
 	const FName HostNameKey(TEXT("HH_HOST"));
+	const FName LobbyCodeKey(TEXT("HHCODE"));
+	/** No 0/O, 1/I/L: codes are read aloud and typed by friends. */
+	const TCHAR CodeAlphabet[] = TEXT("ABCDEFGHJKMNPQRSTUVWXYZ23456789");
+	constexpr int32 CodeLength = 6;
+}
+
+FString UHHSessionSubsystem::MakeLobbyCode()
+{
+	const int32 AlphabetSize = UE_ARRAY_COUNT(CodeAlphabet) - 1;
+	FString Code;
+	for (int32 Index = 0; Index < CodeLength; ++Index)
+	{
+		Code.AppendChar(CodeAlphabet[FMath::RandRange(0, AlphabetSize - 1)]);
+	}
+	return Code;
+}
+
+FString UHHSessionSubsystem::NormalizeCode(const FString& Code)
+{
+	// Spaces and dashes are allowed while typing ("K7Q-2MX"); anything else makes it invalid.
+	FString Result;
+	for (const TCHAR Char : Code.ToUpper())
+	{
+		if (Char == TEXT(' ') || Char == TEXT('-'))
+		{
+			continue;
+		}
+		if (!FCString::Strchr(CodeAlphabet, Char))
+		{
+			return FString();
+		}
+		Result.AppendChar(Char);
+	}
+	return Result.Len() == CodeLength ? Result : FString();
 }
 
 UHHSessionSubsystem* UHHSessionSubsystem::Get(const UObject* WorldContextObject)
@@ -138,6 +172,8 @@ void UHHSessionSubsystem::HostSession(bool bLAN, int32 MaxPlayers)
 		const UHHProfileSubsystem* Profile = GetGameInstance()->GetSubsystem<UHHProfileSubsystem>();
 		const FString HostName = Profile ? Profile->GetPlayerName() : FString(TEXT("Host"));
 		Settings.Set(HostNameKey, HostName, EOnlineDataAdvertisementType::ViaOnlineServiceAndPing);
+		LobbyCode = MakeLobbyCode();
+		Settings.Set(LobbyCodeKey, LobbyCode, EOnlineDataAdvertisementType::ViaOnlineServiceAndPing);
 
 		Sessions->ClearOnCreateSessionCompleteDelegate_Handle(CreateHandle);
 		CreateHandle = Sessions->AddOnCreateSessionCompleteDelegate_Handle(
@@ -160,11 +196,13 @@ void UHHSessionSubsystem::HandleCreateComplete(FName SessionName, bool bWasSucce
 
 	if (!bWasSuccessful)
 	{
+		LobbyCode.Reset();
 		OnSessionStatus.Broadcast(false, LOCTEXT("HostFailed", "Could not open the hideout to a crew."));
 		return;
 	}
 
-	OnSessionStatus.Broadcast(true, LOCTEXT("Hosting", "Opening the hideout..."));
+	UE_LOG(LogHorrorHeist, Log, TEXT("Lobby created, code %s."), *LobbyCode);
+	OnSessionStatus.Broadcast(true, FText::Format(LOCTEXT("Hosting", "Opening the lobby... code {0}"), FText::FromString(LobbyCode)));
 	OpenLobby(true);
 }
 
@@ -175,6 +213,11 @@ void UHHSessionSubsystem::FindSessions(bool bLAN)
 	IOnlineSessionPtr Sessions = GetSessionInterface();
 	if (!Sessions.IsValid() || bBusy)
 	{
+		if (!PendingJoinCode.IsEmpty())
+		{
+			PendingJoinCode.Reset();
+			OnSessionStatus.Broadcast(false, LOCTEXT("CodeNoSearch", "Could not search for the lobby right now."));
+		}
 		OnSessionsFound.Broadcast(false, TArray<FHHSessionInfo>());
 		return;
 	}
@@ -225,10 +268,51 @@ void UHHSessionSubsystem::HandleFindComplete(bool bWasSuccessful)
 			{
 				Info.HostName = Result.Session.OwningUserName;
 			}
+			Result.Session.SessionSettings.Get(LobbyCodeKey, Info.Code);
 			Results.Add(Info);
 		}
 	}
 	OnSessionsFound.Broadcast(bWasSuccessful, Results);
+
+	// JOIN BY CODE: join the lobby that advertises the code, or say it wasn't found.
+	if (!PendingJoinCode.IsEmpty())
+	{
+		const FString Wanted = MoveTemp(PendingJoinCode);
+		PendingJoinCode.Reset();
+		for (const FHHSessionInfo& Info : Results)
+		{
+			if (Info.Code == Wanted)
+			{
+				if (Info.OpenSlots <= 0)
+				{
+					OnSessionStatus.Broadcast(false, LOCTEXT("CodeFull", "That lobby is full."));
+					return;
+				}
+				JoinSession(Info.ResultIndex);
+				return;
+			}
+		}
+		OnSessionStatus.Broadcast(false, FText::Format(IsNullSubsystem()
+			? LOCTEXT("CodeNotFoundLan", "No lobby with code {0} found. With the default online subsystem codes only reach the same network - over the internet, join by IP.")
+			: LOCTEXT("CodeNotFound", "No lobby with code {0} found."), FText::FromString(Wanted)));
+	}
+}
+
+void UHHSessionSubsystem::JoinByCode(const FString& Code)
+{
+	const FString Normalized = NormalizeCode(Code);
+	if (Normalized.IsEmpty())
+	{
+		OnSessionStatus.Broadcast(false, LOCTEXT("CodeInvalid", "A lobby code has six letters and digits."));
+		return;
+	}
+	if (bBusy)
+	{
+		return;
+	}
+	PendingJoinCode = Normalized;
+	OnSessionStatus.Broadcast(true, FText::Format(LOCTEXT("CodeSearching", "Looking for lobby {0}..."), FText::FromString(Normalized)));
+	FindSessions(true);
 }
 
 // ---------------------------------------------------------------------------------------
@@ -307,6 +391,7 @@ void UHHSessionSubsystem::JoinByAddress(const FString& Address)
 
 void UHHSessionSubsystem::LeaveSession()
 {
+	LobbyCode.Reset();
 	DestroyThen([this]()
 	{
 		OpenLobby(false);
@@ -317,6 +402,7 @@ void UHHSessionSubsystem::CleanupStaleSession()
 {
 	if (HasSession() && !bBusy)
 	{
+		LobbyCode.Reset();
 		DestroyThen([]() {});
 	}
 }

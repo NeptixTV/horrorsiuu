@@ -47,6 +47,10 @@ public:
 	UPROPERTY(SaveGame)
 	int64 LifetimeEarnings = 0;
 
+	/** Job intel learned by scouting (FHHJobIntel::IntelId). */
+	UPROPERTY(SaveGame)
+	TArray<FName> KnownIntel;
+
 	UPROPERTY(SaveGame)
 	FDateTime CreatedAt;
 

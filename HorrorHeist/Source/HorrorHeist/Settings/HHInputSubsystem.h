@@ -34,6 +34,8 @@ enum class EHHInputAction : uint8
 	SlotNext,
 	SlotPrev,
 	Drop,
+	/** The van's horn (driver). */
+	Horn,
 	MAX UMETA(Hidden)
 };
 

@@ -9,6 +9,51 @@ class UTexture2D;
 class UWorld;
 
 /**
+ * One thing the crew knows (or can find out) about a job: who lives there, where the valuables
+ * are, ways in. Intel that is not known from the start is learned by scouting the house by day
+ * (AHHIntelSpot in the town) and stays in the crew's notebook (host profile).
+ */
+USTRUCT(BlueprintType)
+struct HORRORHEIST_API FHHJobIntel
+{
+	GENERATED_BODY()
+
+	/** Unique across all jobs ("Vance_SpareKey"). */
+	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Intel")
+	FName IntelId;
+
+	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Intel")
+	EHHIntelKind Kind = EHHIntelKind::Note;
+
+	/** "Coin collection" */
+	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Intel")
+	FText Title;
+
+	/** "Master bedroom, top of the dresser (upstairs, front)." */
+	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Intel", meta = (MultiLine = true))
+	FText Detail;
+
+	/** Rough street value for valuables (0 = not a valuable / unknown). */
+	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Intel", meta = (ClampMin = 0))
+	int32 ValueMin = 0;
+
+	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Intel", meta = (ClampMin = 0))
+	int32 ValueMax = 0;
+
+	/** On the board from the start (the client's tip, the blueprint notes). */
+	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Intel")
+	bool bKnownFromStart = false;
+
+	/** Hint shown while unknown: "Watch the house from across the lane by day." */
+	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Intel")
+	FText HowToLearn;
+
+	/** Entry intel that is a key: the crew starts the job holding it (and it is gone from its hiding place). */
+	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Intel")
+	FName KeyId;
+};
+
+/**
  * A job on the board: a house, its rumours and its payout.
  * Future house systems (residents, routines, supernatural rules) hang off this asset.
  */
@@ -62,6 +107,14 @@ public:
 	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Presentation")
 	TSoftObjectPtr<UTexture2D> Photo;
 
+	/** The crew's annotated floor plan (dossier). Optional. */
+	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Presentation")
+	TSoftObjectPtr<UTexture2D> FloorPlan;
+
+	/** Owners, valuables, ways in, security - see FHHJobIntel. */
+	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Intel")
+	TArray<FHHJobIntel> Intel;
+
 	/** Level the crew travels to. Empty = job not playable yet (the board says so). */
 	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Travel")
 	TSoftObjectPtr<UWorld> Map;
@@ -100,6 +153,10 @@ public:
 	int32 SortOrder = 0;
 
 	FName GetMissionId() const { return MissionId.IsNone() ? GetFName() : MissionId; }
+	const FHHJobIntel* FindIntel(FName IntelId) const
+	{
+		return Intel.FindByPredicate([IntelId](const FHHJobIntel& Entry) { return Entry.IntelId == IntelId; });
+	}
 	bool IsPlayable() const { return !Map.IsNull() && bAvailable; }
 	/** Map exists but the job is not released yet. */
 	bool IsPrepared() const { return !Map.IsNull() && !bAvailable; }

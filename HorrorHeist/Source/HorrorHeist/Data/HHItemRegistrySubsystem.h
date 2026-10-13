@@ -11,6 +11,7 @@ class UHHEquipmentDefinition;
 class UHHLootDefinition;
 class UHHMissionDefinition;
 class UTexture2D;
+struct FHHJobIntel;
 
 /**
  * Catalog of every cosmetic, equipment item and mission. Discovers data assets through the
@@ -36,6 +37,8 @@ public:
 	const UHHEquipmentDefinition* FindEquipment(FName ItemId) const;
 	const UHHLootDefinition* FindLoot(FName ItemId) const;
 	const UHHMissionDefinition* FindMission(FName MissionId) const;
+	/** Intel entry by its (globally unique) id, and the job it belongs to. */
+	const FHHJobIntel* FindIntel(FName IntelId, const UHHMissionDefinition** OutMission = nullptr) const;
 
 	TArray<const UHHCosmeticDefinition*> GetCosmeticsForSlot(EHHCosmeticSlot Slot) const;
 	TArray<const UHHEquipmentDefinition*> GetEquipmentForSlot(EHHEquipmentSlot Slot) const;

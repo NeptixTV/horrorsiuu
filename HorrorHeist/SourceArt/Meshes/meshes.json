@@ -754,6 +754,31 @@
   ],
   "nanite": false
  },
+ "SM_Car_Police": {
+  "collision": "box",
+  "file": "SourceArt/Meshes/Vehicles/SM_Car_Police.fbx",
+  "folder": "Vehicles",
+  "hash": "7be95cda9b97ce6ef78131e1aabc7faf9e12c0dd",
+  "kind": "static",
+  "materials": [
+   "MI_Car_Paint_Black",
+   "MI_Glass_Van",
+   "MI_Metal_Black",
+   "MI_Plastic_Black",
+   "MI_Tire",
+   "MI_Chrome",
+   "MI_Glass",
+   "MI_Emit_Amber",
+   "MI_Rubber_Black",
+   "MI_Plastic_White",
+   "MI_Plastic_Red",
+   "MI_Mirror",
+   "MI_Car_Paint_White",
+   "MI_Emit_Red",
+   "MI_Emit_Blue"
+  ],
+  "nanite": false
+ },
  "SM_Car_Sedan_Red": {
   "collision": "box",
   "file": "SourceArt/Meshes/Props/Town/SM_Car_Sedan_Red.fbx",
@@ -3339,14 +3364,40 @@
   "collision": "complex",
   "file": "SourceArt/Meshes/Architecture/Doors/SM_RollUpDoor.fbx",
   "folder": "Architecture/Doors",
-  "hash": "75ca8064f6b2885f95c11d78a1090d35f0cdd767",
+  "hash": "6b15e6b08ad47d73aecdeb936007e4257c0c6f75",
   "kind": "static",
   "materials": [
    "MI_Metal_Grey",
    "MI_Glass_Dirty",
    "MI_Metal_Black",
-   "MI_Steel",
+   "MI_Chrome",
+   "MI_Steel"
+  ],
+  "nanite": false
+ },
+ "SM_RollUpDoor_Curtain": {
+  "collision": "complex",
+  "file": "SourceArt/Meshes/Architecture/Doors/SM_RollUpDoor_Curtain.fbx",
+  "folder": "Architecture/Doors",
+  "hash": "b5709a474019ede233dbcbb7a144b3e44e1784ad",
+  "kind": "static",
+  "materials": [
+   "MI_Metal_Grey",
+   "MI_Glass_Dirty",
+   "MI_Metal_Black",
    "MI_Chrome"
+  ],
+  "nanite": false
+ },
+ "SM_RollUpDoor_Frame": {
+  "collision": "complex",
+  "file": "SourceArt/Meshes/Architecture/Doors/SM_RollUpDoor_Frame.fbx",
+  "folder": "Architecture/Doors",
+  "hash": "071cef79476f4eea985f3594174ab91dfd819213",
+  "kind": "static",
+  "materials": [
+   "MI_Steel",
+   "MI_Metal_Grey"
   ],
   "nanite": false
  },

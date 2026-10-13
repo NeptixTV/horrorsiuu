@@ -1,7 +1,26 @@
 #include "Heist/HHHeistGameState.h"
+#include "Heist/HHHeistGameMode.h"
+#include "Engine/Engine.h"
+#include "Engine/World.h"
+#include "GameFramework/WorldSettings.h"
 #include "Kismet/GameplayStatics.h"
 #include "Net/UnrealNetwork.h"
 #include "Sound/SoundBase.h"
+
+bool AHHHeistGameState::IsJobWorld(const UObject* WorldContextObject)
+{
+	const UWorld* World = GEngine ? GEngine->GetWorldFromContextObject(WorldContextObject, EGetWorldErrorMode::ReturnNull) : nullptr;
+	if (!World)
+	{
+		return false;
+	}
+	if (World->GetGameState())
+	{
+		return World->GetGameState<AHHHeistGameState>() != nullptr;
+	}
+	const AWorldSettings* Settings = World->GetWorldSettings();
+	return Settings && Settings->DefaultGameMode && Settings->DefaultGameMode->IsChildOf(AHHHeistGameMode::StaticClass());
+}
 
 void AHHHeistGameState::GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& OutLifetimeProps) const
 {
@@ -19,6 +38,16 @@ void AHHHeistGameState::GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& Ou
 	DOREPLIFETIME(AHHHeistGameState, StartServerTime);
 	DOREPLIFETIME(AHHHeistGameState, CrewAtVan);
 	DOREPLIFETIME(AHHHeistGameState, CrewTotal);
+	DOREPLIFETIME(AHHHeistGameState, PoliceState);
+}
+
+void AHHHeistGameState::SetPoliceState(EHHPoliceState NewState)
+{
+	if (HasAuthority() && PoliceState != NewState)
+	{
+		PoliceState = NewState;
+		Changed();
+	}
 }
 
 float AHHHeistGameState::GetPoliceRemaining() const

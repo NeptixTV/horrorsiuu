@@ -1781,7 +1781,231 @@
    "min_haul": 1500,
    "target_item": "LT_CoinCollection",
    "aggression": 1.0,
-   "house": "HH_House_Vance"
+   "house": "HH_House_Vance",
+   "intel": [
+    {
+     "id": "Vance_Coins",
+     "kind": "Valuable",
+     "title": "Coin collection (the target)",
+     "detail": "Master bedroom - upstairs, front left. On the dresser, under glass.",
+     "value": [
+      1200,
+      2200
+     ],
+     "known": true,
+     "how": "",
+     "key": ""
+    },
+    {
+     "id": "Vance_StudyCash",
+     "kind": "Valuable",
+     "title": "Cash in the study",
+     "detail": "Study - ground floor, front right. Desk drawer: search the desk.",
+     "value": [
+      300,
+      700
+     ],
+     "known": true,
+     "how": "",
+     "key": ""
+    },
+    {
+     "id": "Vance_LivingRoom",
+     "kind": "Valuable",
+     "title": "Living room electronics and the mantel",
+     "detail": "Living room - ground floor, front left. Flat-screen TV (heavy, slows you down), a game console, a mantel clock and a silver candlestick.",
+     "value": [
+      700,
+      1400
+     ],
+     "known": false,
+     "how": "Peek through the living-room window by day (front yard, left of the porch).",
+     "key": ""
+    },
+    {
+     "id": "Vance_StudyDesk",
+     "kind": "Valuable",
+     "title": "Laptop and an old camera",
+     "detail": "Study - a laptop on the desk, a vintage camera on the floor by the bookcase.",
+     "value": [
+      370,
+      750
+     ],
+     "known": false,
+     "how": "Peek through the study window by day (front yard, right of the porch).",
+     "key": ""
+    },
+    {
+     "id": "Vance_Pearls",
+     "kind": "Valuable",
+     "title": "Mrs Vance's pearls and his gold watch",
+     "detail": "Master bedroom nightstand. She wears the pearls at the window every day.",
+     "value": [
+      750,
+      1700
+     ],
+     "known": false,
+     "how": "Watch the house by day from the bench across Ashgrove Lane.",
+     "key": ""
+    },
+    {
+     "id": "Vance_Ring",
+     "kind": "Valuable",
+     "title": "Diamond ring",
+     "detail": "An insurance letter says she keeps it \"in the bathroom cabinet\" - upstairs, back right.",
+     "value": [
+      500,
+      1200
+     ],
+     "known": false,
+     "how": "Check the Vances' mailbox by the lane.",
+     "key": ""
+    },
+    {
+     "id": "Vance_Locket",
+     "kind": "Valuable",
+     "title": "Old locket in the basement trunk",
+     "detail": "Basement, in the old trunk. Worth a lot. Whatever lives in the house wants it to stay there.",
+     "value": [
+      600,
+      1400
+     ],
+     "known": false,
+     "how": "Look through the basement window at the back of the house by day.",
+     "key": ""
+    },
+    {
+     "id": "Vance_Harold",
+     "kind": "Owner",
+     "title": "Harold Vance",
+     "detail": "Sixties, retired bank clerk. Nobody has seen him outside in years; his car has not moved since spring.",
+     "value": [
+      0,
+      0
+     ],
+     "known": false,
+     "how": "Check the Vances' mailbox by the lane.",
+     "key": ""
+    },
+    {
+     "id": "Vance_Margaret",
+     "kind": "Owner",
+     "title": "Margaret Vance",
+     "detail": "Sits at the upstairs window all day. She does not read, does not knit. She watches the lane.",
+     "value": [
+      0,
+      0
+     ],
+     "known": false,
+     "how": "Watch the house by day from the bench across Ashgrove Lane.",
+     "key": ""
+    },
+    {
+     "id": "Vance_Youngest",
+     "kind": "Owner",
+     "title": "\"The youngest\"",
+     "detail": "Letters for a Thomas Vance, aged 9, postmarked 1987. Still delivered. There is no Thomas in the phone book.",
+     "value": [
+      0,
+      0
+     ],
+     "known": false,
+     "how": "Check the Vances' mailbox by the lane.",
+     "key": ""
+    },
+    {
+     "id": "Vance_FrontDoor",
+     "kind": "Entry",
+     "title": "Front door",
+     "detail": "Old pin lock. Lockpicks get you in in about seven seconds.",
+     "value": [
+      0,
+      0
+     ],
+     "known": true,
+     "how": "",
+     "key": ""
+    },
+    {
+     "id": "Vance_BackDoor",
+     "kind": "Entry",
+     "title": "Back door (kitchen)",
+     "detail": "Sticks. A crowbar opens it, loudly. The glass panel can be cut quietly.",
+     "value": [
+      0,
+      0
+     ],
+     "known": true,
+     "how": "",
+     "key": ""
+    },
+    {
+     "id": "Vance_SpareKey",
+     "kind": "Entry",
+     "title": "Spare key under the garden gnome",
+     "detail": "Taken by day: the crew walks in through the front door at night, no picking.",
+     "value": [
+      0,
+      0
+     ],
+     "known": false,
+     "how": "Look under the garden gnome by the porch.",
+     "key": "VanceSpareKey"
+    },
+    {
+     "id": "Vance_Neighbour",
+     "kind": "Security",
+     "title": "Mr Pruitt next door",
+     "detail": "Sleeps lightly. If he hears something he comes out with a torch to look - and calls the police if he sees anyone. Stay out of his light, or be gone before he gets there.",
+     "value": [
+      0,
+      0
+     ],
+     "known": true,
+     "how": "",
+     "key": ""
+    },
+    {
+     "id": "Vance_Patrol",
+     "kind": "Security",
+     "title": "Night patrol",
+     "detail": "A patrol car drives down Ashgrove Lane some nights. Do not be standing on the lawn when it passes.",
+     "value": [
+      0,
+      0
+     ],
+     "known": true,
+     "how": "",
+     "key": ""
+    },
+    {
+     "id": "Vance_NoAlarm",
+     "kind": "Security",
+     "title": "No alarm, no dog",
+     "detail": "No alarm box on the wall, no dog bowl. The upstairs lights go out around eleven.",
+     "value": [
+      0,
+      0
+     ],
+     "known": false,
+     "how": "Watch the house by day from the bench across Ashgrove Lane.",
+     "key": ""
+    },
+    {
+     "id": "Vance_Basement",
+     "kind": "Note",
+     "title": "Basement - stay out of it",
+     "detail": "The crew who cased it before you wrote this on the plan. The house gets angrier down there.",
+     "value": [
+      0,
+      0
+     ],
+     "known": true,
+     "how": "",
+     "key": ""
+    }
+   ],
+   "floor_plan": "T_Blueprint_Vance"
   },
   {
    "id": "JOB_Rectory",
@@ -1806,7 +2030,36 @@
    "min_haul": 3000,
    "target_item": "",
    "aggression": 1.3,
-   "house": "HH_House_Rectory"
+   "house": "HH_House_Rectory",
+   "intel": [
+    {
+     "id": "Rectory_Safe",
+     "kind": "Valuable",
+     "title": "Collection money",
+     "detail": "Vestry safe, until Monday.",
+     "value": [
+      2000,
+      3500
+     ],
+     "known": true,
+     "how": "",
+     "key": ""
+    },
+    {
+     "id": "Rectory_Doyle",
+     "kind": "Owner",
+     "title": "Father Doyle",
+     "detail": "Old, half deaf. Talks to someone in the empty church at night.",
+     "value": [
+      0,
+      0
+     ],
+     "known": true,
+     "how": "",
+     "key": ""
+    }
+   ],
+   "floor_plan": ""
   },
   {
    "id": "JOB_Marrow",
@@ -1831,7 +2084,36 @@
    "min_haul": 5000,
    "target_item": "",
    "aggression": 1.6,
-   "house": "HH_House_Marrow"
+   "house": "HH_House_Marrow",
+   "intel": [
+    {
+     "id": "Marrow_Study",
+     "kind": "Valuable",
+     "title": "The study sketch",
+     "detail": "Upstairs study - \"The Lantern Bearer\" sketch.",
+     "value": [
+      3000,
+      5000
+     ],
+     "known": true,
+     "how": "",
+     "key": ""
+    },
+    {
+     "id": "Marrow_Empty",
+     "kind": "Owner",
+     "title": "Nobody",
+     "detail": "Empty since 1974. The family left everything behind.",
+     "value": [
+      0,
+      0
+     ],
+     "known": true,
+     "how": "",
+     "key": ""
+    }
+   ],
+   "floor_plan": ""
   },
   {
    "id": "JOB_Whitlock",
@@ -1856,7 +2138,9 @@
    "min_haul": 8000,
    "target_item": "",
    "aggression": 2.0,
-   "house": ""
+   "house": "",
+   "intel": [],
+   "floor_plan": ""
   }
  ],
  "loot": [

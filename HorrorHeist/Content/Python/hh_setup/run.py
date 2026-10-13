@@ -5,7 +5,7 @@ import traceback
 
 import unreal
 
-from . import data, importers, level, materials
+from . import data, importers, level, materials, version
 from . import util as U
 
 STEPS = [
@@ -21,7 +21,7 @@ REPORT = 'HHSetup_Report.txt'
 
 
 def _reload():
-    for mod in (U, importers, materials, data, level):
+    for mod in (U, version, importers, materials, data, level):
         importlib.reload(mod)
 
 

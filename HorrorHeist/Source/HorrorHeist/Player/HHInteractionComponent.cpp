@@ -54,7 +54,7 @@ void UHHInteractionComponent::UpdateFocus()
 {
 	const AHHCharacter* Character = Cast<AHHCharacter>(GetOwner());
 	UWorld* World = GetWorld();
-	if (!Character || !World || bSuspended)
+	if (!Character || !World || bSuspended || Character->IsSeated() || Character->IsArrested())
 	{
 		SetFocus(nullptr);
 		return;

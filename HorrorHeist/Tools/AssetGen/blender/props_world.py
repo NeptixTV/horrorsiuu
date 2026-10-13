@@ -3762,6 +3762,39 @@ def car_pickup_black():
     return _car('SM_Car_Pickup_Black', 'MI_Car_Paint_Black', 'pickup')
 
 
+@wprop('SM_Car_Police', 'Vehicles', 'box', 'nature', size=(1.8, 4.7, 1.6))
+def car_police():
+    """Hollowmere patrol car: the black sedan with white doors, a light bar and a push bar.
+    Front at -Y like the other cars (HHPoliceCar turns it onto +X)."""
+    b = _car('SM_Car_Police', 'MI_Car_Paint_Black', 'sedan')
+    c = CAR_TYPES['sedan']
+    hw = c['W'] / 2
+    d0, d1, d2 = c['doors']
+    belt = c['cabin'][0][1]
+    roof = max(z for _, z in c['cabin'])
+    lo, hi = _bounds(b)
+    cy = (lo.y + hi.y) / 2
+    for sx in (-1, 1):
+        # White door panels between the arches, below the windows.
+        b.box((0.012, (d2 - d0) - 0.04, belt - c['rocker'] - 0.1), (sx * (hw + 0.002), cy + (d0 + d2) / 2,
+              (belt + c['rocker']) / 2 + 0.02), 'MI_Car_Paint_White', bevel=0.004)
+        # A black stripe across the white (the badge line).
+        b.box((0.014, (d2 - d0) - 0.2, 0.06), (sx * (hw + 0.004), cy + (d0 + d2) / 2, belt - 0.16), 'MI_Plastic_Black')
+    # Light bar: red (left) and blue (right) on a black base.
+    zb = roof + 0.02 + (hi.z - roof if hi.z < roof else 0.0)
+    b.box((1.25, 0.28, 0.06), (0, cy + 0.1, zb + 0.03), 'MI_Plastic_Black', bevel=0.01)
+    for sx, mat in ((-1, 'MI_Emit_Red'), (1, 'MI_Emit_Blue')):
+        b.box((0.5, 0.24, 0.09), (sx * 0.31, cy + 0.1, zb + 0.105), mat, bevel=0.02)
+    b.box((0.08, 0.24, 0.07), (0, cy + 0.1, zb + 0.095), 'MI_Plastic_White', bevel=0.01)
+    # Push bar on the front bumper.
+    yf = lo.y
+    for sx in (-1, 1):
+        b.box((0.06, 0.06, 0.42), (sx * 0.32, yf - 0.05, 0.62), 'MI_Metal_Black', bevel=0.01)
+    b.box((0.76, 0.06, 0.06), (0, yf - 0.05, 0.8), 'MI_Metal_Black', bevel=0.01)
+    b.box((0.76, 0.06, 0.06), (0, yf - 0.05, 0.48), 'MI_Metal_Black', bevel=0.01)
+    return b
+
+
 # =======================================================================================
 # 5. YARD PROPS, AWNING AND SHOP SIGNS (Props/Town)
 

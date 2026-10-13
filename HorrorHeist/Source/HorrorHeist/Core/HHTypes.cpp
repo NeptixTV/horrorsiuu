@@ -101,11 +101,56 @@ namespace HHText
 	{
 		switch (Outcome)
 		{
-		case EHHMissionOutcome::Success:	return LOCTEXT("OutcomeSuccess", "Clean getaway");
-		case EHHMissionOutcome::Partial:	return LOCTEXT("OutcomePartial", "Got away light");
-		case EHHMissionOutcome::Caught:		return LOCTEXT("OutcomeCaught", "Caught");
-		case EHHMissionOutcome::Abandoned:	return LOCTEXT("OutcomeAbandoned", "Job abandoned");
-		default:							return FText::GetEmpty();
+		case EHHMissionOutcome::Success:		return LOCTEXT("OutcomeSuccess", "Clean getaway");
+		case EHHMissionOutcome::Partial:		return LOCTEXT("OutcomePartial", "Got away light");
+		case EHHMissionOutcome::Caught:			return LOCTEXT("OutcomeCaught", "Busted");
+		case EHHMissionOutcome::Abandoned:		return LOCTEXT("OutcomeAbandoned", "Job abandoned");
+		case EHHMissionOutcome::HotGetaway:		return LOCTEXT("OutcomeHot", "Hot getaway");
+		case EHHMissionOutcome::ChaseBusted:	return LOCTEXT("OutcomeChaseBusted", "Boxed in");
+		default:								return FText::GetEmpty();
+		}
+	}
+
+	FText OutcomeLine(EHHMissionOutcome Outcome)
+	{
+		switch (Outcome)
+		{
+		case EHHMissionOutcome::Success:		return LOCTEXT("LineSuccess", "In and out. Nobody saw a thing.");
+		case EHHMissionOutcome::Partial:		return LOCTEXT("LinePartial", "You got away - with less than the client asked for.");
+		case EHHMissionOutcome::Caught:			return LOCTEXT("LineCaught", "Blue lights in the driveway. The night ended in a cell.");
+		case EHHMissionOutcome::Abandoned:		return LOCTEXT("LineAbandoned", "Some houses aren't worth it. The crew walked away.");
+		case EHHMissionOutcome::HotGetaway:		return LOCTEXT("LineHot", "The police were called, but the van made it. The goods are hot - the fence takes more.");
+		case EHHMissionOutcome::ChaseBusted:	return LOCTEXT("LineChase", "The patrol car cut the van off. Everything in it is evidence now.");
+		default:								return FText::GetEmpty();
+		}
+	}
+
+	bool IsGetaway(EHHMissionOutcome Outcome)
+	{
+		return Outcome == EHHMissionOutcome::Success || Outcome == EHHMissionOutcome::Partial || Outcome == EHHMissionOutcome::HotGetaway;
+	}
+
+	FText CrewFateName(EHHCrewFate Fate)
+	{
+		switch (Fate)
+		{
+		case EHHCrewFate::Escaped:		return LOCTEXT("FateEscaped", "Made it");
+		case EHHCrewFate::LeftBehind:	return LOCTEXT("FateLeft", "Left behind");
+		case EHHCrewFate::Caught:		return LOCTEXT("FateCaught", "Arrested");
+		case EHHCrewFate::Gone:			return LOCTEXT("FateGone", "Disconnected");
+		default:						return FText::GetEmpty();
+		}
+	}
+
+	FText IntelKindName(EHHIntelKind Kind)
+	{
+		switch (Kind)
+		{
+		case EHHIntelKind::Owner:		return LOCTEXT("IntelOwner", "The owners");
+		case EHHIntelKind::Valuable:	return LOCTEXT("IntelValuable", "Valuables");
+		case EHHIntelKind::Entry:		return LOCTEXT("IntelEntry", "Ways in");
+		case EHHIntelKind::Security:	return LOCTEXT("IntelSecurity", "Security");
+		default:						return LOCTEXT("IntelNote", "Notes");
 		}
 	}
 

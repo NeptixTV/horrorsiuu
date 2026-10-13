@@ -2,6 +2,7 @@
 import unreal
 
 from . import util as U
+from .version import CONTENT_VERSION
 
 DATA = U.ROOT + '/Data'
 
@@ -21,7 +22,8 @@ def _set(obj, **values):
         try:
             obj.set_editor_property(key, value)
         except Exception as exc:  # noqa: BLE001
-            U.warn(f'{obj.get_name()}.{key}: {exc}')
+            owner = obj.get_name() if hasattr(obj, 'get_name') else type(obj).__name__
+            U.warn(f'{owner}.{key}: {exc}')
 
 
 def _item_common(asset, entry, order):
@@ -134,6 +136,20 @@ def build_missions(cat):
                 _set_map(a, e['map'])
             else:
                 U.warn(f"{e['id']}: map {e['map']} does not exist yet (run the Level step, then Data again)")
+        plan = U.find(e.get('floor_plan'), required=False) if e.get('floor_plan') else None
+        if plan is not None:
+            _set(a, floor_plan=plan)
+        _set(a, intel=[_intel(i) for i in e.get('intel', [])])
+
+
+def _intel(i):
+    """FHHJobIntel from a catalog entry (see catalog.py INTEL)."""
+    s = unreal.HHJobIntel()
+    _set(s, intel_id=unreal.Name(i['id']), kind=U.enum_value('EHHIntelKind', i['kind']), title=unreal.Text(i['title']),
+         detail=unreal.Text(i['detail']), value_min=int(i['value'][0]), value_max=int(i['value'][1]),
+         known_from_start=bool(i['known']), how_to_learn=unreal.Text(i.get('how', '')),
+         key_id=unreal.Name(i.get('key') or 'None'))
+    return s
 
 
 def build_character():
@@ -151,6 +167,10 @@ def build_character():
 def build_game_data(cat, character):
     a = _asset('DA_GameData', DATA, unreal.HHGameData)
     d = cat['defaults']
+    try:
+        a.set_editor_property('content_version', CONTENT_VERSION)
+    except Exception as exc:  # noqa: BLE001 - editor binary older than the scripts
+        U.warn(f'DA_GameData: could not stamp content version {CONTENT_VERSION} ({exc}). Recompile the project.')
     _set(a, default_character=character, starting_cash=int(d['starting_cash']),
          default_cosmetics=[unreal.Name(v) for v in d['cosmetics'].values()],
          default_equipment=[unreal.Name(v) for v in d['equipment'].values()])

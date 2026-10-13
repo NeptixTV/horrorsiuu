@@ -47,6 +47,7 @@ public:
 	bool IsRevealed() const { return bRevealed; }
 	int32 GetValue() const { return Value; }
 	bool IsKey() const { return !KeyId.IsNone(); }
+	FName GetKeyId() const { return KeyId; }
 
 protected:
 	void ApplyDefinition();
