@@ -200,6 +200,17 @@ void AHHHeistGameMode::FindWorldActors()
 	Van = AHHVanVehicle::Get(this);
 	Police = AHHPoliceCar::Get(this);
 	Neighbour = AHHNeighbourNPC::Get(this);
+	ResolveEscapeZone();
+	HouseCenter = HouseVolumes.Num() > 0 ? Sum / HouseVolumes.Num() : (Van.IsValid() ? Van->GetActorLocation() : FVector::ZeroVector);
+}
+
+void AHHHeistGameMode::ResolveEscapeZone()
+{
+	if (Escape.IsValid())
+	{
+		return;
+	}
+	// The zones live in the streamed town; look again later if it is not there yet.
 	Escape = AHHEscapeZone::Find(this, SafehouseId);
 	if (!Escape.IsValid())
 	{
@@ -212,7 +223,13 @@ void AHHHeistGameMode::FindWorldActors()
 			SafehouseId = Escape->GetZoneId();
 		}
 	}
-	HouseCenter = HouseVolumes.Num() > 0 ? Sum / HouseVolumes.Num() : (Van.IsValid() ? Van->GetActorLocation() : FVector::ZeroVector);
+	if (Escape.IsValid())
+	{
+		if (AHHHeistGameState* HeistState = GetHeistState())
+		{
+			HeistState->SetSafehouse(Escape->GetZoneId());
+		}
+	}
 }
 
 void AHHHeistGameMode::ApplyKnownIntel()
@@ -308,7 +325,7 @@ void AHHHeistGameMode::SetupObjectives()
 		Add(HHHeistIds::Key, LOCTEXT("ObjKey", "Optional: find the spare key"), true);
 	}
 
-	if (Van.IsValid() && Escape.IsValid())
+	if (Van.IsValid())
 	{
 		bHasEscapeObjective = true;
 		Add(HHHeistIds::Escape, FText::GetEmpty(), false);
@@ -323,14 +340,16 @@ void AHHHeistGameMode::SetupObjectives()
 void AHHHeistGameMode::UpdateEscapeObjective()
 {
 	AHHHeistGameState* HeistState = GetHeistState();
-	if (!HeistState || !bHasEscapeObjective || !Escape.IsValid())
+	if (!HeistState || !bHasEscapeObjective)
 	{
 		return;
 	}
+	ResolveEscapeZone();
+	const FText Where = Escape.IsValid() ? Escape->GetDisplayName() : LOCTEXT("TheSpot", "the getaway spot");
 	const FText Text = HeistState->IsPoliceCalled()
-		? FText::Format(LOCTEXT("ObjEscapePolice", "Police! Everyone into the van - drive to {0}"), Escape->GetDisplayName())
+		? FText::Format(LOCTEXT("ObjEscapePolice", "Police! Everyone into the van - drive to {0}"), Where)
 		: FText::Format(LOCTEXT("ObjEscapeDrive", "Get away: everyone into the van, drive to {0} ({1}/{2} in the van)"),
-			Escape->GetDisplayName(), FText::AsNumber(HeistState->GetCrewAtVan()), FText::AsNumber(HeistState->GetCrewTotal()));
+			Where, FText::AsNumber(HeistState->GetCrewAtVan()), FText::AsNumber(HeistState->GetCrewTotal()));
 	HeistState->UpdateObjective(HHHeistIds::Escape, &Text, nullptr);
 }
 

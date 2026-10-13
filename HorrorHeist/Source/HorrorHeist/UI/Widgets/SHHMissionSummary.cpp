@@ -347,7 +347,7 @@ TSharedRef<SWidget> SHHMissionSummary::BuildCrew()
 	for (int32 Index = 0; Index < Summary.Crew.Num(); ++Index)
 	{
 		const FHHCrewRecord& Record = Summary.Crew[Index];
-		const FLinearColor FateColor = HHSummary::FateColor(Record.Fate);
+		const FLinearColor FateTint = HHSummary::FateColor(Record.Fate);
 		FText Detail;
 		if (Record.Fate == EHHCrewFate::Caught)
 		{
@@ -393,7 +393,7 @@ TSharedRef<SWidget> SHHMissionSummary::BuildCrew()
 					]
 					+ SHorizontalBox::Slot().AutoWidth().VAlign(VAlign_Center).Padding(12.f, 0.f, 0.f, 0.f)
 					[
-						HHUI::Pill(HHText::CrewFateName(Record.Fate).ToUpper(), FateColor)
+						HHUI::Pill(HHText::CrewFateName(Record.Fate).ToUpper(), FateTint)
 					]
 				], CrewStart + Index * 0.4f, 0.3f, FVector2D(40.0, 0.0))
 		];

@@ -69,6 +69,7 @@ public:
 protected:
 	void ResolveMission(const FString& Options);
 	void FindWorldActors();
+	void ResolveEscapeZone();
 	void ApplyKnownIntel();
 	void SetupObjectives();
 	void TickRules();
