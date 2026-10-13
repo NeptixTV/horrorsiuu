@@ -4235,7 +4235,7 @@
   "nanite": false
  },
  "SM_Town_Gravestones": {
-  "collision": "box",
+  "collision": "complex",
   "file": "SourceArt/Meshes/Town/SM_Town_Gravestones.fbx",
   "folder": "Town",
   "hash": "6f5304ff4d4ca63beb799d50a420dedf2609fbe4",
@@ -4717,7 +4717,7 @@
   "nanite": false
  },
  "SM_Town_RampRail": {
-  "collision": "box",
+  "collision": "complex",
   "file": "SourceArt/Meshes/Town/SM_Town_RampRail.fbx",
   "folder": "Town",
   "hash": "2df23c11203006dce0071a611ae1a6f35929c091",
