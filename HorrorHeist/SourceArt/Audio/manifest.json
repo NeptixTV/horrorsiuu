@@ -1808,5 +1808,225 @@
   "caption": "[The neighbour: \"Hey! Who's out there?\"]",
   "volume": 1.0,
   "seconds": 0.85
+ },
+ {
+  "file": "SourceArt/Audio/Ambience/A_Haunt_Hum_01.wav",
+  "category": "Dialogue",
+  "loop": false,
+  "spatial": true,
+  "radius": 1800,
+  "caption": "[Someone is humming a lullaby]",
+  "volume": 1.0,
+  "seconds": 11.7
+ },
+ {
+  "file": "SourceArt/Audio/Ambience/A_Haunt_Giggle_01.wav",
+  "category": "Dialogue",
+  "loop": false,
+  "spatial": true,
+  "radius": 2000,
+  "caption": "[A child giggles]",
+  "volume": 1.0,
+  "seconds": 1.6
+ },
+ {
+  "file": "SourceArt/Audio/Ambience/A_Haunt_Crying_01.wav",
+  "category": "Dialogue",
+  "loop": false,
+  "spatial": true,
+  "radius": 1600,
+  "caption": "[Someone is crying quietly]",
+  "volume": 1.0,
+  "seconds": 5.5
+ },
+ {
+  "file": "SourceArt/Audio/Ambience/A_Haunt_Scratch_01.wav",
+  "category": "Ambient",
+  "loop": false,
+  "spatial": true,
+  "radius": 1400,
+  "caption": "[Scratching inside the wall]",
+  "volume": 1.0,
+  "seconds": 4.2
+ },
+ {
+  "file": "SourceArt/Audio/Ambience/A_Haunt_Phone_Ring_Loop.wav",
+  "category": "SFX",
+  "loop": true,
+  "spatial": true,
+  "radius": 2500,
+  "caption": "[A telephone rings]",
+  "volume": 1.0,
+  "seconds": 6.0
+ },
+ {
+  "file": "SourceArt/Audio/SFX/S_Haunt_Phone_Voice_01.wav",
+  "category": "Dialogue",
+  "loop": false,
+  "spatial": true,
+  "radius": 500,
+  "caption": "[A voice on the line: \"...get... out...\"]",
+  "volume": 1.0,
+  "seconds": 3.6
+ },
+ {
+  "file": "SourceArt/Audio/Ambience/A_Haunt_Piano_01.wav",
+  "category": "Ambient",
+  "loop": false,
+  "spatial": true,
+  "radius": 2500,
+  "caption": "[Piano keys, in another room]",
+  "volume": 1.0,
+  "seconds": 6.5
+ },
+ {
+  "file": "SourceArt/Audio/Ambience/A_Haunt_Faucet_Loop.wav",
+  "category": "Ambient",
+  "loop": true,
+  "spatial": true,
+  "radius": 1200,
+  "caption": "[A tap is running]",
+  "volume": 1.0,
+  "seconds": 4.0
+ },
+ {
+  "file": "SourceArt/Audio/SFX/S_Haunt_Touch_01.wav",
+  "category": "SFX",
+  "loop": false,
+  "spatial": true,
+  "radius": 400,
+  "caption": "[Something touches your shoulder]",
+  "volume": 1.0,
+  "seconds": 1.8
+ },
+ {
+  "file": "SourceArt/Audio/SFX/S_Haunt_Scream_01.wav",
+  "category": "SFX",
+  "loop": false,
+  "spatial": true,
+  "radius": 1500,
+  "caption": "[A scream, right in your face]",
+  "volume": 1.0,
+  "seconds": 1.3
+ },
+ {
+  "file": "SourceArt/Audio/SFX/S_Haunt_Growl_01.wav",
+  "category": "SFX",
+  "loop": false,
+  "spatial": true,
+  "radius": 1200,
+  "caption": "[A low growl]",
+  "volume": 1.0,
+  "seconds": 2.0
+ },
+ {
+  "file": "SourceArt/Audio/Ambience/A_Haunt_Rocking_Loop.wav",
+  "category": "Ambient",
+  "loop": true,
+  "spatial": true,
+  "radius": 1200,
+  "caption": "[A rocking chair creaks]",
+  "volume": 1.0,
+  "seconds": 4.4
+ },
+ {
+  "file": "SourceArt/Audio/Ambience/A_Haunt_Glass_Squeak_01.wav",
+  "category": "Ambient",
+  "loop": false,
+  "spatial": true,
+  "radius": 1200,
+  "caption": "[Something squeaks across the glass]",
+  "volume": 1.0,
+  "seconds": 1.3
+ },
+ {
+  "file": "SourceArt/Audio/Ambience/A_Haunt_Writing_01.wav",
+  "category": "Ambient",
+  "loop": false,
+  "spatial": true,
+  "radius": 1200,
+  "caption": "[Scratching on the wall]",
+  "volume": 1.0,
+  "seconds": 2.8
+ },
+ {
+  "file": "SourceArt/Audio/SFX/S_Haunt_Throw_Book_01.wav",
+  "category": "SFX",
+  "loop": false,
+  "spatial": true,
+  "radius": 2200,
+  "caption": "[Something crashes to the floor]",
+  "volume": 1.0,
+  "seconds": 1.4
+ },
+ {
+  "file": "SourceArt/Audio/SFX/S_Haunt_Throw_Mug_01.wav",
+  "category": "SFX",
+  "loop": false,
+  "spatial": true,
+  "radius": 2200,
+  "caption": "[Something crashes to the floor]",
+  "volume": 1.0,
+  "seconds": 1.4
+ },
+ {
+  "file": "SourceArt/Audio/SFX/S_Haunt_Throw_Frame_01.wav",
+  "category": "SFX",
+  "loop": false,
+  "spatial": true,
+  "radius": 2200,
+  "caption": "[Something crashes to the floor]",
+  "volume": 1.0,
+  "seconds": 1.4
+ },
+ {
+  "file": "SourceArt/Audio/Ambience/A_Haunt_Step_Close_01.wav",
+  "category": "Ambient",
+  "loop": false,
+  "spatial": true,
+  "radius": 1500,
+  "caption": "",
+  "volume": 1.0,
+  "seconds": 0.6
+ },
+ {
+  "file": "SourceArt/Audio/Ambience/A_Haunt_Step_Close_02.wav",
+  "category": "Ambient",
+  "loop": false,
+  "spatial": true,
+  "radius": 1500,
+  "caption": "",
+  "volume": 1.0,
+  "seconds": 0.6
+ },
+ {
+  "file": "SourceArt/Audio/Ambience/A_Haunt_Step_Close_03.wav",
+  "category": "Ambient",
+  "loop": false,
+  "spatial": true,
+  "radius": 1500,
+  "caption": "",
+  "volume": 1.0,
+  "seconds": 0.6
+ },
+ {
+  "file": "SourceArt/Audio/Ambience/A_Haunt_Step_Close_04.wav",
+  "category": "Ambient",
+  "loop": false,
+  "spatial": true,
+  "radius": 1500,
+  "caption": "",
+  "volume": 1.0,
+  "seconds": 0.6
+ },
+ {
+  "file": "SourceArt/Audio/Ambience/A_Swing_Creak_Loop.wav",
+  "category": "Ambient",
+  "loop": true,
+  "spatial": true,
+  "radius": 2000,
+  "caption": "[A swing creaks]",
+  "volume": 1.0,
+  "seconds": 3.6
  }
 ]
