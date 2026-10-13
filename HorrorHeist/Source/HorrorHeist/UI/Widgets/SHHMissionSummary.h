@@ -35,7 +35,6 @@ private:
 
 	/** 0..1 eased progress of a span. */
 	float Progress(float Start, float Duration) const;
-	void Cue(float At, EHHUISound Sound);
 
 	FHHMissionSummary Summary;
 	TWeakObjectPtr<AHHLobbyHUD> HUD;

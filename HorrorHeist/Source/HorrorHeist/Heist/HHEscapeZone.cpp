@@ -40,11 +40,11 @@ TArray<AHHEscapeZone*> AHHEscapeZone::GetAll(const UObject* WorldContextObject)
 	return Result;
 }
 
-AHHEscapeZone* AHHEscapeZone::Find(const UObject* WorldContextObject, FName ZoneId)
+AHHEscapeZone* AHHEscapeZone::Find(const UObject* WorldContextObject, FName InZoneId)
 {
 	for (AHHEscapeZone* Candidate : GetAll(WorldContextObject))
 	{
-		if (Candidate->ZoneId == ZoneId)
+		if (Candidate->ZoneId == InZoneId)
 		{
 			return Candidate;
 		}

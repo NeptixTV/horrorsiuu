@@ -1279,7 +1279,7 @@ void AHHHeistGameMode::EndMission(EHHMissionOutcome Outcome)
 	// Roll call: who was in the van, who was left behind, who was taken away.
 	const AHHVanVehicle* TheVan = Van.Get();
 	int32 LostCarried = 0;
-	for (const AHHPlayerState* State : Crew)
+	for (AHHPlayerState* State : Crew)
 	{
 		FHHCrewRecord Record;
 		Record.Name = State->GetPlayerName();

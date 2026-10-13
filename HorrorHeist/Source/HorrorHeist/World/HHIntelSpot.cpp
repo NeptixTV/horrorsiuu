@@ -118,12 +118,12 @@ void AHHIntelSpot::Interact(AActor* Interactor)
 	const UHHMissionDefinition* Mission = nullptr;
 	for (const FName Id : IntelIds)
 	{
-		const UHHMissionDefinition* Owner = nullptr;
-		const FHHJobIntel* Intel = Registry->FindIntel(Id, &Owner);
+		const UHHMissionDefinition* IntelMission = nullptr;
+		const FHHJobIntel* Intel = Registry->FindIntel(Id, &IntelMission);
 		if (Intel && State->LearnIntel(Id))
 		{
 			Learned.Add(Intel->Title);
-			Mission = Owner;
+			Mission = IntelMission;
 		}
 	}
 	if (Learned.Num() == 0)

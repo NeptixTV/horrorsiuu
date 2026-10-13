@@ -22,7 +22,7 @@ public:
 
 	/** All zones in the world, by SortOrder. */
 	static TArray<AHHEscapeZone*> GetAll(const UObject* WorldContextObject);
-	static AHHEscapeZone* Find(const UObject* WorldContextObject, FName ZoneId);
+	static AHHEscapeZone* Find(const UObject* WorldContextObject, FName InZoneId);
 
 	bool ContainsPoint(const FVector& Point) const;
 
