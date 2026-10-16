@@ -153,6 +153,9 @@ public:
 	/** As if the thing in the house caught you: down, and dead if you already were (host, on a job). */
 	UFUNCTION(Exec)
 	void HHKnockDown();
+	/** The morning after at the Vance house (host, in the hideout): 0 none, 1 noticed, 2 police, 3 a death + road closed, 4 haunting. */
+	UFUNCTION(Exec)
+	void HHAftermath(int32 Mode);
 
 protected:
 	void HandleMenuAction();

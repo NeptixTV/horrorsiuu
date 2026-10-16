@@ -789,6 +789,30 @@ void AHHPlayerController::HHKnockDown()
 	}
 }
 
+void AHHPlayerController::HHAftermath(int32 Mode)
+{
+	AHHLobbyGameState* LobbyState = HasAuthority() ? GetWorld()->GetGameState<AHHLobbyGameState>() : nullptr;
+	if (!LobbyState)
+	{
+		return;
+	}
+	FHHAftermath Aftermath;
+	if (Mode > 0)
+	{
+		Aftermath.MissionId = TEXT("JOB_Vance");
+		Aftermath.bNoticed = true;
+		Aftermath.bPolice = Mode == 2 || Mode == 3;
+		Aftermath.bDeath = Mode == 3;
+		Aftermath.bRoadClosed = Mode == 3;
+		Aftermath.bHaunting = Mode == 4;
+	}
+	LobbyState->SetAftermath(Aftermath);
+	if (UHHGameInstance* GameInstance = GetGameInstance<UHHGameInstance>())
+	{
+		GameInstance->SetAftermath(Aftermath);
+	}
+}
+
 void AHHPlayerController::HHSendNeighbour()
 {
 	if (AHHHeistGameMode* HeistMode = HasAuthority() ? GetWorld()->GetAuthGameMode<AHHHeistGameMode>() : nullptr)

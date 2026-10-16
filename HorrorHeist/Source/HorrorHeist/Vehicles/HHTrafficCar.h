@@ -72,6 +72,17 @@ protected:
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Traffic")
 	float StopSignSeconds = 1.6f;
 
+	/** Bends: the lane follows an arc of this radius (cm) through right / left turns. */
+	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Traffic")
+	float RightTurnRadius = 450.f;
+
+	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Traffic")
+	float LeftTurnRadius = 650.f;
+
+	/** Sideways acceleration allowed in a bend (cm/s^2): sets the speed through the arcs. */
+	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Traffic")
+	float BendAcceleration = 300.f;
+
 	/** Comfortable braking (cm/s^2) for planned stops. */
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Traffic")
 	float ComfortBrake = 520.f;
@@ -95,9 +106,15 @@ private:
 		FName FromId;
 		/** Signal axis of the approach (0 = along X, 1 = along Y). */
 		int32 Axis = 0;
+		/** How far beyond this point the junction's centre lies along the approach (cm). */
+		float NodeAhead = 0.f;
+		/** Radius of the arc this point is on (0 = straight). */
+		float Radius = 0.f;
 	};
 
 	TArray<FLanePoint> Lane;
+	/** Lane index of the first point of each route node (spawn spots). */
+	TArray<int32> RouteToLane;
 	int32 Target = 0;
 	/** The stop sign this car already stopped at (cleared once it passes the junction). */
 	int32 ClearedStop = INDEX_NONE;

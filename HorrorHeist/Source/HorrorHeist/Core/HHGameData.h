@@ -51,7 +51,7 @@ public:
 	 * DA_GameData with the version they built (Content/Python/hh_setup/version.py); when the two
 	 * differ, the job board and the editor ask for "Build / Rebuild All Content".
 	 */
-	static constexpr int32 ExpectedContentVersion = 2;
+	static constexpr int32 ExpectedContentVersion = 3;
 
 	/** Content version written by the setup scripts (0 = built before versioning existed). */
 	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Content")

@@ -81,6 +81,7 @@ bool AHHTrafficCar::WantsToDrive() const
 bool AHHTrafficCar::BuildLane()
 {
 	Lane.Reset();
+	RouteToLane.Reset();
 	TArray<AHHRoadNode*> Nodes;
 	for (const FName& Id : Route)
 	{
@@ -99,10 +100,12 @@ bool AHHTrafficCar::BuildLane()
 		const AHHRoadNode* Previous = Nodes[(Index + Count - 1) % Count];
 		const AHHRoadNode* Next = Nodes[(Index + 1) % Count];
 		const FVector Here = Nodes[Index]->GetActorLocation();
-		const FVector In = (Here - Previous->GetActorLocation()).GetSafeNormal2D();
-		const FVector Out = (Next->GetActorLocation() - Here).GetSafeNormal2D();
+		const FVector FromPrevious = Here - Previous->GetActorLocation();
+		const FVector ToNext = Next->GetActorLocation() - Here;
+		const FVector In = FromPrevious.GetSafeNormal2D();
+		const FVector Out = ToNext.GetSafeNormal2D();
 		// Right-hand traffic: the lane runs LaneOffset to the right of the node line; at a bend the
-		// lane point sits on the bisector of both offset lines.
+		// two offset lines meet on the bisector.
 		const FVector RightIn = FVector::CrossProduct(FVector::UpVector, In);
 		const FVector RightOut = FVector::CrossProduct(FVector::UpVector, Out);
 		FVector Bisector = RightIn + RightOut;
@@ -116,12 +119,46 @@ bool AHHTrafficCar::BuildLane()
 			Bisector.Normalize();
 			Scale = 1.f / FMath::Max(0.35f, FVector::DotProduct(Bisector, RightIn));
 		}
-		FLanePoint Point;
-		Point.Location = Here + Bisector * LaneOffset * Scale;
-		Point.Node = Nodes[Index];
-		Point.FromId = Previous->GetNodeId();
-		Point.Axis = FMath::Abs(In.X) >= FMath::Abs(In.Y) ? 0 : 1;
-		Lane.Add(Point);
+		const FVector Corner = Here + Bisector * LaneOffset * Scale;
+
+		FLanePoint First;
+		First.Node = Nodes[Index];
+		First.FromId = Previous->GetNodeId();
+		First.Axis = FMath::Abs(In.X) >= FMath::Abs(In.Y) ? 0 : 1;
+		RouteToLane.Add(Lane.Num());
+
+		const float Turn = FMath::Acos(FMath::Clamp(FVector::DotProduct(In, Out), -1.f, 1.f));
+		if (FMath::RadiansToDegrees(Turn) <= 30.f)
+		{
+			First.Location = Corner;
+			First.NodeAhead = FVector::DotProduct((Here - Corner) * FVector(1.f, 1.f, 0.f), In);
+			Lane.Add(First);
+			continue;
+		}
+		// A bend: replace the corner by an arc tangent to both lanes (a car cannot turn on the spot).
+		const bool bRightTurn = In.X * Out.Y - In.Y * Out.X > 0.f;
+		const float HalfTan = FMath::Tan(Turn * 0.5f);
+		float Tangent = (bRightTurn ? RightTurnRadius : LeftTurnRadius) * HalfTan;
+		Tangent = FMath::Min3(Tangent, 0.45f * FromPrevious.Size2D(), 0.45f * ToNext.Size2D());
+		const float Radius = Tangent / FMath::Max(HalfTan, 0.01f);
+		const FVector Start = Corner - In * Tangent;
+		const FVector Side = bRightTurn ? RightIn : -RightIn;
+		const FVector Centre = Start + Side * Radius;
+		const float StartAngle = FMath::Atan2(Start.Y - Centre.Y, Start.X - Centre.X);
+		const float Sign = bRightTurn ? 1.f : -1.f;
+		constexpr int32 Steps = 4;
+		for (int32 Step = 0; Step <= Steps; ++Step)
+		{
+			const float Angle = StartAngle + Sign * Turn * Step / Steps;
+			FLanePoint Point = Step == 0 ? First : FLanePoint();
+			Point.Location = FVector(Centre.X + Radius * FMath::Cos(Angle), Centre.Y + Radius * FMath::Sin(Angle), Corner.Z);
+			Point.Radius = Radius;
+			if (Step == 0)
+			{
+				Point.NodeAhead = FVector::DotProduct((Here - Point.Location) * FVector(1.f, 1.f, 0.f), In);
+			}
+			Lane.Add(Point);
+		}
 	}
 	return true;
 }
@@ -151,10 +188,11 @@ bool AHHTrafficCar::IsNearAnyPlayer(const FVector& Location, float Radius) const
 
 bool AHHTrafficCar::FindSpawnSpot(int32& OutIndex) const
 {
-	const int32 Count = Lane.Num();
+	// Spawn spots are the route's nodes (the first lane point of each), from StartIndex on.
+	const int32 Count = RouteToLane.Num();
 	for (int32 Step = 0; Step < Count; ++Step)
 	{
-		const int32 Index = (FMath::Max(0, StartIndex) + Step) % Count;
+		const int32 Index = RouteToLane[(FMath::Max(0, StartIndex) + Step) % Count];
 		const FVector Spot = Lane[Index].Location;
 		if (IsNearAnyPlayer(Spot, 3500.f))
 		{
@@ -245,12 +283,12 @@ float AHHTrafficCar::GetFreeDistance(float LookAhead, bool& bOutBlockedByPlayer)
 	const FVector SegmentEnd = Lane[Target].Location;
 	float Along = FVector::Dist2D(Location, SegmentEnd);
 	const float Now = GetServerTime();
-	for (int32 Step = 0; Step < 3 && Along - Front < LookAhead + StopLineDistance; ++Step)
+	for (int32 Step = 0; Step < 12 && Along - Front < LookAhead + StopLineDistance + 1000.f; ++Step)
 	{
 		const int32 Index = (Target + Step) % Count;
 		const FLanePoint& Point = Lane[Index];
 		const AHHRoadNode* Node = Point.Node.Get();
-		const float ToLine = Along - Front - (Node ? Node->GetStopLine() : StopLineDistance);
+		const float ToLine = Along + Point.NodeAhead - Front - (Node ? Node->GetStopLine() : StopLineDistance);
 		if (Node)
 		{
 			if (Node->GetControl() == EHHTrafficControl::Lights && ToLine > -60.f)
@@ -436,15 +474,21 @@ void AHHTrafficCar::TickAI(float DeltaSeconds)
 	const float Delta = FMath::FindDeltaAngleDegrees(GetActorRotation().Yaw, DesiredYaw);
 	AISteer = FMath::Clamp(Delta / 25.f, -1.f, 1.f);
 
-	// How fast: cruise, slower into bends, and able to stop where the way ahead ends.
+	// How fast: cruise, slow enough for the next arc, and able to stop where the way ahead ends.
 	float Wanted = CruiseSpeed;
-	const FVector NextDirection = (Lane[(Target + 1) % Count].Location - B).GetSafeNormal2D();
-	const float Bend = FMath::RadiansToDegrees(FMath::Acos(FMath::Clamp(FVector::DotProduct(SegmentDirection, NextDirection), -1.f, 1.f)));
-	if (Bend > 30.f)
 	{
-		const float ToBend = FVector::Dist2D(Location, B);
-		const float BendSpeed = Bend > 60.f ? 420.f : 600.f;
-		Wanted = FMath::Min(Wanted, FMath::Sqrt(FMath::Square(BendSpeed) + 2.f * ComfortBrake * FMath::Max(0.f, ToBend - 400.f)));
+		float ToBend = FVector::Dist2D(Location, B);
+		for (int32 Step = 0; Step < 6; ++Step)
+		{
+			const FLanePoint& Point = Lane[(Target + Step) % Count];
+			if (Point.Radius > 0.f)
+			{
+				const float BendSpeed = FMath::Sqrt(BendAcceleration * Point.Radius);
+				Wanted = FMath::Min(Wanted, FMath::Sqrt(FMath::Square(BendSpeed) + 2.f * ComfortBrake * FMath::Max(0.f, ToBend - 100.f)));
+				break;
+			}
+			ToBend += FVector::Dist2D(Point.Location, Lane[(Target + Step + 1) % Count].Location);
+		}
 	}
 	if (FMath::Abs(Delta) > 35.f)
 	{
