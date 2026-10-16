@@ -62,6 +62,12 @@ void AHHApparition::BeginPlay()
 	OnRep_Mode();
 }
 
+void AHHApparition::SetDirector(AHHHauntDirector* InDirector)
+{
+	// Defined here, not inline: assigning to TWeakObjectPtr needs the complete AHHHauntDirector type.
+	Director = InDirector;
+}
+
 void AHHApparition::OnRep_Mode()
 {
 	const bool bVisible = Mode != EHHApparitionMode::Hidden;

@@ -50,7 +50,7 @@ public:
 	EHHApparitionMode GetMode() const { return Mode; }
 	bool IsHunting() const { return Mode == EHHApparitionMode::Hunt; }
 
-	void SetDirector(AHHHauntDirector* InDirector) { Director = InDirector; }
+	void SetDirector(AHHHauntDirector* InDirector);
 
 	/** Server: a camera flash from Eye along Direction - does it catch this in the picture? */
 	bool IsInPhoto(const FVector& Eye, const FVector& Direction) const;
