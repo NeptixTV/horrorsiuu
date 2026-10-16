@@ -3362,7 +3362,7 @@
    ]
   },
   {
-   "name": "SM_Door_Steel_6",
+   "name": "SM_Door_Steel_10",
    "cls": "StaticMeshActor",
    "folder": "Plug",
    "mesh": "SM_Door_Steel",

@@ -12,6 +12,14 @@
 |---|---|---|
 | ![](SourceArt/Previews/Vance_Living.jpg) | ![](SourceArt/Previews/Vance_Master.jpg) | ![](SourceArt/Previews/Town_Marrow.jpg) |
 
+| Die Innenstadt (Draufsicht) | Ampelkreuzung Main/Elm | Hollowmere Savings & Loan |
+|---|---|---|
+| ![](SourceArt/Previews/Downtown_Map.jpg) | ![](SourceArt/Previews/Downtown_Junction.jpg) | ![](SourceArt/Previews/Downtown_Bank.jpg) |
+
+| Pick & Save | Willow Park (Spielplatz) | Der Morgen danach (Tatort) |
+|---|---|---|
+| ![](SourceArt/Previews/Downtown_Market.jpg) | ![](SourceArt/Previews/Downtown_Playground.jpg) | ![](SourceArt/Previews/Aftermath_Vance.jpg) |
+
 *(Vorschau-Renderings aus Blender/Cycles mit einer Taschenlampe an der Kamera; im Spiel rendert Unreal mit Lumen,
 Volumetric Fog, eigenem Tag/Nacht-Himmel und den platzierten Lichtern.)*
 
@@ -26,8 +34,9 @@ der SIL Open Font License (`Content/Slate/Fonts/Licenses`).
 **Voraussetzungen:** Unreal Engine **5.5**, Visual Studio 2022 (17.8+) mit „Spieleentwicklung mit C++“,
 „Desktopentwicklung mit C++“ und „.NET-Desktopentwicklung“ (Windows).
 
-1. **`Build-HorrorHeist.bat`** doppelklicken (findet UE 5.5, erzeugt `HorrorHeist.sln`, kompiliert
-   **HorrorHeistEditor** Win64 Development; Protokoll in **`BuildLog.txt`**).
+1. **`Build-HorrorHeist.bat`** doppelklicken (findet UE 5.5, prüft Visual Studio und den Projektpfad,
+   erzeugt `HorrorHeist.sln`, kompiliert **HorrorHeistEditor** Win64 Development; Protokoll in
+   **`BuildLog.txt`**, nur die Fehler in **`BuildErrors.txt`**). Erst danach `HorrorHeist.uproject` öffnen.
 2. Editor öffnen. Beim **ersten Start** fragt ein Dialog nach dem Aufbau der Inhalte → **Yes**. Das Setup
    (`Content/Python/hh_setup`) importiert alles aus `SourceArt/` (~256 Texturen, 175 Sounds, ~355 statische
    Meshes, 18 Skeletal-Meshes, 6 Animationen), erzeugt Materialien, baut **fünf Maps** (siehe unten) und danach alle Data Assets
@@ -41,8 +50,26 @@ der SIL Open Font License (`Content/Slate/Fonts/Licenses`).
 3. **Play** (Map `L_Hideout`). Multiplayer im Editor: Play-Dropdown → *Number of Players* 2–4,
    *Net Mode* **Play As Listen Server**.
 
+> **„The following modules are missing or built with a different engine version … Would you like to rebuild
+> them now?“** – diese Frage kommt bei jedem C++-Projekt, solange es noch nicht kompiliert ist (die
+> Binärdateien liegen nicht im Repository). Mit **Yes** baut Unreal das Spiel selbst; schlägt das fehl
+> („could not be compiled. Try rebuilding from source manually“), war der Grund bisher unsichtbar. Darum:
+> **`Build-HorrorHeist.bat` starten** – es sagt genau, was fehlt:
+> * **Unreal Engine 5.5 nicht installiert** (bzw. nur 5.4/5.6/5.7) → im Epic Games Launcher 5.5 installieren.
+> * **Visual Studio 2022 mit C++ fehlt** → „Visual Studio 2022 Community“ mit *Spieleentwicklung mit C++*,
+>   *Desktopentwicklung mit C++*, *.NET-Desktopentwicklung* (+ MSVC v143, Windows-SDK) installieren.
+> * **Projektpfad zu lang** (typisch, wenn das GitHub-ZIP im Download-Ordner entpackt wird:
+>   `…\Downloads\horrorsiuu-claude-vibrant-hawking-dxau5o\HorrorHeist\…` – Unreal legt darunter sehr tiefe
+>   Ordner an und scheitert an der 260-Zeichen-Grenze) → den Ordner **`HorrorHeist`** z. B. nach
+>   **`C:\Projekte\HorrorHeist`** verschieben.
+> * **OneDrive-Ordner** (Desktop/Dokumente) → ebenfalls an einen lokalen Pfad verschieben.
+> * **Echte Compilerfehler** → stehen in `BuildErrors.txt`; diese Datei bitte schicken, dann werden sie gezielt
+>   behoben.
+>
+> Läuft das Skript durch, öffnet sich das Projekt per Doppelklick ohne Rückfrage.
+
 > **Nach einem Update immer neu aufbauen.** Die Inhalte (Maps, Jobs, Data Assets) werden lokal aus `SourceArt/`
-> erzeugt und tragen eine **Inhaltsversion** (`DA_GameData`, aktuell **2**). Passt sie nicht zum Code oder fehlen
+> erzeugt und tragen eine **Inhaltsversion** (`DA_GameData`, aktuell **3**). Passt sie nicht zum Code oder fehlen
 > Maps/Jobs, fragt der Editor beim Start: *„The game content was built by an older version …“* → **Yes**.
 > Ohne Neuaufbau haben Jobs keine Map – genau das war der Grund, warum man den Job nicht anpinnen und nicht
 > starten konnte. Die Jobtafel zeigt in diesem Fall jetzt einen roten Hinweis statt still nichts zu tun.
@@ -58,10 +85,19 @@ der SIL Open Font License (`Content/Slate/Fonts/Licenses`).
 | Map | Inhalt |
 |---|---|
 | `L_Hideout` | Persistente Hub-Map: das Versteck im Keller (Jobboard, Werkbank/Loadout, Spiegel/Kosmetik, Hehler-Shop, Überwachungs-Pult, Planungstisch mit dem Grundriss des Vance-Hauses, Spinde) und der **fahrbare Van** in der Garage (Schiebetür = Ready), Uhr/Himmel, Licht. Streamt `L_Town`. |
-| `L_Town` | Die Stadt Hollowmere, als **always-loaded Streaming-Level** in jeder persistenten Map: Main Street mit Waschsalon (über dem Versteck), Brannigan & Sons, Diner, Kleiderladen, Eisenwarenladen, Museum (mit dem Gemälde „The Lantern Bearer“ hinter einem beleuchteten Schaufenster), öffentlicher Parkplatz; Ashgrove Lane, Marrow Street, Church Road mit St.-Agnes-Kirche und Friedhof, Founders' Park mit Pavillon; 9 Nachbarhäuser, die drei Job-Häuser, Laternen, Autos, Bäume, Zäune, Hecken, Hydranten, Briefkästen, Mülltonnen, Schilder, Pfützen/Laub-Decals, unsichtbare Begrenzungswände und Wald am Stadtrand. Dazu: das **Garagen-Rolltor** des Verstecks (öffnet sich, auch per Fernbedienung aus dem Van), **3 Fluchtziele**, ein **Straßennetz** (16 Knoten) für die Polizei, **6 Erkundungspunkte** am Vance-Haus und Mrs Vance am Fenster (tagsüber). |
+| `L_Town` | Die Stadt Hollowmere, als **always-loaded Streaming-Level** in jeder persistenten Map – inzwischen gut doppelt so groß (siehe *Die Stadt lebt*): Main Street mit Waschsalon (über dem Versteck), Brannigan & Sons, Diner, Kleiderladen, **Cobb's Hardware (betretbar, Laden)**, Museum (mit dem Gemälde „The Lantern Bearer“ hinter einem beleuchteten Schaufenster), öffentlicher Parkplatz; Ashgrove Lane, Marrow Street, Church Road mit St.-Agnes-Kirche und Friedhof, Founders' Park mit Pavillon; 9 Nachbarhäuser, die drei Job-Häuser, Laternen, Autos, Bäume, Zäune, Hecken, Hydranten, Briefkästen, Mülltonnen, Schilder, Pfützen/Laub-Decals, unsichtbare Begrenzungswände und Wald am Stadtrand. Dazu: das **Garagen-Rolltor** des Verstecks (öffnet sich, auch per Fernbedienung aus dem Van), **3 Fluchtziele**, ein **Straßennetz** (16 Knoten) für die Polizei, **6 Erkundungspunkte** am Vance-Haus und Mrs Vance am Fenster (tagsüber). |
 | `L_Job_Vance` | **Erster Job, voll spielbar.** Heist-GameMode, Nacht-Uhr, **fahrbarer Van** am Bordstein vor 14 Ashgrove Lane (Heck = Beute verstauen), Crew-Startpunkte, 25 Beutestücke, durchsuchbare Behälter, Ersatzschlüssel, Spuk (Director, bewegliche Gegenstände, Geräte, Erscheinung), **Nachbar Mr Pruitt** (Haus Nr. 10) mit seinem Weg, **Streifenwagen** am westlichen Stadtrand. |
 | `L_Job_Marrow` | Vorbereitet (Van, Starts, Hausvolumen, Spuk-Director; noch keine Beute). Job auf dem Board als „wird ausgekundschaftet“ gesperrt. |
 | `L_Job_Rectory` | Vorbereitet wie Marrow. |
+
+**Die Innenstadt (östlich der alten Main Street, `downtown.py`):** Main Street läuft weiter bis zur Baustelle
+am Stadtrand; **Elm Avenue** (Ampelkreuzung mit vier Zebrastreifen), **Pine Street** (Stoppschilder),
+**Orchard Lane** und **Mill Road** bilden zwei Blocks. Darin: die **Bank „Hollowmere Savings & Loan“**
+(betretbar: Schalterhalle mit drei Kassenschaltern, Tresortür, Wachmann, Polizist am Tresor, Filialleiter,
+Kunden; **Geldautomat** draußen), der Supermarkt **„Pick & Save“** (betretbar: sechs Regalreihen voller Waren,
+Kühlregale, Obststände, drei Kassen, Einkaufswagen, großer Parkplatz), die Läden **Hollowmere Gazette**,
+**Bell's Pharmacy** und **Sal's Barber Shop** (geschlossene Fronten), **Willow Park** mit Spielplatz
+(Schaukeln, Rutsche, Wippe, Sandkasten, Klettergerüst, Bänke) und **sieben weitere Wohnhäuser**.
 
 **Nicht betretbare Gebäude sagen das ehrlich:** Läden sind nachts geschlossen (gemalte Inneneinrichtung hinter
 dem Glas), Nachbarhäuser haben zugezogene Vorhänge, abends erleuchtete Fenster und abgeschlossene Türen
@@ -144,6 +180,56 @@ Hüllen.
 
 ---
 
+## Die Stadt lebt
+
+Tagsüber ist Hollowmere bewohnt, nachts schläft es – auf den Job-Maps ist all das ausgeschaltet.
+
+* **Verkehr (`AHHTrafficCar`):** acht Autos fahren feste Runden über das Straßennetz (rechte Fahrspur), bremsen
+  vor Kurven, halten an **roten Ampeln** (Main/Elm; alle Ampeln einer Kreuzung teilen sich einen Zyklus aus der
+  Serverzeit: 13 s grün, 3 s gelb, Räumzeit), an **Stoppschildern** (Ashgrove/Marrow an der Main Street, Pine an der
+  Main Street: anhalten, 1,6 s warten, weiter), vor **Zebrastreifen**, solange dort jemand geht, und hinter
+  Autos und Menschen auf der Fahrbahn. Wer mitten auf der Straße steht, wird nach drei Sekunden **angehupt**.
+  Nachts fahren die Autos nach Hause (sie verschwinden, wo es niemand sieht) und kommen morgens wieder.
+  Am Bordstein wird deshalb nicht mehr geparkt – die Autos stehen auf Parkplätzen und in Einfahrten.
+* **Fußgänger und Bewohner (`AHHTownsperson`):** Spaziergänger auf festen Runden (einer quert ständig die
+  Ampelkreuzung – die Autos warten), Kunden und eine Kassiererin im Supermarkt, Mr Cobb hinter seinem Tresen,
+  Kassierer, Wachmann und Polizist in der Bank, Kinder auf den **Schaukeln** (die Schaukeln schwingen mit,
+  leer nur im Wind), im Sandkasten und rennend auf dem Spielplatz, Eltern auf den Bänken, eine Gärtnerin im
+  Vorgarten, ein Nachbar auf seiner Veranda – und nachts eine alte Frau, die auf ihrer Veranda steht und
+  einem nachsieht. Alle tragen echte Kleidung (dieselben Körper und Kleidungsstücke wie die Crew, dazu
+  Uniformen für Polizei, Wachleute, Supermarkt, Spurensicherung, die es im Laden nicht gibt).
+* **Häuser mit Leben:** Kürbislaternen auf den Veranden, Blumenkästen, Herbstkränze, Fahrräder in der
+  Einfahrt, Brennholz, Wäscheleinen, Vogelscheuchen und Halloween-Grabsteine im Vorgarten.
+
+## Bank, Läden, Geld
+
+* **Konto bei Hollowmere Savings & Loan:** am **Kassenschalter** (nur tagsüber) oder am **Geldautomaten** draußen
+  (immer, aber nicht während eines Jobs). Einzahlen/Abheben in 100/500/1000 oder alles. **Warum:** Wer
+  **festgenommen** wird, zahlt Kaution und Anwalt – **ein Viertel des Bargelds in der Tasche**. Das Konto
+  bleibt unangetastet und bringt **2 % Zinsen pro Job-Nacht** (höchstens $400). Läden und der Hehler nehmen
+  nur Bargeld. Nach einem Job meldet das Spiel Zinsen und ggf. Kaution.
+* **Wo es was gibt:** **Cobb's Hardware** (Main Street, tagsüber): Taschenlampen, Stirnlampe, Sturmlaterne,
+  Brecheisen, Jutesack. **Pick & Save** (tagsüber): Salz, Sofortbildkamera, Erste-Hilfe-Set. **Der Hehler**
+  im Versteck (immer): Glasschneider, Geräuschmesser und Kleidung. Der Shop zeigt jeweils nur das eigene
+  Sortiment und sagt, wo es den Rest gibt.
+
+## Der Morgen danach
+
+Nach jedem Job merkt sich das Spiel, was die Stadt davon mitbekommen hat (`FHHAftermath`), und baut am
+Haus eine Szene auf (`AHHAftermathScene` + getaggte Teile), bis zum nächsten Job:
+
+* **Etwas wurde bemerkt** (Beute fehlt, Polizei war da): die Besitzerin erzählt einer Reporterin auf dem Gehweg,
+  was passiert ist.
+* **Polizei war da** (gerufen, Festnahme, Verfolgung, Tote): Streifenwagen mit Blaulicht und Funkgeräusch,
+  Absperrband am Gartenzaun, Beweismarker, ein Polizist hält Wache, die **Spurensicherung fotografiert** (mit
+  Blitz). Der Verkehr meidet die Straße.
+* **Ein Crew-Mitglied ist im Haus gestorben:** eine **abgedeckte Leiche** auf dem Rasen, Spurensicherung
+  kniet daneben, **die Straße ist an beiden Enden gesperrt** (Absperrböcke, Hütchen).
+* **Das Haus hat sich gezeigt** (Spukstufe 2+): ein Priester steht auf der Veranda, Salz auf den Stufen.
+* **Die Morgenzeitung** (Hollowmere Gazette) steht in der Rückkehr-Meldung: Schlagzeile und zwei Sätze, passend
+  zum Ausgang (z. B. „BURGLAR FOUND DEAD AT 14 ASHGROVE LANE“, „POLICE HUNT BURGLARS …“, „'SOMETHING IS IN THE
+  HOUSE'“).
+
 ## Tag & Nacht
 
 `AHHTimeOfDay` (eine pro persistenter Map) treibt Sonne, Mond, Himmel (Sky Atmosphere), Skylight, Nebel,
@@ -160,12 +246,14 @@ Tempo einstellbar unter *Settings → Gameplay → World → Time Speed*; Uhr im
 |---|---|---|
 | Bewegen / Umsehen | WASD / Maus | Linker / rechter Stick |
 | Sprinten / Ducken / Springen | Shift / Strg / Leertaste | L3 / B / A |
-| Interagieren (Halten bei Dietrich, Durchsuchen …) | E | X |
+| Interagieren (Halten bei Dietrich, Durchsuchen, Wiederbeleben …) | E | X |
+| Gegenstand benutzen (Funkgerät-Markierung, Salz, Kamera …) | Linke Maustaste | RT |
+| Tasche ansehen (auf einem Job) | Tab | Y |
 | Inventarplatz wählen | 1–5, Mausrad | Steuerkreuz ← / → |
 | Gegenstand fallen lassen | G | LB |
 | Taschenlampe | F | Steuerkreuz ↑ |
 | Push-to-Talk | V | RB |
-| Loadout / Jobboard / Ready | Tab / M / R | Y / View / Steuerkreuz ↓ |
+| Loadout (im Versteck) / Jobboard / Ready | Tab / M / R | Y / View / Steuerkreuz ↓ |
 | Ich- ↔ Third-Person | T | R3 |
 | Menü / Pause | Esc | Menu |
 
@@ -186,13 +274,36 @@ Belegung).
 
 **Entwickler-Konsolenbefehle** (`~`, Host): `HHGiveCash 5000`, `HHGiveXP 10000`, `HHUnlockAll`,
 `HHResetProfile`, `HHForceAmbientEvent 0..6`, `HHSetTime 21.5`, `HHTimeSpeed 10`, `HHAddAnger 30`,
-`HHHauntEvent 0..11` (0 Settle, 1 DistantSound, 2 LightOut, 3 DoorOpen, 4 ObjectMoved, 5 DoorSlam,
-6 DeviceOn, 7 Flicker, 8 Whisper, 9 GlassFall, 10 Apparition, 11 Hunt), `HHEndJob 1..6`
+`HHHauntEvent 0..20` (0 Settle, 1 DistantSound, 2 LightOut, 3 DoorOpen, 4 ObjectMoved, 5 DoorSlam,
+6 DeviceOn, 7 Flicker, 8 Whisper, 9 GlassFall, 10 Apparition, 11 Hunt, 12 Stimme, 13 Kratzen in der Wand,
+14 Schritte direkt hinter dir, 15 Berührung, 16 Gegenstand fliegt, 17 Handabdrücke/Schrift erscheinen,
+18 steht plötzlich vor dir, 19 Schatten huscht vorbei, 20 Schaukelstuhl), `HHKnockDown` (wie vom Geist
+erwischt: am Boden, beim zweiten Mal tot), `HHAftermath 0..4` (Hub, Host: Szene am Vance-Haus –
+0 aus, 1 bemerkt, 2 Polizei, 3 Tote + Sperrung, 4 Spuk), `HHEndJob 1..6`
 (Success/Partial/Caught/Abandoned/Hot getaway/Boxed in), `HHLearnIntel 1` (alles über den gepinnten Job
 lernen) bzw. `HHLearnIntel 0` (Notizbuch leeren), `HHCallPolice` (Polizei in 30 s), `HHSendNeighbour`,
 `hh.DebugNoise 1`.
 
 ---
+
+## Ausrüstung im Einsatz
+
+Taschenlampen, Dietrich/Brecheisen/Glasschneider und Taschen wirken passiv. Die übrigen Werkzeuge hält man
+in der Hand (1–5) und benutzt sie mit der **linken Maustaste**:
+
+* **Funkgerät:** markiert die angesehene Stelle (bis 30 m) für die ganze Crew – Klickgeräusch + Markierung.
+* **Salz:** streut eine Linie auf den Boden. Die Erscheinung bleibt bei einer Jagd **einmal** daran stehen.
+* **Sofortbildkamera:** Blitz vertreibt die Erscheinung kurz; jedes Foto von ihr (oder von Handabdrücken und
+  Schrift, die das Haus hinterlässt) bringt **$150** (bis zu fünf pro Job).
+* **Geräuschmesser:** die Nadel schlägt aus, wenn etwas in der Nähe ist – und bleibt kurz vor einer Jagd am
+  Anschlag.
+* **Erste Hilfe:** ein am Boden liegendes Crew-Mitglied in 2 statt 4,5 Sekunden wieder hochbringen (2 Ladungen).
+
+**Am Boden, tot, wiederbelebt:** Erwischt einen die Erscheinung, geht man **zu Boden** (kriechen, 45 Sekunden
+Zeit). Ein Crew-Mitglied hält **E** an einem, um ihn **wiederzubeleben**. Wer nicht rechtzeitig gerettet wird
+oder ein zweites Mal erwischt wird, **stirbt**: Er sieht den anderen zu (E wechselt die Person), verliert seine
+Tasche samt Ausrüstung, und am nächsten Morgen liegt er abgedeckt vor dem Haus. Sind alle tot oder
+festgenommen, ist der Job verloren.
 
 ## Testen im Editor (Checkliste)
 
@@ -214,6 +325,12 @@ lernen) bzw. `HHLearnIntel 0` (Notizbuch leeren), `HHCallPolice` (Polizei in 30 
 8. **Bedrohungen:** `HHSendNeighbour` (Mr Pruitt kommt heraus; sich in seinen Lichtkegel stellen →
    Polizei), `HHCallPolice` (Streifenwagen kommt; zu Fuß am Haus bleiben = festgenommen; mit dem Van davon
    = Verfolgung; abhängen oder zum Steinbruch). `HHEndJob 5` / `6` für die übrigen Endings.
+9. **Stadt (tagsüber, `HHSetTime 11`):** an der Ampel Main/Elm stehen bleiben (Autos halten bei Rot und am
+   Zebrastreifen, der Fußgänger quert), sich auf die Fahrbahn stellen (Hupe), in die Bank (Schalter → Konto,
+   Geldautomat draußen), zu Pick & Save (Kasse → Salz, Kamera, Erste Hilfe), zu Cobb's Hardware (Tresen),
+   Spielplatz (Kinder schaukeln). `HHSetTime 22`: Autos und Passanten verschwinden, Läden schließen.
+10. **Morgen danach:** `HHAftermath 3` im Versteck → am Vance-Haus Streifenwagen, Absperrung, abgedeckte
+    Leiche, Fotograf mit Blitz, gesperrte Ashgrove Lane; `HHAftermath 0` räumt auf.
 
 ---
 
@@ -232,12 +349,13 @@ HorrorHeist/
 │  ├─ Heist/       Heist-GameMode/-GameState (Regeln, Ziele, Alarm, Polizei, Endings, Auszahlung), Beute,
 │  │               Behälter, Van-Punkte, Fluchtzonen, Hausvolumen, Begrenzung, Spuk-Director, Spuk-Requisiten, Erscheinung
 │  ├─ Vehicles/    Kinematisches Fahrzeug (Bodenhaftung, Kollision, Netz-Glättung), Van mit Sitzen, Streifenwagen-KI,
-│  │               Straßenknoten, Garagen-Rolltor
-│  ├─ NPC/         Nachbar (Sicht, Taschenlampe, Weg), Bewohnerin am Fenster, Körper/Kosmetik für NPCs
+│  │               Verkehrs-KI (Spur, Ampel, Stoppschild, Zebrastreifen), Straßenknoten, Garagen-Rolltor
+│  ├─ NPC/         Nachbar (Sicht, Taschenlampe, Weg), Bewohnerin am Fenster, Stadtbewohner (Posen, Wege), Körper/Kosmetik
 │  ├─ Player/      Charakter, Controller, PlayerState, Inventar (5 Plätze), AnimInstance (Kopf/Hand-IK),
 │  │               Kosmetik, Interaktion (Halten), Schritte
 │  ├─ Interaction/ Interaktions-Interface, Stationen, Türen mit Schlössern, Schalter, Radio, Van
-│  ├─ World/       Tageszeit, Praxis-Lichter, Ambience-Director, Gewitter, Emitter, Vorschau-Mannequin, Erkundungspunkte
+│  ├─ World/       Tageszeit, Praxis-Lichter, Ambience-Director, Gewitter, Emitter, Vorschau-Mannequin, Erkundungspunkte,
+│  │               Ampeln, Zebrastreifen, Schaukeln, Tatort-Szenen (der Morgen danach)
 │  └─ UI/          Slate-Stil + alle Menüs, Jobtafel/Dossier, Heist-HUD, animierte Auswertung (keine UMG-Assets nötig)
 ├─ Content/Python/ init_unreal.py + hh_setup (Import, Materialien, Maps, Data Assets, Bericht)
 ├─ SourceArt/      Generierte Quell-Assets (FBX, PNG/JPG, WAV) + Layout-JSONs + Katalog-JSON
@@ -261,12 +379,15 @@ Python 3.11+ mit `numpy scipy pillow bpy` (bpy = Blender als Modul, getestet mit
 cd HorrorHeist
 python Tools/AssetGen/audio/gen_sfx.py && python Tools/AssetGen/audio/gen_music.py && python Tools/AssetGen/audio/gen_world_sfx.py
 python Tools/AssetGen/audio/gen_vehicle_sfx.py                # Van-Motor, Hupe, Sirene, Rolltor, Aufprall, Nachbar
+python Tools/AssetGen/audio/gen_haunt_sfx.py && python Tools/AssetGen/audio/gen_gear_sfx.py
+python Tools/AssetGen/audio/gen_town_sfx.py                   # Polizeifunk, Schaukel, Spielplatz, Supermarkt, Bank, Hupe
 python Tools/AssetGen/textures/gen_textures.py && python Tools/AssetGen/textures/gen_unique.py
 python Tools/AssetGen/textures/gen_world_textures.py && python Tools/AssetGen/textures/gen_world_images.py
 python Tools/AssetGen/textures/gen_blueprint.py
+python Tools/AssetGen/textures/gen_haunt_images.py && python Tools/AssetGen/textures/gen_town_images.py
 python Tools/AssetGen/blender/catalog.py
 python Tools/AssetGen/blender/items.py && python Tools/AssetGen/blender/render_loot_icons.py
-python Tools/AssetGen/blender/build_world.py [--render]      # Versteck + Stadt + Häuser + Job-Maps
+python Tools/AssetGen/blender/build_world.py [--render]      # Versteck + Stadt + Innenstadt + Häuser + Job-Maps
 python Tools/AssetGen/blender/build_character.py --preview   # Körper, Animationen, Kosmetik, Icons
 ```
 
@@ -289,6 +410,11 @@ sich ihr Inhalts-Hash geändert hat). Danach im Editor **The Quiet Job → Build
   Box) statt Chaos-Vehicle-Physik – kein Überschlagen, keine Federung. Die Richtung, in die sich die Räder
   drehen, ist ungeprüft. Im Van sind die Mitfahrer unsichtbar (die Scheiben sind undurchsichtig); gefahren wird
   aus der Verfolgerkamera.
+- **Verkehr und Stadtbewohner:** Die Autos fahren feste Runden ohne NavMesh und weichen nicht aus (sie warten).
+  Fußgänger laufen ihre Runden deterministisch nach der Serverzeit und warten nicht auf Autos – die Autos
+  warten auf sie. Kinder/Erwachsene verwenden denselben Körper (Kinder skaliert); die Sitz-, Telefon- und
+  Foto-Posen sind dieselben Animationen wie bei der Crew. Fahrgefühl, Kurvenradien und Ampel-Haltelinien
+  brauchen Feintuning im Editor.
 - **Polizei:** ein Streifenwagen pro Job; er fährt über die Straßenknoten (kein NavMesh), kann sich festfahren
   (setzt dann zurück; ein „zweiter Wagen“ kommt notfalls näher heran). Festgenommene sehen bis zum Ende zu.
 - **Nachbar:** läuft einen festen Weg (Tag-Punkte), kein NavMesh/Ausweichen; Vorhänge/Fensterglas blocken seine

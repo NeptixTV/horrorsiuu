@@ -2,6 +2,7 @@
 
 #include "CoreMinimal.h"
 #include "Engine/GameInstance.h"
+#include "Core/HHTypes.h"
 #include "Engine/EngineBaseTypes.h"
 #include "HHGameInstance.generated.h"
 
@@ -46,6 +47,10 @@ public:
 	void SetCarriedTimeOfDay(float Hours) { CarriedTimeOfDay = Hours; }
 	float GetCarriedTimeOfDay() const { return CarriedTimeOfDay; }
 
+	/** Host: what the town saw of the last job (crime scene in the hub), kept across the map load. */
+	void SetAftermath(const FHHAftermath& InAftermath) { Aftermath = InAftermath; }
+	const FHHAftermath& GetAftermath() const { return Aftermath; }
+
 private:
 	void HandleNetworkFailure(UWorld* World, UNetDriver* NetDriver, ENetworkFailure::Type FailureType, const FString& ErrorString);
 	void HandleTravelFailure(UWorld* World, ETravelFailure::Type FailureType, const FString& ErrorString);
@@ -60,4 +65,5 @@ private:
 	FName ActiveMission;
 	FName Safehouse;
 	float CarriedTimeOfDay = -1.f;
+	FHHAftermath Aftermath;
 };

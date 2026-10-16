@@ -39,6 +39,8 @@ def _item_common(asset, entry, order):
          sort_order=int(entry.get('order') or order))
     # Where it is sold ('' = the Fence in the hideout; shop ids match the store counters in town).
     _set(asset, shop=unreal.Name(entry.get('shop') or 'None'))
+    # Uniforms of the townspeople: never in the store or the wardrobe.
+    _set(asset, npc_only=bool(entry.get('npc')), hidden_in_store=bool(entry.get('npc')))
     icon = U.find('T_Icon_' + entry['id'], required=False)
     if icon is not None:
         _set(asset, icon=icon)

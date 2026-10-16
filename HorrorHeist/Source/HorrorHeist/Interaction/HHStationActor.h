@@ -65,6 +65,12 @@ protected:
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Station")
 	bool bOpenByDayOnly = false;
 
+	/** Not during a job (the town around a job house is asleep; no banking mid-burglary). */
+	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Station")
+	bool bHubOnly = false;
+
+	bool IsOffDuty() const;
+
 	bool IsClosedNow() const;
 
 	FRotator BaseCameraRotation;

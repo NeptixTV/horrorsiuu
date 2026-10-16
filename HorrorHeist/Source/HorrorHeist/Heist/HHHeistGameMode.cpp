@@ -1646,6 +1646,10 @@ void AHHHeistGameMode::EndMission(EHHMissionOutcome Outcome)
 
 	HeistState->SetSummary(Summary);
 	HeistState->SetHeistPhase(EHHHeistPhase::Ended);
+	if (UHHGameInstance* GameInstance = GetGameInstance<UHHGameInstance>())
+	{
+		GameInstance->SetAftermath(FHHAftermath::FromSummary(Summary));
+	}
 	HeistState->SetPoliceState(EHHPoliceState::None);
 
 	// Each crew member books their own share: arrested people get nothing, those left behind

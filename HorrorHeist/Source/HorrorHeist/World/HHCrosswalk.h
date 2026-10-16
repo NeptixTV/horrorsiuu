@@ -22,8 +22,8 @@ public:
 	bool IsBusy() const;
 	bool Contains(const FVector& Location) const;
 
-	/** The first crossing within Distance ahead of Location along Direction (null if none). */
-	static AHHCrosswalk* FindAhead(const UObject* WorldContextObject, const FVector& Location, const FVector& Direction, float Distance);
+	/** The first crossing within Distance ahead of Location along Direction (null if none); OutAlong = how far ahead it starts. */
+	static AHHCrosswalk* FindAhead(const UObject* WorldContextObject, const FVector& Location, const FVector& Direction, float Distance, float* OutAlong = nullptr);
 
 protected:
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Crosswalk")

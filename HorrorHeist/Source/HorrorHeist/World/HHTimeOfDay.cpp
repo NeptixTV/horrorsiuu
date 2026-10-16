@@ -238,6 +238,7 @@ void AHHTimeOfDay::GatherWorldActors()
 		return;
 	}
 	StreetLights.Reset();
+	DayLights.Reset();
 	Windows.Reset();
 	DayEmitters.Reset();
 	NightEmitters.Reset();
@@ -254,6 +255,13 @@ void AHHTimeOfDay::GatherWorldActors()
 			if (AHHPracticalLight* Lamp = Cast<AHHPracticalLight>(Actor))
 			{
 				StreetLights.Add(Lamp);
+			}
+		}
+		else if (Actor->ActorHasTag(DayOnlyTag))
+		{
+			if (AHHPracticalLight* Lamp = Cast<AHHPracticalLight>(Actor))
+			{
+				DayLights.Add(Lamp);
 			}
 		}
 		if (Actor->ActorHasTag(WindowLightTag))
@@ -369,6 +377,18 @@ void AHHTimeOfDay::UpdateSwitches(float Hours, bool bSnap)
 				if (Lamp->IsLightOn() != bShouldBeOn)
 				{
 					Lamp->SetLightOn(bShouldBeOn);
+				}
+			}
+		}
+		// Shops and the bank close at night.
+		const bool bOpen = Daylight > 0.35f;
+		for (const TWeakObjectPtr<AHHPracticalLight>& LampPtr : DayLights)
+		{
+			if (AHHPracticalLight* Lamp = LampPtr.Get())
+			{
+				if (Lamp->IsLightOn() != bOpen)
+				{
+					Lamp->SetLightOn(bOpen);
 				}
 			}
 		}

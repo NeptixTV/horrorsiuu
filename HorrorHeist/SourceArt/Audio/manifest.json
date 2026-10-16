@@ -2068,5 +2068,65 @@
   "caption": "",
   "volume": 1.0,
   "seconds": 0.08
+ },
+ {
+  "file": "SourceArt/Audio/Ambience/A_Police_Radio_Loop.wav",
+  "category": "Ambient",
+  "loop": true,
+  "spatial": true,
+  "radius": 1400,
+  "caption": "[Police radio chatter]",
+  "volume": 1.0,
+  "seconds": 18.0
+ },
+ {
+  "file": "SourceArt/Audio/SFX/A_Swing_Creak_Loop.wav",
+  "category": "SFX",
+  "loop": true,
+  "spatial": true,
+  "radius": 1800,
+  "caption": "[A swing creaks]",
+  "volume": 1.0,
+  "seconds": 2.8
+ },
+ {
+  "file": "SourceArt/Audio/Ambience/A_Playground_Loop.wav",
+  "category": "Ambient",
+  "loop": true,
+  "spatial": true,
+  "radius": 4000,
+  "caption": "[Children playing]",
+  "volume": 1.0,
+  "seconds": 24.0
+ },
+ {
+  "file": "SourceArt/Audio/Ambience/A_Market_Muzak_Loop.wav",
+  "category": "Music",
+  "loop": true,
+  "spatial": true,
+  "radius": 2600,
+  "caption": "",
+  "volume": 1.0,
+  "seconds": 20.87
+ },
+ {
+  "file": "SourceArt/Audio/Ambience/A_Bank_Roomtone_Loop.wav",
+  "category": "Ambient",
+  "loop": true,
+  "spatial": true,
+  "radius": 1800,
+  "caption": "",
+  "volume": 1.0,
+  "seconds": 12.0
+ },
+ {
+  "file": "SourceArt/Audio/SFX/S_Car_Horn_01.wav",
+  "category": "SFX",
+  "loop": false,
+  "spatial": true,
+  "radius": 5000,
+  "caption": "[A car honks]",
+  "volume": 1.0,
+  "seconds": 0.75
  }
 ]

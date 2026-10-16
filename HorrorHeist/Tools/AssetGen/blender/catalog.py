@@ -8,10 +8,11 @@ import os
 
 
 def C(item_id, name, slot, mesh=None, tint=None, tint2=None, price=0, rarity='Common', level=1, owned=False,
-      desc='', flavor='', theme='', bone='head', hides_hair=False, skin=False, order=0):
+      desc='', flavor='', theme='', bone='head', hides_hair=False, skin=False, order=0, npc=False):
+    """npc=True: worn by the townspeople only (uniforms) - never in the store or the wardrobe."""
     return dict(id=item_id, name=name, slot=slot, mesh=mesh, tint=tint, tint2=tint2, price=price, rarity=rarity,
                 level=level, owned=owned, desc=desc, flavor=flavor, theme=theme, bone=bone, hides_hair=hides_hair,
-                skin=skin, order=order)
+                skin=skin, order=order, npc=npc)
 
 
 COSMETICS = [
@@ -122,6 +123,25 @@ COSMETICS = [
     C('CO_Acc_Earpiece', 'Earpiece', 'Accessory', 'SM_HH_Acc_Earpiece', (0.05, 0.05, 0.05), price=400),
     C('CO_Acc_Chain', 'Gold Chain', 'Accessory', 'SM_HH_Acc_Chain', (0.78, 0.6, 0.28), price=750, rarity='Uncommon',
       bone='spine_03'),
+
+    # Townspeople only: uniforms and work clothes (the crew's garments, recoloured).
+    C('CO_NPC_Top_Police', 'Police Shirt', 'Top', 'SK_HH_Top_Tee', (0.30, 0.40, 0.55), npc=True),
+    C('CO_NPC_Jacket_Police', 'Police Jacket', 'Jacket', 'SK_HH_Jacket_Bomber', (0.05, 0.06, 0.13), npc=True),
+    C('CO_NPC_Pants_Police', 'Police Trousers', 'Pants', 'SK_HH_Pants_Slacks', (0.05, 0.06, 0.12), npc=True),
+    C('CO_NPC_Hat_Police', 'Police Cap', 'Hat', 'SM_HH_Hat_Cap', (0.04, 0.05, 0.11), (0.04, 0.05, 0.11), hides_hair=True,
+      npc=True),
+    C('CO_NPC_Top_Guard', 'Guard Shirt', 'Top', 'SK_HH_Top_Tee', (0.55, 0.56, 0.58), npc=True),
+    C('CO_NPC_Jacket_Guard', 'Guard Vest', 'Jacket', 'SK_HH_Jacket_Vest', (0.03, 0.03, 0.035), npc=True),
+    C('CO_NPC_Hat_Guard', 'Guard Cap', 'Hat', 'SM_HH_Hat_Cap', (0.03, 0.03, 0.035), (0.55, 0.45, 0.15), hides_hair=True,
+      npc=True),
+    C('CO_NPC_Top_Market', 'Pick & Save Shirt', 'Top', 'SK_HH_Top_Tee', (0.55, 0.07, 0.05), npc=True),
+    C('CO_NPC_Top_Teller', 'Teller Sweater', 'Top', 'SK_HH_Top_Sweater', (0.20, 0.27, 0.23), (0.72, 0.68, 0.58), npc=True),
+    C('CO_NPC_Top_Forensic', 'Forensics Suit', 'Top', 'SK_HH_Top_Hoodie', (0.86, 0.86, 0.84), npc=True),
+    C('CO_NPC_Pants_Forensic', 'Forensics Trousers', 'Pants', 'SK_HH_Pants_Cargo', (0.84, 0.84, 0.82), npc=True),
+    C('CO_NPC_Top_Kid_Yellow', 'Kid Tee (Yellow)', 'Top', 'SK_HH_Top_Tee', (0.80, 0.62, 0.10), npc=True),
+    C('CO_NPC_Top_Kid_Red', 'Kid Hoodie (Red)', 'Top', 'SK_HH_Top_Hoodie', (0.55, 0.08, 0.07), npc=True),
+    C('CO_NPC_Top_Kid_Blue', 'Kid Sweater (Blue)', 'Top', 'SK_HH_Top_Sweater', (0.20, 0.35, 0.62), (0.80, 0.78, 0.70),
+      npc=True),
 ]
 
 

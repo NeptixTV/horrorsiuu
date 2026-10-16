@@ -271,7 +271,7 @@ FHHCosmeticLoadout AHHPlayerController::SanitizeCosmetics(const FHHCosmeticLoado
 	{
 		const FName Id = In.Get(Slot);
 		const UHHCosmeticDefinition* Item = Registry ? Registry->FindCosmetic(Id) : nullptr;
-		Out.Set(Slot, Item && Item->Slot == Slot ? Id : NAME_None);
+		Out.Set(Slot, Item && Item->Slot == Slot && !Item->bNpcOnly ? Id : NAME_None);
 	}
 	return Out;
 }
@@ -398,13 +398,25 @@ void AHHPlayerController::ServerAbandonJob_Implementation()
 
 void AHHPlayerController::ClientMissionReward_Implementation(const FHHMissionSummary& Summary)
 {
-	if (UHHProfileSubsystem* Profile = UHHProfileSubsystem::Get(this))
+	const AHHPlayerState* State = GetHHPlayerState();
+	UHHProfileSubsystem* Profile = UHHProfileSubsystem::Get(this);
+	if (Profile)
 	{
-		Profile->RecordJob(Summary);
+		Profile->RecordJob(Summary, State ? State->GetCrewSlot() : INDEX_NONE);
 	}
 	if (AHHLobbyHUD* LobbyHUD = GetLobbyHUD())
 	{
 		LobbyHUD->ShowMissionSummary(Summary);
+		if (Profile && Profile->GetLastBail() > 0)
+		{
+			LobbyHUD->ShowNotification(FText::Format(NSLOCTEXT("HHBank", "Bail", "Bail and a lawyer: {0} out of your pocket. The money in the bank was safe."),
+				HHText::Money(Profile->GetLastBail())), EHHNotifyType::Warning);
+		}
+		if (Profile && Profile->GetLastInterest() > 0)
+		{
+			LobbyHUD->ShowNotification(FText::Format(NSLOCTEXT("HHBank", "Interest", "Hollowmere Savings & Loan paid {0} interest overnight."),
+				HHText::Money(Profile->GetLastInterest())), EHHNotifyType::Info);
+		}
 	}
 }
 

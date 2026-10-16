@@ -1,5 +1,6 @@
 #include "Interaction/HHStationActor.h"
 #include "Player/HHPlayerController.h"
+#include "Heist/HHHeistGameState.h"
 #include "Settings/HHGameUserSettings.h"
 #include "UI/HHLobbyHUD.h"
 #include "World/HHTimeOfDay.h"
@@ -27,13 +28,22 @@ bool AHHStationActor::IsClosedNow() const
 	return Clock && Clock->IsNight();
 }
 
+bool AHHStationActor::IsOffDuty() const
+{
+	return bHubOnly && AHHHeistGameState::IsJobWorld(this);
+}
+
 bool AHHStationActor::CanInteract(AActor* Interactor) const
 {
-	return bUsable && !IsClosedNow() && Super::CanInteract(Interactor);
+	return bUsable && !IsClosedNow() && !IsOffDuty() && Super::CanInteract(Interactor);
 }
 
 FText AHHStationActor::GetInteractionPrompt(AActor* Interactor) const
 {
+	if (IsOffDuty())
+	{
+		return NSLOCTEXT("HHStation", "OffDuty", "Not now - you're on a job");
+	}
 	if (IsClosedNow())
 	{
 		return NSLOCTEXT("HHStation", "Closed", "Closed - opens in the morning");

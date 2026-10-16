@@ -238,6 +238,52 @@ void UHHProfileSubsystem::AddCash(int64 Amount)
 	NotifyChanged();
 }
 
+// ---------------------------------------------------------------------------------------
+// The bank
+
+int64 UHHProfileSubsystem::GetSavings() const
+{
+	return Profile ? Profile->Savings : 0;
+}
+
+int32 UHHProfileSubsystem::GetDay() const
+{
+	return Profile ? FMath::Max(1, Profile->Day) : 1;
+}
+
+bool UHHProfileSubsystem::Deposit(int64 Amount)
+{
+	if (!Profile || Amount <= 0 || Profile->Cash < Amount)
+	{
+		return false;
+	}
+	Profile->Cash -= Amount;
+	Profile->Savings += Amount;
+	NotifyChanged();
+	return true;
+}
+
+bool UHHProfileSubsystem::Withdraw(int64 Amount)
+{
+	if (!Profile || Amount <= 0 || Profile->Savings < Amount)
+	{
+		return false;
+	}
+	Profile->Savings -= Amount;
+	Profile->Cash += Amount;
+	NotifyChanged();
+	return true;
+}
+
+int64 UHHProfileSubsystem::GetNextInterest() const
+{
+	if (!Profile || Profile->Savings <= 0)
+	{
+		return 0;
+	}
+	return FMath::Min<int64>(MaxInterestPerNight, static_cast<int64>(static_cast<double>(Profile->Savings) * InterestRate));
+}
+
 int64 UHHProfileSubsystem::XPRequiredForLevel(int32 Level)
 {
 	if (Level <= 1)
@@ -342,19 +388,35 @@ void UHHProfileSubsystem::ForgetAllIntel()
 	}
 }
 
-void UHHProfileSubsystem::RecordJob(const FHHMissionSummary& Summary)
+void UHHProfileSubsystem::RecordJob(const FHHMissionSummary& Summary, int32 OwnCrewSlot)
 {
 	LastJob = Summary;
 	bHasLastJob = true;
+	LastInterest = 0;
+	LastBail = 0;
 	if (!Profile)
 	{
 		return;
 	}
 	const int32 OldLevel = GetLevel();
+	// The night is over: the bank pays interest on what was in the account before the job.
+	LastInterest = GetNextInterest();
+	Profile->Savings += LastInterest;
+	Profile->Day = FMath::Max(1, Profile->Day) + 1;
 	if (Summary.PayoutPerPlayer > 0)
 	{
 		Profile->Cash += Summary.PayoutPerPlayer;
 		Profile->LifetimeEarnings += Summary.PayoutPerPlayer;
+	}
+	// Caught: bail and a lawyer come out of the pocket. What is in the bank stays there.
+	for (const FHHCrewRecord& Record : Summary.Crew)
+	{
+		if (Record.CrewSlot == OwnCrewSlot && Record.Fate == EHHCrewFate::Caught)
+		{
+			LastBail = static_cast<int64>(static_cast<double>(Profile->Cash) * BailShare);
+			Profile->Cash -= LastBail;
+			break;
+		}
 	}
 	if (Summary.XPPerPlayer > 0)
 	{
@@ -421,7 +483,7 @@ bool UHHProfileSubsystem::IsOwned(FName ItemId) const
 
 EHHPurchaseCheck UHHProfileSubsystem::CanPurchase(const UHHItemDefinition* Item) const
 {
-	if (!Item || Item->bHiddenInStore)
+	if (!Item || Item->bHiddenInStore || Item->bNpcOnly)
 	{
 		return EHHPurchaseCheck::NotForSale;
 	}

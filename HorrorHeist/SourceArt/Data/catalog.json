@@ -21,7 +21,8 @@
    "bone": "head",
    "hides_hair": false,
    "skin": true,
-   "order": 1
+   "order": 1,
+   "npc": false
   },
   {
    "id": "CO_Skin_Fair",
@@ -44,7 +45,8 @@
    "bone": "head",
    "hides_hair": false,
    "skin": true,
-   "order": 2
+   "order": 2,
+   "npc": false
   },
   {
    "id": "CO_Skin_Olive",
@@ -67,7 +69,8 @@
    "bone": "head",
    "hides_hair": false,
    "skin": true,
-   "order": 3
+   "order": 3,
+   "npc": false
   },
   {
    "id": "CO_Skin_Tan",
@@ -90,7 +93,8 @@
    "bone": "head",
    "hides_hair": false,
    "skin": true,
-   "order": 4
+   "order": 4,
+   "npc": false
   },
   {
    "id": "CO_Skin_Umber",
@@ -113,7 +117,8 @@
    "bone": "head",
    "hides_hair": false,
    "skin": true,
-   "order": 5
+   "order": 5,
+   "npc": false
   },
   {
    "id": "CO_Skin_Deep",
@@ -136,7 +141,8 @@
    "bone": "head",
    "hides_hair": false,
    "skin": true,
-   "order": 6
+   "order": 6,
+   "npc": false
   },
   {
    "id": "CO_Hair_Crop_Brown",
@@ -159,7 +165,8 @@
    "bone": "head",
    "hides_hair": false,
    "skin": false,
-   "order": 0
+   "order": 0,
+   "npc": false
   },
   {
    "id": "CO_Hair_Crop_Black",
@@ -182,7 +189,8 @@
    "bone": "head",
    "hides_hair": false,
    "skin": false,
-   "order": 0
+   "order": 0,
+   "npc": false
   },
   {
    "id": "CO_Hair_Messy_Blond",
@@ -205,7 +213,8 @@
    "bone": "head",
    "hides_hair": false,
    "skin": false,
-   "order": 0
+   "order": 0,
+   "npc": false
   },
   {
    "id": "CO_Hair_Messy_Grey",
@@ -228,7 +237,8 @@
    "bone": "head",
    "hides_hair": false,
    "skin": false,
-   "order": 0
+   "order": 0,
+   "npc": false
   },
   {
    "id": "CO_Hair_Tied_Red",
@@ -251,7 +261,8 @@
    "bone": "head",
    "hides_hair": false,
    "skin": false,
-   "order": 0
+   "order": 0,
+   "npc": false
   },
   {
    "id": "CO_Hair_Tied_Black",
@@ -274,7 +285,8 @@
    "bone": "head",
    "hides_hair": false,
    "skin": false,
-   "order": 0
+   "order": 0,
+   "npc": false
   },
   {
    "id": "CO_Hair_Curly_Black",
@@ -297,7 +309,8 @@
    "bone": "head",
    "hides_hair": false,
    "skin": false,
-   "order": 0
+   "order": 0,
+   "npc": false
   },
   {
    "id": "CO_Hat_Beanie_Charcoal",
@@ -320,7 +333,8 @@
    "bone": "head",
    "hides_hair": true,
    "skin": false,
-   "order": 0
+   "order": 0,
+   "npc": false
   },
   {
    "id": "CO_Hat_Beanie_Mustard",
@@ -343,7 +357,8 @@
    "bone": "head",
    "hides_hair": true,
    "skin": false,
-   "order": 0
+   "order": 0,
+   "npc": false
   },
   {
    "id": "CO_Hat_FlatCap",
@@ -366,7 +381,8 @@
    "bone": "head",
    "hides_hair": true,
    "skin": false,
-   "order": 0
+   "order": 0,
+   "npc": false
   },
   {
    "id": "CO_Hat_Cap_Company",
@@ -393,7 +409,8 @@
    "bone": "head",
    "hides_hair": true,
    "skin": false,
-   "order": 0
+   "order": 0,
+   "npc": false
   },
   {
    "id": "CO_Hat_Cap_Red",
@@ -420,7 +437,8 @@
    "bone": "head",
    "hides_hair": true,
    "skin": false,
-   "order": 0
+   "order": 0,
+   "npc": false
   },
   {
    "id": "CO_Mask_Balaclava",
@@ -443,7 +461,8 @@
    "bone": "head",
    "hides_hair": true,
    "skin": false,
-   "order": 0
+   "order": 0,
+   "npc": false
   },
   {
    "id": "CO_Mask_PaperBag",
@@ -462,7 +481,8 @@
    "bone": "head",
    "hides_hair": true,
    "skin": false,
-   "order": 0
+   "order": 0,
+   "npc": false
   },
   {
    "id": "CO_Mask_Domino",
@@ -485,7 +505,8 @@
    "bone": "head",
    "hides_hair": false,
    "skin": false,
-   "order": 0
+   "order": 0,
+   "npc": false
   },
   {
    "id": "CO_Mask_Hockey",
@@ -508,7 +529,8 @@
    "bone": "head",
    "hides_hair": false,
    "skin": false,
-   "order": 0
+   "order": 0,
+   "npc": false
   },
   {
    "id": "CO_Mask_Gas",
@@ -531,7 +553,8 @@
    "bone": "head",
    "hides_hair": false,
    "skin": false,
-   "order": 0
+   "order": 0,
+   "npc": false
   },
   {
    "id": "CO_Mask_Doll",
@@ -558,7 +581,8 @@
    "bone": "head",
    "hides_hair": false,
    "skin": false,
-   "order": 0
+   "order": 0,
+   "npc": false
   },
   {
    "id": "CO_Top_Tee_Ash",
@@ -581,7 +605,8 @@
    "bone": "head",
    "hides_hair": false,
    "skin": false,
-   "order": 0
+   "order": 0,
+   "npc": false
   },
   {
    "id": "CO_Top_Tee_Black",
@@ -604,7 +629,8 @@
    "bone": "head",
    "hides_hair": false,
    "skin": false,
-   "order": 0
+   "order": 0,
+   "npc": false
   },
   {
    "id": "CO_Top_Tee_White",
@@ -627,7 +653,8 @@
    "bone": "head",
    "hides_hair": false,
    "skin": false,
-   "order": 0
+   "order": 0,
+   "npc": false
   },
   {
    "id": "CO_Top_Sweater_Stripe",
@@ -654,7 +681,8 @@
    "bone": "head",
    "hides_hair": false,
    "skin": false,
-   "order": 0
+   "order": 0,
+   "npc": false
   },
   {
    "id": "CO_Top_Hoodie_Grey",
@@ -677,7 +705,8 @@
    "bone": "head",
    "hides_hair": false,
    "skin": false,
-   "order": 0
+   "order": 0,
+   "npc": false
   },
   {
    "id": "CO_Top_Hoodie_Black",
@@ -700,7 +729,8 @@
    "bone": "head",
    "hides_hair": false,
    "skin": false,
-   "order": 0
+   "order": 0,
+   "npc": false
   },
   {
    "id": "CO_Top_Hoodie_Forest",
@@ -723,7 +753,8 @@
    "bone": "head",
    "hides_hair": false,
    "skin": false,
-   "order": 0
+   "order": 0,
+   "npc": false
   },
   {
    "id": "CO_Top_Turtleneck",
@@ -746,7 +777,8 @@
    "bone": "head",
    "hides_hair": false,
    "skin": false,
-   "order": 0
+   "order": 0,
+   "npc": false
   },
   {
    "id": "CO_Jacket_Work",
@@ -769,7 +801,8 @@
    "bone": "head",
    "hides_hair": false,
    "skin": false,
-   "order": 0
+   "order": 0,
+   "npc": false
   },
   {
    "id": "CO_Jacket_Bomber",
@@ -792,7 +825,8 @@
    "bone": "head",
    "hides_hair": false,
    "skin": false,
-   "order": 0
+   "order": 0,
+   "npc": false
   },
   {
    "id": "CO_Jacket_Rain",
@@ -815,7 +849,8 @@
    "bone": "head",
    "hides_hair": false,
    "skin": false,
-   "order": 0
+   "order": 0,
+   "npc": false
   },
   {
    "id": "CO_Jacket_Leather",
@@ -838,7 +873,8 @@
    "bone": "head",
    "hides_hair": false,
    "skin": false,
-   "order": 0
+   "order": 0,
+   "npc": false
   },
   {
    "id": "CO_Jacket_Vest",
@@ -861,7 +897,8 @@
    "bone": "head",
    "hides_hair": false,
    "skin": false,
-   "order": 0
+   "order": 0,
+   "npc": false
   },
   {
    "id": "CO_Gloves_Work",
@@ -884,7 +921,8 @@
    "bone": "head",
    "hides_hair": false,
    "skin": false,
-   "order": 0
+   "order": 0,
+   "npc": false
   },
   {
    "id": "CO_Gloves_Black",
@@ -907,7 +945,8 @@
    "bone": "head",
    "hides_hair": false,
    "skin": false,
-   "order": 0
+   "order": 0,
+   "npc": false
   },
   {
    "id": "CO_Gloves_Latex",
@@ -930,7 +969,8 @@
    "bone": "head",
    "hides_hair": false,
    "skin": false,
-   "order": 0
+   "order": 0,
+   "npc": false
   },
   {
    "id": "CO_Pants_Jeans",
@@ -953,7 +993,8 @@
    "bone": "head",
    "hides_hair": false,
    "skin": false,
-   "order": 0
+   "order": 0,
+   "npc": false
   },
   {
    "id": "CO_Pants_Jeans_Black",
@@ -976,7 +1017,8 @@
    "bone": "head",
    "hides_hair": false,
    "skin": false,
-   "order": 0
+   "order": 0,
+   "npc": false
   },
   {
    "id": "CO_Pants_Cargo_Olive",
@@ -999,7 +1041,8 @@
    "bone": "head",
    "hides_hair": false,
    "skin": false,
-   "order": 0
+   "order": 0,
+   "npc": false
   },
   {
    "id": "CO_Pants_Cargo_Black",
@@ -1022,7 +1065,8 @@
    "bone": "head",
    "hides_hair": false,
    "skin": false,
-   "order": 0
+   "order": 0,
+   "npc": false
   },
   {
    "id": "CO_Pants_Slacks",
@@ -1045,7 +1089,8 @@
    "bone": "head",
    "hides_hair": false,
    "skin": false,
-   "order": 0
+   "order": 0,
+   "npc": false
   },
   {
    "id": "CO_Shoes_Sneakers_White",
@@ -1072,7 +1117,8 @@
    "bone": "head",
    "hides_hair": false,
    "skin": false,
-   "order": 0
+   "order": 0,
+   "npc": false
   },
   {
    "id": "CO_Shoes_Sneakers_Black",
@@ -1099,7 +1145,8 @@
    "bone": "head",
    "hides_hair": false,
    "skin": false,
-   "order": 0
+   "order": 0,
+   "npc": false
   },
   {
    "id": "CO_Shoes_Boots",
@@ -1122,7 +1169,8 @@
    "bone": "head",
    "hides_hair": false,
    "skin": false,
-   "order": 0
+   "order": 0,
+   "npc": false
   },
   {
    "id": "CO_Shoes_Dress",
@@ -1145,7 +1193,8 @@
    "bone": "head",
    "hides_hair": false,
    "skin": false,
-   "order": 0
+   "order": 0,
+   "npc": false
   },
   {
    "id": "CO_Back_Rucksack",
@@ -1168,7 +1217,8 @@
    "bone": "spine_03",
    "hides_hair": false,
    "skin": false,
-   "order": 0
+   "order": 0,
+   "npc": false
   },
   {
    "id": "CO_Back_Duffel",
@@ -1191,7 +1241,8 @@
    "bone": "spine_03",
    "hides_hair": false,
    "skin": false,
-   "order": 0
+   "order": 0,
+   "npc": false
   },
   {
    "id": "CO_Back_Tactical",
@@ -1214,7 +1265,8 @@
    "bone": "spine_03",
    "hides_hair": false,
    "skin": false,
-   "order": 0
+   "order": 0,
+   "npc": false
   },
   {
    "id": "CO_Acc_Glasses",
@@ -1237,7 +1289,8 @@
    "bone": "head",
    "hides_hair": false,
    "skin": false,
-   "order": 0
+   "order": 0,
+   "npc": false
   },
   {
    "id": "CO_Acc_Watch",
@@ -1260,7 +1313,8 @@
    "bone": "lowerarm_l",
    "hides_hair": false,
    "skin": false,
-   "order": 0
+   "order": 0,
+   "npc": false
   },
   {
    "id": "CO_Acc_Earpiece",
@@ -1283,7 +1337,8 @@
    "bone": "head",
    "hides_hair": false,
    "skin": false,
-   "order": 0
+   "order": 0,
+   "npc": false
   },
   {
    "id": "CO_Acc_Chain",
@@ -1306,7 +1361,360 @@
    "bone": "spine_03",
    "hides_hair": false,
    "skin": false,
-   "order": 0
+   "order": 0,
+   "npc": false
+  },
+  {
+   "id": "CO_NPC_Top_Police",
+   "name": "Police Shirt",
+   "slot": "Top",
+   "mesh": "SK_HH_Top_Tee",
+   "tint": [
+    0.3,
+    0.4,
+    0.55
+   ],
+   "tint2": null,
+   "price": 0,
+   "rarity": "Common",
+   "level": 1,
+   "owned": false,
+   "desc": "",
+   "flavor": "",
+   "theme": "",
+   "bone": "head",
+   "hides_hair": false,
+   "skin": false,
+   "order": 0,
+   "npc": true
+  },
+  {
+   "id": "CO_NPC_Jacket_Police",
+   "name": "Police Jacket",
+   "slot": "Jacket",
+   "mesh": "SK_HH_Jacket_Bomber",
+   "tint": [
+    0.05,
+    0.06,
+    0.13
+   ],
+   "tint2": null,
+   "price": 0,
+   "rarity": "Common",
+   "level": 1,
+   "owned": false,
+   "desc": "",
+   "flavor": "",
+   "theme": "",
+   "bone": "head",
+   "hides_hair": false,
+   "skin": false,
+   "order": 0,
+   "npc": true
+  },
+  {
+   "id": "CO_NPC_Pants_Police",
+   "name": "Police Trousers",
+   "slot": "Pants",
+   "mesh": "SK_HH_Pants_Slacks",
+   "tint": [
+    0.05,
+    0.06,
+    0.12
+   ],
+   "tint2": null,
+   "price": 0,
+   "rarity": "Common",
+   "level": 1,
+   "owned": false,
+   "desc": "",
+   "flavor": "",
+   "theme": "",
+   "bone": "head",
+   "hides_hair": false,
+   "skin": false,
+   "order": 0,
+   "npc": true
+  },
+  {
+   "id": "CO_NPC_Hat_Police",
+   "name": "Police Cap",
+   "slot": "Hat",
+   "mesh": "SM_HH_Hat_Cap",
+   "tint": [
+    0.04,
+    0.05,
+    0.11
+   ],
+   "tint2": [
+    0.04,
+    0.05,
+    0.11
+   ],
+   "price": 0,
+   "rarity": "Common",
+   "level": 1,
+   "owned": false,
+   "desc": "",
+   "flavor": "",
+   "theme": "",
+   "bone": "head",
+   "hides_hair": true,
+   "skin": false,
+   "order": 0,
+   "npc": true
+  },
+  {
+   "id": "CO_NPC_Top_Guard",
+   "name": "Guard Shirt",
+   "slot": "Top",
+   "mesh": "SK_HH_Top_Tee",
+   "tint": [
+    0.55,
+    0.56,
+    0.58
+   ],
+   "tint2": null,
+   "price": 0,
+   "rarity": "Common",
+   "level": 1,
+   "owned": false,
+   "desc": "",
+   "flavor": "",
+   "theme": "",
+   "bone": "head",
+   "hides_hair": false,
+   "skin": false,
+   "order": 0,
+   "npc": true
+  },
+  {
+   "id": "CO_NPC_Jacket_Guard",
+   "name": "Guard Vest",
+   "slot": "Jacket",
+   "mesh": "SK_HH_Jacket_Vest",
+   "tint": [
+    0.03,
+    0.03,
+    0.035
+   ],
+   "tint2": null,
+   "price": 0,
+   "rarity": "Common",
+   "level": 1,
+   "owned": false,
+   "desc": "",
+   "flavor": "",
+   "theme": "",
+   "bone": "head",
+   "hides_hair": false,
+   "skin": false,
+   "order": 0,
+   "npc": true
+  },
+  {
+   "id": "CO_NPC_Hat_Guard",
+   "name": "Guard Cap",
+   "slot": "Hat",
+   "mesh": "SM_HH_Hat_Cap",
+   "tint": [
+    0.03,
+    0.03,
+    0.035
+   ],
+   "tint2": [
+    0.55,
+    0.45,
+    0.15
+   ],
+   "price": 0,
+   "rarity": "Common",
+   "level": 1,
+   "owned": false,
+   "desc": "",
+   "flavor": "",
+   "theme": "",
+   "bone": "head",
+   "hides_hair": true,
+   "skin": false,
+   "order": 0,
+   "npc": true
+  },
+  {
+   "id": "CO_NPC_Top_Market",
+   "name": "Pick & Save Shirt",
+   "slot": "Top",
+   "mesh": "SK_HH_Top_Tee",
+   "tint": [
+    0.55,
+    0.07,
+    0.05
+   ],
+   "tint2": null,
+   "price": 0,
+   "rarity": "Common",
+   "level": 1,
+   "owned": false,
+   "desc": "",
+   "flavor": "",
+   "theme": "",
+   "bone": "head",
+   "hides_hair": false,
+   "skin": false,
+   "order": 0,
+   "npc": true
+  },
+  {
+   "id": "CO_NPC_Top_Teller",
+   "name": "Teller Sweater",
+   "slot": "Top",
+   "mesh": "SK_HH_Top_Sweater",
+   "tint": [
+    0.2,
+    0.27,
+    0.23
+   ],
+   "tint2": [
+    0.72,
+    0.68,
+    0.58
+   ],
+   "price": 0,
+   "rarity": "Common",
+   "level": 1,
+   "owned": false,
+   "desc": "",
+   "flavor": "",
+   "theme": "",
+   "bone": "head",
+   "hides_hair": false,
+   "skin": false,
+   "order": 0,
+   "npc": true
+  },
+  {
+   "id": "CO_NPC_Top_Forensic",
+   "name": "Forensics Suit",
+   "slot": "Top",
+   "mesh": "SK_HH_Top_Hoodie",
+   "tint": [
+    0.86,
+    0.86,
+    0.84
+   ],
+   "tint2": null,
+   "price": 0,
+   "rarity": "Common",
+   "level": 1,
+   "owned": false,
+   "desc": "",
+   "flavor": "",
+   "theme": "",
+   "bone": "head",
+   "hides_hair": false,
+   "skin": false,
+   "order": 0,
+   "npc": true
+  },
+  {
+   "id": "CO_NPC_Pants_Forensic",
+   "name": "Forensics Trousers",
+   "slot": "Pants",
+   "mesh": "SK_HH_Pants_Cargo",
+   "tint": [
+    0.84,
+    0.84,
+    0.82
+   ],
+   "tint2": null,
+   "price": 0,
+   "rarity": "Common",
+   "level": 1,
+   "owned": false,
+   "desc": "",
+   "flavor": "",
+   "theme": "",
+   "bone": "head",
+   "hides_hair": false,
+   "skin": false,
+   "order": 0,
+   "npc": true
+  },
+  {
+   "id": "CO_NPC_Top_Kid_Yellow",
+   "name": "Kid Tee (Yellow)",
+   "slot": "Top",
+   "mesh": "SK_HH_Top_Tee",
+   "tint": [
+    0.8,
+    0.62,
+    0.1
+   ],
+   "tint2": null,
+   "price": 0,
+   "rarity": "Common",
+   "level": 1,
+   "owned": false,
+   "desc": "",
+   "flavor": "",
+   "theme": "",
+   "bone": "head",
+   "hides_hair": false,
+   "skin": false,
+   "order": 0,
+   "npc": true
+  },
+  {
+   "id": "CO_NPC_Top_Kid_Red",
+   "name": "Kid Hoodie (Red)",
+   "slot": "Top",
+   "mesh": "SK_HH_Top_Hoodie",
+   "tint": [
+    0.55,
+    0.08,
+    0.07
+   ],
+   "tint2": null,
+   "price": 0,
+   "rarity": "Common",
+   "level": 1,
+   "owned": false,
+   "desc": "",
+   "flavor": "",
+   "theme": "",
+   "bone": "head",
+   "hides_hair": false,
+   "skin": false,
+   "order": 0,
+   "npc": true
+  },
+  {
+   "id": "CO_NPC_Top_Kid_Blue",
+   "name": "Kid Sweater (Blue)",
+   "slot": "Top",
+   "mesh": "SK_HH_Top_Sweater",
+   "tint": [
+    0.2,
+    0.35,
+    0.62
+   ],
+   "tint2": [
+    0.8,
+    0.78,
+    0.7
+   ],
+   "price": 0,
+   "rarity": "Common",
+   "level": 1,
+   "owned": false,
+   "desc": "",
+   "flavor": "",
+   "theme": "",
+   "bone": "head",
+   "hides_hair": false,
+   "skin": false,
+   "order": 0,
+   "npc": true
   }
  ],
  "equipment": [

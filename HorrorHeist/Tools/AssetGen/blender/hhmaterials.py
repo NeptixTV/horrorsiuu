@@ -204,6 +204,23 @@ CATALOG = {
     'MI_Glass_Shop': glass((0.78, 0.84, 0.86), 0.15, 0.04),
     'MI_Emit_Window_Warm': emissive((1.0, 0.66, 0.36), 4.0, (0.5, 0.4, 0.3), 0.9),
     'MI_Emit_Neon_Red': emissive((1.0, 0.10, 0.08), 20.0, (0.4, 0.05, 0.05)),
+    # Traffic signals: bright enough to read in daylight.
+    'MI_Emit_Signal_Red': emissive((1.0, 0.06, 0.03), 60.0, (0.5, 0.05, 0.03), 0.2),
+    'MI_Emit_Signal_Amber': emissive((1.0, 0.50, 0.04), 60.0, (0.5, 0.3, 0.03), 0.2),
+    'MI_Emit_Signal_Green': emissive((0.15, 1.0, 0.55), 60.0, (0.05, 0.4, 0.2), 0.2),
+    # Downtown surfaces (tinted from existing texture sets).
+    'MI_Floor_Marble': surface('T_Tiles_Square', (0.86, 0.84, 0.80), uv=0.5, rough=0.6),
+    'MI_Floor_Vinyl': surface('T_Tiles_Square', (0.80, 0.80, 0.78), uv=1.0, rough=0.9),
+    'MI_Paint_Bank_Green': surface('T_Plaster', (0.30, 0.40, 0.33), uv=0.5),
+    'MI_Metal_White': surface('T_Metal_Painted', (0.80, 0.80, 0.78), uv=1.0, rough=0.8),
+    'MI_Metal_Vault': surface('T_Metal_Steel', (1.0, 1.0, 0.97), uv=0.8, rough=0.5),
+    'MI_Plastic_Blue': solid((0.06, 0.20, 0.55), 0.45),
+    'MI_Plastic_Green': solid((0.10, 0.45, 0.18), 0.45),
+    'MI_Plastic_Orange': solid((0.80, 0.30, 0.04), 0.45),
+    'MI_Rubber_Mat': surface('T_Rubber', (0.95, 0.42, 0.30), uv=0.5, rough=1.1),
+    'MI_Sand': surface('T_Concrete_Sidewalk', (0.98, 0.84, 0.62), uv=1.2, rough=1.1),
+    'MI_Fabric_Sheet': surface('T_Cotton', (0.86, 0.86, 0.84), uv=1.0),
+    'MI_Glass_Teller': glass((0.85, 0.9, 0.9), 0.12, 0.03),
 
     # --- Interiors ----------------------------------------------------------------------
     'MI_Wallpaper_Floral': surface('T_Wallpaper_Floral', uv=1.0),
@@ -251,6 +268,19 @@ CATALOG = {
     'MI_Img_Sign_Speed': image('T_Sign_Speed', 0.5),
     'MI_Img_House_Numbers': image('T_House_Numbers', 0.4, masked=True),
     'MI_Img_Shop_Interior': image('T_Shop_Interior', 0.7),
+    # Downtown (textures: textures/gen_town_images.py)
+    'MI_Img_Sign_Bank': image('T_Sign_Bank', 0.5),
+    'MI_Img_Sign_Market': image('T_Sign_Market', 0.5),
+    'MI_Img_Sign_Gazette': image('T_Sign_Gazette', 0.6),
+    'MI_Img_Sign_Pharmacy': image('T_Sign_Pharmacy', 0.6),
+    'MI_Img_Sign_Barber': image('T_Sign_Barber', 0.6),
+    'MI_Img_Sign_Playground': image('T_Sign_Playground', 0.6),
+    'MI_Img_Groceries': image('T_Groceries', 0.55),
+    'MI_Img_Aisle_Signs': image('T_Aisle_Signs', 0.5),
+    'MI_Img_Poster_Bank': image('T_Poster_Bank', 0.7),
+    'MI_Img_Poster_Market': image('T_Poster_Market', 0.7),
+    'MI_Img_Police_Tape': image('T_Police_Tape', 0.45),
+    'MI_Screen_ATM': screen('T_ATM_Screen', (0.8, 0.88, 1.0), 2.5, 0.0),
 
     # --- Town decals --------------------------------------------------------------------
     'MI_Decal_Leaves': decal('T_Decal_Leaves', opacity=1.0, rough=0.8),

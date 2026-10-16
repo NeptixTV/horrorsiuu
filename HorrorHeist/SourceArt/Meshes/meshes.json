@@ -424,6 +424,78 @@
   "nanite": false,
   "skeleton": "SK_HH_Body"
  },
+ "SM_ATM": {
+  "collision": "box",
+  "file": "SourceArt/Meshes/Props/Bank/SM_ATM.fbx",
+  "folder": "Props/Bank",
+  "hash": "1197d4e02a43aab354beb4b7ee62ffe0c1baf2fa",
+  "kind": "static",
+  "materials": [
+   "MI_Metal_Grey",
+   "MI_Plastic_Black",
+   "MI_Screen_ATM",
+   "MI_Steel",
+   "MI_Metal_Black",
+   "MI_Plastic_Red",
+   "MI_Plastic_Yellow",
+   "MI_Plastic_Green",
+   "MI_Plastic_Blue",
+   "MI_Emit_Fluoro"
+  ],
+  "nanite": false
+ },
+ "SM_Aisle_Sign_1": {
+  "collision": "none",
+  "file": "SourceArt/Meshes/Props/Market/SM_Aisle_Sign_1.fbx",
+  "folder": "Props/Market",
+  "hash": "7a6fe347207d8ed7ad6bf95c8140b91ebca8ea4d",
+  "kind": "static",
+  "materials": [
+   "MI_Steel",
+   "MI_Plastic_White",
+   "MI_Img_Aisle_Signs"
+  ],
+  "nanite": false
+ },
+ "SM_Aisle_Sign_2": {
+  "collision": "none",
+  "file": "SourceArt/Meshes/Props/Market/SM_Aisle_Sign_2.fbx",
+  "folder": "Props/Market",
+  "hash": "b781e8b8c9b2bacc3a7f95b53b471d1de7da9df7",
+  "kind": "static",
+  "materials": [
+   "MI_Steel",
+   "MI_Plastic_White",
+   "MI_Img_Aisle_Signs"
+  ],
+  "nanite": false
+ },
+ "SM_Aisle_Sign_3": {
+  "collision": "none",
+  "file": "SourceArt/Meshes/Props/Market/SM_Aisle_Sign_3.fbx",
+  "folder": "Props/Market",
+  "hash": "b4132efc0330f806ab059be69193e7afe030f3c8",
+  "kind": "static",
+  "materials": [
+   "MI_Steel",
+   "MI_Plastic_White",
+   "MI_Img_Aisle_Signs"
+  ],
+  "nanite": false
+ },
+ "SM_Aisle_Sign_4": {
+  "collision": "none",
+  "file": "SourceArt/Meshes/Props/Market/SM_Aisle_Sign_4.fbx",
+  "folder": "Props/Market",
+  "hash": "ffe1c7996f95005e164c96d9f65ebba7508c7c59",
+  "kind": "static",
+  "materials": [
+   "MI_Steel",
+   "MI_Plastic_White",
+   "MI_Img_Aisle_Signs"
+  ],
+  "nanite": false
+ },
  "SM_Armchair": {
   "collision": "box",
   "file": "SourceArt/Meshes/Props/Lounge/SM_Armchair.fbx",
@@ -470,6 +542,24 @@
    "MI_Fabric_Curtain",
    "MI_Fabric_Olive",
    "MI_Metal_Black"
+  ],
+  "nanite": false
+ },
+ "SM_Bank_Counter": {
+  "collision": "complex",
+  "file": "SourceArt/Meshes/Props/Bank/SM_Bank_Counter.fbx",
+  "folder": "Props/Bank",
+  "hash": "26f6b449c5cffa1ff68c00ad9d4a6cc34b1feef6",
+  "kind": "static",
+  "materials": [
+   "MI_Wood_Dark",
+   "MI_Stone_Wall",
+   "MI_Brass",
+   "MI_Glass_Teller",
+   "MI_Steel",
+   "MI_Metal_Black",
+   "MI_Metal_Grey",
+   "MI_Chrome"
   ],
   "nanite": false
  },
@@ -555,6 +645,18 @@
   ],
   "nanite": false
  },
+ "SM_Bench_Kids": {
+  "collision": "box",
+  "file": "SourceArt/Meshes/Props/Playground/SM_Bench_Kids.fbx",
+  "folder": "Props/Playground",
+  "hash": "02577611629c6c56baec3cb2bc8c232e7cff5d40",
+  "kind": "static",
+  "materials": [
+   "MI_Metal_Green",
+   "MI_Wood_Planks"
+  ],
+  "nanite": false
+ },
  "SM_Bench_Park": {
   "collision": "box",
   "file": "SourceArt/Meshes/Props/Town/SM_Bench_Park.fbx",
@@ -576,6 +678,21 @@
   "materials": [
    "MI_Wood_Raw",
    "MI_Metal_Black"
+  ],
+  "nanite": false
+ },
+ "SM_Bicycle": {
+  "collision": "convex",
+  "file": "SourceArt/Meshes/Props/Yard/SM_Bicycle.fbx",
+  "folder": "Props/Yard",
+  "hash": "72eb9bfb5f8fe5ce6621f4306ce67c4d0b4af146",
+  "kind": "static",
+  "materials": [
+   "MI_Rubber_Black",
+   "MI_Chrome",
+   "MI_Metal_Blue",
+   "MI_Leather_Black",
+   "MI_Steel"
   ],
   "nanite": false
  },
@@ -625,6 +742,18 @@
   "kind": "static",
   "materials": [
    "MI_Img_Map"
+  ],
+  "nanite": false
+ },
+ "SM_Body_Covered": {
+  "collision": "convex",
+  "file": "SourceArt/Meshes/Props/CrimeScene/SM_Body_Covered.fbx",
+  "folder": "Props/CrimeScene",
+  "hash": "cfd765fe5763013e6d1d2cc30927ad017d8db224",
+  "kind": "static",
+  "materials": [
+   "MI_Fabric_Sheet",
+   "MI_Leather_Black"
   ],
   "nanite": false
  },
@@ -1015,6 +1144,53 @@
   ],
   "nanite": false
  },
+ "SM_Check_Desk": {
+  "collision": "box",
+  "file": "SourceArt/Meshes/Props/Bank/SM_Check_Desk.fbx",
+  "folder": "Props/Bank",
+  "hash": "e77137896b6fb2e48865574db0b6a30fa611bc8f",
+  "kind": "static",
+  "materials": [
+   "MI_Wood_Dark",
+   "MI_Stone_Wall",
+   "MI_Brass",
+   "MI_Paper",
+   "MI_Plastic_Black"
+  ],
+  "nanite": false
+ },
+ "SM_Checkout": {
+  "collision": "complex",
+  "file": "SourceArt/Meshes/Props/Market/SM_Checkout.fbx",
+  "folder": "Props/Market",
+  "hash": "872e8eb71e2973963eb928205da01fb5389acbc6",
+  "kind": "static",
+  "materials": [
+   "MI_Metal_White",
+   "MI_Countertop",
+   "MI_Rubber_Black",
+   "MI_Steel",
+   "MI_Glass_Bottle",
+   "MI_Metal_Black",
+   "MI_Plastic_Beige",
+   "MI_Screen_Monitor",
+   "MI_Plastic_Grey",
+   "MI_Img_Groceries",
+   "MI_Emit_Fluoro"
+  ],
+  "nanite": false
+ },
+ "SM_Climber": {
+  "collision": "complex",
+  "file": "SourceArt/Meshes/Props/Playground/SM_Climber.fbx",
+  "folder": "Props/Playground",
+  "hash": "db7be24af11bee5169cbbb9e6b8a1c5ccd205566",
+  "kind": "static",
+  "materials": [
+   "MI_Metal_Blue"
+  ],
+  "nanite": false
+ },
  "SM_Clipboard": {
   "collision": "none",
   "file": "SourceArt/Meshes/Props/Desk/SM_Clipboard.fbx",
@@ -1037,6 +1213,19 @@
   "materials": [
    "MI_Metal_Black",
    "MI_Img_ClockFace"
+  ],
+  "nanite": false
+ },
+ "SM_Clothesline": {
+  "collision": "complex",
+  "file": "SourceArt/Meshes/Props/Yard/SM_Clothesline.fbx",
+  "folder": "Props/Yard",
+  "hash": "176c7c837e92118f43a204efec7c751fcd7bc0c4",
+  "kind": "static",
+  "materials": [
+   "MI_Metal_Grey",
+   "MI_Plastic_White",
+   "MI_Fabric_Sheet"
   ],
   "nanite": false
  },
@@ -1088,6 +1277,22 @@
    "MI_Metal_Black",
    "MI_Metal_Red",
    "MI_Steel"
+  ],
+  "nanite": false
+ },
+ "SM_Cooler": {
+  "collision": "box",
+  "file": "SourceArt/Meshes/Props/Market/SM_Cooler.fbx",
+  "folder": "Props/Market",
+  "hash": "ff17ed6f1f0df2688e4cea258dda3a92f0385f4c",
+  "kind": "static",
+  "materials": [
+   "MI_Metal_Black",
+   "MI_Metal_White",
+   "MI_Emit_Fluoro",
+   "MI_Img_Groceries",
+   "MI_Glass_Teller",
+   "MI_Chrome"
   ],
   "nanite": false
  },
@@ -1618,6 +1823,18 @@
   ],
   "nanite": false
  },
+ "SM_Evidence_Markers": {
+  "collision": "none",
+  "file": "SourceArt/Meshes/Props/CrimeScene/SM_Evidence_Markers.fbx",
+  "folder": "Props/CrimeScene",
+  "hash": "10a1bf59937b9560dbe0f5036e7cd69dcb515400",
+  "kind": "static",
+  "materials": [
+   "MI_Plastic_Yellow",
+   "MI_Plastic_Black"
+  ],
+  "nanite": false
+ },
  "SM_Fence_Chain": {
   "collision": "box",
   "file": "SourceArt/Meshes/Props/Town/SM_Fence_Chain.fbx",
@@ -1716,6 +1933,18 @@
    "MI_Bark",
    "MI_Stone_Wall",
    "MI_Wood_Dark"
+  ],
+  "nanite": false
+ },
+ "SM_Firewood_Stack": {
+  "collision": "box",
+  "file": "SourceArt/Meshes/Props/Yard/SM_Firewood_Stack.fbx",
+  "folder": "Props/Yard",
+  "hash": "6cf3fe5ce9870647155027c5792ab8ac9b9e4884",
+  "kind": "static",
+  "materials": [
+   "MI_Bark",
+   "MI_Wood_Raw"
   ],
   "nanite": false
  },
@@ -3193,6 +3422,17 @@
   ],
   "nanite": false
  },
+ "SM_Patio_Chair": {
+  "collision": "box",
+  "file": "SourceArt/Meshes/Props/Town/SM_Patio_Chair.fbx",
+  "folder": "Props/Town",
+  "hash": "6e9f58269df01a26d1e5056bccd1910c45460669",
+  "kind": "static",
+  "materials": [
+   "MI_Plastic_White"
+  ],
+  "nanite": false
+ },
  "SM_Patio_Table": {
   "collision": "box",
   "file": "SourceArt/Meshes/Props/Town/SM_Patio_Table.fbx",
@@ -3326,6 +3566,18 @@
   ],
   "nanite": false
  },
+ "SM_Play_SwingFrame": {
+  "collision": "complex",
+  "file": "SourceArt/Meshes/Props/Playground/SM_Play_SwingFrame.fbx",
+  "folder": "Props/Playground",
+  "hash": "d9d7bdf2856ae0ec49b58e4b6407378d0d4a684a",
+  "kind": "static",
+  "materials": [
+   "MI_Metal_Red",
+   "MI_Steel"
+  ],
+  "nanite": false
+ },
  "SM_Polaroid_0": {
   "collision": "none",
   "file": "SourceArt/Meshes/Props/Board/SM_Polaroid_0.fbx",
@@ -3414,6 +3666,59 @@
   ],
   "nanite": false
  },
+ "SM_Police_Tape": {
+  "collision": "none",
+  "file": "SourceArt/Meshes/Props/CrimeScene/SM_Police_Tape.fbx",
+  "folder": "Props/CrimeScene",
+  "hash": "0945e34bd937c03a52b8c1be83c78153cd7247dd",
+  "kind": "static",
+  "materials": [
+   "MI_Steel",
+   "MI_Plastic_Red",
+   "MI_Img_Police_Tape"
+  ],
+  "nanite": false
+ },
+ "SM_Porch_Planter": {
+  "collision": "box",
+  "file": "SourceArt/Meshes/Props/Yard/SM_Porch_Planter.fbx",
+  "folder": "Props/Yard",
+  "hash": "0bc41c4f94cd0fb3a9bb5685aa7f84cd525fb3f5",
+  "kind": "static",
+  "materials": [
+   "MI_Wood_Painted",
+   "MI_Dirt",
+   "MI_Hedge",
+   "MI_Plastic_Red",
+   "MI_Plastic_Yellow",
+   "MI_Plastic_Orange"
+  ],
+  "nanite": false
+ },
+ "SM_Poster_Bank": {
+  "collision": "none",
+  "file": "SourceArt/Meshes/Props/Bank/SM_Poster_Bank.fbx",
+  "folder": "Props/Bank",
+  "hash": "87b536f1474b6d9f7163ae008b758b24ae60a669",
+  "kind": "static",
+  "materials": [
+   "MI_Brass",
+   "MI_Img_Poster_Bank"
+  ],
+  "nanite": false
+ },
+ "SM_Poster_Market": {
+  "collision": "none",
+  "file": "SourceArt/Meshes/Props/Market/SM_Poster_Market.fbx",
+  "folder": "Props/Market",
+  "hash": "24edc64ba6ef3d56ad8d2ff869af2f9cc8f42550",
+  "kind": "static",
+  "materials": [
+   "MI_Img_Poster_Market",
+   "MI_Plastic_Red"
+  ],
+  "nanite": false
+ },
  "SM_Poster_Missing": {
   "collision": "none",
   "file": "SourceArt/Meshes/Props/Board/SM_Poster_Missing.fbx",
@@ -3445,6 +3750,35 @@
   "materials": [
    "MI_Steel",
    "MI_Plastic_Black"
+  ],
+  "nanite": false
+ },
+ "SM_Produce_Stand": {
+  "collision": "box",
+  "file": "SourceArt/Meshes/Props/Market/SM_Produce_Stand.fbx",
+  "folder": "Props/Market",
+  "hash": "81b4b06329d99c84272741256b938efda5e4c3e0",
+  "kind": "static",
+  "materials": [
+   "MI_Wood_Raw",
+   "MI_Wood_Planks",
+   "MI_Plastic_Red",
+   "MI_Plastic_Orange",
+   "MI_Plastic_Yellow",
+   "MI_Plastic_Green"
+  ],
+  "nanite": false
+ },
+ "SM_Pumpkin_Lantern": {
+  "collision": "convex",
+  "file": "SourceArt/Meshes/Props/Yard/SM_Pumpkin_Lantern.fbx",
+  "folder": "Props/Yard",
+  "hash": "3993763e5be22a164ccc4f24a7af7b78a405011b",
+  "kind": "static",
+  "materials": [
+   "MI_Plastic_Orange",
+   "MI_Wood_Dark",
+   "MI_Emit_Ember"
   ],
   "nanite": false
  },
@@ -3611,9 +3945,24 @@
   "collision": "none",
   "file": "SourceArt/Meshes/Equipment/SM_Salt_Line.fbx",
   "folder": "Equipment",
+  "hash": "54db6f8f1d0993b0572767da393057ce9a30b4d9",
   "kind": "static",
   "materials": [
    "MI_Paint_White"
+  ],
+  "nanite": false
+ },
+ "SM_Sandbox": {
+  "collision": "complex",
+  "file": "SourceArt/Meshes/Props/Playground/SM_Sandbox.fbx",
+  "folder": "Props/Playground",
+  "hash": "7129030e78db858906cecf505f055f86cda57900",
+  "kind": "static",
+  "materials": [
+   "MI_Wood_Raw",
+   "MI_Sand",
+   "MI_Plastic_Red",
+   "MI_Plastic_Yellow"
   ],
   "nanite": false
  },
@@ -3628,6 +3977,20 @@
   ],
   "nanite": false
  },
+ "SM_Scarecrow": {
+  "collision": "convex",
+  "file": "SourceArt/Meshes/Props/Yard/SM_Scarecrow.fbx",
+  "folder": "Props/Yard",
+  "hash": "e39a0a1d7737fb32c2420d900ef2f1d76e781aac",
+  "kind": "static",
+  "materials": [
+   "MI_Wood_Raw",
+   "MI_Fabric_Brown",
+   "MI_Cardboard",
+   "MI_Plastic_Black"
+  ],
+  "nanite": false
+ },
  "SM_Screen_Quad": {
   "collision": "none",
   "file": "SourceArt/Meshes/Architecture/Windows/SM_Screen_Quad.fbx",
@@ -3636,6 +3999,20 @@
   "kind": "static",
   "materials": [
    "MI_Screen_TV"
+  ],
+  "nanite": false
+ },
+ "SM_Seesaw": {
+  "collision": "complex",
+  "file": "SourceArt/Meshes/Props/Playground/SM_Seesaw.fbx",
+  "folder": "Props/Playground",
+  "hash": "1e77cd0998c1960edf523fe6220d994d67767be3",
+  "kind": "static",
+  "materials": [
+   "MI_Metal_Green",
+   "MI_Wood_Painted",
+   "MI_Rubber_Black",
+   "MI_Metal_Yellow"
   ],
   "nanite": false
  },
@@ -3657,6 +4034,36 @@
    "MI_Brass",
    "MI_Roof_Shingles_Brown",
    "MI_Trim_Dark"
+  ],
+  "nanite": false
+ },
+ "SM_Shelf_Grocery": {
+  "collision": "box",
+  "file": "SourceArt/Meshes/Props/Market/SM_Shelf_Grocery.fbx",
+  "folder": "Props/Market",
+  "hash": "9d46eb5f7489c2234aac6044d8ed00373381790e",
+  "kind": "static",
+  "materials": [
+   "MI_Metal_White",
+   "MI_Pegboard",
+   "MI_Img_Groceries",
+   "MI_Plastic_Yellow",
+   "MI_Plastic_Red"
+  ],
+  "nanite": false
+ },
+ "SM_Shelf_Grocery_B": {
+  "collision": "box",
+  "file": "SourceArt/Meshes/Props/Market/SM_Shelf_Grocery_B.fbx",
+  "folder": "Props/Market",
+  "hash": "bbd4b1d39f4d8d4b7350e57b2f8701f0c888026a",
+  "kind": "static",
+  "materials": [
+   "MI_Metal_White",
+   "MI_Pegboard",
+   "MI_Img_Groceries",
+   "MI_Plastic_Yellow",
+   "MI_Plastic_Red"
   ],
   "nanite": false
  },
@@ -3708,6 +4115,20 @@
   ],
   "nanite": false
  },
+ "SM_Shopping_Cart": {
+  "collision": "convex",
+  "file": "SourceArt/Meshes/Props/Market/SM_Shopping_Cart.fbx",
+  "folder": "Props/Market",
+  "hash": "dabf0f664dcd6fbb6aa4ce534056b058f46698a2",
+  "kind": "static",
+  "materials": [
+   "MI_Chrome",
+   "MI_Plastic_Red",
+   "MI_Rubber_Black",
+   "MI_Steel"
+  ],
+  "nanite": false
+ },
  "SM_ShowerCurtain": {
   "collision": "none",
   "file": "SourceArt/Meshes/Props/House/SM_ShowerCurtain.fbx",
@@ -3730,6 +4151,34 @@
   "materials": [
    "MI_Cabinet_Wood",
    "MI_Brass"
+  ],
+  "nanite": false
+ },
+ "SM_Sign_Bank": {
+  "collision": "box",
+  "file": "SourceArt/Meshes/Props/Town/SM_Sign_Bank.fbx",
+  "folder": "Props/Town",
+  "hash": "63e807465cf8487092274d5f3e936f7a48ffc2d3",
+  "kind": "static",
+  "materials": [
+   "MI_Wood_Dark",
+   "MI_Brass",
+   "MI_Img_Sign_Bank",
+   "MI_Steel"
+  ],
+  "nanite": false
+ },
+ "SM_Sign_Barber": {
+  "collision": "box",
+  "file": "SourceArt/Meshes/Props/Town/SM_Sign_Barber.fbx",
+  "folder": "Props/Town",
+  "hash": "428989dd8d20b7ba2ee280fcf3a13af3b52dc4f6",
+  "kind": "static",
+  "materials": [
+   "MI_Wood_Dark",
+   "MI_Trim_Dark",
+   "MI_Img_Sign_Barber",
+   "MI_Steel"
   ],
   "nanite": false
  },
@@ -3788,6 +4237,20 @@
   ],
   "nanite": false
  },
+ "SM_Sign_Gazette": {
+  "collision": "box",
+  "file": "SourceArt/Meshes/Props/Town/SM_Sign_Gazette.fbx",
+  "folder": "Props/Town",
+  "hash": "9494c3a41c57b15956a9f9538d7445c23190b715",
+  "kind": "static",
+  "materials": [
+   "MI_Wood_Dark",
+   "MI_Trim_Dark",
+   "MI_Img_Sign_Gazette",
+   "MI_Steel"
+  ],
+  "nanite": false
+ },
  "SM_Sign_Hardware": {
   "collision": "box",
   "file": "SourceArt/Meshes/Props/Town/SM_Sign_Hardware.fbx",
@@ -3798,6 +4261,20 @@
    "MI_Wood_Dark",
    "MI_Trim_Dark",
    "MI_Img_Sign_Hardware",
+   "MI_Steel"
+  ],
+  "nanite": false
+ },
+ "SM_Sign_Market": {
+  "collision": "box",
+  "file": "SourceArt/Meshes/Props/Town/SM_Sign_Market.fbx",
+  "folder": "Props/Town",
+  "hash": "34fd6d7bf940cf44a29456e679aaf019c60259c0",
+  "kind": "static",
+  "materials": [
+   "MI_Wood_Dark",
+   "MI_Trim_White",
+   "MI_Img_Sign_Market",
    "MI_Steel"
   ],
   "nanite": false
@@ -3826,6 +4303,33 @@
    "MI_Metal_Black",
    "MI_Aluminium",
    "MI_Img_Sign_Parking"
+  ],
+  "nanite": false
+ },
+ "SM_Sign_Pharmacy": {
+  "collision": "box",
+  "file": "SourceArt/Meshes/Props/Town/SM_Sign_Pharmacy.fbx",
+  "folder": "Props/Town",
+  "hash": "887dff9bf517a2dd42377f1e4b132d3cbada7f0b",
+  "kind": "static",
+  "materials": [
+   "MI_Wood_Dark",
+   "MI_Trim_White",
+   "MI_Img_Sign_Pharmacy",
+   "MI_Steel"
+  ],
+  "nanite": false
+ },
+ "SM_Sign_Playground_Post": {
+  "collision": "box",
+  "file": "SourceArt/Meshes/Props/Town/SM_Sign_Playground_Post.fbx",
+  "folder": "Props/Town",
+  "hash": "4b54d568055b8e774096fc47a9e9d4e2c8c31e02",
+  "kind": "static",
+  "materials": [
+   "MI_Wood_Dark",
+   "MI_Img_Sign_Playground",
+   "MI_Steel"
   ],
   "nanite": false
  },
@@ -3885,11 +4389,95 @@
   ],
   "nanite": false
  },
+ "SM_Sign_Street_Main_Elm": {
+  "collision": "box",
+  "file": "SourceArt/Meshes/Props/Town/SM_Sign_Street_Main_Elm.fbx",
+  "folder": "Props/Town",
+  "hash": "0feee35f9ed1eaef2bbbb45f8df59309703820cc",
+  "kind": "static",
+  "materials": [
+   "MI_Metal_Green",
+   "MI_Steel",
+   "MI_Aluminium",
+   "MI_Img_Sign_Street"
+  ],
+  "nanite": false
+ },
+ "SM_Sign_Street_Main_Pine": {
+  "collision": "box",
+  "file": "SourceArt/Meshes/Props/Town/SM_Sign_Street_Main_Pine.fbx",
+  "folder": "Props/Town",
+  "hash": "d05476da2e188e0752f30d2a5a74838b44d6d81a",
+  "kind": "static",
+  "materials": [
+   "MI_Metal_Green",
+   "MI_Steel",
+   "MI_Aluminium",
+   "MI_Img_Sign_Street"
+  ],
+  "nanite": false
+ },
  "SM_Sign_Street_Marrow": {
   "collision": "box",
   "file": "SourceArt/Meshes/Props/Town/SM_Sign_Street_Marrow.fbx",
   "folder": "Props/Town",
   "hash": "c3ef35edfad11996ad47c7b8fe3c340d60a3255f",
+  "kind": "static",
+  "materials": [
+   "MI_Metal_Green",
+   "MI_Steel",
+   "MI_Aluminium",
+   "MI_Img_Sign_Street"
+  ],
+  "nanite": false
+ },
+ "SM_Sign_Street_Mill_Elm": {
+  "collision": "box",
+  "file": "SourceArt/Meshes/Props/Town/SM_Sign_Street_Mill_Elm.fbx",
+  "folder": "Props/Town",
+  "hash": "6eb06d254c805b1b83f99c8c96248a35086448b8",
+  "kind": "static",
+  "materials": [
+   "MI_Metal_Green",
+   "MI_Steel",
+   "MI_Aluminium",
+   "MI_Img_Sign_Street"
+  ],
+  "nanite": false
+ },
+ "SM_Sign_Street_Mill_Pine": {
+  "collision": "box",
+  "file": "SourceArt/Meshes/Props/Town/SM_Sign_Street_Mill_Pine.fbx",
+  "folder": "Props/Town",
+  "hash": "b53de688573b271fa4a5a45da4f5e5733e3226da",
+  "kind": "static",
+  "materials": [
+   "MI_Metal_Green",
+   "MI_Steel",
+   "MI_Aluminium",
+   "MI_Img_Sign_Street"
+  ],
+  "nanite": false
+ },
+ "SM_Sign_Street_Orchard_Elm": {
+  "collision": "box",
+  "file": "SourceArt/Meshes/Props/Town/SM_Sign_Street_Orchard_Elm.fbx",
+  "folder": "Props/Town",
+  "hash": "ea86c942b4ac79a7b161528c109d53a9c175b950",
+  "kind": "static",
+  "materials": [
+   "MI_Metal_Green",
+   "MI_Steel",
+   "MI_Aluminium",
+   "MI_Img_Sign_Street"
+  ],
+  "nanite": false
+ },
+ "SM_Sign_Street_Orchard_Pine": {
+  "collision": "box",
+  "file": "SourceArt/Meshes/Props/Town/SM_Sign_Street_Orchard_Pine.fbx",
+  "folder": "Props/Town",
+  "hash": "c3d49b07b0c99ec1942c300d0ea64d332e166892",
   "kind": "static",
   "materials": [
    "MI_Metal_Green",
@@ -3911,6 +4499,20 @@
    "MI_Plastic_Red",
    "MI_Metal_Blue",
    "MI_Metal_Black"
+  ],
+  "nanite": false
+ },
+ "SM_Slide": {
+  "collision": "complex",
+  "file": "SourceArt/Meshes/Props/Playground/SM_Slide.fbx",
+  "folder": "Props/Playground",
+  "hash": "b563f316314c82a5dff1d2cae9d34e3b664f899c",
+  "kind": "static",
+  "materials": [
+   "MI_Metal_Yellow",
+   "MI_Plastic_Blue",
+   "MI_Plastic_Green",
+   "MI_Plastic_Red"
   ],
   "nanite": false
  },
@@ -3940,6 +4542,18 @@
    "MI_Chrome",
    "MI_Metal_Black",
    "MI_Bakelite"
+  ],
+  "nanite": false
+ },
+ "SM_Stanchion_Pair": {
+  "collision": "convex",
+  "file": "SourceArt/Meshes/Props/Bank/SM_Stanchion_Pair.fbx",
+  "folder": "Props/Bank",
+  "hash": "10db036eb735537e742cd73159cf10d1a6fcb9a6",
+  "kind": "static",
+  "materials": [
+   "MI_Brass",
+   "MI_Velvet_Blue"
   ],
   "nanite": false
  },
@@ -3988,6 +4602,18 @@
   "kind": "static",
   "materials": [
    "MI_Metal_Rust",
+   "MI_Steel",
+   "MI_Rubber_Black"
+  ],
+  "nanite": false
+ },
+ "SM_Swing_Seat": {
+  "collision": "none",
+  "file": "SourceArt/Meshes/Props/Playground/SM_Swing_Seat.fbx",
+  "folder": "Props/Playground",
+  "hash": "04616098d6cd82de9cfb9422561c86ff4a4c7101",
+  "kind": "static",
+  "materials": [
    "MI_Steel",
    "MI_Rubber_Black"
   ],
@@ -4076,6 +4702,18 @@
    "MI_Porcelain",
    "MI_Chrome",
    "MI_Plastic_White"
+  ],
+  "nanite": false
+ },
+ "SM_Tombstone_Decor": {
+  "collision": "box",
+  "file": "SourceArt/Meshes/Props/Yard/SM_Tombstone_Decor.fbx",
+  "folder": "Props/Yard",
+  "hash": "b9156844ddae9b998e82fc07470d3d91dea2aa2d",
+  "kind": "static",
+  "materials": [
+   "MI_Concrete_Raw",
+   "MI_Plastic_Black"
   ],
   "nanite": false
  },
@@ -4168,12 +4806,138 @@
   "collision": "complex",
   "file": "SourceArt/Meshes/Town/SM_Town_AshgroveLane.fbx",
   "folder": "Town",
-  "hash": "8c9e4af460feed61c95604e02a84c6b7e930e765",
+  "hash": "f3a508c492b9e8e58d8eb0493ee0a47383b5923a",
   "kind": "static",
   "materials": [
    "MI_Asphalt",
    "MI_Road_Paint_Yellow",
    "MI_Road_Paint_White"
+  ],
+  "nanite": true
+ },
+ "SM_Town_Bank_Shell": {
+  "collision": "complex",
+  "file": "SourceArt/Meshes/Town/SM_Town_Bank_Shell.fbx",
+  "folder": "Town",
+  "hash": "8ceb1a14eb457cc4ec44efb15780042bf6133438",
+  "kind": "static",
+  "materials": [
+   "MI_Stone_Wall",
+   "MI_Paint_Bank_Green",
+   "MI_Concrete_Raw",
+   "MI_Floor_Marble",
+   "MI_Plaster"
+  ],
+  "nanite": true
+ },
+ "SM_Town_Bank_Trim": {
+  "collision": "complex",
+  "file": "SourceArt/Meshes/Town/SM_Town_Bank_Trim.fbx",
+  "folder": "Town",
+  "hash": "d711c21ea12fc9577da6b2b0f6c8a034b09022a2",
+  "kind": "static",
+  "materials": [
+   "MI_Stone_Wall",
+   "MI_Wood_Dark",
+   "MI_Glass_Window",
+   "MI_Concrete_Raw"
+  ],
+  "nanite": false
+ },
+ "SM_Town_Barber_Shell": {
+  "collision": "complex",
+  "file": "SourceArt/Meshes/Town/SM_Town_Barber_Shell.fbx",
+  "folder": "Town",
+  "hash": "bfb00c12ddd7a1bd839368635b1b88bef593a6ac",
+  "kind": "static",
+  "materials": [
+   "MI_Siding_White",
+   "MI_Plaster",
+   "MI_Concrete_Raw",
+   "MI_Concrete_Floor",
+   "MI_Wood_Floor_Dark"
+  ],
+  "nanite": true
+ },
+ "SM_Town_Barber_Trim": {
+  "collision": "complex",
+  "file": "SourceArt/Meshes/Town/SM_Town_Barber_Trim.fbx",
+  "folder": "Town",
+  "hash": "e88d92631be0448f5ec7aad96a3183c0235b437d",
+  "kind": "static",
+  "materials": [
+   "MI_Trim_Dark",
+   "MI_Glass_Shop",
+   "MI_Chrome",
+   "MI_Img_Shop_Interior",
+   "MI_Wood_Dark"
+  ],
+  "nanite": false
+ },
+ "SM_Town_Block_DT_Edge": {
+  "collision": "complex",
+  "file": "SourceArt/Meshes/Town/SM_Town_Block_DT_Edge.fbx",
+  "folder": "Town",
+  "hash": "5a4f9a50762dc98b8e1dd62f2ba616bd626b2659",
+  "kind": "static",
+  "materials": [
+   "MI_Curb",
+   "MI_Sidewalk",
+   "MI_Grass"
+  ],
+  "nanite": true
+ },
+ "SM_Town_Block_DT_NE": {
+  "collision": "complex",
+  "file": "SourceArt/Meshes/Town/SM_Town_Block_DT_NE.fbx",
+  "folder": "Town",
+  "hash": "247930a76d1f8ebdd2d61f48e6713eae2d60845c",
+  "kind": "static",
+  "materials": [
+   "MI_Curb",
+   "MI_Sidewalk",
+   "MI_Grass"
+  ],
+  "nanite": true
+ },
+ "SM_Town_Block_DT_NW": {
+  "collision": "complex",
+  "file": "SourceArt/Meshes/Town/SM_Town_Block_DT_NW.fbx",
+  "folder": "Town",
+  "hash": "76dec66cd5364ef9bb00d4bdfef1f4b3436ba6c6",
+  "kind": "static",
+  "materials": [
+   "MI_Curb",
+   "MI_Sidewalk",
+   "MI_Grass"
+  ],
+  "nanite": true
+ },
+ "SM_Town_Block_DT_SE": {
+  "collision": "complex",
+  "file": "SourceArt/Meshes/Town/SM_Town_Block_DT_SE.fbx",
+  "folder": "Town",
+  "hash": "997a3f27cb0d821834d99cc07d0010afcf1fbf89",
+  "kind": "static",
+  "materials": [
+   "MI_Curb",
+   "MI_Sidewalk",
+   "MI_Grass",
+   "MI_Asphalt",
+   "MI_Road_Paint_White"
+  ],
+  "nanite": true
+ },
+ "SM_Town_Block_DT_SW": {
+  "collision": "complex",
+  "file": "SourceArt/Meshes/Town/SM_Town_Block_DT_SW.fbx",
+  "folder": "Town",
+  "hash": "32ff341246c9f6930d7d36015268ff00e54d6b9e",
+  "kind": "static",
+  "materials": [
+   "MI_Curb",
+   "MI_Sidewalk",
+   "MI_Grass"
   ],
   "nanite": true
  },
@@ -4386,6 +5150,19 @@
   ],
   "nanite": false
  },
+ "SM_Town_ElmAvenue": {
+  "collision": "complex",
+  "file": "SourceArt/Meshes/Town/SM_Town_ElmAvenue.fbx",
+  "folder": "Town",
+  "hash": "71714828f3963bd2e186acd8684a1593a0425a9b",
+  "kind": "static",
+  "materials": [
+   "MI_Asphalt",
+   "MI_Road_Paint_Yellow",
+   "MI_Road_Paint_White"
+  ],
+  "nanite": true
+ },
  "SM_Town_FireEscape": {
   "collision": "complex",
   "file": "SourceArt/Meshes/Town/SM_Town_FireEscape.fbx",
@@ -4411,6 +5188,40 @@
   ],
   "nanite": false
  },
+ "SM_Town_Gazette_Shell": {
+  "collision": "complex",
+  "file": "SourceArt/Meshes/Town/SM_Town_Gazette_Shell.fbx",
+  "folder": "Town",
+  "hash": "763c27392eeba8337350d67592a294272fa06e52",
+  "kind": "static",
+  "materials": [
+   "MI_Brick",
+   "MI_Plaster",
+   "MI_Concrete_Raw",
+   "MI_Concrete_Floor",
+   "MI_Wood_Floor_Dark"
+  ],
+  "nanite": true
+ },
+ "SM_Town_Gazette_Trim": {
+  "collision": "complex",
+  "file": "SourceArt/Meshes/Town/SM_Town_Gazette_Trim.fbx",
+  "folder": "Town",
+  "hash": "89eea9d5528887107c07376677cfde1f4434e75d",
+  "kind": "static",
+  "materials": [
+   "MI_Trim_Dark",
+   "MI_Glass_Shop",
+   "MI_Chrome",
+   "MI_Img_Shop_Interior",
+   "MI_Wood_Dark",
+   "MI_Trim_White",
+   "MI_Glass_Window",
+   "MI_Fabric_Curtain_Light",
+   "MI_Brass"
+  ],
+  "nanite": false
+ },
  "SM_Town_Gravestones": {
   "collision": "complex",
   "file": "SourceArt/Meshes/Town/SM_Town_Gravestones.fbx",
@@ -4428,13 +5239,13 @@
   "collision": "complex",
   "file": "SourceArt/Meshes/Town/SM_Town_Hardware_Shell.fbx",
   "folder": "Town",
-  "hash": "1f4d445d2ef90762c51bb51a5fdd03541381250f",
+  "hash": "22ce3aae721591b19af00c387a5daaccd46f8fec",
   "kind": "static",
   "materials": [
    "MI_Brick",
    "MI_Plaster",
    "MI_Concrete_Raw",
-   "MI_Concrete_Floor",
+   "MI_Wood_Floor",
    "MI_Wood_Floor_Dark"
   ],
   "nanite": true
@@ -4443,16 +5254,14 @@
   "collision": "complex",
   "file": "SourceArt/Meshes/Town/SM_Town_Hardware_Trim.fbx",
   "folder": "Town",
-  "hash": "06ae8576b511262c8b78b45c8ac94be7672ea917",
+  "hash": "d234a30dd829c98b59aa37fa85dff12e065d5492",
   "kind": "static",
   "materials": [
    "MI_Trim_Dark",
    "MI_Glass_Shop",
-   "MI_Chrome",
-   "MI_Img_Shop_Interior",
+   "MI_Glass_Window",
    "MI_Wood_Dark",
    "MI_Trim_White",
-   "MI_Glass_Window",
    "MI_Fabric_Curtain_Light",
    "MI_Brass"
   ],
@@ -4644,6 +5453,74 @@
   ],
   "nanite": false
  },
+ "SM_Town_House_Elm21_Shell": {
+  "collision": "complex",
+  "file": "SourceArt/Meshes/Town/SM_Town_House_Elm21_Shell.fbx",
+  "folder": "Town",
+  "hash": "2a799996c6d3c8133094a47bcfe361c1633eca19",
+  "kind": "static",
+  "materials": [
+   "MI_Brick_Red",
+   "MI_Siding_Green",
+   "MI_Paint_Cream",
+   "MI_Wood_Floor_Dark",
+   "MI_Plaster",
+   "MI_Roof_Shingles_Dark",
+   "MI_Wood_Planks",
+   "MI_Trim_White"
+  ],
+  "nanite": true
+ },
+ "SM_Town_House_Elm21_Trim": {
+  "collision": "complex",
+  "file": "SourceArt/Meshes/Town/SM_Town_House_Elm21_Trim.fbx",
+  "folder": "Town",
+  "hash": "98050c23821861bcc5904cdabe9abe26119222d7",
+  "kind": "static",
+  "materials": [
+   "MI_Trim_White",
+   "MI_Wood_Dark",
+   "MI_Glass_Window",
+   "MI_Fabric_Curtain_Light",
+   "MI_Brass"
+  ],
+  "nanite": false
+ },
+ "SM_Town_House_Elm25_Shell": {
+  "collision": "complex",
+  "file": "SourceArt/Meshes/Town/SM_Town_House_Elm25_Shell.fbx",
+  "folder": "Town",
+  "hash": "fffcb638f2e6725f982604e3f3a1afbed5172af2",
+  "kind": "static",
+  "materials": [
+   "MI_Concrete_Raw",
+   "MI_Siding_White",
+   "MI_Paint_Cream",
+   "MI_Wood_Floor_Dark",
+   "MI_Plaster",
+   "MI_Roof_Shingles_Brown",
+   "MI_Wood_Planks",
+   "MI_Trim_White",
+   "MI_Brick_Red",
+   "MI_Roof_Shingles_Dark"
+  ],
+  "nanite": true
+ },
+ "SM_Town_House_Elm25_Trim": {
+  "collision": "complex",
+  "file": "SourceArt/Meshes/Town/SM_Town_House_Elm25_Trim.fbx",
+  "folder": "Town",
+  "hash": "fd2b5dd2a54ab0898041976bf225f6f0a1e1eb25",
+  "kind": "static",
+  "materials": [
+   "MI_Trim_White",
+   "MI_Wood_Dark",
+   "MI_Glass_Window",
+   "MI_Fabric_Curtain_Light",
+   "MI_Brass"
+  ],
+  "nanite": false
+ },
  "SM_Town_House_Mar1_Shell": {
   "collision": "complex",
   "file": "SourceArt/Meshes/Town/SM_Town_House_Mar1_Shell.fbx",
@@ -4781,6 +5658,178 @@
   ],
   "nanite": false
  },
+ "SM_Town_House_Orch3_Shell": {
+  "collision": "complex",
+  "file": "SourceArt/Meshes/Town/SM_Town_House_Orch3_Shell.fbx",
+  "folder": "Town",
+  "hash": "632d4c4f27873b915a82d69df36f434cf41bff7f",
+  "kind": "static",
+  "materials": [
+   "MI_Concrete_Raw",
+   "MI_Siding_Blue",
+   "MI_Paint_Cream",
+   "MI_Wood_Floor_Dark",
+   "MI_Plaster",
+   "MI_Roof_Shingles_Dark",
+   "MI_Wood_Planks",
+   "MI_Trim_White",
+   "MI_Brick_Red"
+  ],
+  "nanite": true
+ },
+ "SM_Town_House_Orch3_Trim": {
+  "collision": "complex",
+  "file": "SourceArt/Meshes/Town/SM_Town_House_Orch3_Trim.fbx",
+  "folder": "Town",
+  "hash": "a9a8d0ec0711572fd6b87abcf6d89f7593d6a984",
+  "kind": "static",
+  "materials": [
+   "MI_Trim_White",
+   "MI_Wood_Dark",
+   "MI_Glass_Window",
+   "MI_Fabric_Curtain_Light",
+   "MI_Brass"
+  ],
+  "nanite": false
+ },
+ "SM_Town_House_Orch5_Shell": {
+  "collision": "complex",
+  "file": "SourceArt/Meshes/Town/SM_Town_House_Orch5_Shell.fbx",
+  "folder": "Town",
+  "hash": "19e3a2a4b7db697891094cadb4b38c5af5bc5fc1",
+  "kind": "static",
+  "materials": [
+   "MI_Brick_Red",
+   "MI_Siding_Grey",
+   "MI_Paint_Cream",
+   "MI_Wood_Floor_Dark",
+   "MI_Plaster",
+   "MI_Roof_Shingles_Brown",
+   "MI_Wood_Planks",
+   "MI_Trim_White",
+   "MI_Roof_Shingles_Dark"
+  ],
+  "nanite": true
+ },
+ "SM_Town_House_Orch5_Trim": {
+  "collision": "complex",
+  "file": "SourceArt/Meshes/Town/SM_Town_House_Orch5_Trim.fbx",
+  "folder": "Town",
+  "hash": "67413d47e87375affdc42d058403c15f10f930f7",
+  "kind": "static",
+  "materials": [
+   "MI_Trim_White",
+   "MI_Wood_Dark",
+   "MI_Glass_Window",
+   "MI_Fabric_Curtain_Light",
+   "MI_Brass"
+  ],
+  "nanite": false
+ },
+ "SM_Town_House_Orch7_Shell": {
+  "collision": "complex",
+  "file": "SourceArt/Meshes/Town/SM_Town_House_Orch7_Shell.fbx",
+  "folder": "Town",
+  "hash": "32376e523019118067d3368db6d7928c5722fcf1",
+  "kind": "static",
+  "materials": [
+   "MI_Stone_Wall",
+   "MI_Siding_Worn",
+   "MI_Paint_Cream",
+   "MI_Wood_Floor_Dark",
+   "MI_Plaster",
+   "MI_Roof_Shingles_Dark",
+   "MI_Wood_Planks",
+   "MI_Trim_White",
+   "MI_Brick_Red",
+   "MI_Concrete_Raw"
+  ],
+  "nanite": true
+ },
+ "SM_Town_House_Orch7_Trim": {
+  "collision": "complex",
+  "file": "SourceArt/Meshes/Town/SM_Town_House_Orch7_Trim.fbx",
+  "folder": "Town",
+  "hash": "9cb2f629f3f0f15c660555f4cef3d426c3018cfd",
+  "kind": "static",
+  "materials": [
+   "MI_Trim_White",
+   "MI_Wood_Dark",
+   "MI_Glass_Window",
+   "MI_Fabric_Curtain_Light",
+   "MI_Brass"
+  ],
+  "nanite": false
+ },
+ "SM_Town_House_Pine12_Shell": {
+  "collision": "complex",
+  "file": "SourceArt/Meshes/Town/SM_Town_House_Pine12_Shell.fbx",
+  "folder": "Town",
+  "hash": "cfabf7f60d51c6a73ea03683f841166da56a2b83",
+  "kind": "static",
+  "materials": [
+   "MI_Stone_Wall",
+   "MI_Siding_White",
+   "MI_Paint_Cream",
+   "MI_Wood_Floor_Dark",
+   "MI_Plaster",
+   "MI_Roof_Shingles_Dark",
+   "MI_Wood_Planks",
+   "MI_Trim_White"
+  ],
+  "nanite": true
+ },
+ "SM_Town_House_Pine12_Trim": {
+  "collision": "complex",
+  "file": "SourceArt/Meshes/Town/SM_Town_House_Pine12_Trim.fbx",
+  "folder": "Town",
+  "hash": "9c2f9116441730c4e752519297f78a3ed49ba546",
+  "kind": "static",
+  "materials": [
+   "MI_Trim_White",
+   "MI_Wood_Dark",
+   "MI_Glass_Window",
+   "MI_Fabric_Curtain_Light",
+   "MI_Brass"
+  ],
+  "nanite": false
+ },
+ "SM_Town_House_Pine16_Shell": {
+  "collision": "complex",
+  "file": "SourceArt/Meshes/Town/SM_Town_House_Pine16_Shell.fbx",
+  "folder": "Town",
+  "hash": "012119484f039a8fe9dbf84762f2b7a61337ed94",
+  "kind": "static",
+  "materials": [
+   "MI_Stone_Wall",
+   "MI_Siding_Green",
+   "MI_Paint_Cream",
+   "MI_Wood_Floor_Dark",
+   "MI_Plaster",
+   "MI_Roof_Shingles_Brown",
+   "MI_Wood_Planks",
+   "MI_Trim_White",
+   "MI_Brick_Red",
+   "MI_Concrete_Raw",
+   "MI_Roof_Shingles_Dark"
+  ],
+  "nanite": true
+ },
+ "SM_Town_House_Pine16_Trim": {
+  "collision": "complex",
+  "file": "SourceArt/Meshes/Town/SM_Town_House_Pine16_Trim.fbx",
+  "folder": "Town",
+  "hash": "8f23af0fb238eeed4669cf24a45671d90ab11496",
+  "kind": "static",
+  "materials": [
+   "MI_Trim_White",
+   "MI_Wood_Dark",
+   "MI_Glass_Window",
+   "MI_Fabric_Curtain_Light",
+   "MI_Brass"
+  ],
+  "nanite": false
+ },
  "SM_Town_Laundromat_Shell": {
   "collision": "complex",
   "file": "SourceArt/Meshes/Town/SM_Town_Laundromat_Shell.fbx",
@@ -4819,7 +5868,7 @@
   "collision": "complex",
   "file": "SourceArt/Meshes/Town/SM_Town_MainStreet.fbx",
   "folder": "Town",
-  "hash": "c9fa83c9052b51621f1f86cf106b170dcfb1d5b8",
+  "hash": "6173479e88314b058b4dec695c61d79be421f0a9",
   "kind": "static",
   "materials": [
    "MI_Asphalt",
@@ -4828,11 +5877,65 @@
   ],
   "nanite": true
  },
+ "SM_Town_MainStreet_East": {
+  "collision": "complex",
+  "file": "SourceArt/Meshes/Town/SM_Town_MainStreet_East.fbx",
+  "folder": "Town",
+  "hash": "f7acb6f8e679b92c31c8d2e62efd3c3154338045",
+  "kind": "static",
+  "materials": [
+   "MI_Asphalt",
+   "MI_Road_Paint_Yellow",
+   "MI_Road_Paint_White"
+  ],
+  "nanite": true
+ },
+ "SM_Town_Market_Apron": {
+  "collision": "complex",
+  "file": "SourceArt/Meshes/Town/SM_Town_Market_Apron.fbx",
+  "folder": "Town",
+  "hash": "b7eeb7f61afb5b522b71129a8357473fe0060239",
+  "kind": "static",
+  "materials": [
+   "MI_Sidewalk"
+  ],
+  "nanite": false
+ },
+ "SM_Town_Market_Shell": {
+  "collision": "complex",
+  "file": "SourceArt/Meshes/Town/SM_Town_Market_Shell.fbx",
+  "folder": "Town",
+  "hash": "514e3ad318e6d336cc45ce309cd546c086b7e5d2",
+  "kind": "static",
+  "materials": [
+   "MI_Brick_Red",
+   "MI_Paint_White",
+   "MI_Concrete_Raw",
+   "MI_Floor_Vinyl",
+   "MI_Plaster",
+   "MI_Metal_White"
+  ],
+  "nanite": true
+ },
+ "SM_Town_Market_Trim": {
+  "collision": "complex",
+  "file": "SourceArt/Meshes/Town/SM_Town_Market_Trim.fbx",
+  "folder": "Town",
+  "hash": "82ee6bdfc4dd3b15364ce6f4b6a6e2cce244ae09",
+  "kind": "static",
+  "materials": [
+   "MI_Trim_White",
+   "MI_Glass_Shop",
+   "MI_Trim_Dark",
+   "MI_Wood_Dark"
+  ],
+  "nanite": false
+ },
  "SM_Town_MarrowStreet": {
   "collision": "complex",
   "file": "SourceArt/Meshes/Town/SM_Town_MarrowStreet.fbx",
   "folder": "Town",
-  "hash": "d6e6020d32486f05183137c0db4f8783a7fc8a09",
+  "hash": "1f7652092ba2b11db0687407de3b3e6bdab0a0dd",
   "kind": "static",
   "materials": [
    "MI_Asphalt",
@@ -4881,6 +5984,18 @@
   ],
   "nanite": false
  },
+ "SM_Town_OrchardMill": {
+  "collision": "complex",
+  "file": "SourceArt/Meshes/Town/SM_Town_OrchardMill.fbx",
+  "folder": "Town",
+  "hash": "f9ba1954be99d278a523f137489122bbea38f423",
+  "kind": "static",
+  "materials": [
+   "MI_Asphalt",
+   "MI_Road_Paint_Yellow"
+  ],
+  "nanite": true
+ },
  "SM_Town_Park": {
   "collision": "complex",
   "file": "SourceArt/Meshes/Town/SM_Town_Park.fbx",
@@ -4890,6 +6005,65 @@
   "materials": [
    "MI_Gravel",
    "MI_Concrete_Raw"
+  ],
+  "nanite": false
+ },
+ "SM_Town_Pharmacy_Shell": {
+  "collision": "complex",
+  "file": "SourceArt/Meshes/Town/SM_Town_Pharmacy_Shell.fbx",
+  "folder": "Town",
+  "hash": "8ad816e87c03804ce85a244b55805dede8bf986d",
+  "kind": "static",
+  "materials": [
+   "MI_Brick_Red",
+   "MI_Plaster",
+   "MI_Concrete_Raw",
+   "MI_Concrete_Floor",
+   "MI_Wood_Floor_Dark"
+  ],
+  "nanite": true
+ },
+ "SM_Town_Pharmacy_Trim": {
+  "collision": "complex",
+  "file": "SourceArt/Meshes/Town/SM_Town_Pharmacy_Trim.fbx",
+  "folder": "Town",
+  "hash": "89eea9d5528887107c07376677cfde1f4434e75d",
+  "kind": "static",
+  "materials": [
+   "MI_Trim_Dark",
+   "MI_Glass_Shop",
+   "MI_Chrome",
+   "MI_Img_Shop_Interior",
+   "MI_Wood_Dark",
+   "MI_Trim_White",
+   "MI_Glass_Window",
+   "MI_Fabric_Curtain_Light",
+   "MI_Brass"
+  ],
+  "nanite": false
+ },
+ "SM_Town_PineStreet": {
+  "collision": "complex",
+  "file": "SourceArt/Meshes/Town/SM_Town_PineStreet.fbx",
+  "folder": "Town",
+  "hash": "2e4fae6c635c96d1347070538acc8243b5841b05",
+  "kind": "static",
+  "materials": [
+   "MI_Asphalt",
+   "MI_Road_Paint_Yellow",
+   "MI_Road_Paint_White"
+  ],
+  "nanite": true
+ },
+ "SM_Town_Playground": {
+  "collision": "complex",
+  "file": "SourceArt/Meshes/Town/SM_Town_Playground.fbx",
+  "folder": "Town",
+  "hash": "5e257fa8ad99071878020a2383d33d721516cc89",
+  "kind": "static",
+  "materials": [
+   "MI_Rubber_Mat",
+   "MI_Gravel"
   ],
   "nanite": false
  },
@@ -5034,6 +6208,150 @@
   "materials": [
    "MI_Sidewalk",
    "MI_Concrete_Raw"
+  ],
+  "nanite": false
+ },
+ "SM_Town_Yard_500": {
+  "collision": "complex",
+  "file": "SourceArt/Meshes/Town/SM_Town_Yard_500.fbx",
+  "folder": "Town",
+  "hash": "7e9ab9561b9c74ec969dbdb1bc9216235a3e3ad3",
+  "kind": "static",
+  "materials": [
+   "MI_Sidewalk",
+   "MI_Concrete_Raw"
+  ],
+  "nanite": false
+ },
+ "SM_Town_Yard_501": {
+  "collision": "complex",
+  "file": "SourceArt/Meshes/Town/SM_Town_Yard_501.fbx",
+  "folder": "Town",
+  "hash": "b37c98558c6d9f2f1240ccfd25d04ed8136c7fe1",
+  "kind": "static",
+  "materials": [
+   "MI_Sidewalk",
+   "MI_Concrete_Raw"
+  ],
+  "nanite": false
+ },
+ "SM_Town_Yard_502": {
+  "collision": "complex",
+  "file": "SourceArt/Meshes/Town/SM_Town_Yard_502.fbx",
+  "folder": "Town",
+  "hash": "f829e1b1be7b9971488b5950668163025b68a599",
+  "kind": "static",
+  "materials": [
+   "MI_Sidewalk",
+   "MI_Concrete_Raw"
+  ],
+  "nanite": false
+ },
+ "SM_Town_Yard_503": {
+  "collision": "complex",
+  "file": "SourceArt/Meshes/Town/SM_Town_Yard_503.fbx",
+  "folder": "Town",
+  "hash": "a4eb6637841c7e72a8ae9e9b729c415bf3e72a5a",
+  "kind": "static",
+  "materials": [
+   "MI_Sidewalk",
+   "MI_Concrete_Raw"
+  ],
+  "nanite": false
+ },
+ "SM_Town_Yard_504": {
+  "collision": "complex",
+  "file": "SourceArt/Meshes/Town/SM_Town_Yard_504.fbx",
+  "folder": "Town",
+  "hash": "560d90664470b88839680c2fa9c26d59a29667f1",
+  "kind": "static",
+  "materials": [
+   "MI_Sidewalk",
+   "MI_Concrete_Raw"
+  ],
+  "nanite": false
+ },
+ "SM_Town_Yard_505": {
+  "collision": "complex",
+  "file": "SourceArt/Meshes/Town/SM_Town_Yard_505.fbx",
+  "folder": "Town",
+  "hash": "33d81909ea64b5ab9cdd78b1fef84d59a2dbf217",
+  "kind": "static",
+  "materials": [
+   "MI_Sidewalk",
+   "MI_Concrete_Raw"
+  ],
+  "nanite": false
+ },
+ "SM_Town_Yard_506": {
+  "collision": "complex",
+  "file": "SourceArt/Meshes/Town/SM_Town_Yard_506.fbx",
+  "folder": "Town",
+  "hash": "7e9ab9561b9c74ec969dbdb1bc9216235a3e3ad3",
+  "kind": "static",
+  "materials": [
+   "MI_Sidewalk",
+   "MI_Concrete_Raw"
+  ],
+  "nanite": false
+ },
+ "SM_TrafficLight_Head": {
+  "collision": "box",
+  "file": "SourceArt/Meshes/Props/Town/SM_TrafficLight_Head.fbx",
+  "folder": "Props/Town",
+  "hash": "488e8ec887b788498c7444fa1c3099ff2fe4e5cb",
+  "kind": "static",
+  "materials": [
+   "MI_Metal_Black",
+   "MI_Metal_Yellow",
+   "MI_Glass_Bottle"
+  ],
+  "nanite": false
+ },
+ "SM_TrafficLight_Lens_Amber": {
+  "collision": "none",
+  "file": "SourceArt/Meshes/Props/Town/SM_TrafficLight_Lens_Amber.fbx",
+  "folder": "Props/Town",
+  "hash": "b518ad4b95ffc33cda04f83166eca59a59cf803d",
+  "kind": "static",
+  "materials": [
+   "MI_Emit_Signal_Amber"
+  ],
+  "nanite": false
+ },
+ "SM_TrafficLight_Lens_Green": {
+  "collision": "none",
+  "file": "SourceArt/Meshes/Props/Town/SM_TrafficLight_Lens_Green.fbx",
+  "folder": "Props/Town",
+  "hash": "10aa4866aad249e2b22d7b155750378ceb94c004",
+  "kind": "static",
+  "materials": [
+   "MI_Emit_Signal_Green"
+  ],
+  "nanite": false
+ },
+ "SM_TrafficLight_Lens_Red": {
+  "collision": "none",
+  "file": "SourceArt/Meshes/Props/Town/SM_TrafficLight_Lens_Red.fbx",
+  "folder": "Props/Town",
+  "hash": "c5a397fc4256df5815c1c1787b375517b173c4e1",
+  "kind": "static",
+  "materials": [
+   "MI_Emit_Signal_Red"
+  ],
+  "nanite": false
+ },
+ "SM_TrafficLight_Pole": {
+  "collision": "complex",
+  "file": "SourceArt/Meshes/Props/Town/SM_TrafficLight_Pole.fbx",
+  "folder": "Props/Town",
+  "hash": "1519d96f8fbb1a88a38566ff4135bc530d7ca77b",
+  "kind": "static",
+  "materials": [
+   "MI_Steel",
+   "MI_Aluminium",
+   "MI_Metal_Black",
+   "MI_Metal_Yellow"
   ],
   "nanite": false
  },
@@ -5229,6 +6547,19 @@
   ],
   "nanite": false
  },
+ "SM_Vault_Door": {
+  "collision": "complex",
+  "file": "SourceArt/Meshes/Props/Bank/SM_Vault_Door.fbx",
+  "folder": "Props/Bank",
+  "hash": "099f5d5ee4079fbe911d69f9754a50c6bff593bc",
+  "kind": "static",
+  "materials": [
+   "MI_Metal_Vault",
+   "MI_Chrome",
+   "MI_Metal_Black"
+  ],
+  "nanite": false
+ },
  "SM_Walkie": {
   "collision": "none",
   "file": "SourceArt/Meshes/Props/Desk/SM_Walkie.fbx",
@@ -5367,6 +6698,18 @@
    "MI_Wood_Raw",
    "MI_Metal_Green",
    "MI_Wood_Dark"
+  ],
+  "nanite": false
+ },
+ "SM_Wreath": {
+  "collision": "none",
+  "file": "SourceArt/Meshes/Props/Yard/SM_Wreath.fbx",
+  "folder": "Props/Yard",
+  "hash": "e89a7049079ff279189e162eb9e91624fd6f4efc",
+  "kind": "static",
+  "materials": [
+   "MI_Tree_Leaves",
+   "MI_Fabric_Curtain"
   ],
   "nanite": false
  }

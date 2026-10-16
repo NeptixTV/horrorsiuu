@@ -6,6 +6,7 @@
 #include "UI/Widgets/SHHCustomizationPanel.h"
 #include "UI/Widgets/SHHStorePanel.h"
 #include "UI/Widgets/SHHInventoryPanel.h"
+#include "UI/Widgets/SHHBankPanel.h"
 #include "UI/Widgets/SHHSettingsPanel.h"
 #include "UI/Widgets/SHHHeistHud.h"
 #include "UI/Widgets/SHHMissionSummary.h"
@@ -172,6 +173,7 @@ TSharedRef<SWidget> SHHLobbyRoot::BuildPanel(EHHLobbyScreen Screen)
 	case EHHLobbyScreen::Store:			return SNew(SHHStorePanel).HUD(HUD);
 	case EHHLobbyScreen::Settings:		return SNew(SHHSettingsPanel).HUD(HUD);
 	case EHHLobbyScreen::Inventory:		return SNew(SHHInventoryPanel).HUD(HUD);
+	case EHHLobbyScreen::Bank:			return SNew(SHHBankPanel).HUD(HUD);
 	default:							return SNullWidget::NullWidget;
 	}
 }

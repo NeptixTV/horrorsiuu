@@ -1,4 +1,5 @@
 #include "UI/HHLobbyHUD.h"
+#include "World/HHAftermathScene.h"
 #include "UI/HHStyle.h"
 #include "UI/Widgets/SHHLobbyRoot.h"
 #include "UI/Widgets/SHHWidgets.h"
@@ -159,9 +160,12 @@ void AHHLobbyHUD::BeginPlay()
 	UHHProfileSubsystem* ProfileSubsystem = UHHProfileSubsystem::Get(this);
 	if (!IsOnJob() && ProfileSubsystem && ProfileSubsystem->ConsumeLastJobSummary(LastJob))
 	{
+		// The morning paper: what the town makes of last night (the scene at the house is outside).
+		const FText Paper = FText::Format(LOCTEXT("Gazette", "THE HOLLOWMERE GAZETTE  -  DAY {0}\n{1}\n{2}"),
+			FText::AsNumber(ProfileSubsystem->GetDay()), AHHAftermathScene::Headline(this, LastJob), AHHAftermathScene::Story(this, LastJob));
 		ShowMessage(FText::Format(LOCTEXT("DebriefTitle", "BACK HOME  -  {0}"), HHText::OutcomeName(LastJob.Outcome).ToUpper()),
-			FText::Format(LOCTEXT("DebriefBody", "{0} made it into the van. Your cut: {1}, +{2} XP.\nThe crew sleeps until the afternoon; the next job leaves after dark."),
-				HHText::Money(LastJob.SecuredValue), HHText::Money(LastJob.PayoutPerPlayer), FText::AsNumber(LastJob.XPPerPlayer)));
+			FText::Format(LOCTEXT("DebriefBody", "{0} made it into the van. Your cut: {1}, +{2} XP.\nThe crew sleeps until the afternoon; the next job leaves after dark.\n\n{3}"),
+				HHText::Money(LastJob.SecuredValue), HHText::Money(LastJob.PayoutPerPlayer), FText::AsNumber(LastJob.XPPerPlayer), Paper));
 	}
 }
 

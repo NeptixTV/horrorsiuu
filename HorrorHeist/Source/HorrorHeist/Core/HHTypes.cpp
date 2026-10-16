@@ -168,3 +168,21 @@ namespace HHText
 }
 
 #undef LOCTEXT_NAMESPACE
+
+FHHAftermath FHHAftermath::FromSummary(const FHHMissionSummary& Summary)
+{
+	FHHAftermath Result;
+	Result.MissionId = Summary.MissionId;
+	bool bCaught = false;
+	for (const FHHCrewRecord& Record : Summary.Crew)
+	{
+		Result.bDeath |= Record.Fate == EHHCrewFate::Dead;
+		bCaught |= Record.Fate == EHHCrewFate::Caught;
+	}
+	const bool bChase = Summary.Outcome == EHHMissionOutcome::ChaseBusted || Summary.Outcome == EHHMissionOutcome::HotGetaway;
+	Result.bPolice = Summary.bPoliceCalled || bCaught || bChase || Result.bDeath;
+	Result.bNoticed = Result.bPolice || Summary.SecuredValue > 0 || Summary.LostValue > 0;
+	Result.bHaunting = Summary.HauntStage >= 2;
+	Result.bRoadClosed = Result.bDeath || Summary.Outcome == EHHMissionOutcome::ChaseBusted;
+	return Result;
+}

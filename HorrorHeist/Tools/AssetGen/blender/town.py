@@ -8,8 +8,9 @@ Plan (Blender metres, +X east, +Y north; the hideout basement is at the origin, 
    (x -52..-44)       |        Founders' Park      |          (x 44..52)
    Marrow House (W)   |  houses      museum  houses|          Vance house = 14 Ashgrove Ln (E)
                       +----------------------------+
-   ===== Main Street (y 16.5..24.5) ==============================================
-     Brannigan & Sons | Marlowe's Laundromat (hideout below) + lot | municipal parking
+   ===== Main Street (y 16.5..24.5) ============================================== -> downtown.py (east of x 88:
+     Brannigan & Sons | Marlowe's Laundromat (hideout below) + lot | municipal parking   bank, Pick & Save,
+                                                                                         Willow Park, Elm/Pine)
 
 Buildings that can't be entered say so: shops are closed (painted interiors behind the glass,
 locked doors are part of the facade), neighbours' doors are locked HHDoorActors that never open.
@@ -149,21 +150,22 @@ def streets():
         _paint(main, XMIN, yc + dy - 0.05, XMAX, yc + dy + 0.05, 'MI_Road_Paint_Yellow')
     for y in (MAIN[0] + 2.2, MAIN[1] - 2.2):          # parking lane lines
         _dashes(main, 'X', XMIN, XMAX, y, 5.5, 0.6, 0.1)
-    for x0, x1 in (MAR, ASH):
-        _crosswalk(main, 'X', x0 + 0.5, x1 - 0.5, MAIN[1] - 3.2, MAIN[1] - 0.6)
     PL.static_m(PL.unique(main, nanite=True), K.mat(), 'Ground')
 
     # --- Side streets ------------------------------------------------------------------------
     ash = Builder('SM_Town_AshgroveLane')
     _road(ash, ASH[0], MAIN[1], ASH[1], CHURCH[1])
     _dashes(ash, 'Y', MAIN[1] + 4, CHURCH[0] - 2, (ASH[0] + ASH[1]) / 2, 3.0, 6.0, 0.12, 'MI_Road_Paint_Yellow')
-    _paint(ash, ASH[0] + 0.2, MAIN[1] + 1.0, (ASH[0] + ASH[1]) / 2, MAIN[1] + 1.4)        # stop line
+    # Zebra crossing over the mouth of the lane, the stop line behind it (traffic waits there: STOP_LINE).
+    _crosswalk(ash, 'X', ASH[0] + 0.3, ASH[1] - 0.3, MAIN[1] + 0.4, MAIN[1] + 2.4)
+    _paint(ash, ASH[0] + 0.2, MAIN[1] + 2.9, (ASH[0] + ASH[1]) / 2 - 0.15, MAIN[1] + 3.2)
     _paint(ash, (ASH[0] + ASH[1]) / 2, CHURCH[0] - 1.4, ASH[1] - 0.2, CHURCH[0] - 1.0)
     PL.static_m(PL.unique(ash, nanite=True), K.mat(), 'Ground')
 
     mar = Builder('SM_Town_MarrowStreet')
     _road(mar, MAR[0], MAIN[1], MAR[1], CHURCH[1])
-    _paint(mar, (MAR[0] + MAR[1]) / 2, MAIN[1] + 1.0, MAR[1] - 0.2, MAIN[1] + 1.4)
+    _crosswalk(mar, 'X', MAR[0] + 0.3, MAR[1] - 0.3, MAIN[1] + 0.4, MAIN[1] + 2.4)
+    _paint(mar, MAR[0] + 0.2, MAIN[1] + 2.9, (MAR[0] + MAR[1]) / 2 - 0.15, MAIN[1] + 3.2)
     PL.static_m(PL.unique(mar, nanite=True), K.mat(), 'Ground')
 
     ch = Builder('SM_Town_ChurchRoad')
@@ -474,9 +476,7 @@ def main_north():
     # Clothing store.
     commercial('Town_Clothing', -17.0, y, 14.0, 12.0, floors=2, facade='MI_Brick_Red', sign='SM_Sign_Clothing',
                awning=True)
-    # Hardware store.
-    commercial('Town_Hardware', 31.0, y, 18.0, 14.0, floors=2, facade='MI_Brick', sign='SM_Sign_Hardware',
-               awning=True)
+    # Cobb's Hardware is enterable: downtown.cobbs_hardware() builds it.
     museum()
 
 
@@ -692,6 +692,15 @@ def neighbour(name, origin, yaw, siding, roof, kind, number, seed):
     px1 = door_x + 1.9
     h.porch(px0, px1, 1.9, roof=True)
     PL.finish(h, 'Neighbours')
+    # October: pumpkins on the porch, a planter by the door, a dried wreath on the wall.
+    zb = h.base
+    for k, x in enumerate((px0 + 0.35, px1 - 0.35)):
+        if r.random() < 0.6:
+            PL.place('SM_Pumpkin_Lantern', (x, -1.62, zb), rot=r.uniform(-25, 25), M=M, collection='Yards')
+    if r.random() < 0.55:
+        PL.place('SM_Porch_Planter', (door_x - 1.15, -0.2, zb), M=M, collection='Yards')
+    if r.random() < 0.6:
+        PL.place('SM_Wreath', (door_x - 0.9, -0.0, zb + 1.3), M=M, collection='Yards')
     PL.door_actor(M, door, 'SM_Door_House_Front', locked=True, house=NEIGHBOUR_TAG, name=f'Door_{name}',
                   bCanPick=False, bCanPry=False)
     PL.place('SM_Door_House_Back', h.walls['back'][-1]['hinge'], rot=180, M=M, collection='Neighbours')
@@ -737,6 +746,23 @@ def yard(M, w, d, lot_w, setback, seed, fence='SM_Fence_Picket', back_fence='SM_
         items = ('SM_Grill_BBQ', 'SM_Patio_Table', 'SM_Swing_Rusty', 'SM_Shed_Small', 'SM_Wheelbarrow', 'SM_Garden_Gnome')
         for k, item in enumerate(r.sample(items, 2)):
             PL.place(item, (r.uniform(-w / 2 + 1, w / 2 - 1), d + 2.2 + k * 0.8, 0.0), rot=r.uniform(0, 360), M=M,
+                     collection='Yards')
+        # Lived-in: a bike on the drive, firewood by the side wall, washing on the line, and the
+        # Halloween things some families put out (a scarecrow, plywood graves on the lawn).
+        side = -drive_side * (w / 2 + 0.6)
+        if r.random() < 0.45:
+            PL.place('SM_Bicycle', (dx - 1.0 * drive_side, -setback + 3.5, 0.0), rot=r.uniform(-20, 20), M=M,
+                     collection='Yards')
+        if r.random() < 0.5:
+            PL.place('SM_Firewood_Stack', (side, d * 0.7, 0.0), rot=90, M=M, collection='Yards')
+        if r.random() < 0.35:
+            PL.place('SM_Clothesline', (0.0, d + 3.4, 0.0), rot=r.uniform(-5, 5), M=M, collection='Yards')
+        deco = r.random()
+        if deco < 0.22:
+            PL.place('SM_Scarecrow', (-drive_side * (w / 2 - 0.4), -setback + 2.0, 0.0), rot=r.uniform(-15, 15), M=M,
+                     collection='Yards')
+        elif deco < 0.42:
+            PL.place('SM_Tombstone_Decor', (-drive_side * (w / 2 - 1.2), -2.2, 0.0), rot=r.uniform(-10, 10), M=M,
                      collection='Yards')
     if car:
         PL.place(car, (dx, 2.5, 0.02), rot=180, M=M, collection='Cars')
@@ -834,8 +860,8 @@ def street_furniture():
     PL.place('SM_Sign_Street_Ashgrove', (ASH[0] - 1.0, MAIN[1] + 1.0, SW), rot=0, collection='Street')
     PL.place('SM_Sign_Street_Marrow', (MAR[1] + 1.0, MAIN[1] + 1.0, SW), rot=0, collection='Street')
     PL.place('SM_Sign_Street_Church', (-8.5, CHURCH[0] - 1.0, SW), rot=0, collection='Street')
-    for x, rot in ((ASH[1] + 0.9, 90), (MAR[1] + 0.9, 90)):
-        PL.place('SM_Sign_Stop', (x, MAIN[1] + 2.5, SW), rot=rot, collection='Street')
+    for x in (ASH[0] - 0.9, MAR[0] - 0.9):
+        PL.place('SM_Sign_Stop', (x, MAIN[1] + 3.6, SW), rot=180, collection='Street')
     PL.place('SM_Sign_Speed', (ASH[1] + 0.9, 40.0, SW), rot=90, collection='Street')
     PL.place('SM_Sign_Speed', (MAR[0] - 0.9, 40.0, SW), rot=-90, collection='Street')
     # Main Street clutter.
@@ -861,16 +887,11 @@ def street_furniture():
     for y in range(32, 100, 22):
         PL.place('SM_UtilityPole', (ASH[1] + 2.0, y, SW), rot=90, collection='Street')
         PL.place('SM_UtilityPole', (MAR[0] - 2.0, y + 11, SW), rot=90, collection='Street')
-    # Parked cars along the curbs.
+    # Parked cars: in the municipal lot (the curbs stay clear - the town's traffic drives there).
     cars = ('SM_Car_Sedan_Red', 'SM_Car_Hatch_Green', 'SM_Car_Sedan_Silver', 'SM_Car_Hatch_Blue', 'SM_Car_Pickup_Black')
     rr = random.Random(5)
-    for x in (-74.0, -57.0, -21.0, 36.0, 63.0, 74.0):
-        PL.place(rr.choice(cars), (x, MAIN[1] - 1.15, TZ), rot=90, collection='Cars')
-    for x in (-66.0, -36.0, 31.5, 58.0):
-        PL.place(rr.choice(cars), (x, MAIN[0] + 1.15, TZ), rot=-90, collection='Cars')
-    for y in (33.0, 86.0):
-        PL.place(rr.choice(cars), (ASH[0] + 1.1, y, TZ), rot=180, collection='Cars')
-        PL.place(rr.choice(cars), (MAR[1] - 1.1, y - 10, TZ), rot=0, collection='Cars')
+    for x, y, rot in ((25.0, -3.5, 180), (33.0, -3.6, 180), (27.6, 8.5, 0), (36.0, 8.4, 0)):
+        PL.place(rr.choice(cars), (x, y, TZ), rot=rot, collection='Cars')
     # Street trees.
     for x in (-84.0, -70.0, -56.0, 46.0, 60.0, 74.0):
         PL.place('SM_Tree_Maple', (x, MAIN[0] - 2.0, SW), rot=x * 13, collection='Trees')
@@ -896,14 +917,13 @@ def edges():
         ring.append((rr.uniform(56, XMAX - 4), rr.uniform(91, 105)))
     for x, y in ring:
         PL.place(rr.choice(trees), (x, y, SW), rot=rr.uniform(0, 360), scale=rr.uniform(0.85, 1.25), collection='Woods')
-    # Main Street leaves town in both directions: closed for roadworks.
-    for x, s in ((XMIN + 6.0, 1), (XMAX - 6.0, -1)):
+    # Main Street leaves town to the west: closed for roadworks (the east end is downtown.py's).
+    for x, s in ((XMIN + 6.0, 1),):
         for k in range(4):
             PL.place('SM_Sawhorse', (x, MAIN[0] + 1.2 + k * 2.0, TZ), rot=90, collection='Street')
             PL.place('SM_Traffic_Cone', (x + s * 1.2, MAIN[0] + 2.0 + k * 2.0, TZ), collection='Street')
     # Boundary walls (block pawns only, invisible).
     walls = [((XMIN + 3, (YMIN + YMAX) / 2, SW + 3), (0.5, (YMAX - YMIN) / 2, 6)),
-             ((XMAX - 3, (YMIN + YMAX) / 2, SW + 3), (0.5, (YMAX - YMIN) / 2, 6)),
              ((0.0, YMIN + 3, SW + 3), ((XMAX - XMIN) / 2, 0.5, 6)),
              ((0.0, YMAX - 3, SW + 3), ((XMAX - XMIN) / 2, 0.5, 6))]
     for (x, y, z), (ex, ey, ez) in walls:
@@ -974,8 +994,8 @@ ESCAPES = [
      "Down the ramp behind Marlowe's. No extra cut - but don't lead the police home: it won't work with a "
      "patrol car on your tail.", (-3.6, 8.2, 1.4), (1.9, 2.6, 2.0), False, 0.0, 0.0),
     ('Quarry', 'The quarry road (out of town)',
-     'East end of Main Street, past the roadworks. Even a chase ends out there - the fence takes 10% for '
-     'collecting from the woods.', (75.0, 20.5, TZ + 1.5), (4.0, 4.0, 2.5), True, 0.10, 0.0),
+     'East end of Main Street, past Pine Street at the roadworks. Even a chase ends out there - the fence takes '
+     '10% for collecting from the woods.', (249.0, 20.5, TZ + 1.5), (4.0, 4.0, 2.5), True, 0.10, 0.0),
     ('CarPark', 'Municipal car park',
      'Park between the cars by Main Street and kill the engine (6 seconds still). Close to Ashgrove Lane; '
      'someone has to fetch the van later (5%). Not while you are being chased.', (29.0, 4.0, TZ + 1.5),
@@ -990,7 +1010,7 @@ ROAD_NODES = [
     ('M_LOT', (-3.6, 20.5), ['M_PARK', 'L1']),
     ('M_PARK', (29.0, 20.5), ['M_ASH', 'P1']),
     ('M_ASH', (48.0, 20.5), ['M_E', 'A1']),
-    ('M_E', (78.0, 20.5), []),
+    ('M_E', (78.0, 20.5), ['M_ELM']),
     ('A1', (48.0, 36.0), ['A_VANCE']),
     ('A_VANCE', (47.0, 52.0), ['A2']),
     ('A2', (48.0, 78.0), ['A_CH']),
@@ -1002,6 +1022,9 @@ ROAD_NODES = [
     ('L1', (-3.6, 14.5), []),
     ('P1', (29.0, 8.0), []),
 ]
+# Junction rules for the town's traffic: node -> (control, approaches that stop, stop line cm).
+STOP_LINE = 720.0
+NODE_CONTROL = {'M_MAR': ('StopSign', ['R1'], STOP_LINE), 'M_ASH': ('StopSign', ['A1'], STOP_LINE)}
 # The patrol: in from the west, round the block past the Vance house and the church, back out west.
 PATROL_ROUTE = ['M_W', 'M_MAR', 'M_LOT', 'M_PARK', 'M_ASH', 'A1', 'A_VANCE', 'A2', 'A_CH', 'C_RECT', 'R_CH',
                 'R_MARROW', 'R1', 'M_MAR', 'M_W']
@@ -1015,8 +1038,19 @@ def getaway():
                              'SortOrder': [e[0] for e in ESCAPES].index(zid)},
                  components={'Zone': {'BoxExtent': [half[0] * 100.0, half[1] * 100.0, half[2] * 100.0]}})
     for nid, (x, y), links in ROAD_NODES:
-        BH.actor('HHRoadNode', K.mat((x, y, ROAD_Z)), 'Roads', name='Road_' + nid,
-                 properties={'NodeId': nid, 'Links': links})
+        props = {'NodeId': nid, 'Links': links}
+        if nid in NODE_CONTROL:
+            control, approaches, stop = NODE_CONTROL[nid]
+            props.update(Control=BH.enum('EHHTrafficControl', control), StopApproaches=approaches, StopLine=stop)
+        BH.actor('HHRoadNode', K.mat((x, y, ROAD_Z)), 'Roads', name='Road_' + nid, properties=props)
+
+
+def door_x_of(h):
+    """Centre of a house's front door (houses.House) along its facade."""
+    for o in h.walls['front']:
+        if o['kind'] == 'door':
+            return (o['a0'] + o['a1']) / 2
+    return 0.0
 
 
 def build():

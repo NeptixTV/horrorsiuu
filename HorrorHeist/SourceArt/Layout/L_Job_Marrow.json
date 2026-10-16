@@ -285,7 +285,7 @@
    ]
   },
   {
-   "name": "SM_Door_Steel_7",
+   "name": "SM_Door_Steel_11",
    "cls": "StaticMeshActor",
    "folder": "Plug",
    "mesh": "SM_Door_Steel",

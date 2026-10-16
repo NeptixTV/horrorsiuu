@@ -68,7 +68,9 @@ enum class EHHLobbyScreen : uint8
 	Store,
 	Settings,
 	/** On a job: the five carry slots in detail (Tab). */
-	Inventory
+	Inventory,
+	/** Hollowmere Savings & Loan: the account (teller window, ATM). */
+	Bank
 };
 
 UENUM(BlueprintType)
@@ -489,6 +491,46 @@ struct HORRORHEIST_API FHHMissionSummary
 	/** Personal copy only: equipment this player lost (they died with it in the house). */
 	UPROPERTY(BlueprintReadOnly, Category = "Summary")
 	TArray<FName> LostGear;
+};
+
+/**
+ * The morning after a job: what Hollowmere makes of it. Set by the heist when it ends, carried
+ * to the hideout by the game instance and replicated by the lobby game state; the crime scene
+ * at the house (AHHAftermathScene) and the morning paper read it.
+ */
+USTRUCT(BlueprintType)
+struct HORRORHEIST_API FHHAftermath
+{
+	GENERATED_BODY()
+
+	/** Job the crew came back from (None = a quiet morning). */
+	UPROPERTY(BlueprintReadOnly, Category = "Aftermath")
+	FName MissionId;
+
+	/** Somebody noticed: things are missing, the police came, or worse. */
+	UPROPERTY(BlueprintReadOnly, Category = "Aftermath")
+	bool bNoticed = false;
+
+	/** The police were there (called, a chase, arrests, a body). */
+	UPROPERTY(BlueprintReadOnly, Category = "Aftermath")
+	bool bPolice = false;
+
+	/** A crew member died in the house: the coroner, a covered body. */
+	UPROPERTY(BlueprintReadOnly, Category = "Aftermath")
+	bool bDeath = false;
+
+	/** The house showed itself (haunt stage 2+): the owners tell the paper about it. */
+	UPROPERTY(BlueprintReadOnly, Category = "Aftermath")
+	bool bHaunting = false;
+
+	/** The street in front of the house is closed off. */
+	UPROPERTY(BlueprintReadOnly, Category = "Aftermath")
+	bool bRoadClosed = false;
+
+	bool IsActive() const { return !MissionId.IsNone() && (bNoticed || bHaunting); }
+
+	/** What the town makes of a finished job. */
+	static FHHAftermath FromSummary(const FHHMissionSummary& Summary);
 };
 
 /** Shared helpers for display names and colors of the enums above. */

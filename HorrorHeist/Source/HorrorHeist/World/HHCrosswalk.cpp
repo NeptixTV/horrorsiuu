@@ -43,7 +43,7 @@ bool AHHCrosswalk::IsBusy() const
 	return false;
 }
 
-AHHCrosswalk* AHHCrosswalk::FindAhead(const UObject* WorldContextObject, const FVector& Location, const FVector& Direction, float Distance)
+AHHCrosswalk* AHHCrosswalk::FindAhead(const UObject* WorldContextObject, const FVector& Location, const FVector& Direction, float Distance, float* OutAlong)
 {
 	UWorld* World = GEngine ? GEngine->GetWorldFromContextObject(WorldContextObject, EGetWorldErrorMode::ReturnNull) : nullptr;
 	if (!World)
@@ -55,7 +55,7 @@ AHHCrosswalk* AHHCrosswalk::FindAhead(const UObject* WorldContextObject, const F
 	float BestAlong = Distance;
 	for (TActorIterator<AHHCrosswalk> It(World); It; ++It)
 	{
-		for (float Along = 0.f; Along <= Distance; Along += 100.f)
+		for (float Along = 0.f; Along <= Distance; Along += 50.f)
 		{
 			if (It->Contains(Location + Forward * Along))
 			{
@@ -67,6 +67,10 @@ AHHCrosswalk* AHHCrosswalk::FindAhead(const UObject* WorldContextObject, const F
 				break;
 			}
 		}
+	}
+	if (OutAlong)
+	{
+		*OutAlong = BestAlong;
 	}
 	return Best;
 }

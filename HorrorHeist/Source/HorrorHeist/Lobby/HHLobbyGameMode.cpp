@@ -60,6 +60,11 @@ void AHHLobbyGameMode::BeginPlay()
 			LobbyState->MergeIntel(Profile->GetKnownIntel());
 		}
 		const UHHGameInstance* GameInstance = GetGameInstance<UHHGameInstance>();
+		if (GameInstance)
+		{
+			// The morning after: police at the house, the street closed, the owners talking.
+			LobbyState->SetAftermath(GameInstance->GetAftermath());
+		}
 		const FName Remembered = GameInstance ? GameInstance->GetSafehouse() : NAME_None;
 		LobbyState->SetSafehouse(Remembered.IsNone() ? FName(TEXT("Hideout")) : Remembered);
 		const UHHSessionSubsystem* Sessions = UHHSessionSubsystem::Get(this);

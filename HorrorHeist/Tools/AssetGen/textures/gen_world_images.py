@@ -178,7 +178,7 @@ def sign_brannigan():
 
 
 def sign_hardware():
-    _shop_sign('T_Sign_Hardware', (0.36, 0.08, 0.06), (0.88, 0.84, 0.72), 'HOLLOWMERE HARDWARE',
+    _shop_sign('T_Sign_Hardware', (0.36, 0.08, 0.06), (0.88, 0.84, 0.72), "COBB'S HARDWARE",
                'LOCKS  ·  KEYS  ·  TOOLS', OSWALD, COND, 602, accent=(0.86, 0.74, 0.42), rust=0.45, dirt=0.55,
                title_tracking=4)
 
@@ -319,10 +319,14 @@ def sign_parking():
     save_jpg(a, 'T_Sign_Parking')
 
 
+STREET_NAMES = ['MAIN ST', 'ASHGROVE LN', 'MARROW ST', 'CHURCH RD', 'ELM AVE', 'PINE ST', 'MILL RD', 'ORCHARD LN']
+
+
 def sign_street_names():
-    w, h = 1024, 512
+    """Atlas of street-name blades: 8 rows of 1024 x 128, top to bottom in STREET_NAMES order."""
+    w, h = 1024, 128 * len(STREET_NAMES)
     atlas = np.zeros((h, w, 3))
-    names = ['MAIN ST', 'ASHGROVE LN', 'MARROW ST', 'CHURCH RD']
+    names = STREET_NAMES
     for i, n in enumerate(names):
         img = Image.new('RGB', (w, 128), (40, 40, 40))
         d = ImageDraw.Draw(img)

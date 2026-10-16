@@ -166,6 +166,8 @@ private:
 
 	TWeakObjectPtr<UExponentialHeightFogComponent> Fog;
 	TArray<TWeakObjectPtr<AHHPracticalLight>> StreetLights;
+	/** Shop and bank lights (tag HH_DayOnly): on in business hours, off at night. */
+	TArray<TWeakObjectPtr<AHHPracticalLight>> DayLights;
 	TArray<TWeakObjectPtr<AActor>> Windows;
 	TArray<TWeakObjectPtr<AHHAmbientEmitter>> DayEmitters;
 	TArray<TWeakObjectPtr<AHHAmbientEmitter>> NightEmitters;

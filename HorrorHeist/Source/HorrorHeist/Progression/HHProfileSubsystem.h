@@ -47,8 +47,26 @@ public:
 	static FString SuggestName();
 
 	// --- Economy ---
+	/** Cash in the pocket: what shops take, and what bail eats into. */
 	int64 GetCash() const;
 	void AddCash(int64 Amount);
+
+	// --- The bank (Hollowmere Savings & Loan) ---
+	int64 GetSavings() const;
+	/** Pocket -> account. False if the pocket does not hold Amount. */
+	bool Deposit(int64 Amount);
+	/** Account -> pocket. False if the account does not hold Amount. */
+	bool Withdraw(int64 Amount);
+	/** Interest the account will earn on the next job night. */
+	int64 GetNextInterest() const;
+	static constexpr double InterestRate = 0.02;
+	static constexpr int64 MaxInterestPerNight = 400;
+	/** Share of the pocket cash an arrested crew member pays in bail (savings are untouched). */
+	static constexpr double BailShare = 0.25;
+	int32 GetDay() const;
+	/** What the last booked job did to the account (shown as notices back in the hideout). */
+	int64 GetLastInterest() const { return LastInterest; }
+	int64 GetLastBail() const { return LastBail; }
 
 	// --- Progression ---
 	static constexpr int32 MaxLevel = 50;
@@ -87,8 +105,11 @@ public:
 	void RememberIntel(const TArray<FName>& IntelIds);
 	void ForgetAllIntel();
 
-	/** Books a finished job: payout, XP, job counter (one save). */
-	void RecordJob(const FHHMissionSummary& Summary);
+	/**
+	 * Books a finished job: payout, XP, job counter, the night's interest and - if this player
+	 * (OwnCrewSlot) was caught - bail from the pocket (one save).
+	 */
+	void RecordJob(const FHHMissionSummary& Summary, int32 OwnCrewSlot = INDEX_NONE);
 	/** Summary of the last job of this session, shown once back in the hideout. */
 	bool ConsumeLastJobSummary(FHHMissionSummary& OutSummary);
 
@@ -113,4 +134,6 @@ private:
 
 	FHHMissionSummary LastJob;
 	bool bHasLastJob = false;
+	int64 LastInterest = 0;
+	int64 LastBail = 0;
 };

@@ -19,6 +19,13 @@ void AHHLobbyGameState::GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& Ou
 	DOREPLIFETIME(AHHLobbyGameState, KnownIntel);
 	DOREPLIFETIME(AHHLobbyGameState, LobbyCode);
 	DOREPLIFETIME(AHHLobbyGameState, DepartureServerTime);
+	DOREPLIFETIME(AHHLobbyGameState, Aftermath);
+}
+
+void AHHLobbyGameState::SetAftermath(const FHHAftermath& NewAftermath)
+{
+	Aftermath = NewAftermath;
+	ForceNetUpdate();
 }
 
 void AHHLobbyGameState::AddPlayerState(APlayerState* PlayerState)

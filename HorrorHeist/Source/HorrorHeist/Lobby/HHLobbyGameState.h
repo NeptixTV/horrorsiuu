@@ -45,6 +45,9 @@ public:
 	/** Code friends type to join this crew ("K7Q2MX"); empty while the hideout is private. */
 	const FString& GetLobbyCode() const { return LobbyCode; }
 
+	/** The morning after the last job (crime scene at the house). */
+	const FHHAftermath& GetAftermath() const { return Aftermath; }
+
 	TArray<AHHPlayerState*> GetCrew() const;
 	bool IsEveryoneReady() const;
 	int32 NumReady() const;
@@ -61,6 +64,7 @@ public:
 	/** Development: empty notebook. */
 	void ClearIntel();
 	void SetLobbyCode(const FString& NewCode);
+	void SetAftermath(const FHHAftermath& NewAftermath);
 
 	UFUNCTION(NetMulticast, Reliable)
 	void MulticastCrewMessage(const FText& Message, EHHNotifyType Type);
@@ -102,4 +106,7 @@ private:
 	/** Server world time at which the crew departs. */
 	UPROPERTY(Replicated)
 	double DepartureServerTime = 0.0;
+
+	UPROPERTY(Replicated)
+	FHHAftermath Aftermath;
 };

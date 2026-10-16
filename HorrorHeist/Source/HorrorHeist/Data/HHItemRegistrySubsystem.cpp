@@ -184,7 +184,8 @@ TArray<const UHHCosmeticDefinition*> UHHItemRegistrySubsystem::GetCosmeticsForSl
 	TArray<const UHHCosmeticDefinition*> Result;
 	for (const UHHCosmeticDefinition* Item : Cosmetics)
 	{
-		if (Item && Item->Slot == Slot)
+		// Uniforms of the townspeople are not for the crew.
+		if (Item && Item->Slot == Slot && !Item->bNpcOnly)
 		{
 			Result.Add(Item);
 		}
@@ -230,7 +231,7 @@ TArray<const UHHItemDefinition*> UHHItemRegistrySubsystem::GetStoreItems() const
 	}
 	for (const UHHCosmeticDefinition* Item : Cosmetics)
 	{
-		if (Item && !Item->bHiddenInStore && !Item->bOwnedByDefault)
+		if (Item && !Item->bHiddenInStore && !Item->bNpcOnly && !Item->bOwnedByDefault)
 		{
 			Result.Add(Item);
 		}

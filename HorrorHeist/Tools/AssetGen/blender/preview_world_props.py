@@ -27,6 +27,7 @@ import hhblend as H  # noqa: E402
 import preview_props as PP  # noqa: E402
 import props as P  # noqa: E402
 import props_world as W  # noqa: E402
+import props_town2  # noqa: E402,F401
 from hhmaterials import CATALOG  # noqa: E402
 
 TOL = 0.01

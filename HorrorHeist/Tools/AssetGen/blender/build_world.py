@@ -29,9 +29,11 @@ import hhblend as H  # noqa: E402
 import build_hideout as BH  # noqa: E402
 import items  # noqa: E402,F401  (equipment props)
 import props_world  # noqa: E402,F401  (town, house and loot props)
+import props_town2  # noqa: E402,F401  (downtown, bank, market, playground, crime scenes)
 import worldkit  # noqa: E402,F401  (doors, glow cards, keys)
 import placement as PL  # noqa: E402
 import town as T  # noqa: E402
+import downtown as DT  # noqa: E402
 import vance as V  # noqa: E402
 import prepared as PR  # noqa: E402
 import worldkit as K  # noqa: E402
@@ -239,6 +241,16 @@ def render(fast=False):
     os.makedirs(out, exist_ok=True)
     shots = [
         ('Town_Map', (0, 64, 200), (0, 64, 0), 60, 185.0, (1400, 1400)),
+        ('Downtown_Map', (175, 14, 220), (175, 14, 0), 60, 185.0, (1400, 1400)),
+        ('Downtown_Junction', (128.0, 12.0, 4.0), (148, 22, 3.0), 62, None, (1280, 720)),
+        ('Downtown_Bank', (110.0, 21.5, 4.3), (118, 30, 6.2), 62, None, (1280, 720)),
+        ('Downtown_BankInside', (121.0, 29.6, 4.3), (116, 42, 3.9), 75, None, (1280, 720)),
+        ('Downtown_Market', (178.0, 9.0, 4.4), (188, -18, 4.8), 62, None, (1280, 720)),
+        ('Downtown_MarketInside', (183.0, -19.5, 4.3), (190, -36, 3.6), 75, None, (1280, 720)),
+        ('Downtown_Playground', (138.0, 10.0, 5.0), (116, -16, 0.5), 62, None, (1280, 720)),
+        ('Town_Hardware', (26.0, 20.5, 4.3), (31.0, 30.0, 4.6), 62, None, (1280, 720)),
+        ('Town_HardwareInside', (35.5, 28.2, 4.3), (31.0, 39.0, 3.6), 75, None, (1280, 720)),
+        ('Aftermath_Vance', (46.0, 47.0, 4.6), (57, 57, 3.0), 62, None, (1280, 720)),
         ('Town_MainStreet', (-24, 18.5, 4.2), (10, 22, 4.0), 62, None, (1280, 720)),
         ('Town_LaundromatLot', (8.5, 18.0, 4.1), (0, 4.0, 5.0), 62, None, (1280, 720)),
         ('Town_Vance', (49.0, 46.5, 4.2), (62, 57, 4.8), 60, None, (1280, 720)),
@@ -261,7 +273,7 @@ def render(fast=False):
         scene.camera = cam
         scene.render.resolution_x = res[0] if not fast else res[0] // 2
         scene.render.resolution_y = res[1] if not fast else res[1] // 2
-        interior = name.startswith('Vance_')
+        interior = name.startswith('Vance_') or name.endswith('Inside')
         so.hide_render = interior
         torch.hide_render = not interior
         torch.matrix_world = cam.matrix_world
@@ -288,6 +300,7 @@ def main():
     # --- The town ----------------------------------------------------------------------------
     level('L_Town', kind='sublevel')
     T.build()
+    DT.build()
     V.build()
     PR.build()
     cull_town_lights()

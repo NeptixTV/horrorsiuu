@@ -781,6 +781,8 @@ def render_icons(body, arm, garments, attached):
         pb.rotation_quaternion = (1, 0, 0, 0)
         pb.location = (0, 0, 0)
     for item in catalog.COSMETICS:
+        if item.get('npc'):
+            continue                      # townspeople's uniforms are never shown in a menu
         mesh = item['mesh']
         shown = []
         head_ctx = item['slot'] in ('Hair', 'Hat', 'Mask', 'Accessory') and item['bone'] == 'head'

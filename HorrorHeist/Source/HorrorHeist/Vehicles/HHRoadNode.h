@@ -32,6 +32,10 @@ public:
 	EHHTrafficControl GetControl() const { return Control; }
 	/** Which signal group of the junction this node belongs to (all lights of a junction share it). */
 	FName GetJunctionId() const { return JunctionId.IsNone() ? NodeId : JunctionId; }
+	/** Stop sign: must a car coming from node FromId stop here? (side street yes, main road no) */
+	bool MustStopFrom(FName FromId) const { return Control == EHHTrafficControl::StopSign && (StopApproaches.Num() == 0 || StopApproaches.Contains(FromId)); }
+	/** Distance from the node to the painted stop line (cm). */
+	float GetStopLine() const { return StopLine; }
 
 	/** Nearest node to Location (null when the town has no road nodes). */
 	static AHHRoadNode* FindNearest(const UObject* WorldContextObject, const FVector& Location);
@@ -59,4 +63,12 @@ protected:
 	/** Lights: the junction id the signals use (defaults to this node's id). */
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Road")
 	FName JunctionId;
+
+	/** Stop sign: the linked nodes whose traffic has the sign (empty = an all-way stop). */
+	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Road")
+	TArray<FName> StopApproaches;
+
+	/** Where cars wait: the stop line this far before the node's centre (cm). */
+	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Road")
+	float StopLine = 620.f;
 };

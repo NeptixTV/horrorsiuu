@@ -47,6 +47,14 @@ public:
 	UPROPERTY(SaveGame)
 	int64 LifetimeEarnings = 0;
 
+	/** Hollowmere Savings & Loan: money in the bank. Safe from bail, earns interest every night. */
+	UPROPERTY(SaveGame)
+	int64 Savings = 0;
+
+	/** The town's calendar: one day per job night (interest, the morning papers). */
+	UPROPERTY(SaveGame)
+	int32 Day = 1;
+
 	/** Job intel learned by scouting (FHHJobIntel::IntelId). */
 	UPROPERTY(SaveGame)
 	TArray<FName> KnownIntel;
