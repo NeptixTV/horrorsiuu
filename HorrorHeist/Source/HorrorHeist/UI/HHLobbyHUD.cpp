@@ -820,9 +820,9 @@ void AHHLobbyHUD::UpdateNoiseMeter(float DeltaSeconds)
 		MeterTickTimer = FMath::Lerp(1.4f, 0.07f, MeterReading / 5.f);
 		if (const UHHGameData* GameData = UHHGameData::Get(this))
 		{
-			if (USoundBase* Tick = GameData->NoiseMeterTickSound.LoadSynchronous())
+			if (USoundBase* TickSound = GameData->NoiseMeterTickSound.LoadSynchronous())
 			{
-				UGameplayStatics::PlaySound2D(this, Tick, 0.5f + 0.1f * MeterReading);
+				UGameplayStatics::PlaySound2D(this, TickSound, 0.5f + 0.1f * MeterReading);
 			}
 		}
 	}
@@ -857,18 +857,18 @@ void AHHLobbyHUD::DrawPings()
 		{
 			continue;
 		}
-		const FVector Screen = Project(Spot, false);
+		const FVector ScreenPos = Project(Spot, false);
 		const float Fade = FMath::Clamp((AHHHeistGameState::PingLifetime - Age) / 3.f, 0.f, 1.f);
 		FLinearColor Color = AHHPlayerState::CrewColorForSlot(Ping.CrewSlot);
 		Color.A = Fade;
 		// A small diamond and "Name  12 m".
 		const float Size = 7.f;
-		DrawLine(Screen.X, Screen.Y - Size, Screen.X + Size, Screen.Y, Color, 2.f);
-		DrawLine(Screen.X + Size, Screen.Y, Screen.X, Screen.Y + Size, Color, 2.f);
-		DrawLine(Screen.X, Screen.Y + Size, Screen.X - Size, Screen.Y, Color, 2.f);
-		DrawLine(Screen.X - Size, Screen.Y, Screen.X, Screen.Y - Size, Color, 2.f);
+		DrawLine(ScreenPos.X, ScreenPos.Y - Size, ScreenPos.X + Size, ScreenPos.Y, Color, 2.f);
+		DrawLine(ScreenPos.X + Size, ScreenPos.Y, ScreenPos.X, ScreenPos.Y + Size, Color, 2.f);
+		DrawLine(ScreenPos.X, ScreenPos.Y + Size, ScreenPos.X - Size, ScreenPos.Y, Color, 2.f);
+		DrawLine(ScreenPos.X - Size, ScreenPos.Y, ScreenPos.X, ScreenPos.Y - Size, Color, 2.f);
 		const int32 Meters = FMath::RoundToInt(FVector::Dist(CameraLocation, Spot) / 100.f);
-		DrawText(FString::Printf(TEXT("%s  %d m"), *Ping.Name, Meters), Color, Screen.X + Size + 4.f, Screen.Y - 7.f, Font, 1.f);
+		DrawText(FString::Printf(TEXT("%s  %d m"), *Ping.Name, Meters), Color, ScreenPos.X + Size + 4.f, ScreenPos.Y - 7.f, Font, 1.f);
 	}
 }
 

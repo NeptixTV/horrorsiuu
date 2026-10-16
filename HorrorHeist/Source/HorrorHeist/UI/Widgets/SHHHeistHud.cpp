@@ -11,6 +11,7 @@
 #include "Player/HHPlayerState.h"
 #include "Player/HHInventoryComponent.h"
 #include "Data/HHItemRegistrySubsystem.h"
+#include "Data/HHEquipmentDefinition.h"
 #include "Data/HHLootDefinition.h"
 #include "Data/HHMissionDefinition.h"
 #include "Settings/HHInputSubsystem.h"

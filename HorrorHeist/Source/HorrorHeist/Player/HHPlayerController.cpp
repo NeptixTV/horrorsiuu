@@ -466,10 +466,10 @@ void AHHPlayerController::SpectateNext()
 	{
 		for (APlayerState* Other : GameState->PlayerArray)
 		{
-			AHHCharacter* Character = Other ? Cast<AHHCharacter>(Other->GetPawn()) : nullptr;
-			if (Character && Character != Me && !Character->IsDead() && !Character->IsArrested())
+			AHHCharacter* Crewmate = Other ? Cast<AHHCharacter>(Other->GetPawn()) : nullptr;
+			if (Crewmate && Crewmate != Me && !Crewmate->IsDead() && !Crewmate->IsArrested())
 			{
-				Candidates.Add(Character);
+				Candidates.Add(Crewmate);
 			}
 		}
 	}
