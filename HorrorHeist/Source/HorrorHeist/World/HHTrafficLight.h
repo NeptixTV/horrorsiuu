@@ -32,7 +32,7 @@ public:
 	virtual void Tick(float DeltaSeconds) override;
 
 	/** Signal for traffic along Axis (0 = along world X, 1 = along world Y) at a game-state time. */
-	static EHHSignal GetSignal(int32 Axis, float ServerTime);
+	static EHHSignal GetSignal(int32 SignalAxis, float ServerTime);
 	/** Seconds of one full cycle. */
 	static constexpr float CycleSeconds = 34.f;
 

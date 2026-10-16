@@ -139,7 +139,7 @@ bool AHHTrafficCar::BuildLane()
 		const bool bRightTurn = In.X * Out.Y - In.Y * Out.X > 0.f;
 		const float HalfTan = FMath::Tan(Turn * 0.5f);
 		float Tangent = (bRightTurn ? RightTurnRadius : LeftTurnRadius) * HalfTan;
-		Tangent = FMath::Min3(Tangent, 0.45f * FromPrevious.Size2D(), 0.45f * ToNext.Size2D());
+		Tangent = FMath::Min3<float>(Tangent, 0.45f * static_cast<float>(FromPrevious.Size2D()), 0.45f * static_cast<float>(ToNext.Size2D()));
 		const float Radius = Tangent / FMath::Max(HalfTan, 0.01f);
 		const FVector Start = Corner - In * Tangent;
 		const FVector Side = bRightTurn ? RightIn : -RightIn;
