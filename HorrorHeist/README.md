@@ -39,9 +39,13 @@ der SIL Open Font License (`Content/Slate/Fonts/Licenses`).
    Darin müssen **nebeneinander** liegen: `HorrorHeist.uproject`, **`Source`**, `Config`, `Content`, `SourceArt`,
    `Tools` und `Build-HorrorHeist.bat`. Eine `HorrorHeist.sln` liegt **nicht** im Download – sie entsteht in
    Schritt 1.
-1. **`Build-HorrorHeist.bat`** doppelklicken (findet UE 5.5, prüft Visual Studio und den Projektpfad,
+1. **`Build-HorrorHeist.bat`** doppelklicken. Der Explorer blendet die Endung `.bat` meist aus – dann heißt die
+   Datei nur **`Build-HorrorHeist`** mit dem Typ *Windows-Batchdatei* (Endungen einblenden: *Ansicht →
+   Einblenden → Dateinamenerweiterungen*). Meldet Windows „Der Computer wurde durch Windows geschützt“, auf
+   *Weitere Informationen → Trotzdem ausführen* klicken – das kommt bei jeder heruntergeladenen Batchdatei.
+   Das Skript findet UE 5.5, prüft Visual Studio und den Projektpfad,
    erzeugt `HorrorHeist.sln`, kompiliert **HorrorHeistEditor** Win64 Development; Protokoll in
-   **`BuildLog.txt`**, nur die Fehler in **`BuildErrors.txt`**). Erst danach `HorrorHeist.uproject` öffnen.
+   **`BuildLog.txt`**, nur die Fehler in **`BuildErrors.txt`**. Erst danach `HorrorHeist.uproject` öffnen.
 2. Editor öffnen. Beim **ersten Start** fragt ein Dialog nach dem Aufbau der Inhalte → **Yes**. Das Setup
    (`Content/Python/hh_setup`) importiert alles aus `SourceArt/` (~256 Texturen, 175 Sounds, ~355 statische
    Meshes, 18 Skeletal-Meshes, 6 Animationen), erzeugt Materialien, baut **fünf Maps** (siehe unten) und danach alle Data Assets
