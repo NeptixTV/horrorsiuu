@@ -2,6 +2,7 @@
 
 #include "CoreMinimal.h"
 #include "Core/HHGameModeBase.h"
+#include "Core/HHTypes.h"
 #include "HHLobbyGameMode.generated.h"
 
 class AHHPlayerController;
