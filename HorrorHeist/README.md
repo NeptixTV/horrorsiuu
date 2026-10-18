@@ -34,6 +34,11 @@ der SIL Open Font License (`Content/Slate/Fonts/Licenses`).
 **Voraussetzungen:** Unreal Engine **5.5**, Visual Studio 2022 (17.8+) mit „Spieleentwicklung mit C++“,
 „Desktopentwicklung mit C++“ und „.NET-Desktopentwicklung“ (Windows).
 
+0. **Das ZIP komplett entpacken** (Explorer: Rechtsklick → *Alle extrahieren…*) – nicht im ZIP-Fenster
+   doppelklicken. Den Ordner **`HorrorHeist`** an einen kurzen Pfad verschieben, z. B. `C:\Projekte\HorrorHeist`.
+   Darin müssen **nebeneinander** liegen: `HorrorHeist.uproject`, **`Source`**, `Config`, `Content`, `SourceArt`,
+   `Tools` und `Build-HorrorHeist.bat`. Eine `HorrorHeist.sln` liegt **nicht** im Download – sie entsteht in
+   Schritt 1.
 1. **`Build-HorrorHeist.bat`** doppelklicken (findet UE 5.5, prüft Visual Studio und den Projektpfad,
    erzeugt `HorrorHeist.sln`, kompiliert **HorrorHeistEditor** Win64 Development; Protokoll in
    **`BuildLog.txt`**, nur die Fehler in **`BuildErrors.txt`**). Erst danach `HorrorHeist.uproject` öffnen.
@@ -51,10 +56,19 @@ der SIL Open Font License (`Content/Slate/Fonts/Licenses`).
    *Net Mode* **Play As Listen Server**.
 
 > **„The following modules are missing or built with a different engine version … Would you like to rebuild
-> them now?“** – diese Frage kommt bei jedem C++-Projekt, solange es noch nicht kompiliert ist (die
-> Binärdateien liegen nicht im Repository). Mit **Yes** baut Unreal das Spiel selbst; schlägt das fehl
-> („could not be compiled. Try rebuilding from source manually“), war der Grund bisher unsichtbar. Darum:
-> **`Build-HorrorHeist.bat` starten** – es sagt genau, was fehlt:
+> them now?“** – diese Frage kommt bei jedem C++-Projekt, solange es noch nicht kompiliert ist: Das ganze Spiel
+> (Spielfigur, Lobby, Jobs, Stadt, Spuk – und das Setup, das Maps und Assets erzeugt) ist C++-Code im Modul
+> `HorrorHeist`, und dessen Binärdateien (`Binaries/`) liegen bewusst nicht im Repository. Unreal muss das Modul
+> deshalb aus dem Ordner **`Source`** neben der `.uproject` bauen. Das Modul aus der `.uproject` zu entfernen,
+> wäre **keine** Lösung – dann öffnet sich nur ein leerer Editor ohne Spiel. Mit **Yes** baut Unreal das Spiel
+> selbst; schlägt das fehl („could not be compiled. Try rebuilding from source manually“), ist der Grund
+> unsichtbar. Darum: **`Build-HorrorHeist.bat` starten** – es sagt genau, was fehlt:
+> * **Kein Ordner `Source` neben `HorrorHeist.uproject`** – der häufigste Grund. Passiert, wenn die `.uproject`
+>   direkt im ZIP-Fenster doppelgeklickt wird (Windows kopiert dann nur diese eine Datei in einen Temp-Ordner),
+>   wenn das ZIP nur teilweise entpackt oder die `.uproject` allein woandershin kopiert wurde → das ZIP komplett
+>   entpacken (Schritt 0). Prüfen: `HorrorHeist\Source\HorrorHeist\HorrorHeist.Build.cs` muss existieren.
+> * **Das Skript schließt sich sofort wieder** – das konnte bei älteren Versionen des Skripts passieren, wenn der
+>   Ordnername eine Klammer enthält (z. B. `…-dxau5o (1)` nach mehrfachem Download). Ist behoben.
 > * **Unreal Engine 5.5 nicht installiert** (bzw. nur 5.4/5.6/5.7) → im Epic Games Launcher 5.5 installieren.
 > * **Visual Studio 2022 mit C++ fehlt** → „Visual Studio 2022 Community“ mit *Spieleentwicklung mit C++*,
 >   *Desktopentwicklung mit C++*, *.NET-Desktopentwicklung* (+ MSVC v143, Windows-SDK) installieren.

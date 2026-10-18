@@ -2,7 +2,7 @@
 	"FileVersion": 3,
 	"EngineAssociation": "5.5",
 	"Category": "",
-	"Description": "Co-op horror heist - lobby foundation (milestone 1)",
+	"Description": "The Quiet Job - co-op horror heist (C++). Before the first launch run Build-HorrorHeist.bat next to this file; it needs the Source folder beside it.",
 	"Modules": [
 		{
 			"Name": "HorrorHeist",
