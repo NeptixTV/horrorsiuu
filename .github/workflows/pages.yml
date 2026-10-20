@@ -1,6 +1,7 @@
 name: Deploy to GitHub Pages
 
 # Run manually (Actions → "Deploy to GitHub Pages" → Run workflow) or on pushes to main.
+# Publishes the website (website/) at the root and the browser app at /app/.
 # Requires Settings → Pages → Source: "GitHub Actions".
 on:
   workflow_dispatch:
@@ -27,9 +28,15 @@ jobs:
           cache: npm
       - run: npm ci
       - run: npm run build
+      # the product website at the root, the browser version of the app under /app/
+      - name: Assemble site
+        run: |
+          mkdir -p _site/app
+          cp -r website/. _site/
+          cp -r dist/. _site/app/
       - uses: actions/upload-pages-artifact@v3
         with:
-          path: dist
+          path: _site
   deploy:
     needs: build
     runs-on: ubuntu-latest

@@ -280,6 +280,13 @@ Designprinzipien:
 - Die DSP-Klassen sind gekapselt (`Effect`, `Instrument`), sodass sich später leicht stärkere Engines (z. B. WASM)
   einsetzen lassen.
 
+## Website
+
+Die Produkt-Website liegt im Ordner [`website/`](website/) (eine einzige `index.html` plus Bilder und Schriften, keine
+externen Server, keine Cookies). Der Workflow *Deploy to GitHub Pages* veröffentlicht sie zusammen mit der
+Browser-Version der App (unter `/app/`) – aber nur, wenn du ihn startest oder auf `main` mergst.
+Vor dem Veröffentlichen das Impressum unten auf der Seite ausfüllen.
+
 ## Sicherheit & Datenschutz
 
 - [SECURITY.md](SECURITY.md) – Sicherheitsbericht zu 1.2.0: was geprüft wurde, was behoben ist, was vor einer

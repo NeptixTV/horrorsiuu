@@ -1,0 +1,1109 @@
+<!doctype html>
+<html lang="de">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Goofy Studio</title>
+<meta name="claude:viewport-fit-sides" content="cover">
+<meta name="description" content="Goofy Studio – kostenlose Musik-Software für Windows und den Browser: Beats bauen, Akkorde spielen mit DreamChord, aufnehmen, abmischen, exportieren. Ohne Konto, ohne Cloud, ohne Tracking.">
+<meta property="og:title" content="Goofy Studio – ernsthaft gute Beats, ein bisschen goofy">
+<meta property="og:description" content="Komplettes Musikstudio für Windows und den Browser. Kostenlos, ohne Konto, ohne Tracking.">
+<meta property="og:image" content="img/og.jpg">
+<meta property="og:type" content="website">
+<meta name="theme-color" content="#0f0b15">
+<link rel="icon" href="favicon.ico">
+<style>
+/* Layout: one long night session – full-bleed bands, content on a 1180px rail, three 3D moments
+   (hero terrain, exploded studio, playable DreamChord) and quiet bands in between. */
+:root {
+  --night: #0f0b15;
+  --night-2: #151019;
+  --panel: #1c1524;
+  --panel-2: #241b2e;
+  --ink: #f5efe6;
+  --muted: #b0a7bb;
+  --dim: #7a7188;
+  --line: rgba(245, 239, 230, 0.09);
+  --line-2: rgba(245, 239, 230, 0.16);
+  --peel: #f68b1f;
+  --peel-hi: #ffb35c;
+  --leaf: #9bd35a;
+  --dream: #45c8ea;
+  --dice: #ffc53d;
+  --berry: #ff5a8a;
+  --on-accent: #1a0f05;
+  --display: "Unbounded", "Arial Black", "Segoe UI", system-ui, sans-serif;
+  --body: "Instrument Sans", system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
+  --mono: "JetBrains Mono", ui-monospace, "Cascadia Mono", Consolas, monospace;
+  --rail: 1180px;
+  --radius: 18px;
+  color-scheme: dark;
+}
+
+@font-face { font-family: "Unbounded"; font-weight: 600; font-display: swap; src: url("fonts/unbounded-latin-600-normal.woff2") format("woff2"); }
+@font-face { font-family: "Unbounded"; font-weight: 800; font-display: swap; src: url("fonts/unbounded-latin-800-normal.woff2") format("woff2"); }
+@font-face { font-family: "Instrument Sans"; font-weight: 400; font-display: swap; src: url("fonts/instrument-sans-latin-400-normal.woff2") format("woff2"); }
+@font-face { font-family: "Instrument Sans"; font-weight: 500; font-display: swap; src: url("fonts/instrument-sans-latin-500-normal.woff2") format("woff2"); }
+@font-face { font-family: "Instrument Sans"; font-weight: 600; font-display: swap; src: url("fonts/instrument-sans-latin-600-normal.woff2") format("woff2"); }
+@font-face { font-family: "JetBrains Mono"; font-weight: 400; font-display: swap; src: url("fonts/jetbrains-mono-latin-400-normal.woff2") format("woff2"); }
+@font-face { font-family: "JetBrains Mono"; font-weight: 700; font-display: swap; src: url("fonts/jetbrains-mono-latin-700-normal.woff2") format("woff2"); }
+@property --spin { syntax: "<angle>"; inherits: false; initial-value: 0deg; }
+
+*, *::before, *::after { box-sizing: border-box; }
+html { scroll-behavior: smooth; }
+body {
+  margin: 0;
+  background: var(--night);
+  color: var(--ink);
+  font: 400 17px/1.6 var(--body);
+  -webkit-font-smoothing: antialiased;
+  overflow-x: clip;
+}
+body::before { content: ""; position: fixed; inset: 0 0 auto; height: env(safe-area-inset-top, 0px); z-index: 60; background: var(--night); }
+img { max-width: 100%; height: auto; display: block; }
+a { color: inherit; }
+:focus-visible { outline: 2px solid var(--peel-hi); outline-offset: 3px; border-radius: 6px; }
+h1, h2, h3 { font-family: var(--display); font-weight: 800; line-height: 1.05; letter-spacing: -0.02em; margin: 0; text-wrap: balance; }
+h2 { font-size: clamp(32px, 5.2vw, 64px); }
+h3 { font-size: 20px; font-weight: 600; letter-spacing: -0.01em; line-height: 1.2; }
+p { margin: 0; }
+.wrap { max-width: var(--rail); margin-inline: auto; padding-left: max(16px, env(safe-area-inset-left, 0px)); padding-right: max(16px, env(safe-area-inset-right, 0px)); }
+.band { padding-block: clamp(72px, 11vw, 140px); position: relative; }
+.eyebrow { font: 700 12px/1 var(--mono); letter-spacing: 0.16em; text-transform: uppercase; color: var(--peel-hi); display: inline-flex; align-items: center; gap: 10px; }
+.eyebrow::before { content: ""; width: 8px; height: 8px; border-radius: 50%; background: currentColor; box-shadow: 0 0 12px currentColor; }
+.lede { font-size: clamp(18px, 1.6vw, 21px); color: var(--muted); max-width: 62ch; }
+.section-head { display: grid; gap: 18px; max-width: 760px; }
+.mono { font-family: var(--mono); }
+.sr { position: absolute; width: 1px; height: 1px; overflow: hidden; clip-path: inset(50%); white-space: nowrap; }
+
+/* ---------- buttons ---------- */
+.btn {
+  --b: var(--line-2);
+  display: inline-flex; align-items: center; gap: 10px;
+  padding: 14px 22px; border-radius: 999px; border: 1px solid var(--b);
+  font: 600 16px/1 var(--body); color: var(--ink); text-decoration: none; cursor: pointer;
+  background: rgba(255, 255, 255, 0.03); transition: transform .2s ease, background .2s ease, border-color .2s ease, box-shadow .2s ease;
+}
+.btn:hover { transform: translateY(-2px); border-color: var(--ink); }
+.btn.primary { background: var(--peel); border-color: var(--peel); color: var(--on-accent); box-shadow: 0 10px 30px -10px rgba(246, 139, 31, 0.7), inset 0 -3px 0 rgba(0, 0, 0, 0.18); }
+.btn.primary:hover { background: var(--peel-hi); border-color: var(--peel-hi); }
+.btn small { font: 500 12px/1 var(--mono); opacity: .75; }
+.btn svg { width: 18px; height: 18px; flex: none; }
+.btn[aria-disabled="true"] { cursor: not-allowed; opacity: .55; transform: none; }
+
+/* ---------- nav ---------- */
+.nav { position: sticky; top: env(safe-area-inset-top, 0px); z-index: 50; background: color-mix(in srgb, var(--night) 72%, transparent); backdrop-filter: blur(14px) saturate(1.4); -webkit-backdrop-filter: blur(14px) saturate(1.4); border-bottom: 1px solid var(--line); }
+.nav .wrap { display: flex; align-items: center; gap: 24px; height: 64px; }
+.brand { display: flex; align-items: center; gap: 10px; font: 800 17px/1 var(--display); text-decoration: none; letter-spacing: -0.01em; }
+.brand img { width: 26px; height: auto; filter: drop-shadow(0 0 10px rgba(246, 139, 31, 0.45)); }
+.nav-links { display: flex; gap: 22px; margin-left: auto; font-size: 15px; }
+.nav-links a { text-decoration: none; color: var(--muted); transition: color .2s; }
+.nav-links a:hover { color: var(--ink); }
+.nav .btn { padding: 10px 16px; font-size: 14px; }
+@media (max-width: 860px) { .nav-links { display: none; } .nav .btn { margin-left: auto; } }
+
+/* ---------- hero ---------- */
+.hero { position: relative; overflow: clip; padding-block: clamp(56px, 8vw, 96px) 0; isolation: isolate; }
+.hero canvas { position: absolute; inset: 0; width: 100%; height: 100%; z-index: -1; -webkit-mask-image: linear-gradient(to bottom, rgba(0, 0, 0, .55), #000 45%); mask-image: linear-gradient(to bottom, rgba(0, 0, 0, .55), #000 45%); }
+.hero::after { content: ""; position: absolute; inset: auto 0 0; height: 40%; z-index: -1; background: linear-gradient(to bottom, transparent, var(--night)); pointer-events: none; }
+.hero-copy { display: grid; justify-items: start; gap: 24px; max-width: 1000px; }
+.lcd { display: inline-flex; gap: 14px; flex-wrap: wrap; align-items: center; padding: 8px 14px; border-radius: 10px; background: rgba(0, 0, 0, 0.45); border: 1px solid var(--line); font: 700 13px/1 var(--mono); color: var(--peel-hi); text-shadow: 0 0 10px rgba(255, 179, 92, 0.5); letter-spacing: 0.06em; }
+.lcd span { color: var(--muted); font-weight: 400; text-shadow: none; }
+.hero h1 { font-size: clamp(40px, 6.6vw, 88px); text-shadow: 0 0 40px var(--night); }
+.hero h1 .goofy { position: relative; display: inline-block; color: var(--peel); }
+.hero h1 .goofy svg { position: absolute; left: -2%; right: -4%; bottom: -0.16em; width: 106%; height: 0.32em; overflow: visible; }
+.hero h1 .goofy path { fill: none; stroke: var(--leaf); stroke-width: 7; stroke-linecap: round; stroke-dasharray: 520; stroke-dashoffset: 0; animation: scribble 1.1s .5s cubic-bezier(.6, 0, .3, 1) backwards; }
+@keyframes scribble { from { stroke-dashoffset: 520; } }
+.hero .lede { color: color-mix(in srgb, var(--ink) 84%, transparent); text-shadow: 0 0 14px var(--night), 0 0 4px var(--night), 0 0 24px var(--night); }
+.hero-meta { text-shadow: 0 0 10px var(--night), 0 0 3px var(--night); }
+.cta-row { display: flex; flex-wrap: wrap; gap: 12px; align-items: center; }
+.hero-meta { display: flex; flex-wrap: wrap; gap: 8px 22px; font-size: 14px; color: var(--muted); }
+.hero-meta b { color: var(--ink); font-weight: 600; }
+.hero-meta span::before { content: "✓ "; color: var(--leaf); }
+.hero-stage { margin-top: clamp(48px, 7vw, 80px); perspective: 1800px; perspective-origin: 50% 0%; }
+.hero-shot {
+  --p: 0;
+  border-radius: 16px; overflow: hidden; border: 1px solid var(--line-2);
+  box-shadow: 0 60px 120px -30px rgba(0, 0, 0, 0.9), 0 0 0 1px rgba(0, 0, 0, 0.6), 0 -10px 80px -20px rgba(246, 139, 31, 0.35);
+  transform: rotateX(calc((1 - var(--p)) * 26deg)) scale(calc(0.9 + var(--p) * 0.1)) translateY(calc((1 - var(--p)) * -20px));
+  transform-origin: 50% 0%;
+  will-change: transform;
+}
+
+/* ---------- ticker ---------- */
+.ticker { border-block: 1px solid var(--line); background: var(--night-2); overflow: hidden; padding-block: 18px; }
+.ticker-track { display: flex; gap: 0; width: max-content; animation: tick 48s linear infinite; }
+.ticker:hover .ticker-track { animation-play-state: paused; }
+.ticker-track span { font: 700 14px/1 var(--mono); letter-spacing: 0.08em; text-transform: uppercase; color: var(--muted); white-space: nowrap; padding-inline: 22px; display: inline-flex; align-items: center; gap: 22px; }
+.ticker-track span::after { content: "◆"; color: var(--peel); font-size: 9px; }
+.ticker-track span:nth-child(3n+2)::after { color: var(--dream); }
+.ticker-track span:nth-child(3n)::after { color: var(--leaf); }
+@keyframes tick { to { transform: translateX(-50%); } }
+
+/* ---------- exploded studio ---------- */
+.explode { height: 300vh; position: relative; }
+.explode-sticky { position: sticky; top: calc(env(safe-area-inset-top, 0px) + 64px); height: calc(100vh - 64px); display: grid; align-items: center; overflow: clip; }
+.explode-grid { display: grid; grid-template-columns: minmax(0, 5fr) minmax(0, 7fr); gap: clamp(24px, 4vw, 64px); align-items: center; }
+.steps { display: grid; gap: 10px; margin-top: 26px; }
+.step { padding: 14px 16px; border-radius: 14px; border: 1px solid transparent; transition: background .35s, border-color .35s, opacity .35s; opacity: .55; }
+.step.on { background: var(--panel); border-color: var(--line-2); opacity: 1; }
+.step h3 { display: flex; align-items: center; gap: 10px; font-size: 17px; }
+.step h3 i { width: 10px; height: 10px; border-radius: 3px; background: var(--c, var(--peel)); box-shadow: 0 0 12px var(--c, var(--peel)); flex: none; }
+.step p { color: var(--muted); font-size: 15px; margin-top: 6px; }
+.stack-wrap { perspective: 2200px; }
+.stack {
+  --e: 0;
+  position: relative; transform-style: preserve-3d;
+  transform: rotateX(calc(var(--e) * 46deg)) rotateZ(calc(var(--e) * -18deg)) scale(calc(1 - var(--e) * 0.06));
+  transition: transform .1s linear;
+}
+.stack .layer { position: absolute; transform-style: preserve-3d; border-radius: 10px; overflow: hidden; box-shadow: 0 30px 60px -20px rgba(0, 0, 0, 0.85), 0 0 0 1px rgba(255, 255, 255, 0.06); transform: translateZ(calc(var(--e) * var(--z))); }
+.stack .base { position: relative; transform: translateZ(0); border-radius: 12px; }
+.layer.l-dc { left: 30%; top: 18%; width: 58%; }
+.layer.l-tape { left: 4%; top: 52%; width: 34%; }
+.layer.l-auto { left: 44%; top: 66%; width: 52%; }
+.layer.l-dice { left: 74%; top: 6%; width: 22%; }
+.stack .tag { position: absolute; left: 10px; top: 10px; font: 700 11px/1 var(--mono); letter-spacing: .1em; text-transform: uppercase; padding: 6px 8px; border-radius: 6px; background: rgba(0, 0, 0, 0.75); color: var(--ink); opacity: calc(var(--e) * 1.6 - 0.3); }
+@media (max-width: 900px) {
+  .explode { height: auto; }
+  .explode-sticky { position: relative; top: 0; height: auto; padding-block: 72px; }
+  .explode-grid { grid-template-columns: minmax(0, 1fr); }
+  .step { opacity: 1; background: var(--panel); border-color: var(--line); }
+  .stack-wrap { margin-top: 28px; }
+}
+
+/* ---------- DreamChord ---------- */
+.dream { background: radial-gradient(1200px 600px at 75% 40%, rgba(69, 200, 234, 0.13), transparent 70%), var(--night); overflow: clip; }
+.dream .eyebrow { color: var(--dream); }
+.dream-grid { display: grid; grid-template-columns: minmax(0, 6fr) minmax(0, 5fr); gap: clamp(28px, 5vw, 72px); align-items: center; margin-top: 48px; }
+.dc-scene { perspective: 1400px; display: grid; place-items: center; padding-block: 24px; }
+.dc {
+  --rx: 16deg; --ry: -12deg;
+  font-size: clamp(7px, 0.98vw, 12.5px);
+  width: 46em; max-width: 100%;
+  position: relative; transform-style: preserve-3d;
+  transform: rotateX(var(--rx)) rotateY(var(--ry));
+  transition: transform .25s ease-out;
+}
+.dc-depth { position: absolute; inset: 0; border-radius: 2.2em; background: #0d3340; transform: translateZ(calc(var(--d) * -1px)); }
+.dc-face {
+  position: relative; border-radius: 2.2em; padding: 1.8em;
+  background: radial-gradient(120% 90% at 20% 0%, #3aa9c8 0%, #1d6f88 38%, #134f62 100%);
+  box-shadow: inset 0 0.15em 0 rgba(255, 255, 255, 0.35), inset 0 -0.4em 0.8em rgba(0, 0, 0, 0.35), 0 3em 5em -1.5em rgba(0, 0, 0, 0.8);
+  display: grid; gap: 1.3em; transform: translateZ(0.1px);
+}
+.dc-top { display: grid; grid-template-columns: 1fr auto; gap: 1.4em; align-items: stretch; }
+.dc-lcd { border-radius: 1em; background: #071419; box-shadow: inset 0 0.3em 0.8em rgba(0, 0, 0, 0.8), 0 0.08em 0 rgba(255, 255, 255, 0.25); padding: 1.1em 1.3em; display: grid; gap: 0.5em; font-family: var(--mono); color: #7fe3ff; text-shadow: 0 0 0.6em rgba(69, 200, 234, 0.75); min-width: 0; }
+.dc-lcd .row { display: flex; justify-content: space-between; font-size: 0.95em; letter-spacing: 0.12em; opacity: .85; }
+.dc-lcd .chord { font: 800 3.4em/1 var(--display); letter-spacing: -0.01em; color: #c9f4ff; min-height: 1em; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.dc-lcd .sub { font-size: 1em; letter-spacing: 0.08em; }
+.dc-meter { display: flex; gap: 0.25em; align-items: flex-end; height: 1.6em; }
+.dc-meter i { flex: 1; background: currentColor; border-radius: 0.1em; height: var(--h, 8%); opacity: .7; transition: height .12s; }
+.joy { width: 11em; aspect-ratio: 1; border-radius: 50%; background: radial-gradient(circle at 50% 45%, #0e2a33, #06151a 70%); box-shadow: inset 0 0.4em 1em rgba(0, 0, 0, 0.8), 0 0.1em 0 rgba(255, 255, 255, 0.25); position: relative; touch-action: none; cursor: grab; }
+.joy::before { content: ""; position: absolute; inset: 22%; border-radius: 50%; border: 1px dashed rgba(127, 227, 255, 0.35); }
+.joy .knob { position: absolute; left: 50%; top: 50%; width: 4.4em; height: 4.4em; margin: -2.2em 0 0 -2.2em; border-radius: 50%; background: radial-gradient(circle at 35% 30%, #ffffff, #9fe6f7 35%, #3a9bb4 75%, #1d5f70); box-shadow: 0 0.6em 1.2em rgba(0, 0, 0, 0.6); transform: translate(var(--jx, 0), var(--jy, 0)); transition: transform .18s cubic-bezier(.3, 1.6, .5, 1); }
+.joy.dragging .knob { transition: none; }
+.joy .lbl { position: absolute; font: 700 0.8em/1 var(--mono); color: rgba(201, 244, 255, 0.75); transform: translate(-50%, -50%); pointer-events: none; }
+.joy .lbl.on { color: #fff; text-shadow: 0 0 0.6em #7fe3ff; }
+.dc-fn { display: flex; flex-wrap: wrap; gap: 0.6em; }
+.dc-fn button { font: 700 0.95em/1 var(--mono); letter-spacing: 0.08em; color: #d8f6ff; background: linear-gradient(#1f4855, #163945); border: 0; border-radius: 0.7em; padding: 0.85em 1.1em; box-shadow: 0 0.3em 0 #0b2630, inset 0 0.08em 0 rgba(255, 255, 255, 0.2); cursor: pointer; transition: transform .08s, box-shadow .08s, background .2s; }
+.dc-fn button:active { transform: translateY(0.2em); box-shadow: 0 0.1em 0 #0b2630; }
+.dc-fn button[aria-pressed="true"] { background: linear-gradient(#7fe3ff, #45c8ea); color: #062430; box-shadow: 0 0.3em 0 #1d7f9a, 0 0 1.4em rgba(69, 200, 234, 0.6); }
+.pads { display: grid; grid-template-columns: repeat(7, minmax(0, 1fr)); gap: 0.7em; }
+.pad { aspect-ratio: 1 / 1.15; border: 0; border-radius: 1em; background: linear-gradient(#2c3a42, #1d272d); box-shadow: 0 0.5em 0 #0b1216, inset 0 0.1em 0 rgba(255, 255, 255, 0.18); color: #e8f9ff; cursor: pointer; display: grid; place-content: center; gap: 0.25em; font-family: var(--mono); transition: transform .07s, box-shadow .07s, background .2s; touch-action: manipulation; }
+.pad b { font: 800 2em/1 var(--display); }
+.pad span { font-size: 1.05em; font-weight: 700; color: #7fe3ff; }
+.pad em { font-style: normal; font-size: 0.8em; opacity: .6; }
+.pad.down { transform: translateY(0.4em); box-shadow: 0 0.1em 0 #0b1216, 0 0 2em rgba(69, 200, 234, 0.55); background: linear-gradient(#36606e, #244653); }
+.dream-copy { display: grid; gap: 22px; }
+.chips { display: flex; flex-wrap: wrap; gap: 8px; }
+.chip { font: 500 13px/1 var(--mono); padding: 8px 11px; border-radius: 999px; border: 1px solid rgba(69, 200, 234, 0.35); color: #bdeefc; background: rgba(69, 200, 234, 0.07); }
+.hint { font: 400 13px/1.5 var(--mono); color: var(--dim); }
+.hint kbd { font: 700 12px/1 var(--mono); padding: 3px 6px; border-radius: 5px; border: 1px solid var(--line-2); color: var(--ink); }
+.shot-card { border-radius: 14px; overflow: hidden; border: 1px solid var(--line-2); box-shadow: 0 30px 60px -30px rgba(0, 0, 0, 0.9); }
+.caption { font: 400 13px/1.4 var(--mono); color: var(--dim); margin-top: 10px; }
+@media (max-width: 960px) { .dream-grid { grid-template-columns: minmax(0, 1fr); } .dc { --rx: 14deg; --ry: 0deg; } }
+
+/* ---------- own ideas ---------- */
+.ideas-grid { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 18px; margin-top: 52px; }
+.idea { --c: var(--dice); position: relative; border-radius: var(--radius); background: var(--panel); border: 1px solid var(--line); padding: 26px; display: grid; gap: 16px; align-content: start; overflow: hidden; }
+.idea::before { content: ""; position: absolute; inset: 0 0 auto; height: 160px; background: radial-gradient(400px 160px at 30% 0%, color-mix(in srgb, var(--c) 22%, transparent), transparent 70%); pointer-events: none; }
+.idea .kicker { font: 700 12px/1 var(--mono); letter-spacing: .14em; text-transform: uppercase; color: var(--c); position: relative; }
+.idea h3 { font-size: 24px; position: relative; }
+.idea p { color: var(--muted); font-size: 16px; position: relative; }
+.idea .keys { font: 700 12px/1 var(--mono); color: var(--ink); background: var(--panel-2); border: 1px solid var(--line-2); border-radius: 6px; padding: 5px 8px; justify-self: start; }
+.idea img { border-radius: 10px; border: 1px solid var(--line-2); }
+.dice-box { display: grid; grid-template-columns: auto minmax(0, 1fr); gap: 18px; align-items: center; position: relative; }
+.cube-scene { width: 74px; height: 74px; perspective: 500px; }
+.cube { width: 100%; height: 100%; position: relative; transform-style: preserve-3d; transform: rotateX(-24deg) rotateY(32deg); transition: transform 1.1s cubic-bezier(.2, .9, .25, 1.05); cursor: pointer; }
+.cube .f { position: absolute; inset: 0; border-radius: 14px; background: linear-gradient(145deg, #ffd56e, #f3a81a); box-shadow: inset 0 0 0 2px rgba(255, 255, 255, 0.35), inset 0 -6px 12px rgba(0, 0, 0, 0.18); display: grid; grid-template: repeat(3, 1fr) / repeat(3, 1fr); padding: 12px; }
+.cube .f i { width: 11px; height: 11px; border-radius: 50%; background: #3a2304; place-self: center; box-shadow: inset 0 2px 2px rgba(0, 0, 0, 0.5); }
+.f1 { transform: translateZ(37px); } .f6 { transform: rotateY(180deg) translateZ(37px); }
+.f2 { transform: rotateY(90deg) translateZ(37px); } .f5 { transform: rotateY(-90deg) translateZ(37px); }
+.f3 { transform: rotateX(90deg) translateZ(37px); } .f4 { transform: rotateX(-90deg) translateZ(37px); }
+.prog { font: 800 18px/1.25 var(--display); color: #ffe2a3; min-height: 2.5em; }
+.mood-row { display: flex; flex-wrap: wrap; gap: 6px; position: relative; }
+.mood-row button { font: 600 13px/1 var(--body); padding: 7px 11px; border-radius: 999px; border: 1px solid var(--line-2); background: transparent; color: var(--muted); cursor: pointer; }
+.mood-row button[aria-pressed="true"] { background: var(--dice); border-color: var(--dice); color: #2b1a02; }
+.small-btns { display: flex; gap: 8px; flex-wrap: wrap; position: relative; }
+.small-btns .btn { padding: 10px 14px; font-size: 14px; }
+@media (max-width: 980px) { .ideas-grid { grid-template-columns: minmax(0, 1fr); } }
+
+/* ---------- features ---------- */
+.feat-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(260px, 1fr)); gap: 16px; margin-top: 52px; perspective: 1200px; }
+.feat { --c: var(--peel); border-radius: var(--radius); padding: 24px; background: linear-gradient(160deg, var(--panel-2), var(--panel) 55%); border: 1px solid var(--line); display: grid; gap: 12px; align-content: start; transform: rotateX(var(--tx, 0deg)) rotateY(var(--ty, 0deg)); transition: transform .35s ease, border-color .3s; transform-style: preserve-3d; position: relative; }
+.feat:hover { border-color: color-mix(in srgb, var(--c) 45%, transparent); }
+.feat::after { content: ""; position: absolute; inset: 0; border-radius: inherit; background: radial-gradient(260px 160px at var(--mx, 50%) var(--my, 0%), color-mix(in srgb, var(--c) 16%, transparent), transparent 70%); opacity: 0; transition: opacity .3s; pointer-events: none; }
+.feat:hover::after { opacity: 1; }
+.feat .ic { width: 42px; height: 42px; border-radius: 12px; display: grid; place-items: center; background: color-mix(in srgb, var(--c) 16%, transparent); color: var(--c); transform: translateZ(30px); }
+.feat .ic svg { width: 22px; height: 22px; }
+.feat h3 { transform: translateZ(20px); }
+.feat p { color: var(--muted); font-size: 15px; }
+.feat ul { margin: 0; padding: 0; list-style: none; display: grid; gap: 4px; font-size: 14px; color: var(--muted); }
+.feat li::before { content: "→ "; color: var(--c); font-family: var(--mono); }
+
+/* ---------- numbers ---------- */
+.numbers { background: var(--night-2); border-block: 1px solid var(--line); }
+.num-grid { display: grid; grid-template-columns: repeat(6, minmax(0, 1fr)); gap: 12px; margin-top: 44px; }
+.num { border-radius: 14px; padding: 18px 16px; background: #0a080d; border: 1px solid var(--line); box-shadow: inset 0 2px 12px rgba(0, 0, 0, 0.7); display: grid; gap: 8px; }
+.num b { font: 700 clamp(34px, 4vw, 52px)/1 var(--mono); color: var(--c, var(--peel-hi)); text-shadow: 0 0 18px color-mix(in srgb, var(--c, var(--peel-hi)) 55%, transparent); font-variant-numeric: tabular-nums; }
+.num span { font-size: 13px; color: var(--muted); line-height: 1.35; }
+@media (max-width: 980px) { .num-grid { grid-template-columns: repeat(3, minmax(0, 1fr)); } }
+@media (max-width: 520px) { .num-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); } }
+
+/* ---------- privacy ---------- */
+.privacy-grid { display: grid; grid-template-columns: minmax(0, 6fr) minmax(0, 5fr); gap: clamp(28px, 5vw, 64px); align-items: center; }
+.facts { display: grid; gap: 12px; }
+.fact { display: grid; grid-template-columns: 38px minmax(0, 1fr); gap: 14px; align-items: start; padding: 16px; border-radius: 14px; background: var(--panel); border: 1px solid var(--line); }
+.fact .ok { width: 38px; height: 38px; border-radius: 10px; background: color-mix(in srgb, var(--leaf) 16%, transparent); color: var(--leaf); display: grid; place-items: center; font: 700 18px/1 var(--mono); }
+.fact b { display: block; font-weight: 600; }
+.fact span { color: var(--muted); font-size: 15px; }
+.text-link { color: var(--peel-hi); text-underline-offset: 4px; }
+@media (max-width: 900px) { .privacy-grid { grid-template-columns: minmax(0, 1fr); } }
+
+/* ---------- pricing ---------- */
+.price-grid { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 20px; margin-top: 52px; align-items: stretch; }
+.plan { border-radius: 24px; padding: clamp(24px, 3.5vw, 40px); background: var(--panel); border: 1px solid var(--line); display: grid; gap: 22px; align-content: start; position: relative; }
+.plan .name { font: 700 13px/1 var(--mono); letter-spacing: .14em; text-transform: uppercase; color: var(--muted); display: flex; align-items: center; gap: 10px; flex-wrap: wrap; }
+.plan .price { font: 800 clamp(48px, 6vw, 72px)/1 var(--display); letter-spacing: -0.03em; display: flex; align-items: baseline; gap: 12px; }
+.plan .price small { font: 500 16px/1 var(--body); color: var(--muted); letter-spacing: 0; }
+.plan ul { list-style: none; margin: 0; padding: 0; display: grid; gap: 10px; }
+.plan li { display: grid; grid-template-columns: 22px minmax(0, 1fr); gap: 10px; color: var(--muted); }
+.plan li::before { content: "✓"; color: var(--leaf); font-weight: 700; }
+.plan li b { color: var(--ink); font-weight: 600; }
+.plan.premium { background: linear-gradient(var(--panel-2), var(--panel)) padding-box, conic-gradient(from var(--spin), var(--peel), var(--berry), var(--dream), var(--leaf), var(--peel)) border-box; border: 2px solid transparent; animation: spin 7s linear infinite; box-shadow: 0 40px 100px -40px rgba(255, 90, 138, 0.45); }
+@keyframes spin { to { --spin: 360deg; } }
+.plan.premium .price { background: linear-gradient(100deg, var(--peel-hi), var(--berry) 55%, var(--dream)); -webkit-background-clip: text; background-clip: text; color: transparent; }
+.plan.premium li::before { content: "✦"; color: var(--berry); }
+.soon { font: 700 11px/1 var(--mono); letter-spacing: .1em; padding: 6px 9px; border-radius: 999px; background: var(--berry); color: #2a0612; text-transform: uppercase; }
+.plan .note { font-size: 13px; color: var(--dim); }
+.plan .tag { font: 500 12px/1 var(--mono); color: var(--berry); margin-left: 6px; white-space: nowrap; }
+@media (max-width: 860px) { .price-grid { grid-template-columns: minmax(0, 1fr); } }
+
+/* ---------- download ---------- */
+.dl-grid { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 16px; margin-top: 48px; }
+.dl { border-radius: var(--radius); padding: 26px; background: var(--panel); border: 1px solid var(--line); display: grid; gap: 14px; align-content: start; }
+.dl .os { font: 700 12px/1 var(--mono); letter-spacing: .12em; text-transform: uppercase; color: var(--peel-hi); }
+.dl p { color: var(--muted); font-size: 15px; }
+.dl .file { font: 400 12px/1.4 var(--mono); color: var(--dim); word-break: break-all; }
+.dl .btn { justify-self: start; }
+.notice { margin-top: 18px; border-radius: 14px; padding: 18px 20px; border: 1px dashed var(--line-2); color: var(--muted); font-size: 15px; display: grid; gap: 6px; }
+.notice b { color: var(--ink); }
+@media (max-width: 900px) { .dl-grid { grid-template-columns: minmax(0, 1fr); } }
+
+/* ---------- faq ---------- */
+.faq { display: grid; gap: 10px; margin-top: 40px; max-width: 860px; }
+.faq details { border-radius: 14px; background: var(--panel); border: 1px solid var(--line); padding: 4px 20px; }
+.faq summary { cursor: pointer; padding-block: 16px; font-weight: 600; font-size: 17px; list-style: none; display: flex; justify-content: space-between; gap: 16px; }
+.faq summary::-webkit-details-marker { display: none; }
+.faq summary::after { content: "+"; font: 700 20px/1 var(--mono); color: var(--peel-hi); transition: transform .25s; }
+.faq details[open] summary::after { transform: rotate(45deg); }
+.faq details p { color: var(--muted); padding-bottom: 18px; max-width: 70ch; }
+
+/* ---------- footer ---------- */
+footer { border-top: 1px solid var(--line); padding-block: 56px calc(40px + env(safe-area-inset-bottom, 0px)); background: var(--night-2); }
+.foot { display: grid; grid-template-columns: minmax(0, 2fr) repeat(2, minmax(0, 1fr)); gap: 32px; }
+.foot h4 { margin: 0 0 12px; font: 700 12px/1 var(--mono); letter-spacing: .14em; text-transform: uppercase; color: var(--dim); }
+.foot ul { list-style: none; margin: 0; padding: 0; display: grid; gap: 8px; }
+.foot a { color: var(--muted); text-decoration: none; }
+.foot a:hover { color: var(--ink); }
+.foot p { color: var(--muted); font-size: 14px; max-width: 46ch; }
+.imprint { margin-top: 36px; padding-top: 24px; border-top: 1px solid var(--line); font-size: 13px; color: var(--dim); display: grid; gap: 4px; }
+.imprint .todo { color: var(--dice); }
+@media (max-width: 760px) { .foot { grid-template-columns: minmax(0, 1fr); } }
+
+/* ---------- reveal (visible at rest, gently lifts in) ---------- */
+.lift { transition: transform .9s cubic-bezier(.2, .8, .2, 1); }
+.js .lift.pending { transform: translateY(28px); }
+
+@media (prefers-reduced-motion: reduce) {
+  html { scroll-behavior: auto; }
+  *, *::before, *::after { animation-duration: 0.001s !important; animation-iteration-count: 1 !important; transition-duration: 0.001s !important; }
+  .hero-shot { transform: none; }
+  .stack { transform: none; }
+  .js .lift.pending { transform: none; }
+}
+</style>
+</head>
+<body>
+
+<header class="nav">
+  <div class="wrap">
+    <a class="brand" href="#top"><img src="img/logo.png" alt="" width="26" height="37">Goofy Studio</a>
+    <nav class="nav-links" aria-label="Hauptnavigation">
+      <a href="#studio">Studio</a>
+      <a href="#dreamchord">DreamChord</a>
+      <a href="#ideen">Ideen</a>
+      <a href="#premium">Premium</a>
+      <a href="#faq">FAQ</a>
+    </nav>
+    <a class="btn primary" href="#download">Kostenlos laden</a>
+  </div>
+</header>
+
+<main id="top">
+  <!-- ================= HERO ================= -->
+  <section class="hero" aria-labelledby="hero-title">
+    <canvas id="terrain" aria-hidden="true"></canvas>
+    <div class="wrap">
+      <div class="hero-copy">
+        <div class="lcd" aria-label="Version 1.2.0">v1.2.0 <span>·</span> 128.000 BPM <span>·</span> 1:01:01 <span>·</span> A MINOR</div>
+        <h1 id="hero-title">Ernsthaft gute Beats.<br>Ein bisschen <span class="goofy">goofy.<svg viewBox="0 0 300 30" preserveAspectRatio="none" aria-hidden="true"><path d="M4 18 C 60 6, 120 26, 170 14 S 260 6, 296 16"/></svg></span></h1>
+        <p class="lede">Goofy Studio ist ein komplettes Musikstudio für Windows und den Browser. Du baust Beats, spielst Akkorde, nimmst deine Stimme auf, mischst ab und exportierst fertige Songs. Kostenlos, ohne Konto und ohne Tracking.</p>
+        <div class="cta-row">
+          <a class="btn primary" href="#download"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 3v12m0 0 5-5m-5 5-5-5M4 20h16"/></svg>Für Windows laden <small>1.2.0</small></a>
+          <a class="btn" href="#dreamchord">DreamChord ausprobieren</a>
+        </div>
+        <div class="hero-meta"><span><b>Kostenlos</b></span><span>Kein Konto</span><span>Keine Cloud</span><span>Keine Werbung</span></div>
+      </div>
+      <div class="hero-stage">
+        <div class="hero-shot" id="heroShot">
+          <img src="img/studio.webp" width="2000" height="1250" alt="Goofy Studio: Playlist mit Beat-, Bass- und Akkord-Clips, darunter der Mixer mit laufenden Pegelanzeigen" fetchpriority="high">
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ================= TICKER ================= -->
+  <div class="ticker" aria-hidden="true">
+    <div class="ticker-track" id="ticker">
+      <span>Playlist</span><span>Step-Sequencer</span><span>Piano Roll</span><span>17 Effekte</span><span>Autotune</span><span>DreamChord</span><span>Automation</span><span>Song-Splitter</span><span>Stems als ZIP</span><span>MIDI Import &amp; Export</span><span>WAV 16 · 24 · 32 Bit</span><span>Ohrenschutz-Limiter</span><span>Auto-Backups</span><span>Ideen-Würfel</span><span>Capture</span><span>Teleprompter</span>
+    </div>
+  </div>
+
+  <!-- ================= EXPLODED STUDIO ================= -->
+  <section class="explode" id="studio" aria-labelledby="studio-title">
+    <div class="explode-sticky">
+      <div class="wrap explode-grid">
+        <div>
+          <div class="section-head">
+            <span class="eyebrow">Das Studio</span>
+            <h2 id="studio-title">Alles in einem Fenster.</h2>
+            <p class="lede">Schieb Patterns in die Playlist, zeichne Noten, dreh an Effekten. Jedes Werkzeug ist ein eigenes Fenster, und alle hören aufeinander.</p>
+          </div>
+          <div class="steps" id="steps">
+            <div class="step on" style="--c: var(--peel)"><h3><i></i>Playlist &amp; Channel Rack</h3><p>Patterns bauen, im Song anordnen, schneiden, kopieren. Step-Sequencer mit Swing.</p></div>
+            <div class="step" style="--c: var(--dream)"><h3><i></i>DreamChord</h3><p>Akkorde mit einem Finger, Joystick für Septimen und Nonen.</p></div>
+            <div class="step" style="--c: var(--dice)"><h3><i></i>17 Effekte</h3><p>Tape Machine, Stereo Width, Noise Gate, Autotune, Hall, Delay und mehr.</p></div>
+            <div class="step" style="--c: var(--berry)"><h3><i></i>Automation</h3><p>Lautstärke, Pan und jeder Effekt-Regler können sich über den Song ändern.</p></div>
+          </div>
+        </div>
+        <div class="stack-wrap" aria-hidden="true">
+          <div class="stack" id="stack">
+            <img class="base" src="img/studio.webp" width="2000" height="1250" alt="" loading="lazy">
+            <div class="layer l-dc" style="--z: 70px"><img src="img/dreamchord.webp" width="1880" height="1032" alt="" loading="lazy"><span class="tag">DreamChord</span></div>
+            <div class="layer l-tape" style="--z: 120px"><img src="img/tape.webp" width="940" height="558" alt="" loading="lazy"><span class="tag">Tape Machine</span></div>
+            <div class="layer l-auto" style="--z: 170px"><img src="img/automation.webp" width="1576" height="668" alt="" loading="lazy"><span class="tag">Automation</span></div>
+            <div class="layer l-dice" style="--z: 220px"><img src="img/dice.webp" width="860" height="1004" alt="" loading="lazy"><span class="tag">Würfel</span></div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ================= DREAMCHORD ================= -->
+  <section class="band dream" id="dreamchord" aria-labelledby="dc-title">
+    <div class="wrap">
+      <div class="section-head">
+        <span class="eyebrow">Neu in 1.2 · DreamChord</span>
+        <h2 id="dc-title">Ein Finger. Ganze Akkorde.</h2>
+        <p class="lede">DreamChord ist ein Akkord-Instrument zum Anfassen: sieben Pads spielen die Akkorde deiner Tonart, der Joystick färbt sie um. Probier es hier aus, mit Ton.</p>
+      </div>
+      <div class="dream-grid">
+        <div class="dc-scene">
+          <div class="dc" id="dc">
+            <div class="dc-depth" style="--d: 6"></div><div class="dc-depth" style="--d: 12"></div><div class="dc-depth" style="--d: 18"></div><div class="dc-depth" style="--d: 24"></div>
+            <div class="dc-face">
+              <div class="dc-top">
+                <div class="dc-lcd" aria-live="polite">
+                  <div class="row"><span>A MINOR</span><span id="dcOct">OCT 0</span></div>
+                  <div class="chord" id="dcChord">Am</div>
+                  <div class="sub" id="dcSub">Ocean Dream · tippe ein Pad</div>
+                  <div class="dc-meter" id="dcMeter"><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i></div>
+                </div>
+                <div class="joy" id="joy" role="slider" aria-label="Joystick: färbt den Akkord um (nach oben Septime, rechts add9, unten sus4)" aria-valuetext="Mitte" tabindex="0">
+                  <span class="lbl" data-dir="n" style="left:50%;top:12%">7</span>
+                  <span class="lbl" data-dir="ne" style="left:80%;top:22%">9</span>
+                  <span class="lbl" data-dir="e" style="left:88%;top:50%">add9</span>
+                  <span class="lbl" data-dir="se" style="left:80%;top:78%">6</span>
+                  <span class="lbl" data-dir="s" style="left:50%;top:88%">sus4</span>
+                  <span class="lbl" data-dir="sw" style="left:20%;top:78%">sus2</span>
+                  <span class="lbl" data-dir="w" style="left:12%;top:50%">M/m</span>
+                  <span class="lbl" data-dir="nw" style="left:20%;top:22%">V7</span>
+                  <div class="knob"></div>
+                </div>
+              </div>
+              <div class="dc-fn">
+                <button type="button" id="fnHold" aria-pressed="false">HOLD</button>
+                <button type="button" id="fnStrum" aria-pressed="false">STRUM</button>
+                <button type="button" id="fnDown">OCT −</button>
+                <button type="button" id="fnUp">OCT +</button>
+              </div>
+              <div class="pads" id="pads"></div>
+            </div>
+          </div>
+        </div>
+        <div class="dream-copy">
+          <p class="hint">Pads anklicken oder Tasten <kbd>1</kbd>–<kbd>7</kbd>. Joystick ziehen (oder Pfeiltasten) und dabei ein Pad spielen.</p>
+          <div class="shot-card"><img src="img/dreamchord.webp" width="1880" height="1032" alt="DreamChord in Goofy Studio: Display mit Preset Ocean Dream, Joystick, acht Regler und sieben Akkord-Pads" loading="lazy"></div>
+          <p class="caption">So sieht DreamChord in der App aus: 14 Presets, Arpeggiator, Strum, Hold und Aufnahme direkt in den Piano Roll.</p>
+          <div class="chips">
+            <span class="chip">Ocean Dream</span><span class="chip">Nostalgic Memories</span><span class="chip">Midnight Beach</span><span class="chip">Warm Sunset</span><span class="chip">Dreamy Piano</span><span class="chip">Space Ambient</span><span class="chip">Retro Synth</span><span class="chip">Lo-Fi Cassette</span><span class="chip">Glass Garden</span><span class="chip">Aurora Choir</span><span class="chip">Velvet Keys</span><span class="chip">Cloud Strings</span><span class="chip">Pocket Pluck</span><span class="chip">Music Box</span>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ================= OWN IDEAS ================= -->
+  <section class="band" id="ideen" aria-labelledby="ideas-title">
+    <div class="wrap">
+      <div class="section-head lift">
+        <span class="eyebrow">Gibt's so nur hier</span>
+        <h2 id="ideas-title">Für die Momente, in denen die Idee kommt.</h2>
+        <p class="lede">Drei Werkzeuge, die du in anderen Programmen suchst und nicht findest.</p>
+      </div>
+      <div class="ideas-grid">
+        <article class="idea lift" style="--c: var(--dice)">
+          <span class="kicker">Ideen-Würfel</span>
+          <h3>Kein Plan? Würfeln.</h3>
+          <p>Akkorde, Bass, Melodie und Beat in deiner Tonart. Gefällt dir die Melodie, sperrst du sie und würfelst nur den Rest neu.</p>
+          <div class="mood-row" id="moods" role="group" aria-label="Stimmung">
+            <button type="button" data-mood="dreamy" aria-pressed="true">Dreamy</button><button type="button" data-mood="sad" aria-pressed="false">Sad</button><button type="button" data-mood="dark" aria-pressed="false">Dark</button><button type="button" data-mood="epic" aria-pressed="false">Epic</button><button type="button" data-mood="chill" aria-pressed="false">Chill</button>
+          </div>
+          <div class="dice-box">
+            <div class="cube-scene"><div class="cube" id="cube" role="button" tabindex="0" aria-label="Würfeln">
+              <div class="f f1"><i style="grid-area:2/2"></i></div>
+              <div class="f f2"><i style="grid-area:1/1"></i><i style="grid-area:3/3"></i></div>
+              <div class="f f3"><i style="grid-area:1/1"></i><i style="grid-area:2/2"></i><i style="grid-area:3/3"></i></div>
+              <div class="f f4"><i style="grid-area:1/1"></i><i style="grid-area:1/3"></i><i style="grid-area:3/1"></i><i style="grid-area:3/3"></i></div>
+              <div class="f f5"><i style="grid-area:1/1"></i><i style="grid-area:1/3"></i><i style="grid-area:2/2"></i><i style="grid-area:3/1"></i><i style="grid-area:3/3"></i></div>
+              <div class="f f6"><i style="grid-area:1/1"></i><i style="grid-area:2/1"></i><i style="grid-area:3/1"></i><i style="grid-area:1/3"></i><i style="grid-area:2/3"></i><i style="grid-area:3/3"></i></div>
+            </div></div>
+            <div class="prog" id="prog" aria-live="polite">Am(add9) – Fadd9 – Cadd9 – Gadd9</div>
+          </div>
+          <div class="small-btns"><button class="btn" type="button" id="roll">Würfeln</button><button class="btn" type="button" id="listen">Anhören</button></div>
+          <span class="keys">In der App: Alt + I</span>
+        </article>
+        <article class="idea lift" style="--c: var(--leaf)">
+          <span class="kicker">Capture</span>
+          <h3>Nichts geht verloren.</h3>
+          <p>Goofy Studio merkt sich, was du in den letzten drei Minuten gespielt hast, auch ohne Aufnahme. Ein Klick, und die Improvisation liegt als Pattern im Projekt.</p>
+          <img src="img/piano.webp" width="2000" height="1250" alt="Piano Roll mit eingefangenen Noten" loading="lazy">
+          <span class="keys">In der App: Alt + C</span>
+        </article>
+        <article class="idea lift" style="--c: var(--berry)">
+          <span class="kicker">Teleprompter</span>
+          <h3>Dein Text läuft mit.</h3>
+          <p>Schreib deine Lyrics ins Projekt. Beim Aufnehmen laufen sie groß mit und springen zum Refrain, sobald der Song den Marker „Chorus“ erreicht.</p>
+          <img src="img/prompter.webp" width="1240" height="988" alt="Teleprompter mit Strophe und Refrain in großer Schrift" loading="lazy">
+          <span class="keys">In der App: Alt + N</span>
+        </article>
+      </div>
+    </div>
+  </section>
+
+  <!-- ================= FEATURES ================= -->
+  <section class="band" aria-labelledby="feat-title" style="padding-top: 0">
+    <div class="wrap">
+      <div class="section-head lift">
+        <span class="eyebrow">Alles drin</span>
+        <h2 id="feat-title">Vom ersten Beat bis zur fertigen WAV.</h2>
+      </div>
+      <div class="feat-grid" id="feats">
+        <article class="feat lift" style="--c: var(--peel)"><div class="ic"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><rect x="3" y="4" width="18" height="16" rx="2"/><path d="M3 10h18M9 4v16"/></svg></div><h3>Komponieren</h3><ul><li>Playlist mit Patterns und Audio-Clips</li><li>Step-Sequencer mit Swing</li><li>Piano Roll mit Akkord-Stempeln, Strum, Humanize</li><li>Marker, Spuren, Kopieren &amp; Einfügen</li></ul></article>
+        <article class="feat lift" style="--c: var(--dream)"><div class="ic"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M4 18V6m4 12V9m4 9V4m4 14v-6m4 6V8"/></svg></div><h3>Instrumente</h3><ul><li>Goofy Synth mit 11 Presets</li><li>Drum-Kit mit 11 Sounds</li><li>Sampler und DreamChord</li><li>66 eingebaute Sounds, live erzeugt</li></ul></article>
+        <article class="feat lift" style="--c: var(--dice)"><div class="ic"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M6 4v16M12 4v16M18 4v16"/><rect x="4" y="13" width="4" height="3" rx="1"/><rect x="10" y="7" width="4" height="3" rx="1"/><rect x="16" y="11" width="4" height="3" rx="1"/></svg></div><h3>Mixer &amp; Effekte</h3><ul><li>17 Effekte, 20 Presets</li><li>39 Sound-FX-Ketten (Roboter, Unterwasser …)</li><li>Sends, Routing, Spitzenpegel-Anzeige</li><li>Eigene Presets speichern</li></ul></article>
+        <article class="feat lift" style="--c: var(--berry)"><div class="ic"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><rect x="9" y="3" width="6" height="11" rx="3"/><path d="M5 11a7 7 0 0 0 14 0M12 18v3"/></svg></div><h3>Aufnehmen</h3><ul><li>Mikrofon mit Live-Effekten</li><li>Autotune in jeder Tonart</li><li>Voice Changer</li><li>Count-in und Metronom</li></ul></article>
+        <article class="feat lift" style="--c: var(--leaf)"><div class="ic"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M3 17c3-8 6-8 9 0s6 8 9 0"/></svg></div><h3>Automation</h3><p>Zeichne Kurven für Lautstärke, Pan und jeden Effekt-Regler, oder starte mit Rampe, Sinus und Zufall.</p></article>
+        <article class="feat lift" style="--c: var(--peel)"><div class="ic"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M12 3v12m0 0 5-5m-5 5-5-5M4 20h16"/></svg></div><h3>Export</h3><ul><li>WAV in 16, 24 oder 32 Bit</li><li>Stems als ZIP, eine Datei pro Spur</li><li>MIDI-Export und -Import</li></ul></article>
+        <article class="feat lift" style="--c: var(--dream)"><div class="ic"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M4 12a8 8 0 1 0 3-6.2M4 4v4h4"/></svg></div><h3>Projekte sicher</h3><ul><li>Automatische Backups</li><li>Projekt-Doktor repariert kaputte Dateien</li><li>Undo-Verlauf zum Springen</li></ul></article>
+        <article class="feat lift" style="--c: var(--leaf)"><div class="ic"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M12 3 4 6v6c0 4.5 3.4 8 8 9 4.6-1 8-4.5 8-9V6z"/></svg></div><h3>Ohrenschutz</h3><p>Ein Limiter vor dem Ausgang fängt plötzliche Spitzen ab, und bei Rückkopplungen schaltet die App sofort stumm.</p></article>
+        <article class="feat lift" style="--c: var(--dice)"><div class="ic"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M4 7h10M18 7h2M4 17h4M12 17h8"/><circle cx="16" cy="7" r="2"/><circle cx="10" cy="17" r="2"/></svg></div><h3>Song-Splitter</h3><p>Trennt einen Song in Gesang, Instrumental, Beat und Melodie.</p></article>
+      </div>
+    </div>
+  </section>
+
+  <!-- ================= NUMBERS ================= -->
+  <section class="band numbers" aria-labelledby="num-title">
+    <div class="wrap">
+      <div class="section-head lift">
+        <span class="eyebrow">In Zahlen</span>
+        <h2 id="num-title">Version 1.2 auf einen Blick.</h2>
+      </div>
+      <div class="num-grid">
+        <div class="num"><b>17</b><span>Effekte im Mixer</span></div>
+        <div class="num" style="--c: var(--dream)"><b>14</b><span>DreamChord-Presets</span></div>
+        <div class="num" style="--c: var(--leaf)"><b>66</b><span>eingebaute Sounds</span></div>
+        <div class="num" style="--c: var(--berry)"><b>39</b><span>Sound-FX-Ketten</span></div>
+        <div class="num" style="--c: var(--dice)"><b>6×6</b><span>Stimmungen × Stile im Würfel</span></div>
+        <div class="num" style="--c: var(--peel-hi)"><b>0</b><span>Tracker, Konten, Cloud-Uploads</span></div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ================= PRIVACY ================= -->
+  <section class="band" aria-labelledby="priv-title">
+    <div class="wrap privacy-grid">
+      <div class="section-head lift">
+        <span class="eyebrow" style="color: var(--leaf)">Datenschutz</span>
+        <h2 id="priv-title">Deine Musik bleibt auf deinem Rechner.</h2>
+        <p class="lede">Projekte, Aufnahmen und Samples werden nur lokal gespeichert. Es gibt keine Werbung, keine Analyse und keine Absturzberichte, die heimlich etwas senden.</p>
+        <a class="text-link" href="https://github.com/NeptixTV/horrorsiuu/blob/HEAD/PRIVACY.md">Alle Netzwerkverbindungen im Detail</a>
+      </div>
+      <div class="facts lift">
+        <div class="fact"><span class="ok">✓</span><div><b>Kein Konto</b><span>Herunterladen, starten, loslegen.</span></div></div>
+        <div class="fact"><span class="ok">✓</span><div><b>Keine Cloud</b><span>Deine Projekte verlassen den Computer nur, wenn du sie exportierst.</span></div></div>
+        <div class="fact"><span class="ok">✓</span><div><b>Eine einzige Verbindung</b><span>Die Prüfung auf Updates bei GitHub. Lässt sich in den Einstellungen abschalten.</span></div></div>
+        <div class="fact"><span class="ok">✓</span><div><b>Geprüfte Updates</b><span>Jedes Update wird vor dem Start mit seiner SHA-256-Prüfsumme kontrolliert.</span></div></div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ================= PRICING ================= -->
+  <section class="band" id="premium" aria-labelledby="price-title" style="background: radial-gradient(900px 500px at 70% 60%, rgba(255, 90, 138, 0.1), transparent 70%)">
+    <div class="wrap">
+      <div class="section-head lift">
+        <span class="eyebrow" style="color: var(--berry)">Editionen</span>
+        <h2 id="price-title">Kostenlos loslegen. Premium kommt.</h2>
+      </div>
+      <div class="price-grid">
+        <article class="plan lift">
+          <div class="name">Goofy Studio</div>
+          <div class="price">0 €</div>
+          <ul>
+            <li><span><b>Alle Funktionen</b> von dieser Seite</span></li>
+            <li><span>DreamChord, Ideen-Würfel, Capture, Teleprompter</span></li>
+            <li><span>17 Effekte, Autotune, Song-Splitter</span></li>
+            <li><span>Export als WAV, Stems und MIDI</span></li>
+            <li><span>Windows und Browser</span></li>
+          </ul>
+          <a class="btn primary" href="#download">Jetzt laden</a>
+        </article>
+        <article class="plan premium lift">
+          <div class="name">Goofy Studio Premium <span class="soon">Bald verfügbar</span></div>
+          <div class="price">10 € <small>einmalig, kein Abo</small></div>
+          <ul>
+            <li><span><b>Premium-Soundpacks</b>: zusätzliche DreamChord-Presets und Drum-Kits<span class="tag">geplant</span></span></li>
+            <li><span><b>Exklusive Farbthemen</b> für die ganze Oberfläche<span class="tag">geplant</span></span></li>
+            <li><span><b>Früher Zugang</b> zu neuen Funktionen<span class="tag">geplant</span></span></li>
+            <li><span><b>Direkter Draht</b> für Feature-Wünsche<span class="tag">geplant</span></span></li>
+            <li><span>Du unterstützt die Weiterentwicklung</span></li>
+          </ul>
+          <button class="btn" type="button" aria-disabled="true" id="buy">Noch nicht erhältlich</button>
+          <p class="note" id="buyNote">Kaufen ist noch nicht möglich. Inhalte, Preis und Start können sich bis dahin ändern.</p>
+        </article>
+      </div>
+    </div>
+  </section>
+
+  <!-- ================= DOWNLOAD ================= -->
+  <section class="band" id="download" aria-labelledby="dl-title" style="padding-top: 0">
+    <div class="wrap">
+      <div class="section-head lift">
+        <span class="eyebrow">Download</span>
+        <h2 id="dl-title">Hol dir Goofy Studio.</h2>
+        <p class="lede">Version 1.2.0 für Windows 10 und 11 (64 Bit), oder direkt im Browser.</p>
+      </div>
+      <div class="dl-grid">
+        <article class="dl lift">
+          <span class="os">Windows · Installer</span>
+          <h3>Setup</h3>
+          <p>Installiert ohne Administratorrechte, mit Startmenü- und Desktop-Verknüpfung. Updates kommen automatisch.</p>
+          <span class="file">GoofyStudio-1.2.0-Setup.exe</span>
+          <a class="btn primary" href="https://github.com/NeptixTV/horrorsiuu/releases/latest">Setup laden</a>
+        </article>
+        <article class="dl lift">
+          <span class="os">Windows · Portable</span>
+          <h3>Ohne Installation</h3>
+          <p>Eine einzige Datei. Läuft auch vom USB-Stick.</p>
+          <span class="file">GoofyStudio-1.2.0-portable.exe</span>
+          <a class="btn" href="https://github.com/NeptixTV/horrorsiuu/releases/latest">Portable laden</a>
+        </article>
+        <article class="dl lift">
+          <span class="os">Browser</span>
+          <h3>Sofort starten</h3>
+          <p>Läuft in aktuellen Versionen von Chrome und Edge. Projekte bleiben in deinem Browser.</p>
+          <span class="file">neptixtv.github.io/horrorsiuu/app</span>
+          <a class="btn" href="https://neptixtv.github.io/horrorsiuu/app/">Im Browser öffnen</a>
+        </article>
+      </div>
+      <div class="notice">
+        <b>Hinweis zu Windows SmartScreen</b>
+        <span>Die .exe ist noch nicht digital signiert. Windows zeigt deshalb beim ersten Start „Der Computer wurde durch Windows geschützt“. Klicke auf „Weitere Informationen“ und dann auf „Trotzdem ausführen“. Die SHA-256-Prüfsummen jeder Datei stehen beim Release.</span>
+      </div>
+    </div>
+  </section>
+
+  <!-- ================= FAQ ================= -->
+  <section class="band" id="faq" aria-labelledby="faq-title" style="padding-top: 0">
+    <div class="wrap">
+      <div class="section-head lift">
+        <span class="eyebrow">Fragen</span>
+        <h2 id="faq-title">Kurz gefragt.</h2>
+      </div>
+      <div class="faq">
+        <details><summary>Ist Goofy Studio wirklich kostenlos?</summary><p>Ja. Alle Funktionen auf dieser Seite sind in der kostenlosen Version enthalten. Premium soll später zusätzliche Inhalte bringen und die Entwicklung unterstützen.</p></details>
+        <details><summary>Brauche ich ein Konto oder Internet?</summary><p>Nein. Die App läuft komplett offline. Online geht sie nur für die Update-Prüfung, und die kannst du abschalten.</p></details>
+        <details><summary>Läuft es auf dem Mac oder unter Linux?</summary><p>Das Desktop-Programm gibt es für Windows. Auf anderen Systemen kannst du die Browser-Version in Chrome oder Edge nutzen.</p></details>
+        <details><summary>Warum warnt Windows beim ersten Start?</summary><p>Weil die .exe noch kein Code-Signatur-Zertifikat hat. Das kostet Geld und kommt später. Die Prüfsummen beim Release zeigen dir, dass die Datei unverändert ist.</p></details>
+        <details><summary>Kann ich meine alten Projekte öffnen?</summary><p>Ja. Projekte aus Version 1.1 öffnen in 1.2 unverändert, und der Projekt-Doktor repariert beschädigte Dateien beim Öffnen.</p></details>
+        <details><summary>Wann kann ich Premium kaufen?</summary><p>Noch nicht. Sobald es so weit ist, steht es hier und in der App unter Neuigkeiten.</p></details>
+      </div>
+    </div>
+  </section>
+</main>
+
+<footer>
+  <div class="wrap">
+    <div class="foot">
+      <div>
+        <a class="brand" href="#top"><img src="img/logo.png" alt="" width="26" height="37">Goofy Studio</a>
+        <p style="margin-top: 14px">Ein Musikstudio für Windows und den Browser. Gebaut mit Web Audio und AudioWorklets, alle Klänge werden live erzeugt.</p>
+      </div>
+      <div>
+        <h4>Programm</h4>
+        <ul>
+          <li><a href="#download">Download</a></li>
+          <li><a href="https://github.com/NeptixTV/horrorsiuu/releases">Alle Versionen</a></li>
+          <li><a href="https://github.com/NeptixTV/horrorsiuu">Quellcode auf GitHub</a></li>
+        </ul>
+      </div>
+      <div>
+        <h4>Rechtliches</h4>
+        <ul>
+          <li><a href="https://github.com/NeptixTV/horrorsiuu/blob/HEAD/PRIVACY.md">Datenschutz</a></li>
+          <li><a href="https://github.com/NeptixTV/horrorsiuu/blob/HEAD/SECURITY.md">Sicherheit</a></li>
+          <li><a href="fonts/LICENSE-Unbounded.txt">Schriftlizenzen (SIL OFL)</a></li>
+        </ul>
+      </div>
+    </div>
+    <div class="imprint" id="impressum">
+      <!-- Impressum: vor der Veröffentlichung mit den echten Angaben füllen (Pflicht in Deutschland, sobald Premium verkauft wird). -->
+      <b style="color: var(--muted)">Impressum</b>
+      <span class="todo">[Name] · [Straße und Hausnummer] · [PLZ Ort] · [E-Mail-Adresse]</span>
+      <span>Diese Seite setzt keine Cookies, lädt nichts von fremden Servern und verwendet keine Analyse-Tools.</span>
+      <span>© 2026 Goofy Studio</span>
+    </div>
+  </div>
+</footer>
+
+<script>
+(() => {
+  document.documentElement.classList.add('js');
+  const reduce = matchMedia('(prefers-reduced-motion: reduce)').matches;
+  const clamp = (v, a = 0, b = 1) => Math.min(b, Math.max(a, v));
+  const $ = (s) => document.querySelector(s);
+
+  /* ---------- ticker: duplicate content for a seamless loop ---------- */
+  const tick = $('#ticker');
+  tick.innerHTML += tick.innerHTML;
+
+  /* ---------- lift-in: only for elements below the fold, so the first frame is complete ---------- */
+  const lifts = [...document.querySelectorAll('.lift')].filter((el) => el.getBoundingClientRect().top > innerHeight * 0.95);
+  if (!reduce && 'IntersectionObserver' in window) {
+    lifts.forEach((el) => el.classList.add('pending'));
+    const io = new IntersectionObserver((list) => {
+      for (const e of list) if (e.isIntersecting) { e.target.classList.remove('pending'); io.unobserve(e.target); }
+    }, { rootMargin: '0px 0px -8% 0px' });
+    lifts.forEach((el) => io.observe(el));
+  }
+
+  /* ---------- hero terrain: a 3D sound landscape on canvas ---------- */
+  const cv = $('#terrain');
+  const g = cv.getContext('2d');
+  let W = 0, H = 0, mx = 0, my = 0, heroP = 0, heroVisible = true;
+  const resize = () => {
+    const dpr = Math.min(2, devicePixelRatio || 1);
+    W = cv.clientWidth; H = cv.clientHeight;
+    cv.width = Math.round(W * dpr); cv.height = Math.round(H * dpr);
+    g.setTransform(dpr, 0, 0, dpr, 0, 0);
+  };
+  const ROWS = 40, COLS = 70;
+  const lerp = (a, b, t) => a + (b - a) * t;
+  const mix = (c1, c2, t) => c1.map((v, i) => Math.round(lerp(v, c2[i], t)));
+  const PEEL = [246, 139, 31], BERRY = [255, 90, 138], DREAM = [69, 200, 234];
+  const height = (x, z, t) => {
+    const center = Math.exp(-(x * x) / 260000);
+    return Math.sin(x * 0.011 + t * 1.1 + z * 0.006) * 26
+      + Math.sin(z * 0.018 - t * 0.7) * 18
+      + Math.cos((x - z) * 0.007 + t * 0.9) * 14
+      + center * (Math.sin(z * 0.05 - t * 3) * 0.5 + 0.5) * 70;
+  };
+  const drawTerrain = (t) => {
+    g.clearRect(0, 0, W, H);
+    const horizon = H * (0.3 - heroP * 0.12);
+    const camY = 150 + heroP * 120 + my * 30;
+    const fov = Math.max(W, 700) * 0.85;
+    for (let r = ROWS - 1; r >= 0; r--) {
+      const z = 120 + r * 34 - ((t * 40) % 34);
+      const k = r / (ROWS - 1);
+      const col = k < 0.5 ? mix(PEEL, BERRY, k * 2) : mix(BERRY, DREAM, (k - 0.5) * 2);
+      const alpha = (1 - k) * 0.6 + 0.06;
+      g.beginPath();
+      for (let c = 0; c < COLS; c++) {
+        const x = (c / (COLS - 1) - 0.5) * 2600 + mx * 120;
+        const y = height(x, z, t);
+        const s = fov / z;
+        const sx = W / 2 + x * s * 0.5;
+        const sy = horizon + (camY - y) * s * 0.5;
+        if (c === 0) g.moveTo(sx, sy); else g.lineTo(sx, sy);
+      }
+      g.strokeStyle = `rgba(${col[0]},${col[1]},${col[2]},${alpha})`;
+      g.lineWidth = 1 + (1 - k) * 1.2;
+      g.stroke();
+    }
+  };
+  resize();
+  addEventListener('resize', resize);
+  addEventListener('pointermove', (e) => { mx = e.clientX / innerWidth - 0.5; my = e.clientY / innerHeight - 0.5; }, { passive: true });
+  if ('IntersectionObserver' in window) new IntersectionObserver(([e]) => { heroVisible = e.isIntersecting; }).observe($('.hero'));
+  drawTerrain(0.8);
+
+  /* ---------- scroll-driven 3D ---------- */
+  const heroShot = $('#heroShot');
+  const stack = $('#stack');
+  const explode = $('#studio');
+  const steps = [...document.querySelectorAll('.step')];
+  const dc = $('#dc');
+  const wide = matchMedia('(min-width: 901px)');
+  let tilt = { x: 0, y: 0 };
+  const onScroll = () => {
+    const vh = innerHeight;
+    heroP = clamp(scrollY / (vh * 0.75));
+    heroShot.style.setProperty('--p', heroP.toFixed(3));
+    if (wide.matches) {
+      const r = explode.getBoundingClientRect();
+      const e = clamp(-r.top / Math.max(1, r.height - vh));
+      stack.style.setProperty('--e', clamp(e * 1.4).toFixed(3));
+      const idx = Math.min(steps.length - 1, Math.floor(e * steps.length * 0.999));
+      steps.forEach((s, i) => s.classList.toggle('on', i === idx));
+    } else {
+      stack.style.setProperty('--e', '0.22');
+    }
+    const d = dc.getBoundingClientRect();
+    const q = clamp((vh - d.top) / (vh + d.height));
+    if (!reduce && innerWidth > 960) {
+      dc.style.setProperty('--rx', `${(20 - q * 16 + tilt.y * 8).toFixed(2)}deg`);
+      dc.style.setProperty('--ry', `${(-18 + q * 22 + tilt.x * 10).toFixed(2)}deg`);
+    }
+  };
+  if (!reduce) addEventListener('scroll', onScroll, { passive: true });
+  onScroll();
+  dc.addEventListener('pointermove', (e) => {
+    const r = dc.getBoundingClientRect();
+    tilt = { x: (e.clientX - r.left) / r.width - 0.5, y: (e.clientY - r.top) / r.height - 0.5 };
+    onScroll();
+  });
+  dc.addEventListener('pointerleave', () => { tilt = { x: 0, y: 0 }; onScroll(); });
+
+  /* ---------- feature cards: tilt toward the pointer ---------- */
+  if (!reduce) document.querySelectorAll('.feat').forEach((card) => {
+    card.addEventListener('pointermove', (e) => {
+      const r = card.getBoundingClientRect();
+      const x = (e.clientX - r.left) / r.width, y = (e.clientY - r.top) / r.height;
+      card.style.setProperty('--ty', `${((x - 0.5) * 10).toFixed(2)}deg`);
+      card.style.setProperty('--tx', `${((0.5 - y) * 10).toFixed(2)}deg`);
+      card.style.setProperty('--mx', `${(x * 100).toFixed(1)}%`);
+      card.style.setProperty('--my', `${(y * 100).toFixed(1)}%`);
+    });
+    card.addEventListener('pointerleave', () => { card.style.setProperty('--tx', '0deg'); card.style.setProperty('--ty', '0deg'); });
+  });
+
+  /* ---------- animation loop (terrain + meter) ---------- */
+  const meter = [...document.querySelectorAll('#dcMeter i')];
+  let level = 0;
+  const loop = (ms) => {
+    const t = ms / 1000;
+    if (heroVisible && !document.hidden) drawTerrain(t);
+    level *= 0.94;
+    meter.forEach((m, i) => m.style.setProperty('--h', `${Math.max(8, Math.min(100, level * (55 + 45 * Math.sin(t * 9 + i * 1.7))))}%`));
+    requestAnimationFrame(loop);
+  };
+  if (!reduce) requestAnimationFrame(loop);
+
+  /* ================= DreamChord: chords + a small dreamy synth ================= */
+  const NAMES = ['C', 'C#', 'D', 'D#', 'E', 'F', 'F#', 'G', 'G#', 'A', 'A#', 'B'];
+  const MINOR = [0, 2, 3, 5, 7, 8, 10];
+  const ROMAN = ['i', 'ii°', 'III', 'iv', 'v', 'VI', 'VII'];
+  const KEY = 9; // A minor, like the demo project
+  const SUFFIX = {
+    '0,4,7': '', '0,3,7': 'm', '0,3,6': '°', '0,4,7,11': 'maj7', '0,3,7,10': 'm7', '0,4,7,10': '7', '0,3,6,10': 'ø7',
+    '0,4,7,11,14': 'maj9', '0,3,7,10,14': 'm9', '0,4,7,10,14': '9', '0,3,6,10,14': 'ø9', '0,4,7,14': 'add9', '0,3,7,14': 'm(add9)',
+    '0,3,6,14': '°(add9)', '0,4,7,9': '6', '0,3,7,9': 'm6', '0,3,6,9': '°7', '0,5,7': 'sus4', '0,2,7': 'sus2', '0,5,6': 'sus4♭5', '0,2,6': 'sus2♭5',
+  };
+  const chordOf = (degree, mod = 'none') => {
+    const at = (i) => MINOR[i % 7] + 12 * Math.floor(i / 7);
+    const base = at(degree);
+    const tone = (s) => at(degree + s) - base;
+    const third = tone(2), fifth = tone(4), seventh = tone(6);
+    let iv;
+    switch (mod) {
+      case 'n': iv = [0, third, fifth, seventh]; break;
+      case 'ne': iv = [0, third, fifth, seventh, 14]; break;
+      case 'e': iv = [0, third, fifth, 14]; break;
+      case 'se': iv = [0, third, fifth, 9]; break;
+      case 's': iv = [0, 5, fifth]; break;
+      case 'sw': iv = [0, 2, fifth]; break;
+      case 'w': iv = [0, third === 4 ? 3 : 4, 7]; break;
+      case 'nw': iv = [0, 4, 7, 10]; break;
+      default: iv = [0, third, fifth];
+    }
+    const root = (KEY + base) % 12;
+    return { root, iv, name: NAMES[root] + (SUFFIX[iv.join(',')] ?? ''), roman: ROMAN[degree] };
+  };
+
+  let ac = null, bus = null;
+  const impulse = (ctx, seconds) => {
+    const len = Math.round(ctx.sampleRate * seconds);
+    const b = ctx.createBuffer(2, len, ctx.sampleRate);
+    for (let c = 0; c < 2; c++) {
+      const d = b.getChannelData(c);
+      for (let i = 0; i < len; i++) d[i] = (Math.random() * 2 - 1) * Math.pow(1 - i / len, 2.6);
+    }
+    return b;
+  };
+  const audio = () => {
+    if (ac) { if (ac.state === 'suspended') ac.resume(); return ac; }
+    const AC = window.AudioContext || window.webkitAudioContext;
+    if (!AC) return null;
+    ac = new AC();
+    const master = ac.createGain(); master.gain.value = 0.6;
+    const comp = ac.createDynamicsCompressor(); comp.threshold.value = -14; comp.ratio.value = 4;
+    master.connect(comp).connect(ac.destination);
+    bus = ac.createGain();
+    const dry = ac.createGain(); dry.gain.value = 0.65;
+    const chorus = ac.createDelay(0.05); chorus.delayTime.value = 0.017;
+    const lfo = ac.createOscillator(); lfo.frequency.value = 0.33;
+    const depth = ac.createGain(); depth.gain.value = 0.0035;
+    lfo.connect(depth).connect(chorus.delayTime); lfo.start();
+    const chorusGain = ac.createGain(); chorusGain.gain.value = 0.45;
+    const verb = ac.createConvolver(); verb.buffer = impulse(ac, 3.4);
+    const wet = ac.createGain(); wet.gain.value = 0.55;
+    bus.connect(dry).connect(master);
+    bus.connect(chorus).connect(chorusGain).connect(master);
+    bus.connect(verb); chorusGain.connect(verb);
+    verb.connect(wet).connect(master);
+    return ac;
+  };
+  const voice = (midi, at, vel) => {
+    const f = 440 * Math.pow(2, (midi - 69) / 12);
+    const out = ac.createGain();
+    out.gain.setValueAtTime(0, at);
+    out.gain.linearRampToValueAtTime(0.16 * vel, at + 0.09);
+    out.gain.setTargetAtTime(0.11 * vel, at + 0.09, 0.5);
+    const lp = ac.createBiquadFilter(); lp.type = 'lowpass'; lp.Q.value = 0.7;
+    lp.frequency.setValueAtTime(500, at);
+    lp.frequency.linearRampToValueAtTime(2600, at + 0.3);
+    lp.frequency.setTargetAtTime(1500, at + 0.3, 0.7);
+    const oscs = [-8, 8].map((d) => { const o = ac.createOscillator(); o.type = 'sawtooth'; o.frequency.value = f; o.detune.value = d; o.connect(lp); o.start(at); return o; });
+    const sub = ac.createOscillator(); sub.type = 'triangle'; sub.frequency.value = f / 2;
+    const subG = ac.createGain(); subG.gain.value = 0.55; sub.connect(subG).connect(lp); sub.start(at); oscs.push(sub);
+    lp.connect(out).connect(bus);
+    return {
+      stop(when) {
+        const t = Math.max(when ?? ac.currentTime, ac.currentTime);
+        out.gain.cancelScheduledValues(t);
+        out.gain.setValueAtTime(out.gain.value, t);
+        out.gain.setTargetAtTime(0, t, 0.55);
+        oscs.forEach((o) => o.stop(t + 4));
+      },
+    };
+  };
+  let octave = 0, hold = false, strum = false, joyDir = 'c';
+  let sounding = [];
+  const voicing = (c) => {
+    let r = 48 + c.root; if (r < 52) r += 12; r += octave * 12;
+    return [r - 12, ...c.iv.map((i) => r + i)];
+  };
+  const releaseAll = (when) => { sounding.forEach((v) => v.stop(when)); sounding = []; };
+  const playChord = (c, when, vel = 0.9) => {
+    if (!audio()) return;
+    const t0 = when ?? ac.currentTime + 0.01;
+    releaseAll(t0);
+    sounding = voicing(c).map((m, i) => voice(m, t0 + (strum ? i * 0.045 : 0), vel));
+    level = 1;
+  };
+  const chordEl = $('#dcChord'), subEl = $('#dcSub');
+  const padsEl = $('#pads');
+  const pads = ROMAN.map((rom, i) => {
+    const b = document.createElement('button');
+    b.type = 'button'; b.className = 'pad';
+    b.setAttribute('aria-label', `Pad ${i + 1}`);
+    padsEl.appendChild(b);
+    return b;
+  });
+  const labelPads = () => pads.forEach((b, i) => {
+    const c = chordOf(i, joyDir);
+    b.innerHTML = `<b>${i + 1}</b><span>${c.name}</span><em>${c.roman}</em>`;
+  });
+  labelPads();
+  let current = -1;
+  const press = (i) => {
+    current = i;
+    const c = chordOf(i, joyDir);
+    playChord(c);
+    pads.forEach((p, k) => p.classList.toggle('down', k === i));
+    chordEl.textContent = c.name;
+    subEl.textContent = `${c.roman} · Ocean Dream${strum ? ' · strum' : ''}`;
+  };
+  const release = (i) => {
+    if (current !== i) return;
+    pads[i].classList.remove('down');
+    current = -1;
+    if (!hold) releaseAll();
+  };
+  pads.forEach((b, i) => {
+    b.addEventListener('pointerdown', (e) => { e.preventDefault(); b.setPointerCapture?.(e.pointerId); press(i); });
+    b.addEventListener('pointerup', () => release(i));
+    b.addEventListener('pointercancel', () => release(i));
+    b.addEventListener('keydown', (e) => { if ((e.key === 'Enter' || e.key === ' ') && !e.repeat) { e.preventDefault(); press(i); } });
+    b.addEventListener('keyup', (e) => { if (e.key === 'Enter' || e.key === ' ') release(i); });
+  });
+  // number keys while the device is on screen
+  const dreamSection = $('#dreamchord');
+  let dreamOnScreen = false;
+  if ('IntersectionObserver' in window) new IntersectionObserver(([e]) => { dreamOnScreen = e.isIntersecting; }, { threshold: 0.25 }).observe(dreamSection);
+  const held = new Set();
+  addEventListener('keydown', (e) => {
+    if (!dreamOnScreen || e.ctrlKey || e.metaKey || e.altKey) return;
+    const n = Number(e.key);
+    if (n >= 1 && n <= 7 && !held.has(n)) { held.add(n); press(n - 1); }
+    const arrows = { ArrowUp: 'n', ArrowRight: 'e', ArrowDown: 's', ArrowLeft: 'w' };
+    if (arrows[e.key]) { e.preventDefault(); setJoy(arrows[e.key], true); }
+  });
+  addEventListener('keyup', (e) => {
+    const n = Number(e.key);
+    if (held.has(n)) { held.delete(n); release(n - 1); }
+    if (['ArrowUp', 'ArrowRight', 'ArrowDown', 'ArrowLeft'].includes(e.key)) setJoy('c', true);
+  });
+  const toggle = (btn, get, set) => btn.addEventListener('click', () => { set(!get()); btn.setAttribute('aria-pressed', String(get())); if (!get() && current < 0) releaseAll(); });
+  toggle($('#fnHold'), () => hold, (v) => { hold = v; });
+  toggle($('#fnStrum'), () => strum, (v) => { strum = v; });
+  const octEl = $('#dcOct');
+  const setOct = (d) => { octave = Math.max(-1, Math.min(1, octave + d)); octEl.textContent = `OCT ${octave > 0 ? '+' : ''}${octave}`; };
+  $('#fnDown').addEventListener('click', () => setOct(-1));
+  $('#fnUp').addEventListener('click', () => setOct(1));
+
+  // joystick: direction changes the chord colour (like the real device)
+  const joy = $('#joy');
+  const OFFS = { c: [0, 0], n: [0, -1], ne: [0.72, -0.72], e: [1, 0], se: [0.72, 0.72], s: [0, 1], sw: [-0.72, 0.72], w: [-1, 0], nw: [-0.72, -0.72] };
+  const DIR_NAME = { c: 'Mitte', n: 'Septime', ne: 'None', e: 'add9', se: 'Sexte', s: 'sus4', sw: 'sus2', w: 'Dur/Moll getauscht', nw: 'Dominantseptime' };
+  function setJoy(dir, fromKey) {
+    if (dir === joyDir && !fromKey) return;
+    joyDir = dir;
+    const [x, y] = OFFS[dir];
+    joy.style.setProperty('--jx', `${x * 2.6}em`);
+    joy.style.setProperty('--jy', `${y * 2.6}em`);
+    joy.querySelectorAll('.lbl').forEach((l) => l.classList.toggle('on', l.dataset.dir === dir));
+    joy.setAttribute('aria-valuetext', DIR_NAME[dir]);
+    labelPads();
+    if (current >= 0) press(current);
+  }
+  const dirFrom = (dx, dy) => {
+    if (Math.hypot(dx, dy) < 0.35) return 'c';
+    const a = (Math.atan2(dy, dx) * 180) / Math.PI;
+    const dirs = ['e', 'se', 's', 'sw', 'w', 'nw', 'n', 'ne'];
+    return dirs[(Math.round(a / 45) + 8) % 8];
+  };
+  joy.addEventListener('pointerdown', (e) => { joy.setPointerCapture(e.pointerId); joy.classList.add('dragging'); move(e); });
+  const move = (e) => {
+    if (!joy.classList.contains('dragging')) return;
+    const r = joy.getBoundingClientRect();
+    const dx = ((e.clientX - r.left) / r.width - 0.5) * 2;
+    const dy = ((e.clientY - r.top) / r.height - 0.5) * 2;
+    const k = Math.min(1, Math.hypot(dx, dy)) / (Math.hypot(dx, dy) || 1);
+    joy.style.setProperty('--jx', `${dx * k * 2.6}em`);
+    joy.style.setProperty('--jy', `${dy * k * 2.6}em`);
+    const d = dirFrom(dx, dy);
+    if (d !== joyDir) {
+      joyDir = d;
+      joy.querySelectorAll('.lbl').forEach((l) => l.classList.toggle('on', l.dataset.dir === d));
+      joy.setAttribute('aria-valuetext', DIR_NAME[d]);
+      labelPads();
+      if (current >= 0) press(current);
+    }
+  };
+  joy.addEventListener('pointermove', move);
+  const letGo = () => { joy.classList.remove('dragging'); setJoy('c', true); };
+  joy.addEventListener('pointerup', letGo);
+  joy.addEventListener('pointercancel', letGo);
+
+  /* ================= Idea dice ================= */
+  const PROG = {
+    dreamy: [[0, 5, 2, 6], [5, 6, 0, 0], [0, 3, 5, 6], [5, 2, 6, 3]],
+    sad: [[0, 5, 2, 6], [0, 3, 5, 4], [0, 6, 5, 6], [0, 5, 3, 4]],
+    dark: [[0, 5, 6, 4], [0, 1, 4, 0], [0, 0, 5, 4], [0, 3, 1, 4]],
+    epic: [[0, 5, 2, 6], [0, 6, 5, 6], [5, 6, 0, 0], [0, 3, 6, 2]],
+    chill: [[0, 3, 6, 2], [3, 6, 2, 5], [0, 6, 5, 3]],
+  };
+  const MODS = { dreamy: ['n', 'e', 'e', 'none'], sad: ['none', 'none', 'n', 'e'], dark: ['none'], epic: ['none', 'none', 'sw'], chill: ['n', 'ne', 'n'] };
+  let mood = 'dreamy';
+  let chords = [chordOf(0, 'e'), chordOf(5, 'e'), chordOf(2, 'e'), chordOf(6, 'e')];
+  const progEl = $('#prog');
+  const cube = $('#cube');
+  let turns = 0;
+  const FACE = { 1: [0, 0], 2: [0, -90], 3: [-90, 0], 4: [90, 0], 5: [0, 90], 6: [0, 180] };
+  const pick = (a) => a[Math.floor(Math.random() * a.length)];
+  const roll = () => {
+    const degrees = pick(PROG[mood]);
+    chords = degrees.map((d) => {
+      let m = pick(MODS[mood]);
+      if (d === 4 && (mood === 'dark' || mood === 'epic') && Math.random() < 0.7) m = 'w';
+      return chordOf(d, m);
+    });
+    const face = 1 + Math.floor(Math.random() * 6);
+    turns += 2;
+    const [fx, fy] = FACE[face];
+    cube.style.transform = `rotateX(${fx - 24 + turns * 360}deg) rotateY(${fy + 32 + turns * 180}deg)`;
+    progEl.textContent = chords.map((c) => c.name).join(' – ');
+  };
+  cube.addEventListener('click', roll);
+  cube.addEventListener('keydown', (e) => { if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); roll(); } });
+  $('#roll').addEventListener('click', roll);
+  document.querySelectorAll('#moods button').forEach((b) => b.addEventListener('click', () => {
+    mood = b.dataset.mood;
+    document.querySelectorAll('#moods button').forEach((x) => x.setAttribute('aria-pressed', String(x === b)));
+    roll();
+  }));
+  $('#listen').addEventListener('click', () => {
+    if (!audio()) return;
+    const t0 = ac.currentTime + 0.05;
+    chords.forEach((c, i) => {
+      const at = t0 + i * 1.2;
+      const vs = voicing(c).map((m, k) => voice(m, at + k * 0.04, 0.8));
+      vs.forEach((v) => v.stop(at + 1.15));
+    });
+    level = 1;
+  });
+
+  /* ================= Premium: not for sale yet ================= */
+  $('#buy').addEventListener('click', () => {
+    const n = $('#buyNote');
+    n.textContent = 'Danke fürs Interesse! Premium kann man noch nicht kaufen. Sobald es so weit ist, steht es hier.';
+    n.style.color = 'var(--berry)';
+  });
+})();
+</script>
+</body>
+</html>
