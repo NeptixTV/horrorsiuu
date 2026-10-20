@@ -15,6 +15,7 @@ import { HEADING, currentMarker, matchSection, sections } from './prompter';
 import './notes.css';
 
 const MAX_NOTES = 200000;
+const NO_MARKERS: NonNullable<Project['markers']> = [];
 
 export const useNotesView = create<{ prompter: boolean; speed: number; size: number }>(() => ({ prompter: false, speed: 1, size: 30 }));
 
@@ -71,7 +72,9 @@ function Prompter({ text }: { text: string }) {
 
 export function NotesWindow({ w }: { w: FloatingWindow }) {
   const text = useProject((s) => s.project.notes ?? '');
-  const markers = useProject((s) => s.project.markers ?? []);
+  // select the array itself – `?? []` in the selector would be a new array on every render
+  const markerList = useProject((s) => s.project.markers);
+  const markers = markerList ?? NO_MARKERS;
   const view = useNotesView();
   const base = useRef<Project | null>(null);
   const secs = useMemo(() => sections(text), [text]);
