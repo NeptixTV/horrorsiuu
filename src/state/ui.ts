@@ -102,6 +102,10 @@ export interface UIState {
   outputVolume: number;
   /** scheduler look-ahead in seconds */
   lookahead: number;
+  /** step up the buffer / scheduling window by itself when dropouts are detected */
+  autoStabilize: boolean;
+  /** version of the audio defaults the settings were migrated to */
+  audioProfile: number;
   metronomeVolume: number;
   countInBars: number;
   autoFallbackOutput: boolean;
@@ -150,7 +154,7 @@ const PERSISTED: (keyof UIState)[] = [
   'playlistSnap', 'snapMode', 'playlistZoom', 'trackHeight', 'pianoSnap', 'pianoZoomX', 'pianoZoomY', 'followPlayhead', 'dockTab',
   'browserWidth', 'dockHeight', 'browserOpen', 'dockOpen', 'theme', 'accent', 'custom', 'autosave', 'latencyHint',
   'inputDeviceId', 'outputDeviceId', 'inputGain', 'setupDone', 'metronome', 'lastNoteLength',
-  'latencyMs', 'sampleRate', 'limiter', 'ceilingDb', 'protect', 'outputVolume', 'lookahead', 'metronomeVolume', 'countInBars',
+  'latencyMs', 'sampleRate', 'limiter', 'ceilingDb', 'protect', 'outputVolume', 'lookahead', 'autoStabilize', 'audioProfile', 'metronomeVolume', 'countInBars',
   'autoFallbackOutput', 'releaseMic', 'uiScale', 'reduceMotion', 'meterFps', 'showSplash', 'autosaveInterval', 'backups',
   'backupCount', 'backupInterval', 'openLastProject', 'historyLimit', 'notifyLevel', 'checkUpdates', 'showNews', 'showHints',
   'confirmDeletes', 'midiInput', 'recQuantize', 'lyricsOnRecord', 'exportBits', 'exportRate', 'exportNormalize', 'exportTail', 'seenWhatsNew',
@@ -158,14 +162,16 @@ const PERSISTED: (keyof UIState)[] = [
 
 /** Defaults of every persisted setting (Settings → "Reset to defaults" uses these). */
 export const SETTING_DEFAULTS = {
-  latencyHint: 'interactive' as UIState['latencyHint'],
+  latencyHint: 'balanced' as UIState['latencyHint'],
   latencyMs: 0,
   sampleRate: 0,
   limiter: true,
   ceilingDb: -0.3,
   protect: true,
   outputVolume: 1,
-  lookahead: 0.12,
+  lookahead: 0.2,
+  autoStabilize: true,
+  audioProfile: 2,
   metronomeVolume: 0.7,
   countInBars: 0,
   autoFallbackOutput: true,
@@ -215,6 +221,13 @@ function loadPersisted(): Partial<UIState> {
       }
     }
     if (out.snapMode !== 'grid') out.snapMode = 'off'; // the old "magnet" mode was removed in 1.1.1
+    // 1.2: more robust audio defaults – the old defaults (smallest buffer,
+    // 120 ms scheduling) crackled on many Windows laptops
+    if (p.audioProfile !== 2) {
+      if (out.latencyHint === 'interactive' && !out.latencyMs) out.latencyHint = 'balanced';
+      if (out.lookahead === 0.12) out.lookahead = 0.2;
+      out.audioProfile = 2;
+    }
     return out as Partial<UIState>;
   } catch {
     return {};

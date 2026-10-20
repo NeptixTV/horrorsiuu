@@ -5,6 +5,7 @@ import { openWindow, setUI, toast, ui, useUI } from './state/ui';
 import { APP_VERSION, compareVersions } from './admin/feed';
 import { installSettingsSync } from './ui/settingsSync';
 import { installAutomationPlayback } from './ui/automationPlayback';
+import { installAudioStability } from './ui/audioStability';
 import { applyTheme, resolveTheme } from './styles/themes';
 import { installRecordingHandler, restoreLastProject, startAutosave } from './project/manager';
 import { Splash } from './ui/splash/Splash';
@@ -148,6 +149,7 @@ function boot(): Promise<void> {
       installSettingsSync();
       installGestureSafety();
       installAutomationPlayback();
+      installAudioStability();
       startAutosave();
       installShortcuts();
       void loadLibrary();

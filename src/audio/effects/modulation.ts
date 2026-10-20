@@ -2,6 +2,7 @@ import type { ParamValue } from '../../state/types';
 import { num, str } from './descriptors';
 import { Effect, mixGains, setParam } from './base';
 import { MAX_FEEDBACK, clampFinite } from '../safety';
+import { blockRate } from '../instruments/types';
 
 /** 4 stage all-pass phaser with feedback. */
 export class PhaserEffect extends Effect {
@@ -19,6 +20,7 @@ export class PhaserEffect extends Effect {
       const f = this.track(ctx.createBiquadFilter());
       f.type = 'allpass';
       f.Q.value = 0.7;
+      blockRate(f.frequency, f.detune, f.Q);
       return f;
     });
     this.lfo = this.source(ctx.createOscillator());
@@ -128,6 +130,7 @@ export class AutoPanEffect extends Effect {
     this.filter = this.track(ctx.createBiquadFilter());
     this.filter.type = 'lowpass';
     this.filter.frequency.value = 16000;
+    blockRate(this.filter.frequency, this.filter.detune, this.panner.pan);
     this.amp = this.track(ctx.createGain());
     this.lfo = this.source(ctx.createOscillator());
     // cosine = same LFO shifted by 90° → "behind the head" when the pan crosses the centre

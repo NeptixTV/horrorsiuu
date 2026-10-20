@@ -3,9 +3,9 @@ import { midiToFreq } from '../../midi/music';
 import { defaultSynth } from '../../state/defaults';
 import { normalizeSynth } from '../../state/normalize';
 import { clampFinite } from '../safety';
-import { holdAt, type Instrument } from './types';
+import { blockRate, holdAt, type Instrument } from './types';
 
-const MAX_VOICES = 24;
+const MAX_VOICES = 16;
 
 interface Voice {
   pitch: number;
@@ -17,6 +17,8 @@ interface Voice {
   vca: GainNode;
   peak: number;
   release(time: number): void;
+  /** stops the voice within a few ms (voice stealing) */
+  kill(time: number): void;
   cleanup(): void;
 }
 
@@ -83,15 +85,20 @@ export class Synth implements Instrument {
     velocity = clampFinite(velocity, 0, 1, 0.8);
     if (duration !== undefined && !(duration > 0 && Number.isFinite(duration))) duration = 0.05;
     this.activeVoices();
-    if (this.voices.length >= MAX_VOICES) {
-      const oldest = this.voices.shift();
-      oldest?.release(time);
+    // Voice stealing: the stolen voice is faded out in a few ms and really
+    // stops. (Releasing it normally would keep it ringing – and costing CPU –
+    // for its whole release time, so the voice limit would not limit anything.)
+    while (this.voices.length >= MAX_VOICES) {
+      let i = this.voices.findIndex((v) => v.releaseTime <= time);
+      if (i < 0) i = 0;
+      this.voices.splice(i, 1)[0].kill(time);
     }
     const freq = midiToFreq(pitch);
     const filter = ctx.createBiquadFilter();
     filter.type = p.filterType;
     filter.frequency.value = p.cutoff;
     filter.Q.value = p.resonance;
+    blockRate(filter.frequency, filter.detune, filter.Q);
     this.lfoFilter.connect(filter.detune);
     this.cutMod.connect(filter.detune);
     const detunes: AudioParam[] = [];
@@ -103,6 +110,7 @@ export class Synth implements Instrument {
     const addOsc = (o: OscParams, extraDetune: number, level: number) => {
       if (o.level <= 0.001 || level <= 0) return;
       const osc = ctx.createOscillator();
+      blockRate(osc.frequency, osc.detune);
       osc.type = o.wave;
       const f = freq * Math.pow(2, o.octave + o.semi / 12);
       if (p.glide > 0.001 && this.lastFreq > 0) {
@@ -177,6 +185,15 @@ export class Synth implements Instrument {
         holdAt(filter.detune, t, 0);
         filter.detune.setTargetAtTime(0, t, rel / 5);
         voice.end = t + rel + 0.05;
+        for (const o of oscs) { try { o.stop(voice.end); } catch { /* ignore */ } }
+      },
+      kill: (kt: number) => {
+        const t = Math.max(kt, ctx.currentTime);
+        if (voice.end <= t + 0.03) return;
+        holdAt(g, t, envAt(Math.max(0, t - voice.start)));
+        g.setTargetAtTime(0, t, 0.006);
+        voice.releaseTime = Math.min(voice.releaseTime, t);
+        voice.end = t + 0.04;
         for (const o of oscs) { try { o.stop(voice.end); } catch { /* ignore */ } }
       },
     };

@@ -116,8 +116,8 @@ export function AudioSection() {
 }
 
 const LATENCY: { value: string; label: string }[] = [
-  { value: 'interactive', label: 'Lowest latency (interactive)' },
-  { value: 'balanced', label: 'Balanced' },
+  { value: 'interactive', label: 'Lowest latency (can crackle)' },
+  { value: 'balanced', label: 'Balanced (recommended)' },
   { value: 'playback', label: 'Most stable (playback)' },
   { value: 'custom', label: 'Custom buffer…' },
 ];
@@ -156,6 +156,9 @@ export function PerformanceSection() {
         </Row>
         <Row label="Apply" desc={pending ? 'Changes take effect when the audio engine restarts (your project keeps playing).' : `Running: ${engine.initialized ? engine.ctx.sampleRate : '—'} Hz, ${engine.initialized ? Math.round(engine.ctx.baseLatency * 1000) : '—'} ms base latency.`} warn={pending}>
           <button className={`btn ${pending ? 'primary' : ''}`} onClick={() => void apply()}>Restart audio now</button>
+        </Row>
+        <Row label="Fix dropouts automatically" desc={engine.canCountDropouts ? 'When the sound card runs out of audio (crackles, gaps), the buffer is made bigger by itself and you get a short note.' : 'Dropouts can only be counted in the desktop app and current Chrome / Edge; late scheduling is still corrected.'}>
+          <Toggle value={s.autoStabilize} onChange={(v) => setUI({ autoStabilize: v })} />
         </Row>
         <Row label="Scheduling buffer" desc="How far ahead notes are prepared. Bigger survives a busy computer without stutter; smaller makes changes during playback audible sooner.">
           <Select

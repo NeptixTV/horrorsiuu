@@ -15,6 +15,18 @@ export interface Instrument {
   readonly filterOffset?: AudioParam;
 }
 
+/**
+ * Per-voice parameters only need one value per render quantum (128 samples,
+ * ~3 ms). With a modulation input connected (bend, vibrato, filter offset)
+ * Chromium would otherwise recompute oscillator frequencies and – much more
+ * expensive – filter coefficients for every single sample of every voice.
+ */
+export function blockRate(...params: AudioParam[]) {
+  for (const p of params) {
+    try { p.automationRate = 'k-rate'; } catch { /* not supported – stays a-rate */ }
+  }
+}
+
 /** Ramps an AudioParam to hold its current value at `time` (cancelAndHold fallback). */
 export function holdAt(param: AudioParam, time: number, fallbackValue: number) {
   const p = param as AudioParam & { cancelAndHoldAtTime?: (t: number) => AudioParam };

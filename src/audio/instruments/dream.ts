@@ -13,9 +13,9 @@ import { normalizeDream } from '../../state/normalize';
 import { midiToFreq } from '../../midi/music';
 import { makeImpulse } from '../effects/reverb';
 import { clampFinite } from '../safety';
-import { holdAt, noiseBuffer, type Instrument } from './types';
+import { blockRate, holdAt, noiseBuffer, type Instrument } from './types';
 
-const MAX_VOICES = 18;
+const MAX_VOICES = 12;
 
 // additive tables (index = harmonic number) for the non-basic waves
 const TABLES: Record<'glass' | 'piano' | 'organ' | 'choir', number[]> = {
@@ -66,6 +66,8 @@ interface DVoice {
   releaseTime: number;
   sources: AudioScheduledSourceNode[];
   release(t: number): void;
+  /** stops the voice within a few ms (voice stealing) */
+  kill(t: number): void;
   cleanup(): void;
 }
 
@@ -328,13 +330,21 @@ export class DreamSynth implements Instrument {
     velocity = clampFinite(velocity, 0, 1, 0.8);
     if (duration !== undefined && !(duration > 0 && Number.isFinite(duration))) duration = 0.05;
     this.activeVoices();
-    while (this.voices.length >= MAX_VOICES) this.voices.shift()?.release(time);
+    // Voice stealing: fade the stolen voice out in a few ms so it really stops
+    // (a normal release would keep it ringing – and costing CPU – for seconds).
+    // Prefer a voice that is already fading out.
+    while (this.voices.length >= MAX_VOICES) {
+      let i = this.voices.findIndex((v) => v.releaseTime <= time);
+      if (i < 0) i = 0;
+      this.voices.splice(i, 1)[0].kill(time);
+    }
 
     const freq = midiToFreq(Math.max(0, Math.min(127, pitch)));
     const filter = ctx.createBiquadFilter();
     filter.type = 'lowpass';
     filter.frequency.value = Math.min(18000, p.cutoff);
     filter.Q.value = p.resonance;
+    blockRate(filter.frequency, filter.detune, filter.Q);
     this.cutMod.connect(filter.detune);
     const vca = ctx.createGain();
     vca.gain.value = 0;
@@ -346,6 +356,7 @@ export class DreamSynth implements Instrument {
       if (level <= 0.001) return;
       const o = ctx.createOscillator();
       setWave(ctx, o, wave);
+      blockRate(o.frequency, o.detune);
       o.frequency.value = f;
       o.detune.value = cents;
       this.pitchMod.connect(o.detune);
@@ -366,6 +377,7 @@ export class DreamSynth implements Instrument {
       n.loop = true;
       const bp = ctx.createBiquadFilter();
       bp.type = 'bandpass';
+      blockRate(bp.frequency, bp.Q);
       bp.frequency.value = Math.min(9000, Math.max(700, freq * 3));
       bp.Q.value = 1.1;
       const ng = ctx.createGain();
@@ -416,6 +428,15 @@ export class DreamSynth implements Instrument {
         holdAt(g, t, envAt(t - voice.start));
         g.setTargetAtTime(0, t, rel / 5);
         voice.end = t + rel + 0.1;
+        for (const src of sources) { try { src.stop(voice.end); } catch { /* ignore */ } }
+      },
+      kill: (kt: number) => {
+        const t = Math.max(kt, ctx.currentTime);
+        if (voice.end <= t + 0.03) return;
+        holdAt(g, t, envAt(Math.max(0, t - voice.start)));
+        g.setTargetAtTime(0, t, 0.006);
+        voice.releaseTime = Math.min(voice.releaseTime, t);
+        voice.end = t + 0.04;
         for (const src of sources) { try { src.stop(voice.end); } catch { /* ignore */ } }
       },
     };

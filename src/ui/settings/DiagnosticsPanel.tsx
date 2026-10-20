@@ -23,6 +23,7 @@ const COUNTER_LABELS: Record<keyof typeof diagnostics.counters, string> = {
   engineRestarts: 'Audio engine restarts',
   deviceChanges: 'Device changes',
   repairedProjects: 'Projects repaired',
+  underruns: 'Dropouts of the sound card (crackles)',
 };
 
 export function DiagnosticsSection() {

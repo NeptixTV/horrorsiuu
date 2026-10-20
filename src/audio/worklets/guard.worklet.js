@@ -3,12 +3,19 @@
 // 1. Scrubs non-finite samples (NaN / Infinity) so a broken node can never
 //    send garbage to the device, and reports them so the engine can rebuild
 //    the poisoned part of the graph.
-// 2. Brickwall limiter with 1.5 ms look-ahead (sliding-window peak, fast
-//    attack, smooth release, final safety clamp) – nothing above the ceiling
-//    reaches the output.
+// 2. Brickwall limiter with one render quantum (128 samples ≈ 2.7 ms) of
+//    look-ahead. It works per block: the peak of the incoming block decides
+//    the gain at the end of the block that is played now, and the gain moves
+//    there in a straight line – nothing above the ceiling reaches the output,
+//    and the cost is one multiplication per sample. After a reduction the
+//    gain holds for ~25 ms before it releases, so bass notes are not
+//    "pumped" within their own waveform (that sounds rough and crackly).
 // 3. Runaway protection: a signal that stays absurdly hot (> +24 dBFS before
 //    the limiter, e.g. a feedback loop) is faded to silence and reported.
 //    The engine un-mutes after it has rebuilt the graph.
+//
+// It runs on every block of the whole app, so it must stay cheap and must
+// never allocate while processing.
 
 class GoofyGuard extends AudioWorkletProcessor {
   constructor() {
@@ -19,20 +26,14 @@ class GoofyGuard extends AudioWorkletProcessor {
     this.enabled = true;
     this.ceiling = Math.pow(10, -0.3 / 20);
     this.protect = true;
-    this.W = Math.max(8, Math.round(0.0015 * sr));
-    this.size = this.W + 1;
-    this.dlL = new Float32Array(this.size);
-    this.dlR = new Float32Array(this.size);
-    this.pos = 0;
-    // monotonic deque (sliding-window maximum of the peak)
-    this.dqIdx = new Float64Array(this.size + 2);
-    this.dqVal = new Float32Array(this.size + 2);
-    this.dqHead = 0;
-    this.dqLen = 0;
-    this.n = 0;
+    // delayed block (look-ahead) – grows if the browser ever renders bigger blocks
+    this.dL = new Float32Array(128);
+    this.dR = new Float32Array(128);
+    this.dPeak = 0;
     this.gain = 1;
-    this.attack = 1 - Math.exp(-4.6 / this.W); // ~99% of the reduction inside the look-ahead
-    this.release = 1 - Math.exp(-1 / (0.08 * sr));
+    this.holdLeft = 0;
+    this.holdSamples = Math.round(0.025 * sr);
+    this.releaseTc = 0.08 * sr; // samples
     // runaway / mute state
     this.hot = 0;
     this.hotLimit = Math.round((0.25 * sr) / 128);
@@ -46,12 +47,13 @@ class GoofyGuard extends AudioWorkletProcessor {
     this.reportEvery = Math.round(0.25 * sr);
     this.sinceReport = 0;
     this.port.onmessage = (e) => {
+      const m = e.data;
+      if (!m) return;
       // the owner removed this node: end the processor so the node can be freed
-      if (e.data && e.data.type === 'dispose') {
+      if (m.type === 'dispose') {
         this.disposed = true;
         return;
       }
-      const m = e.data;
       if (m.type === 'config') {
         if (typeof m.enabled === 'boolean') this.enabled = m.enabled;
         if (typeof m.ceiling === 'number' && Number.isFinite(m.ceiling)) this.ceiling = Math.min(1, Math.max(0.05, m.ceiling));
@@ -65,27 +67,6 @@ class GoofyGuard extends AudioWorkletProcessor {
     };
   }
 
-  pushPeak(v) {
-    const cap = this.size + 2;
-    // drop smaller values from the back
-    while (this.dqLen > 0) {
-      const back = (this.dqHead + this.dqLen - 1) % cap;
-      if (this.dqVal[back] <= v) this.dqLen--;
-      else break;
-    }
-    const at = (this.dqHead + this.dqLen) % cap;
-    this.dqIdx[at] = this.n;
-    this.dqVal[at] = v;
-    this.dqLen++;
-    // drop values that left the window from the front
-    while (this.dqLen > 0 && this.dqIdx[this.dqHead] <= this.n - this.size) {
-      this.dqHead = (this.dqHead + 1) % cap;
-      this.dqLen--;
-    }
-    this.n++;
-    return this.dqVal[this.dqHead];
-  }
-
   process(inputs, outputs) {
     if (this.disposed) return false;
     const input = inputs[0];
@@ -93,61 +74,118 @@ class GoofyGuard extends AudioWorkletProcessor {
     if (!output || output.length === 0) return true;
     const outL = output[0];
     const outR = output[1] || output[0];
-    const frames = outL.length;
+    const n = outL.length;
     const inL = input && input[0] ? input[0] : null;
     const inR = input && input[1] ? input[1] : inL;
-    let blockPeak = 0;
+    if (this.dL.length !== n) {
+      this.dL = new Float32Array(n);
+      this.dR = new Float32Array(n);
+      this.dPeak = 0;
+    }
+    const dL = this.dL;
+    const dR = this.dR;
 
-    for (let i = 0; i < frames; i++) {
-      let l = inL ? inL[i] : 0;
-      let r = inR ? inR[i] : 0;
-      if (!Number.isFinite(l)) { l = 0; this.nan++; }
-      if (!Number.isFinite(r)) { r = 0; this.nan++; }
-      const p = Math.max(l < 0 ? -l : l, r < 0 ? -r : r);
-      if (p > blockPeak) blockPeak = p;
-
-      let yl;
-      let yr;
-      if (this.enabled) {
-        const env = this.pushPeak(p);
-        const target = env > this.ceiling ? this.ceiling / env : 1;
-        this.gain += (target - this.gain) * (target < this.gain ? this.attack : this.release);
-        const w = this.pos;
-        const rd = (w + 1) % this.size; // oldest sample = look-ahead delay
-        this.dlL[w] = l;
-        this.dlR[w] = r;
-        yl = this.dlL[rd] * this.gain;
-        yr = this.dlR[rd] * this.gain;
-        this.pos = rd;
-        const c = this.ceiling;
-        if (yl > c) yl = c; else if (yl < -c) yl = -c;
-        if (yr > c) yr = c; else if (yr < -c) yr = -c;
-        if (this.gain < this.minGain) this.minGain = this.gain;
-      } else {
-        yl = l;
-        yr = r;
+    // peak of the incoming block (it is played on the next call)
+    let peak = 0;
+    let bad = 0;
+    if (inL) {
+      for (let i = 0; i < n; i++) {
+        const l = inL[i];
+        const r = inR[i];
+        // a single comparison catches NaN and ±Infinity
+        if (!(l > -1e9 && l < 1e9) || !(r > -1e9 && r < 1e9)) { bad++; continue; }
+        const a = l < 0 ? -l : l;
+        const b = r < 0 ? -r : r;
+        if (a > peak) peak = a;
+        if (b > peak) peak = b;
       }
-
-      if (this.muted) {
-        this.muteGain = Math.max(0, this.muteGain - this.muteStep);
-      } else if (this.muteGain < 1) {
-        this.muteGain = Math.min(1, this.muteGain + this.muteStep * 0.25);
-      }
-      outL[i] = yl * this.muteGain;
-      if (outR !== outL) outR[i] = yr * this.muteGain;
     }
 
-    if (blockPeak > this.peak) this.peak = blockPeak;
+    // gain at the end of the block that is played now
+    const c = this.ceiling;
+    const g0 = this.gain;
+    let g1 = 1;
+    if (this.enabled) {
+      const gD = this.dPeak > c ? c / this.dPeak : 1;
+      const gC = peak > c ? c / peak : 1;
+      const target = gD < gC ? gD : gC;
+      if (target < g0) {
+        g1 = target;
+        this.holdLeft = this.holdSamples;
+      } else if (this.holdLeft > 0) {
+        g1 = g0;
+        this.holdLeft -= n;
+      } else {
+        g1 = target + (g0 - target) * Math.exp(-n / this.releaseTc);
+        if (g1 > 0.99999) g1 = 1;
+      }
+    }
+    const dg = (g1 - g0) / n;
+
+    // mute fade, per block
+    const m0 = this.muteGain;
+    let m1 = m0;
+    if (this.muted) m1 = Math.max(0, m0 - this.muteStep * n);
+    else if (m0 < 1) m1 = Math.min(1, m0 + this.muteStep * 0.25 * n);
+    const dm = (m1 - m0) / n;
+
+    let g = g0;
+    let mg = m0;
+    if (this.enabled) {
+      for (let i = 0; i < n; i++) {
+        g += dg;
+        mg += dm;
+        const k = g * mg;
+        let yl = dL[i] * k;
+        let yr = dR[i] * k;
+        // numerical safety only – the gain already keeps peaks below the ceiling
+        if (yl > c) yl = c; else if (yl < -c) yl = -c;
+        if (yr > c) yr = c; else if (yr < -c) yr = -c;
+        outL[i] = yl;
+        if (outR !== outL) outR[i] = yr;
+      }
+    } else {
+      for (let i = 0; i < n; i++) {
+        mg += dm;
+        outL[i] = dL[i] * mg;
+        if (outR !== outL) outR[i] = dR[i] * mg;
+      }
+    }
+    this.gain = g1;
+    this.muteGain = m1;
+    if (g1 < this.minGain) this.minGain = g1;
+
+    // keep the incoming block (scrubbed) for the next call
+    if (inL) {
+      if (bad === 0) {
+        dL.set(inL);
+        dR.set(inR);
+      } else {
+        for (let i = 0; i < n; i++) {
+          const l = inL[i];
+          const r = inR[i];
+          dL[i] = l > -1e9 && l < 1e9 ? l : 0;
+          dR[i] = r > -1e9 && r < 1e9 ? r : 0;
+        }
+        this.nan += bad;
+      }
+    } else {
+      dL.fill(0);
+      dR.fill(0);
+    }
+    this.dPeak = peak;
+
+    if (peak > this.peak) this.peak = peak;
     if (this.protect && !this.muted) {
-      if (blockPeak > 16) this.hot++;
+      if (peak > 16) this.hot++;
       else if (this.hot > 0) this.hot--;
       if (this.hot >= this.hotLimit) {
         this.muted = true;
-        this.port.postMessage({ type: 'runaway', peak: blockPeak });
+        this.port.postMessage({ type: 'runaway', peak });
       }
     }
 
-    this.sinceReport += frames;
+    this.sinceReport += n;
     if (this.sinceReport >= this.reportEvery) {
       this.sinceReport = 0;
       this.port.postMessage({ type: 'stats', nan: this.nan, minGain: this.minGain, peak: this.peak, muted: this.muted });

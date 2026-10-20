@@ -58,6 +58,9 @@ class GoofyPitch extends AudioWorkletProcessor {
     this.transpose = 0;
     // pitch detection can be switched off when only transposing
     this.analysis = true;
+    // silence skipping (see process)
+    this.silent = 0;
+    this.silentLimit = Math.round(0.2 * sr);
 
     this.port.onmessage = (e) => {
       // the owner removed this node: end the processor so the node can be freed
@@ -191,6 +194,29 @@ class GoofyPitch extends AudioWorkletProcessor {
       return true;
     }
 
+    // Silence: after ~0.2 s without signal there is nothing to analyse or
+    // shift (the delay lines only hold silence by then), so skip all work.
+    // This effect often sits on a vocal track that is quiet most of the time.
+    let blockPeak = 0;
+    for (let i = 0; i < frames; i++) {
+      const a = inL[i] < 0 ? -inL[i] : inL[i];
+      const b = inR[i] < 0 ? -inR[i] : inR[i];
+      if (a > blockPeak) blockPeak = a;
+      if (b > blockPeak) blockPeak = b;
+    }
+    if (blockPeak < 1e-5) this.silent += frames;
+    else this.silent = 0;
+    if (this.silent > this.silentLimit) {
+      for (let c = 0; c < output.length; c++) output[c].fill(0);
+      if (this.detected !== -1 || this.level > 0) {
+        this.detected = -1;
+        this.snapped = -1;
+        this.level = 0;
+        this.port.postMessage({ type: 'pitch', detected: -1, target: -1, shift: this.shift, level: 0 });
+      }
+      return true;
+    }
+
     const L = this.L;
     const half = L >> 1;
     const dlMask = this.dlMask;
@@ -263,7 +289,7 @@ class GoofyPitch extends AudioWorkletProcessor {
     }
 
     this.reportCount += frames;
-    if (this.reportCount >= this.sr / 30) {
+    if (this.reportCount >= this.sr / 15) {
       this.reportCount = 0;
       this.port.postMessage({
         type: 'pitch',

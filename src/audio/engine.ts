@@ -40,7 +40,9 @@ export type EngineEvent =
   | { type: 'protect'; reason: 'runaway' | 'nan' }
   | { type: 'device'; text: string; kind: 'info' | 'error' | 'ok' }
   | { type: 'reset'; hard: boolean }
-  | { type: 'state'; state: string };
+  | { type: 'state'; state: string }
+  /** the sound card ran out of audio (crackle / dropout) – `count` new dropouts */
+  | { type: 'glitch'; count: number; seconds: number };
 
 export type StepHook = (from: number, to: number, time: number, spt: number) => void;
 
@@ -81,7 +83,7 @@ class Engine {
   initialized = false;
   recording: RecordingInfo | null = null;
   latencyCompensation: number | null = null; // seconds; null = automatic
-  config: EngineConfig = { latencyHint: 'interactive', latencyMs: 0, sampleRate: 0 };
+  config: EngineConfig = { latencyHint: 'balanced', latencyMs: 0, sampleRate: 0 };
   output: OutputSettings = { limiter: true, ceilingDb: -0.3, protect: true, volume: 1 };
   /** transport settings kept across engine restarts */
   lookahead = DEFAULT_LOOKAHEAD;
@@ -108,6 +110,10 @@ class Engine {
   private watchdog: ReturnType<typeof setInterval> | null = null;
   private lastClock = -1;
   private stalls = 0;
+  /** dropout counters of the current context (AudioContext.playbackStats, Chromium 13x+) */
+  private lastUnderruns = -1;
+  private lastUnderrunSeconds = 0;
+  private mutedSince = 0;
 
   init(config: Partial<EngineConfig>, progress: (label: string, p: number) => void): Promise<void> {
     this.initPromise ??= this.doInit(config, progress);
@@ -173,6 +179,8 @@ class Engine {
     target.addEventListener('sinkchange', () => diagnostics.log('info', 'sink', 'Output device changed'));
     this.lastClock = -1;
     this.stalls = 0;
+    this.lastUnderruns = -1;
+    this.lastUnderrunSeconds = 0;
     diagnostics.log('info', 'ctx', `Audio started: ${ctx.sampleRate} Hz, ${Math.round((ctx.baseLatency || 0) * 1000)} ms base latency`);
   }
 
@@ -211,6 +219,17 @@ class Engine {
     if (m.type === 'stats') {
       const minGain = m.minGain ?? 1;
       this.guardStats = { reductionDb: minGain < 1 ? 20 * Math.log10(Math.max(1e-6, minGain)) : 0, muted: !!m.muted, peak: m.peak ?? 0, time: performance.now() };
+      // the protection must never leave the app silent: if it is still muted
+      // a few seconds after a repair (and no repair is pending), un-mute
+      if (m.muted) {
+        const now = performance.now();
+        if (!this.mutedSince) this.mutedSince = now;
+        else if (now - this.mutedSince > 4000 && !this.recoverTimer && !this.restarting) {
+          this.mutedSince = 0;
+          diagnostics.log('warn', 'unmute', 'Output protection was still muted – sound switched back on');
+          this.guardWorklet?.port.postMessage({ type: 'unmute' });
+        }
+      } else this.mutedSince = 0;
       if (minGain < 0.89) {
         diagnostics.count('limiterHits');
         diagnostics.log('info', 'limiter', `Output limiter caught a peak (${(20 * Math.log10(Math.max(1e-6, minGain))).toFixed(1)} dB)`, 15000);
@@ -297,6 +316,7 @@ class Engine {
         this.lastClock = -1;
         return;
       }
+      this.checkDropouts(ctx);
       const t = ctx.currentTime;
       if (t === this.lastClock) {
         this.stalls++;
@@ -310,6 +330,28 @@ class Engine {
       }
       this.lastClock = t;
     }, 2000);
+  }
+
+  /** Dropouts the device reported since the last check (crackles, gaps). */
+  private checkDropouts(ctx: AudioContext) {
+    const stats = (ctx as AudioContext & { playbackStats?: { underrunEvents: number; underrunDuration: number } }).playbackStats;
+    if (!stats || typeof stats.underrunEvents !== 'number') return;
+    const events = stats.underrunEvents;
+    const seconds = stats.underrunDuration ?? 0;
+    if (this.lastUnderruns >= 0 && events > this.lastUnderruns) {
+      const n = events - this.lastUnderruns;
+      const lost = Math.max(0, seconds - this.lastUnderrunSeconds);
+      diagnostics.count('underruns', n);
+      diagnostics.log('warn', 'underrun', `${n} audio dropout${n === 1 ? '' : 's'} (${(lost * 1000).toFixed(0)} ms of sound missing) – the output buffer is too small for this computer right now`, 3000);
+      this.emitEvent({ type: 'glitch', count: n, seconds: lost });
+    }
+    this.lastUnderruns = events;
+    this.lastUnderrunSeconds = seconds;
+  }
+
+  /** true when the browser can count dropouts (desktop app, current Chrome / Edge) */
+  get canCountDropouts() {
+    return !!(this.ctx as (AudioContext & { playbackStats?: unknown }) | undefined)?.playbackStats;
   }
 
   private wireInput() {
@@ -649,6 +691,9 @@ class Engine {
       worklets: this.worklets,
       inputOpen: !!this.input?.isOpen,
       guard: this.guardWorklet ? 'limiter' : 'compressor',
+      latencyHint: this.config.latencyMs > 0 ? `${this.config.latencyMs} ms` : this.config.latencyHint,
+      dropouts: diagnostics.counters.underruns,
+      canCountDropouts: this.canCountDropouts,
     };
   }
 }

@@ -1,6 +1,7 @@
 import type { ParamValue } from '../../state/types';
 import { num, str } from './descriptors';
 import { Effect, mixGains, setParam } from './base';
+import { blockRate } from '../instruments/types';
 
 /** Resonant multimode filter with an optional LFO sweep. */
 export class FilterEffect extends Effect {
@@ -13,6 +14,7 @@ export class FilterEffect extends Effect {
   constructor(ctx: BaseAudioContext) {
     super(ctx);
     this.filter = this.track(ctx.createBiquadFilter());
+    blockRate(this.filter.frequency, this.filter.detune, this.filter.Q);
     this.wet = this.track(ctx.createGain());
     this.dry = this.track(ctx.createGain());
     this.lfo = this.source(ctx.createOscillator());

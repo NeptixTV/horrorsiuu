@@ -79,6 +79,8 @@ class GoofyGate extends AudioWorkletProcessor {
       if (this.gain < this.minGain) this.minGain = this.gain;
       if (a > this.peak) this.peak = a;
     }
+    // denormal guard: a decayed envelope in a long silence would get very slow to compute
+    if (this.env < 1e-12) this.env = 0;
     this.sinceReport += n;
     if (this.sinceReport >= this.sr / 20) {
       this.port.postMessage({ type: 'state', gain: this.gain, minGain: this.minGain, peak: this.peak, open: this.open === 1 });

@@ -20,10 +20,11 @@ interface ActiveSource {
   src: AudioBufferSourceNode;
   gain: GainNode;
   end: number;
+  clipId: string;
 }
 
 /** Default scheduling window in seconds (Settings → Audio → Scheduling buffer). */
-export const DEFAULT_LOOKAHEAD = 0.12;
+export const DEFAULT_LOOKAHEAD = 0.2;
 /** Events must be scheduled at least this far ahead; later than that they are skipped. */
 const SAFETY = 0.004;
 
@@ -221,25 +222,36 @@ export class Transport {
     if (this.cursorTime < now + SAFETY) {
       const lateMs = (now + SAFETY - this.cursorTime) * 1000;
       const jump = now + SAFETY + 0.01 - this.cursorTime;
+      const fromTick = this.cursorTick;
       let tick = this.cursorTick + jump / spt;
       const len = le - ls;
-      if (tick >= le && len > 0) tick = ls + ((tick - ls) % len);
+      const wrapped = tick >= le && len > 0;
+      if (wrapped) tick = ls + ((tick - ls) % len);
       diagnostics.late(lateMs);
       if (lateMs > 25) diagnostics.log('warn', 'late', `Scheduler ${lateMs.toFixed(0)} ms late (UI was busy) – skipped instead of bursting`, 4000);
       this.cursorTick = tick;
       this.cursorTime = now + SAFETY + 0.01;
       this.anchors.push({ time: this.cursorTime, tick, spt });
-      // audio clips that should be sounding right now are restarted in place
-      if (this.mode === 'song') {
-        for (const s of this.sources) {
-          try {
-            s.gain.gain.cancelScheduledValues(now);
-            s.gain.gain.setTargetAtTime(0, now, 0.005);
-            s.src.stop(now + 0.03);
-          } catch { /* ignore */ }
+      // Long notes whose start fell into the gap still sound for the rest of
+      // their length (a pad chord must not vanish because the UI hiccuped).
+      if (!wrapped && tick > fromTick) {
+        let missed: ReturnType<typeof collectNoteEvents> = [];
+        this.safely('collect notes', () => { missed = collectNoteEvents(project, this.mode, this.patternId, fromTick, tick); });
+        for (const e of missed) {
+          const left = e.tick + e.length - tick;
+          if (left > TICKS_PER_STEP) this.safely('note', () => this.graph.noteOn(e.channelId, e.pitch, e.velocity, this.cursorTime, left * spt));
+          else diagnostics.count('skippedEvents');
         }
-        this.sources.clear();
-        for (const ev of collectAudioSpanning(project, tick, project.bpm)) this.safely('audio clip', () => this.startAudio(ev, this.cursorTime, spt, project));
+      }
+      // Audio clips that are already playing simply keep playing (their
+      // timing is still right); only clips that should have started inside
+      // the gap are started now, at the matching position.
+      if (this.mode === 'song') {
+        const running = new Set<string>();
+        for (const s of this.sources) if (s.end > now) running.add(s.clipId);
+        for (const ev of collectAudioSpanning(project, tick, project.bpm)) {
+          if (!running.has(ev.clip.id)) this.safely('audio clip', () => this.startAudio(ev, this.cursorTime, spt, project));
+        }
       }
     }
 
@@ -274,8 +286,9 @@ export class Transport {
   }
 
   private startAudio(ev: AudioEvent, time: number, spt: number, project: Project) {
-    const entry = scheduleAudioClip(this.ctx, this.graph, project, ev, time, spt);
-    if (!entry) return;
+    const scheduled = scheduleAudioClip(this.ctx, this.graph, project, ev, time, spt);
+    if (!scheduled) return;
+    const entry: ActiveSource = { ...scheduled, clipId: ev.clip.id };
     entry.src.onended = () => {
       try { entry.gain.disconnect(); } catch { /* ignore */ }
       this.sources.delete(entry);

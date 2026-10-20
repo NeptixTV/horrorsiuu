@@ -24,6 +24,7 @@ export interface DiagCounters {
   engineRestarts: number;
   deviceChanges: number;
   repairedProjects: number;
+  underruns: number;
 }
 
 const MAX = 250;
@@ -32,7 +33,7 @@ class Diagnostics {
   entries: DiagEntry[] = [];
   counters: DiagCounters = {
     lateCallbacks: 0, skippedEvents: 0, scheduleErrors: 0, nanDetections: 0, runaways: 0, limiterHits: 0,
-    graphResets: 0, engineRestarts: 0, deviceChanges: 0, repairedProjects: 0,
+    graphResets: 0, engineRestarts: 0, deviceChanges: 0, repairedProjects: 0, underruns: 0,
   };
   /** worst scheduler delay seen (ms) */
   worstLateMs = 0;
