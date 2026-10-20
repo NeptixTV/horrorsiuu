@@ -163,7 +163,9 @@ function PrivacySection() {
           <li><b>Your music stays here.</b> Projects, recordings, samples, presets and backups are stored only on this computer. There is no account and no cloud upload.</li>
           <li><b>No tracking.</b> Goofy Studio has no analytics, no telemetry and no automatic crash reports. The diagnostics log never leaves the computer unless you copy it yourself.</li>
           <li><b>Update / news check</b> (only if switched on above): one request to GitHub (api.github.com, raw.githubusercontent.com) that downloads a small public file. GitHub sees your IP address, like for any website; nothing about you or your music is sent.</li>
-          <li><b>Downloading an update</b> (only when you click “Download”): the file comes from github.com.</li>
+          <li><b>Downloading an update</b> (only when you click “Download”): the file comes from the Goofy Studio releases on github.com and is checked against its SHA-256 fingerprint before it can be started.</li>
+          <li><b>Browser version only:</b> the page itself is loaded from its web host (for example GitHub Pages), which sees your IP address. Fonts and sounds are built in – nothing is loaded from other servers.</li>
+          <li><b>Desktop app:</b> no other connections. Chromium's spell checker is switched off because it would download dictionaries from Google.</li>
           <li><b>Admin panel</b> (only for the publisher with a GitHub token): talks to the GitHub API to publish news and updates.</li>
           <li>Microphone and MIDI are only used inside the app and only after you allowed them.</li>
         </ul>

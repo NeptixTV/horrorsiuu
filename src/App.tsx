@@ -2,7 +2,7 @@ import { useEffect, useState } from 'react';
 import { engine } from './audio/engine';
 import { getProject, installGestureSafety, useProject } from './state/store';
 import { openWindow, setUI, toast, ui, useUI } from './state/ui';
-import { APP_VERSION } from './admin/feed';
+import { APP_VERSION, compareVersions } from './admin/feed';
 import { installSettingsSync } from './ui/settingsSync';
 import { installAutomationPlayback } from './ui/automationPlayback';
 import { applyTheme, resolveTheme } from './styles/themes';
@@ -218,7 +218,9 @@ export function App() {
 /** Opens the "What's new" tour once after an update (not on top of the setup wizard). */
 function WhatsNewOnce() {
   useEffect(() => {
-    if (ui().seenWhatsNew === APP_VERSION) return;
+    const seen = ui().seenWhatsNew;
+    // only after an update (not after going back to an older version)
+    if (seen && compareVersions(seen, APP_VERSION) >= 0) return;
     const t = setTimeout(() => openWindow({ kind: 'whatsnew' }), 700);
     return () => clearTimeout(t);
   }, []);

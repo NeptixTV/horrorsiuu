@@ -65,7 +65,11 @@ const CSP = [
   "img-src 'self' data: blob:",
   "font-src 'self' data:",
   "media-src 'self' data: blob:",
-  "connect-src 'self' data: blob: https://api.github.com https://raw.githubusercontent.com",
+  // GitHub (news, updates, admin) is reached through the main process only
+  "connect-src 'self' data: blob:",
+  "object-src 'none'",
+  "base-uri 'self'",
+  "form-action 'none'",
 ].join('; ');
 
 const ALLOWED = new Set(['media', 'midi', 'midiSysex', 'speaker-selection', 'clipboard-sanitized-write', 'fullscreen']);
