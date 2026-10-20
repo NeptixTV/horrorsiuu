@@ -280,6 +280,14 @@ Designprinzipien:
 - Die DSP-Klassen sind gekapselt (`Effect`, `Instrument`), sodass sich später leicht stärkere Engines (z. B. WASM)
   einsetzen lassen.
 
+## Sicherheit & Datenschutz
+
+- [SECURITY.md](SECURITY.md) – Sicherheitsbericht zu 1.2.0: was geprüft wurde, was behoben ist, was vor einer
+  Veröffentlichung noch zu tun ist.
+- [PRIVACY.md](PRIVACY.md) – jede Netzwerkverbindung der App und alles, was lokal gespeichert wird.
+- Kurzfassung: keine Telemetrie, kein Konto, keine Cloud; einzige Verbindung im Normalbetrieb ist die (abschaltbare)
+  Update-/News-Prüfung bei GitHub.
+
 ## Ehrliche Hinweise zu Grenzen
 
 - Die **Formant**-Regelung (Goofy Tune, Voice Changer) ist eine klangliche Annäherung (Spektral-Tilt), keine echte
