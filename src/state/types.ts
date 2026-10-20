@@ -61,7 +61,54 @@ export interface SamplerParams {
   level: number;
 }
 
-export type ChannelKind = 'synth' | 'drum' | 'sampler';
+/** Oscillator shapes of the DreamChord ("glass", "piano", "organ", "choir" are additive tables). */
+export type DreamWave = 'sine' | 'triangle' | 'sawtooth' | 'square' | 'glass' | 'piano' | 'organ' | 'choir';
+export type ArpMode = 'off' | 'up' | 'down' | 'updown' | 'random' | 'chord';
+export type ArpRate = '1/4' | '1/8' | '1/8t' | '1/16' | '1/16t' | '1/32';
+export type JoystickMode = 'chord' | 'bend' | 'filter';
+
+/** DreamChord: chord synthesizer inspired by pocket chord instruments. */
+export interface DreamParams {
+  preset: string;
+  /** chord buttons */
+  key: number; // 0..11
+  mode: 'major' | 'minor';
+  octave: number; // -2..2
+  voicing: 'close' | 'open' | 'spread';
+  /** sound */
+  waveA: DreamWave;
+  waveB: DreamWave;
+  mixB: number; // 0..1
+  detune: number; // cents spread 0..50
+  sub: number; // 0..1
+  air: number; // breath noise 0..1
+  cutoff: number; // Hz
+  resonance: number; // 0..12 (dB)
+  filterEnv: number; // 0..1
+  attack: number; // s
+  decay: number; // s
+  sustain: number; // 0..1
+  release: number; // s
+  vibrato: number; // 0..1
+  tape: number; // wow/flutter + saturation 0..1
+  chorus: number; // 0..1
+  delay: number; // 0..1 send
+  delayTime: '1/4' | '1/8' | '1/8d' | '1/16';
+  reverb: number; // 0..1
+  space: number; // reverb size 0..1
+  volume: number; // 0..1
+  /** performance */
+  strum: number; // ms between chord notes, 0 = off
+  strumDir: 'up' | 'down';
+  arp: ArpMode;
+  arpRate: ArpRate;
+  arpOctaves: number; // 1..3
+  arpGate: number; // 0.1..1
+  hold: boolean;
+  joystick: JoystickMode;
+}
+
+export type ChannelKind = 'synth' | 'drum' | 'sampler' | 'dream';
 
 export interface Channel {
   id: Id;
@@ -77,6 +124,7 @@ export interface Channel {
   synth?: SynthParams;
   drum?: DrumParams;
   sampler?: SamplerParams;
+  dream?: DreamParams;
 }
 
 export interface Note {
@@ -109,7 +157,25 @@ export interface PlaylistTrack {
   mixerTrackId: Id;
 }
 
-export type ClipKind = 'pattern' | 'audio';
+export type ClipKind = 'pattern' | 'audio' | 'automation';
+
+/** What an automation clip controls. Values are stored normalised (0..1). */
+export type AutomationTarget =
+  | { kind: 'mixer'; id: Id; param: 'volume' | 'pan' }
+  | { kind: 'channel'; id: Id; param: 'volume' | 'pan' | 'cutoff' }
+  | { kind: 'effect'; trackId: Id; effectId: Id; param: string };
+
+export interface AutomationPoint {
+  /** ticks from the start of the clip */
+  t: number;
+  /** normalised value 0..1 */
+  v: number;
+}
+
+export interface AutomationData {
+  target: AutomationTarget;
+  points: AutomationPoint[];
+}
 
 export interface Clip {
   id: Id;
@@ -138,6 +204,8 @@ export interface Clip {
   fx?: EffectInstance[];
   /** optional display name */
   name?: string;
+  /** automation clips */
+  automation?: AutomationData;
 }
 
 export type EffectType =
@@ -217,8 +285,19 @@ export interface Project {
   /** Index 0 is always the master track. */
   mixer: MixerTrack[];
   assets: Record<Id, AssetMeta>;
+  /** free text: lyrics, ideas, to-dos (shown in the Notes panel and while recording) */
+  notes?: string;
+  /** time markers in the playlist ruler */
+  markers?: Marker[];
   createdAt: number;
   updatedAt: number;
+}
+
+export interface Marker {
+  id: Id;
+  tick: number;
+  name: string;
+  color: string;
 }
 
 export const MASTER_ID = 'master';

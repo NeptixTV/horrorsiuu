@@ -1,6 +1,8 @@
 import type { Channel, DrumParams } from '../../state/types';
 import { defaultDrum } from '../../state/defaults';
 import { noiseBuffer, type Instrument } from './types';
+import { normalizeDrum } from '../../state/normalize';
+import { clampFinite } from '../safety';
 
 interface Hit {
   end: number;
@@ -280,7 +282,7 @@ export class DrumVoice implements Instrument {
   }
 
   update(ch: Channel) {
-    if (ch.drum) this.p = ch.drum;
+    if (ch.drum) this.p = normalizeDrum(ch.drum);
     this.output.gain.value = this.p.level;
   }
 
@@ -291,6 +293,8 @@ export class DrumVoice implements Instrument {
   }
 
   noteOn(pitch: number, velocity: number, time: number) {
+    if (!Number.isFinite(pitch) || !Number.isFinite(time)) return;
+    velocity = clampFinite(velocity, 0, 1, 0.8);
     const params = pitch === 60 ? this.p : { ...this.p, tune: this.p.tune + (pitch - 60) };
     const hit = DRUM_BUILDERS[params.type](this.ctx, this.output, params, Math.max(time, this.ctx.currentTime), Math.max(0.05, velocity));
     this.activeVoices();

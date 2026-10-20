@@ -85,6 +85,41 @@ export interface UIState {
   inputGain: number;
   monitoring: boolean;
   setupDone: boolean;
+  // ---- audio settings ----
+  /** custom output buffer in ms (0 = use latencyHint) */
+  latencyMs: number;
+  /** 0 = device default */
+  sampleRate: number;
+  limiter: boolean;
+  ceilingDb: number;
+  protect: boolean;
+  outputVolume: number;
+  /** scheduler look-ahead in seconds */
+  lookahead: number;
+  metronomeVolume: number;
+  countInBars: number;
+  autoFallbackOutput: boolean;
+  releaseMic: boolean;
+  // ---- design ----
+  uiScale: number;
+  reduceMotion: boolean;
+  meterFps: number;
+  showSplash: boolean;
+  // ---- projects ----
+  autosaveInterval: number; // seconds
+  backups: boolean;
+  backupCount: number;
+  backupInterval: number; // minutes between automatic backups
+  openLastProject: boolean;
+  historyLimit: number;
+  // ---- general ----
+  notifyLevel: 'all' | 'important' | 'errors';
+  checkUpdates: boolean;
+  showNews: boolean;
+  showHints: boolean;
+  confirmDeletes: boolean;
+  midiInput: string; // '' = all devices, 'off' = disabled
+  seenWhatsNew: string;
   toast: { text: string; kind: 'info' | 'error' | 'ok'; id: number } | null;
   dragPayload: DragPayload | null;
 }
@@ -103,20 +138,72 @@ const PERSISTED: (keyof UIState)[] = [
   'playlistSnap', 'snapMode', 'playlistZoom', 'trackHeight', 'pianoSnap', 'pianoZoomX', 'pianoZoomY', 'followPlayhead', 'dockTab',
   'browserWidth', 'dockHeight', 'browserOpen', 'dockOpen', 'theme', 'accent', 'custom', 'autosave', 'latencyHint',
   'inputDeviceId', 'outputDeviceId', 'inputGain', 'setupDone', 'metronome', 'lastNoteLength',
+  'latencyMs', 'sampleRate', 'limiter', 'ceilingDb', 'protect', 'outputVolume', 'lookahead', 'metronomeVolume', 'countInBars',
+  'autoFallbackOutput', 'releaseMic', 'uiScale', 'reduceMotion', 'meterFps', 'showSplash', 'autosaveInterval', 'backups',
+  'backupCount', 'backupInterval', 'openLastProject', 'historyLimit', 'notifyLevel', 'checkUpdates', 'showNews', 'showHints',
+  'confirmDeletes', 'midiInput', 'seenWhatsNew',
 ];
 
+/** Defaults of every persisted setting (Settings → "Reset to defaults" uses these). */
+export const SETTING_DEFAULTS = {
+  latencyHint: 'interactive' as UIState['latencyHint'],
+  latencyMs: 0,
+  sampleRate: 0,
+  limiter: true,
+  ceilingDb: -0.3,
+  protect: true,
+  outputVolume: 1,
+  lookahead: 0.12,
+  metronomeVolume: 0.7,
+  countInBars: 0,
+  autoFallbackOutput: true,
+  releaseMic: true,
+  uiScale: 1,
+  reduceMotion: false,
+  meterFps: 60,
+  showSplash: true,
+  autosave: true,
+  autosaveInterval: 45,
+  backups: true,
+  backupCount: 10,
+  backupInterval: 10,
+  openLastProject: true,
+  historyLimit: 150,
+  notifyLevel: 'all' as UIState['notifyLevel'],
+  checkUpdates: true,
+  showNews: true,
+  showHints: true,
+  confirmDeletes: true,
+  midiInput: '',
+  followPlayhead: true,
+};
+
+/** Reads the saved settings; values of the wrong type are ignored (defaults win). */
 function loadPersisted(): Partial<UIState> {
   try {
     const raw = localStorage.getItem(PERSIST_KEY);
-    const p: Partial<UIState> = raw ? JSON.parse(raw) : {};
-    if (p.snapMode !== 'grid') p.snapMode = 'off'; // the old "magnet" mode was removed in 1.1.1
-    return p;
+    const parsed: unknown = raw ? JSON.parse(raw) : {};
+    if (typeof parsed !== 'object' || parsed === null) return {};
+    const p = parsed as Record<string, unknown>;
+    const out: Record<string, unknown> = {};
+    const base = DEFAULT_STATE as unknown as Record<string, unknown>;
+    for (const k of PERSISTED) {
+      if (!(k in p)) continue;
+      const v = p[k];
+      const d = base[k];
+      if (d === null || typeof v === typeof d) {
+        if (typeof v === 'number' && !Number.isFinite(v)) continue;
+        out[k] = v;
+      }
+    }
+    if (out.snapMode !== 'grid') out.snapMode = 'off'; // the old "magnet" mode was removed in 1.1.1
+    return out as Partial<UIState>;
   } catch {
     return {};
   }
 }
 
-export const useUI = create<UIState>(() => ({
+const DEFAULT_STATE: UIState = {
   selectedChannelId: null,
   selectedPatternId: null,
   selectedClipIds: [],
@@ -134,7 +221,6 @@ export const useUI = create<UIState>(() => ({
   pianoZoomY: 16,
   pianoChannelId: null,
   lastNoteLength: PPQ / 4,
-  followPlayhead: true,
   dockTab: 'rack',
   browserWidth: 230,
   dockHeight: 330,
@@ -149,17 +235,18 @@ export const useUI = create<UIState>(() => ({
   theme: 'dark',
   accent: null,
   custom: { accent: '#f28c28', bg: '#16191d', panel: '#22272d', grid: '#2c343c', text: '#d7dde3' },
-  autosave: true,
-  latencyHint: 'interactive',
   inputDeviceId: '',
   outputDeviceId: '',
   inputGain: 1,
   monitoring: false,
   setupDone: false,
+  ...SETTING_DEFAULTS,
+  seenWhatsNew: '',
   toast: null,
   dragPayload: null,
-  ...loadPersisted(),
-}));
+};
+
+export const useUI = create<UIState>(() => ({ ...DEFAULT_STATE, ...loadPersisted() }));
 
 let persistTimer: ReturnType<typeof setTimeout> | null = null;
 useUI.subscribe((s) => {
@@ -175,7 +262,13 @@ export const ui = () => useUI.getState();
 export const setUI = (p: Partial<UIState> | ((s: UIState) => Partial<UIState>)) => useUI.setState(p);
 
 let toastId = 0;
-export function toast(text: string, kind: 'info' | 'error' | 'ok' = 'info') {
+/**
+ * Shows a short message. `important` info messages survive the "important only"
+ * notification level; errors are always shown.
+ */
+export function toast(text: string, kind: 'info' | 'error' | 'ok' = 'info', important = false) {
+  const level = useUI.getState().notifyLevel;
+  if (kind !== 'error' && !important && (level === 'errors' || (level === 'important' && kind === 'info'))) return;
   const id = ++toastId;
   setUI({ toast: { text, kind, id } });
   setTimeout(() => {

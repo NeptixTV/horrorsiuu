@@ -1,6 +1,7 @@
 import type { ParamValue } from '../../state/types';
 import { num, str } from './descriptors';
 import { Effect, mixGains, setParam, type EffectEnv } from './base';
+import { MAX_FEEDBACK, clampFinite } from '../safety';
 
 const SYNC: Record<string, number> = { '1/4': 1, '1/8': 0.5, '1/8d': 0.75, '1/16': 0.25, '1/4t': 2 / 3 };
 
@@ -26,6 +27,10 @@ export class DelayEffect extends Effect {
     this.fb2 = this.track(ctx.createGain());
     this.tone = this.track(ctx.createBiquadFilter());
     this.tone.type = 'lowpass';
+    // Butterworth (no resonance peak). The default Q of 1 dB boosts the band
+    // around the cutoff by ~2 dB, so with feedback above ~0.89 every repeat got
+    // louder than the last one and the echo grew without limit.
+    this.tone.Q.value = -3.0103;
     this.panL = this.track(ctx.createStereoPanner());
     this.panR = this.track(ctx.createStereoPanner());
     this.wet = this.track(ctx.createGain());
@@ -65,11 +70,12 @@ export class DelayEffect extends Effect {
 
   private apply() {
     const p = this.params;
-    const t = Math.min(3.9, this.time);
+    const t = clampFinite(this.time, 0.001, 3.9, 0.375);
     setParam(this.dl.delayTime, t, this.ctx, 0.05);
     setParam(this.dr.delayTime, t, this.ctx, 0.05);
-    setParam(this.fb.gain, num(p, 'feedback', 0.4), this.ctx);
-    setParam(this.fb2.gain, num(p, 'feedback', 0.4), this.ctx);
+    const fb = clampFinite(num(p, 'feedback', 0.4), 0, MAX_FEEDBACK, 0.4);
+    setParam(this.fb.gain, fb, this.ctx);
+    setParam(this.fb2.gain, fb, this.ctx);
     setParam(this.tone.frequency, num(p, 'tone', 6000), this.ctx);
     const pp = num(p, 'pingpong', 0.5);
     setParam(this.panL.pan, -pp, this.ctx);

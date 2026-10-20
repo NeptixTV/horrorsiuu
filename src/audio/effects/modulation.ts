@@ -1,6 +1,7 @@
 import type { ParamValue } from '../../state/types';
 import { num, str } from './descriptors';
 import { Effect, mixGains, setParam } from './base';
+import { MAX_FEEDBACK, clampFinite } from '../safety';
 
 /** 4 stage all-pass phaser with feedback. */
 export class PhaserEffect extends Effect {
@@ -43,7 +44,7 @@ export class PhaserEffect extends Effect {
     for (const s of this.stages) setParam(s.frequency, num(p, 'freq', 900), this.ctx);
     setParam(this.lfo.frequency, num(p, 'rate', 0.5), this.ctx);
     setParam(this.lfoGain.gain, num(p, 'depth', 0.7) * 1800, this.ctx);
-    setParam(this.fb.gain, num(p, 'feedback', 0.5), this.ctx);
+    setParam(this.fb.gain, clampFinite(num(p, 'feedback', 0.5), 0, 0.9, 0.5), this.ctx);
     const [d, w] = mixGains(num(p, 'mix', 0.5));
     setParam(this.dry.gain, d, this.ctx);
     setParam(this.wet.gain, w, this.ctx);
@@ -79,7 +80,7 @@ export class FlangerEffect extends Effect {
     setParam(this.delay.delayTime, base, this.ctx);
     setParam(this.lfoGain.gain, base * 0.95 * num(p, 'depth', 0.7), this.ctx);
     setParam(this.lfo.frequency, num(p, 'rate', 0.3), this.ctx);
-    setParam(this.fb.gain, num(p, 'feedback', 0.6), this.ctx);
+    setParam(this.fb.gain, clampFinite(num(p, 'feedback', 0.6), -MAX_FEEDBACK, MAX_FEEDBACK, 0.6), this.ctx);
     const [d, w] = mixGains(num(p, 'mix', 0.5));
     setParam(this.dry.gain, d, this.ctx);
     setParam(this.wet.gain, w, this.ctx);

@@ -5,6 +5,7 @@ import { PPQ, TICKS_PER_STEP } from '../state/types';
 import { ticksPerBar } from '../state/utils';
 import { scheduleAudioClip } from './clipPlayback';
 import type { MixGraph } from './mixgraph';
+import { diagnostics } from './diagnostics';
 import {
   collectAudioSpanning, collectAudioStarts, collectNoteEvents, patternLength, songLength, type AudioEvent, type PlayMode,
 } from './sequencer';
@@ -21,14 +22,19 @@ interface ActiveSource {
   end: number;
 }
 
-const LOOKAHEAD = 0.12;
+/** Default scheduling window in seconds (Settings → Audio → Scheduling buffer). */
+export const DEFAULT_LOOKAHEAD = 0.12;
+/** Events must be scheduled at least this far ahead; later than that they are skipped. */
+const SAFETY = 0.004;
 
-function makeTimer(cb: () => void): { start(): void; stop(): void } {
+function makeTimer(cb: () => void): { start(): void; stop(): void; dispose?(): void } {
   try {
     const code = `let id=null;onmessage=e=>{if(e.data==='start'){clearInterval(id);id=setInterval(()=>postMessage(0),25)}else{clearInterval(id);id=null}}`;
-    const w = new Worker(URL.createObjectURL(new Blob([code], { type: 'application/javascript' })));
+    const url = URL.createObjectURL(new Blob([code], { type: 'application/javascript' }));
+    const w = new Worker(url);
+    URL.revokeObjectURL(url);
     w.onmessage = cb;
-    return { start: () => w.postMessage('start'), stop: () => w.postMessage('stop') };
+    return { start: () => w.postMessage('start'), stop: () => w.postMessage('stop'), dispose: () => w.terminate() };
   } catch {
     let id: ReturnType<typeof setInterval> | null = null;
     return {
@@ -50,8 +56,30 @@ export class Transport {
   private sources = new Set<ActiveSource>();
   private timer = makeTimer(() => this.schedule());
   private listeners = new Set<() => void>();
+  /** scheduling window in seconds – bigger = more robust against UI stalls, smaller = snappier edits */
+  lookahead = DEFAULT_LOOKAHEAD;
+  /** extra hooks run for every scheduled step (automation …); shared with the engine */
+  stepHooks = new Set<(from: number, to: number, time: number, spt: number) => void>();
 
-  constructor(private ctx: AudioContext, private graph: MixGraph, private getProject: () => Project) {}
+  constructor(private ctx: AudioContext, public graph: MixGraph, private getProject: () => Project) {}
+
+  /** Swaps the graph after an engine reset (playback continues on the new graph). */
+  setGraph(graph: MixGraph) {
+    const was = this.playing;
+    const pos = this.getTick();
+    if (was) this.halt();
+    this.graph = graph;
+    if (was) {
+      this.positionTick = pos;
+      this.play(pos);
+    }
+  }
+
+  dispose() {
+    this.halt();
+    this.timer.dispose?.();
+    this.listeners.clear();
+  }
 
   onChange(l: () => void) {
     this.listeners.add(l);
@@ -71,15 +99,15 @@ export class Transport {
     return [0, songLength(project)];
   }
 
-  /** Starts playback; returns the context time at which playback starts. */
-  play(fromTick?: number): number {
+  /** Starts playback (optionally at a later context time); returns the start time. */
+  play(fromTick?: number, at?: number): number {
     if (this.playing) return this.anchors[0]?.time ?? this.ctx.currentTime;
     const project = this.getProject();
     const [ls, le] = this.loopRange(project);
     let start = fromTick ?? this.positionTick;
-    if (start >= le || start < 0) start = ls;
+    if (!Number.isFinite(start) || start >= le || start < 0) start = ls;
     const spt = 60 / (project.bpm * PPQ);
-    const t0 = this.ctx.currentTime + 0.06;
+    const t0 = Math.max(this.ctx.currentTime + 0.06, at ?? 0);
     this.cursorTick = start;
     this.cursorTime = t0;
     this.anchors = [{ time: t0, tick: start, spt }];
@@ -164,16 +192,57 @@ export class Transport {
     return a ? a.tick + Math.max(0, time - a.time) / a.spt : this.positionTick;
   }
 
+  /** Runs one scheduled thing; an exception never stops the transport. */
+  private safely(what: string, fn: () => void) {
+    try {
+      fn();
+    } catch (err) {
+      diagnostics.count('scheduleErrors');
+      diagnostics.log('error', 'schedule', `${what}: ${err instanceof Error ? err.message : String(err)}`, 3000);
+    }
+  }
+
   private schedule() {
     if (!this.playing) return;
     const project = this.getProject();
     const spt = 60 / (project.bpm * PPQ);
-    const horizon = this.ctx.currentTime + LOOKAHEAD;
+    const now = this.ctx.currentTime;
+    const horizon = now + this.lookahead;
     const [ls, le] = this.loopRange(project);
     if (this.cursorTick >= le || this.cursorTick < ls - TICKS_PER_STEP * 64) {
       this.cursorTick = ls;
       this.anchors.push({ time: this.cursorTime, tick: ls, spt });
     }
+
+    // The UI thread was blocked (big save, garbage collection, a long render …)
+    // and the scheduling window has already passed. Scheduling the missed
+    // events now would fire all of them at the same instant – a burst of
+    // notes that sounds like a crash. Jump to "now" and carry on in time.
+    if (this.cursorTime < now + SAFETY) {
+      const lateMs = (now + SAFETY - this.cursorTime) * 1000;
+      const jump = now + SAFETY + 0.01 - this.cursorTime;
+      let tick = this.cursorTick + jump / spt;
+      const len = le - ls;
+      if (tick >= le && len > 0) tick = ls + ((tick - ls) % len);
+      diagnostics.late(lateMs);
+      if (lateMs > 25) diagnostics.log('warn', 'late', `Scheduler ${lateMs.toFixed(0)} ms late (UI was busy) – skipped instead of bursting`, 4000);
+      this.cursorTick = tick;
+      this.cursorTime = now + SAFETY + 0.01;
+      this.anchors.push({ time: this.cursorTime, tick, spt });
+      // audio clips that should be sounding right now are restarted in place
+      if (this.mode === 'song') {
+        for (const s of this.sources) {
+          try {
+            s.gain.gain.cancelScheduledValues(now);
+            s.gain.gain.setTargetAtTime(0, now, 0.005);
+            s.src.stop(now + 0.03);
+          } catch { /* ignore */ }
+        }
+        this.sources.clear();
+        for (const ev of collectAudioSpanning(project, tick, project.bpm)) this.safely('audio clip', () => this.startAudio(ev, this.cursorTime, spt, project));
+      }
+    }
+
     let guard = 0;
     while (this.cursorTime < horizon && guard++ < 512) {
       const last = this.anchors[this.anchors.length - 1];
@@ -181,22 +250,25 @@ export class Transport {
       const from = this.cursorTick;
       const to = Math.min(from + TICKS_PER_STEP, le);
       const base = this.cursorTime;
-      for (const e of collectNoteEvents(project, this.mode, this.patternId, from, to)) {
-        this.graph.noteOn(e.channelId, e.pitch, e.velocity, base + (e.tick - from) * spt, e.length * spt);
+      let events: ReturnType<typeof collectNoteEvents> = [];
+      this.safely('collect notes', () => { events = collectNoteEvents(project, this.mode, this.patternId, from, to); });
+      for (const e of events) {
+        this.safely('note', () => this.graph.noteOn(e.channelId, e.pitch, e.velocity, base + (e.tick - from) * spt, e.length * spt));
       }
       if (this.mode === 'song') {
-        for (const ev of collectAudioStarts(project, from, to)) this.startAudio(ev, base + (ev.tick - from) * spt, spt, project);
+        for (const ev of collectAudioStarts(project, from, to)) this.safely('audio clip', () => this.startAudio(ev, base + (ev.tick - from) * spt, spt, project));
       }
-      if (this.metronome) this.clicks(project, from, to, base, spt);
-      this.cursorTime += (to - from) * spt;
+      for (const hook of this.stepHooks) this.safely('step hook', () => hook(from, to, base, spt));
+      if (this.metronome) this.safely('metronome', () => this.clicks(project, from, to, base, spt));
+      // the cursor always advances, even if something above failed
+      this.cursorTime += Math.max(1, to - from) * spt;
       this.cursorTick = to;
       if (this.cursorTick >= le) {
         this.cursorTick = ls;
         this.anchors.push({ time: this.cursorTime, tick: ls, spt });
-        if (this.mode === 'song') for (const ev of collectAudioSpanning(project, ls, project.bpm)) this.startAudio(ev, this.cursorTime, spt, project);
+        if (this.mode === 'song') for (const ev of collectAudioSpanning(project, ls, project.bpm)) this.safely('audio clip', () => this.startAudio(ev, this.cursorTime, spt, project));
       }
     }
-    const now = this.ctx.currentTime;
     while (this.anchors.length > 2 && this.anchors[1].time < now - 0.5) this.anchors.shift();
     for (const s of this.sources) if (s.end < now) this.sources.delete(s);
   }
@@ -211,6 +283,9 @@ export class Transport {
     this.sources.add(entry);
   }
 
+  /** metronome level 0..1 (Settings → Audio) */
+  metronomeVolume = 0.7;
+
   private clicks(project: Project, from: number, to: number, base: number, spt: number) {
     const beat = PPQ * (4 / project.timeSig[1]);
     const bar = ticksPerBar(project.timeSig);
@@ -222,7 +297,7 @@ export class Transport {
       osc.frequency.value = accent ? 1760 : 1175;
       const g = this.ctx.createGain();
       g.gain.setValueAtTime(0, time);
-      g.gain.linearRampToValueAtTime(accent ? 0.35 : 0.22, time + 0.001);
+      g.gain.linearRampToValueAtTime((accent ? 0.5 : 0.31) * this.metronomeVolume, time + 0.001);
       g.gain.exponentialRampToValueAtTime(0.0001, time + 0.05);
       osc.connect(g).connect(this.graph.out);
       osc.start(time);

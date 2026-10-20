@@ -1,6 +1,8 @@
 import type { Channel, OscParams, SynthParams } from '../../state/types';
 import { midiToFreq } from '../../midi/music';
 import { defaultSynth } from '../../state/defaults';
+import { normalizeSynth } from '../../state/normalize';
+import { clampFinite } from '../safety';
 import { holdAt, type Instrument } from './types';
 
 const MAX_VOICES = 24;
@@ -15,6 +17,7 @@ interface Voice {
   vca: GainNode;
   peak: number;
   release(time: number): void;
+  cleanup(): void;
 }
 
 /** "Goofy Synth": 2 oscillators (+unison), multimode filter with envelope, ADSR and LFO. */
@@ -46,7 +49,8 @@ export class Synth implements Instrument {
 
   update(ch: Channel) {
     if (!ch.synth) return;
-    this.p = ch.synth;
+    // never trust stored values: one NaN here used to make every noteOn throw
+    this.p = normalizeSynth(ch.synth);
     const p = this.p;
     this.lfo.type = p.lfoWave;
     this.lfo.frequency.value = p.lfoRate;
@@ -66,6 +70,9 @@ export class Synth implements Instrument {
   noteOn(pitch: number, velocity: number, time: number, duration?: number) {
     const ctx = this.ctx;
     const p = this.p;
+    if (!Number.isFinite(pitch) || !Number.isFinite(time)) return;
+    velocity = clampFinite(velocity, 0, 1, 0.8);
+    if (duration !== undefined && !(duration > 0 && Number.isFinite(duration))) duration = 0.05;
     this.activeVoices();
     if (this.voices.length >= MAX_VOICES) {
       const oldest = this.voices.shift();
@@ -77,6 +84,7 @@ export class Synth implements Instrument {
     filter.frequency.value = p.cutoff;
     filter.Q.value = p.resonance;
     this.lfoFilter.connect(filter.detune);
+    const detunes: AudioParam[] = [];
     const vca = ctx.createGain();
     vca.gain.value = 0;
     filter.connect(vca).connect(this.tremolo);
@@ -96,6 +104,7 @@ export class Synth implements Instrument {
       }
       osc.detune.value = o.detune + extraDetune;
       this.lfoPitch.connect(osc.detune);
+      detunes.push(osc.detune);
       const g = ctx.createGain();
       g.gain.value = o.level * level;
       osc.connect(g).connect(filter);
@@ -132,8 +141,22 @@ export class Synth implements Instrument {
       filter.detune.setTargetAtTime(envAmt * s, time + a, d / 4);
     }
 
+    // Free everything the voice owns once it has finished. The LFO gains are
+    // shared and long-lived, so their connections into this voice must be
+    // removed explicitly or every note ever played stays attached to them.
+    let cleaned = false;
+    const cleanup = () => {
+      if (cleaned) return;
+      cleaned = true;
+      try { this.lfoFilter.disconnect(filter.detune); } catch { /* ignore */ }
+      for (const d of detunes) { try { this.lfoPitch.disconnect(d); } catch { /* ignore */ } }
+      try { vca.disconnect(); } catch { /* ignore */ }
+      try { filter.disconnect(); } catch { /* ignore */ }
+    };
+    if (oscs[0]) oscs[0].onended = cleanup;
+
     const voice: Voice = {
-      pitch, start: time, end: Infinity, releaseTime: Infinity, oscs, filter, vca, peak,
+      pitch, start: time, end: Infinity, releaseTime: Infinity, oscs, filter, vca, peak, cleanup,
       release: (rt: number) => {
         const t = Math.max(rt, voice.start);
         if (t >= voice.releaseTime) return;
@@ -144,12 +167,12 @@ export class Synth implements Instrument {
         filter.detune.setTargetAtTime(0, t, rel / 5);
         voice.end = t + rel + 0.05;
         for (const o of oscs) { try { o.stop(voice.end); } catch { /* ignore */ } }
-        if (oscs[0]) oscs[0].onended = () => {
-          try { vca.disconnect(); filter.disconnect(); } catch { /* ignore */ }
-        };
       },
     };
-    if (oscs.length === 0) return;
+    if (oscs.length === 0) {
+      cleanup();
+      return;
+    }
     this.voices.push(voice);
     if (duration !== undefined) voice.release(time + duration);
   }
@@ -161,8 +184,9 @@ export class Synth implements Instrument {
   allNotesOff(time = this.ctx.currentTime) {
     for (const v of this.voices) {
       if (v.start > time) {
-        // never started: hard stop
+        // never started: hard stop and free it right away
         for (const o of v.oscs) { try { o.stop(time); } catch { /* ignore */ } }
+        v.cleanup();
       } else {
         v.release(time);
       }
@@ -172,7 +196,9 @@ export class Synth implements Instrument {
 
   dispose() {
     this.allNotesOff();
-    this.lfo.stop();
-    this.output.disconnect();
+    try { this.lfo.stop(); } catch { /* ignore */ }
+    for (const n of [this.lfo, this.lfoPitch, this.lfoFilter, this.lfoAmp, this.tremolo, this.output]) {
+      try { n.disconnect(); } catch { /* ignore */ }
+    }
   }
 }

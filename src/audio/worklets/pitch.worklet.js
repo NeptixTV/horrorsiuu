@@ -62,13 +62,16 @@ class GoofyPitch extends AudioWorkletProcessor {
     this.port.onmessage = (e) => {
       const m = e.data;
       if (m.type === 'params') {
-        if (m.mask) this.mask = m.mask;
-        if (typeof m.correction === 'number') this.correction = m.correction;
-        if (typeof m.retune === 'number') this.retune = m.retune;
-        if (typeof m.humanize === 'number') this.humanize = m.humanize;
-        if (typeof m.mix === 'number') this.mix = m.mix;
+        // only finite numbers are accepted: a single NaN would otherwise stick in
+        // the smoothed shift forever and turn the output into garbage
+        const ok = (v) => typeof v === 'number' && Number.isFinite(v);
+        if (Array.isArray(m.mask) && m.mask.length === 12) this.mask = m.mask;
+        if (ok(m.correction)) this.correction = Math.min(1, Math.max(0, m.correction));
+        if (ok(m.retune)) this.retune = Math.min(2000, Math.max(0, m.retune));
+        if (ok(m.humanize)) this.humanize = Math.min(1, Math.max(0, m.humanize));
+        if (ok(m.mix)) this.mix = Math.min(1, Math.max(0, m.mix));
         if (typeof m.bypass === 'boolean') this.bypass = m.bypass;
-        if (typeof m.transpose === 'number') this.transpose = m.transpose;
+        if (ok(m.transpose)) this.transpose = Math.min(36, Math.max(-36, m.transpose));
         if (typeof m.analysis === 'boolean') this.analysis = m.analysis;
       }
     };
@@ -192,8 +195,9 @@ class GoofyPitch extends AudioWorkletProcessor {
     const mix = this.mix;
 
     for (let i = 0; i < frames; i++) {
-      const xl = inL[i];
-      const xr = inR[i];
+      // scrub non-finite input so it can never get stuck in the delay line
+      const xl = Number.isFinite(inL[i]) ? inL[i] : 0;
+      const xr = Number.isFinite(inR[i]) ? inR[i] : 0;
 
       // analysis path (decimated mono)
       this.decimAcc += (xl + xr) * 0.5;
@@ -213,10 +217,12 @@ class GoofyPitch extends AudioWorkletProcessor {
       }
 
       this.shift += (this.targetShift - this.shift) * this.alpha;
+      if (!Number.isFinite(this.shift)) this.shift = 0;
       const ratio = Math.exp(this.shift * LN2_12);
       this.phi += (1 - ratio) / L;
       if (this.phi >= 1) this.phi -= 1;
       else if (this.phi < 0) this.phi += 1;
+      if (!(this.phi >= 0 && this.phi < 1)) this.phi = 0;
 
       const w = this.wpos;
       dlL[w] = xl;

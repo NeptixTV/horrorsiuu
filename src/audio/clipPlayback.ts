@@ -2,6 +2,7 @@
 // Shared by the live transport and the offline renderer so both sound the same.
 import type { Project } from '../state/types';
 import { assets } from './assets';
+import { clampFinite, finite } from './safety';
 import type { MixGraph } from './mixgraph';
 import type { AudioEvent } from './sequencer';
 
@@ -20,22 +21,23 @@ export function scheduleAudioClip(
   if (!clip.assetId) return null;
   const buffer = clip.reverse ? assets.getReversed(clip.assetId) : assets.get(clip.assetId);
   if (!buffer) return null;
-  const speed = Math.max(0.05, clip.speed ?? 1);
-  const offset = Math.max(0, ev.sourceOffset);
+  if (!Number.isFinite(time) || !(spt > 0)) return null;
+  const speed = clampFinite(clip.speed, 0.05, 8, 1);
+  const offset = Math.max(0, finite(ev.sourceOffset, 0));
   if (offset >= buffer.duration) return null;
   // timeline duration (seconds) left in the clip and how much of the source that consumes
-  const timeline = Math.min((buffer.duration - offset) / speed, ev.remaining * spt);
-  if (timeline <= 0.001) return null;
+  const timeline = Math.min((buffer.duration - offset) / speed, finite(ev.remaining, 0) * spt);
+  if (!(timeline > 0.001)) return null;
 
   const src = ctx.createBufferSource();
   src.buffer = buffer;
   src.playbackRate.value = speed;
   const g = ctx.createGain();
-  const level = clip.gain ?? 1;
+  const level = clampFinite(clip.gain, 0, 8, 1);
   const clipLen = clip.length * spt;
-  const pos0 = (ev.tick - clip.start) * spt; // where in the clip playback begins
-  const fadeIn = Math.max(MICRO_FADE, clip.fadeIn ?? 0);
-  const fadeOut = Math.max(MICRO_FADE, clip.fadeOut ?? 0);
+  const pos0 = Math.max(0, (ev.tick - clip.start) * spt); // where in the clip playback begins
+  const fadeIn = Math.max(MICRO_FADE, finite(clip.fadeIn, 0));
+  const fadeOut = Math.max(MICRO_FADE, finite(clip.fadeOut, 0));
   const env = (p: number) => {
     let v = level;
     if (p < fadeIn) v *= Math.max(0, p / fadeIn);

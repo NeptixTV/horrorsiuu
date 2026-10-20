@@ -25,6 +25,8 @@ export interface GoofyDesktop {
   install(path: string, kind: 'setup' | 'portable'): Promise<boolean>;
   openExternal(url: string): Promise<void>;
   onProgress(cb: (p: { id: string; done: number; total: number }) => void): () => void;
+  /** UI zoom of the desktop window (Settings → Design → Scale); missing in versions < 1.2 */
+  setZoom?(factor: number): Promise<void> | void;
 }
 
 export const desktop: GoofyDesktop | null = (globalThis as unknown as { goofyDesktop?: GoofyDesktop }).goofyDesktop ?? null;

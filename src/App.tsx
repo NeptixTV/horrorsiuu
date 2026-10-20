@@ -1,7 +1,8 @@
 import { useEffect, useState } from 'react';
 import { engine } from './audio/engine';
-import { getProject, useProject } from './state/store';
-import { setUI, ui, useUI } from './state/ui';
+import { getProject, installGestureSafety, useProject } from './state/store';
+import { setUI, toast, ui, useUI } from './state/ui';
+import { installSettingsSync } from './ui/settingsSync';
 import { applyTheme, resolveTheme } from './styles/themes';
 import { installRecordingHandler, restoreLastProject, startAutosave } from './project/manager';
 import { Splash } from './ui/splash/Splash';
@@ -113,7 +114,8 @@ function boot(): Promise<void> {
     bootPromise = (async () => {
       const report: Report = (l, p) => reporter(l, p);
       const t0 = performance.now();
-      await engine.init(ui().latencyHint, report);
+      const s0 = ui();
+      await engine.init({ latencyHint: s0.latencyHint, latencyMs: s0.latencyMs, sampleRate: s0.sampleRate }, report);
       report('Restoring last project…', 0.75);
       await restoreLastProject();
       report('Connecting mixer & instruments…', 0.85);
@@ -123,8 +125,21 @@ function boot(): Promise<void> {
       useProject.subscribe((s, prev) => { if (s.project !== prev.project) engine.sync(s.project); });
       useUI.subscribe((s, prev) => { if (s.selectedPatternId !== prev.selectedPatternId && engine.transport) engine.transport.patternId = s.selectedPatternId; });
       engine.onChange(syncTransportUI);
+      engine.onEvent((e) => {
+        if (e.type === 'protect') {
+          toast(e.reason === 'runaway'
+            ? 'Extremely loud signal stopped to protect your ears – effects were reset. Check feedback / delay settings.'
+            : 'A broken audio signal was blocked and the mixer was rebuilt.', 'error');
+        } else if (e.type === 'device') {
+          toast(e.text, e.kind, true);
+        } else if (e.type === 'reset' && e.hard) {
+          toast('Audio engine restarted', 'info', true);
+        }
+      });
       engine.sync(getProject());
       installRecordingHandler();
+      installSettingsSync();
+      installGestureSafety();
       startAutosave();
       installShortcuts();
       void loadLibrary();

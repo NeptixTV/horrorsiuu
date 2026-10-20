@@ -1,6 +1,13 @@
 // Microphone / line input: device selection, input gain, metering, monitoring
 // through a mixer insert and sample-accurate capture via the recorder worklet.
 import { workletsReady } from './worklets';
+import { diagnostics } from './diagnostics';
+
+/** Labels Windows / macOS use for Bluetooth headsets in low-quality call mode. */
+const HFP = /hands[- ]?free|freisprech|headset|hfp|\bag audio\b/i;
+export function isBluetoothCallDevice(label: string) {
+  return HFP.test(label);
+}
 
 export interface DeviceInfo {
   deviceId: string;
@@ -30,7 +37,14 @@ export class AudioInput {
   capture: CaptureState | null = null;
   private stopResolve: (() => void) | null = null;
   monitoring = false;
+  /** opened on purpose by the user (stays open); temporary opens are released after recording */
+  pinned = false;
+  /** label of the opened device (shown locally only, never logged) */
+  label = '';
+  gainValue = 1;
   error: string | null = null;
+  /** called when the device disappears (unplugged) */
+  onLost: (() => void) | null = null;
   private buf = new Float32Array(1024);
 
   constructor(private ctx: AudioContext) {
@@ -65,16 +79,27 @@ export class AudioInput {
       this.error = 'This browser does not support audio input.';
       return false;
     }
+    const constraints = (id: string): MediaStreamConstraints => ({
+      audio: {
+        deviceId: id ? { exact: id } : undefined,
+        echoCancellation: false,
+        noiseSuppression: false,
+        autoGainControl: false,
+        channelCount: { ideal: 2 },
+      },
+    });
     try {
-      this.stream = await navigator.mediaDevices.getUserMedia({
-        audio: {
-          deviceId: deviceId ? { exact: deviceId } : undefined,
-          echoCancellation: false,
-          noiseSuppression: false,
-          autoGainControl: false,
-          channelCount: { ideal: 2 },
-        },
-      });
+      try {
+        this.stream = await navigator.mediaDevices.getUserMedia(constraints(deviceId));
+      } catch (err) {
+        // the saved device is gone (unplugged) – use the default microphone instead
+        if (deviceId && err instanceof Error && (err.name === 'OverconstrainedError' || err.name === 'NotFoundError')) {
+          diagnostics.log('warn', 'input', 'Saved microphone not found – using the default input');
+          this.stream = await navigator.mediaDevices.getUserMedia(constraints(''));
+        } else {
+          throw err;
+        }
+      }
     } catch (err) {
       this.error = err instanceof Error ? `${err.name}: ${err.message}` : String(err);
       this.stream = null;
@@ -82,6 +107,15 @@ export class AudioInput {
     }
     const track = this.stream.getAudioTracks()[0];
     this.deviceId = track?.getSettings().deviceId ?? deviceId;
+    this.label = track?.label ?? '';
+    if (track) {
+      track.onended = () => {
+        if (this.stream?.getAudioTracks()[0] !== track) return;
+        diagnostics.log('warn', 'input', 'Microphone disconnected');
+        this.close();
+        this.onLost?.();
+      };
+    }
     this.source = this.ctx.createMediaStreamSource(this.stream);
     this.source.connect(this.gain);
     if (workletsReady(this.ctx) && !this.recorder) {
@@ -95,13 +129,27 @@ export class AudioInput {
 
   close() {
     if (this.capture) this.capture = null;
-    this.source?.disconnect();
+    try { this.source?.disconnect(); } catch { /* ignore */ }
     this.source = null;
-    this.stream?.getTracks().forEach((t) => t.stop());
+    this.stream?.getTracks().forEach((t) => { t.onended = null; t.stop(); });
     this.stream = null;
+    this.label = '';
+    this.pinned = false;
+  }
+
+  /** Releases everything (engine restart). */
+  dispose() {
+    this.close();
+    for (const n of [this.gain, this.analyser, this.monitor, this.sink, this.recorder]) {
+      try { n?.disconnect(); } catch { /* ignore */ }
+    }
+    if (this.recorder) this.recorder.port.onmessage = null;
+    this.recorder = null;
   }
 
   setGain(v: number) {
+    if (!Number.isFinite(v)) return;
+    this.gainValue = v;
     this.gain.gain.setTargetAtTime(v, this.ctx.currentTime, 0.01);
   }
 
@@ -116,6 +164,7 @@ export class AudioInput {
 
   setMonitoring(on: boolean) {
     this.monitoring = on;
+    if (on) this.pinned = true;
     this.monitor.gain.setTargetAtTime(on ? 1 : 0, this.ctx.currentTime, 0.01);
   }
 

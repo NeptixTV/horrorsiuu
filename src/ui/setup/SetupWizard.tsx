@@ -32,6 +32,9 @@ export function SetupWizard({ onDone }: { onDone: () => void }) {
     setPermission(ok ? 'granted' : 'denied');
     if (ok) setUI({ inputDeviceId: engine.input.deviceId });
     await refresh();
+    // only needed for the permission + device names: release the microphone again
+    // (an open headset mic keeps Bluetooth headphones in low-quality call mode)
+    if (ok && !engine.input.pinned) engine.input.close();
   };
 
   const finish = async () => {

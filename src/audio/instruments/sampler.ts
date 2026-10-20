@@ -1,6 +1,8 @@
 import type { Channel, SamplerParams } from '../../state/types';
 import { defaultSampler } from '../../state/defaults';
 import { assets } from '../assets';
+import { normalizeSampler } from '../../state/normalize';
+import { clampFinite } from '../safety';
 import type { Instrument } from './types';
 
 interface SVoice {
@@ -21,7 +23,7 @@ export class Sampler implements Instrument {
   }
 
   update(ch: Channel) {
-    if (ch.sampler) this.p = ch.sampler;
+    if (ch.sampler) this.p = normalizeSampler(ch.sampler);
     this.output.gain.value = this.p.level;
   }
 
@@ -33,12 +35,14 @@ export class Sampler implements Instrument {
 
   noteOn(pitch: number, velocity: number, time: number, duration?: number) {
     const p = this.p;
-    if (!p.assetId) return;
+    if (!p.assetId || !Number.isFinite(pitch) || !Number.isFinite(time)) return;
+    velocity = clampFinite(velocity, 0, 1, 0.8);
+    if (duration !== undefined && !(duration > 0 && Number.isFinite(duration))) duration = 0.05;
     const buffer = p.reverse ? assets.getReversed(p.assetId) : assets.get(p.assetId);
     if (!buffer) return;
     const src = this.ctx.createBufferSource();
     src.buffer = buffer;
-    const rate = Math.pow(2, (pitch - p.rootNote + p.tune) / 12);
+    const rate = clampFinite(Math.pow(2, (pitch - p.rootNote + p.tune) / 12), 1 / 64, 64, 1);
     src.playbackRate.value = rate;
     const g = this.ctx.createGain();
     const a = Math.max(0.001, p.attack);

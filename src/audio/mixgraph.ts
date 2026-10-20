@@ -5,8 +5,10 @@ import type { Channel, Clip, EffectInstance, MixerTrack, Project } from '../stat
 import { MASTER_ID } from '../state/types';
 import { audibleTracks, wouldCycle } from '../state/routing';
 import { createEffect } from './effects';
-import { EffectSlot, setParam, type EffectEnv } from './effects/base';
+import { Effect, EffectSlot, setParam, type EffectEnv } from './effects/base';
 import { createInstrument, type Instrument } from './instruments';
+import { diagnostics } from './diagnostics';
+import { clampFinite } from './safety';
 
 export interface Levels {
   peakL: number;
@@ -15,19 +17,43 @@ export interface Levels {
   rmsR: number;
 }
 
-const meterBuf = new Float32Array(1024);
+// one scratch buffer per analyser size (a 1024 buffer read from a 512 point
+// analyser used to keep stale samples in its upper half → phantom peaks)
+const meterBufs = new Map<number, Float32Array<ArrayBuffer>>();
 
 function measure(an: AnalyserNode): [number, number] {
-  an.getFloatTimeDomainData(meterBuf);
+  let buf = meterBufs.get(an.fftSize);
+  if (!buf) meterBufs.set(an.fftSize, (buf = new Float32Array(an.fftSize)));
+  an.getFloatTimeDomainData(buf);
   let peak = 0;
   let sum = 0;
-  for (let i = 0; i < meterBuf.length; i++) {
-    const v = meterBuf[i];
+  for (let i = 0; i < buf.length; i++) {
+    const v = buf[i];
     const a = v < 0 ? -v : v;
     if (a > peak) peak = a;
     sum += v * v;
   }
-  return [peak, Math.sqrt(sum / meterBuf.length)];
+  // a non-finite meter value means the signal itself is broken
+  if (!Number.isFinite(peak)) return [0, 0];
+  return [peak, Math.sqrt(sum / buf.length)];
+}
+
+/** Passthrough used when an effect cannot be created (keeps the chain intact). */
+class PassEffect extends Effect {
+  constructor(ctx: BaseAudioContext) {
+    super(ctx);
+    this.input.connect(this.output);
+  }
+  update() {}
+}
+
+function safeCreateEffect(ctx: BaseAudioContext, type: EffectInstance['type']): Effect {
+  try {
+    return createEffect(ctx, type);
+  } catch (err) {
+    diagnostics.log('error', 'effect-create', `${type}: ${err instanceof Error ? err.message : String(err)}`, 2000);
+    return new PassEffect(ctx);
+  }
 }
 
 /** An ordered chain of insert effects between `input` and `output`. */
@@ -67,7 +93,7 @@ export class InsertChain {
         slot.apply(inst, env);
         existing.delete(inst.id);
       } else {
-        slot = new EffectSlot(this.ctx, createEffect(this.ctx, inst.type), inst, env);
+        slot = new EffectSlot(this.ctx, safeCreateEffect(this.ctx, inst.type), inst, env);
       }
       next.push(slot);
     }
@@ -101,6 +127,7 @@ export class Strip {
   readonly output: GainNode;
   readonly analyserL: AnalyserNode;
   readonly analyserR: AnalyserNode;
+  readonly meterSplit: ChannelSplitterNode;
   sendGains = new Map<string, GainNode>();
   state: MixerTrack;
 
@@ -111,16 +138,16 @@ export class Strip {
     this.fader = ctx.createGain();
     this.muteGain = ctx.createGain();
     this.output = ctx.createGain();
-    const split = ctx.createChannelSplitter(2);
+    this.meterSplit = ctx.createChannelSplitter(2);
     this.analyserL = ctx.createAnalyser();
     this.analyserR = ctx.createAnalyser();
     this.analyserL.fftSize = 1024;
     this.analyserR.fftSize = 1024;
     this.chain.output.connect(this.panner);
     this.panner.connect(this.fader).connect(this.muteGain).connect(this.output);
-    this.output.connect(split);
-    split.connect(this.analyserL, 0);
-    split.connect(this.analyserR, 1);
+    this.output.connect(this.meterSplit);
+    this.meterSplit.connect(this.analyserL, 0);
+    this.meterSplit.connect(this.analyserR, 1);
     this.state = track;
     this.chain.apply(track.inserts, env);
     this.apply(track, env);
@@ -132,8 +159,8 @@ export class Strip {
 
   apply(track: MixerTrack, env: EffectEnv) {
     this.chain.apply(track.inserts, env);
-    setParam(this.fader.gain, track.volume, this.ctx, 0.01);
-    setParam(this.panner.pan, track.pan, this.ctx, 0.01);
+    setParam(this.fader.gain, clampFinite(track.volume, 0, 2, 0.8), this.ctx, 0.01);
+    setParam(this.panner.pan, clampFinite(track.pan, -1, 1, 0), this.ctx, 0.01);
     this.state = track;
   }
 
@@ -157,10 +184,11 @@ export class Strip {
 
   dispose() {
     this.chain.dispose();
-    for (const n of [this.panner, this.fader, this.muteGain, this.output]) {
+    for (const n of [this.panner, this.fader, this.muteGain, this.output, this.meterSplit]) {
       try { n.disconnect(); } catch { /* ignore */ }
     }
-    for (const g of this.sendGains.values()) g.disconnect();
+    for (const g of this.sendGains.values()) { try { g.disconnect(); } catch { /* ignore */ } }
+    this.sendGains.clear();
   }
 }
 
@@ -185,7 +213,7 @@ export class ClipHost {
 
   apply(clip: Clip, env: EffectEnv) {
     this.chain.apply(clip.fx ?? [], env);
-    setParam(this.panner.pan, clip.pan ?? 0, this.ctx, 0.01);
+    setParam(this.panner.pan, clampFinite(clip.pan, -1, 1, 0), this.ctx, 0.01);
     this.state = clip;
   }
 
@@ -225,9 +253,13 @@ export class ChannelHost {
   }
 
   apply(ch: Channel) {
-    this.instrument.update(ch);
-    setParam(this.volume.gain, ch.volume, this.ctx, 0.01);
-    setParam(this.panner.pan, ch.pan, this.ctx, 0.01);
+    try {
+      this.instrument.update(ch);
+    } catch (err) {
+      diagnostics.log('error', 'instrument-update', `${ch.name}: ${err instanceof Error ? err.message : String(err)}`, 2000);
+    }
+    setParam(this.volume.gain, clampFinite(ch.volume, 0, 2, 0.8), this.ctx, 0.01);
+    setParam(this.panner.pan, clampFinite(ch.pan, -1, 1, 0), this.ctx, 0.01);
     this.state = ch;
   }
 
@@ -280,15 +312,28 @@ export class MixGraph {
     if (prev === project) return;
     this.project = project;
     const env: EffectEnv = { bpm: project.bpm };
+    let failed = false;
+    const phase = (name: string, fn: () => void) => {
+      try {
+        fn();
+      } catch (err) {
+        failed = true;
+        diagnostics.log('error', 'graph-sync', `${name}: ${err instanceof Error ? err.message : String(err)}`, 2000);
+      }
+    };
 
-    if (!prev || prev.mixer !== project.mixer) this.syncMixer(project.mixer, env);
+    if (!prev || prev.mixer !== project.mixer) phase('mixer', () => this.syncMixer(project.mixer, env));
     if (prev && prev.bpm !== project.bpm) {
-      for (const s of this.strips.values()) s.setTempo(project.bpm);
-      for (const c of this.clips.values()) c.chain.setTempo(project.bpm);
+      phase('tempo', () => {
+        for (const s of this.strips.values()) s.setTempo(project.bpm);
+        for (const c of this.clips.values()) c.chain.setTempo(project.bpm);
+      });
     }
     this.bpm = project.bpm;
-    if (!prev || prev.channels !== project.channels || prev.mixer !== project.mixer) this.syncChannels(project.channels);
-    if (!prev || prev.clips !== project.clips || prev.tracks !== project.tracks || prev.mixer !== project.mixer) this.syncClips(project, env);
+    if (!prev || prev.channels !== project.channels || prev.mixer !== project.mixer) phase('channels', () => this.syncChannels(project.channels));
+    if (!prev || prev.clips !== project.clips || prev.tracks !== project.tracks || prev.mixer !== project.mixer) phase('clips', () => this.syncClips(project, env));
+    // a failed phase is retried in full with the next change instead of being skipped for good
+    if (failed) this.project = null;
   }
 
   /** Destination for an audio clip: its own effect chain, or the mixer insert of its track. */
@@ -355,7 +400,7 @@ export class MixGraph {
       const s = this.strips.get(t.id)!;
       for (const send of t.sends) {
         const g = s.sendGains.get(send.id);
-        if (g) setParam(g.gain, send.amount, this.ctx, 0.01);
+        if (g) setParam(g.gain, clampFinite(send.amount, 0, 1, 0), this.ctx, 0.01);
       }
     }
     const audible = audibleTracks(mixer);
@@ -365,13 +410,10 @@ export class MixGraph {
   private reroute(mixer: MixerTrack[]) {
     for (const s of this.strips.values()) {
       try { s.output.disconnect(); } catch { /* ignore */ }
-      for (const g of s.sendGains.values()) g.disconnect();
+      for (const g of s.sendGains.values()) { try { g.disconnect(); } catch { /* ignore */ } }
       s.sendGains.clear();
-      // keep meter connection
-      const split = this.ctx.createChannelSplitter(2);
-      s.output.connect(split);
-      split.connect(s.analyserL, 0);
-      split.connect(s.analyserR, 1);
+      // keep the meter connection (same splitter, no new nodes per reroute)
+      s.output.connect(s.meterSplit);
     }
     for (const t of mixer) {
       const s = this.strips.get(t.id)!;
@@ -386,8 +428,13 @@ export class MixGraph {
       for (const send of t.sends) {
         const ts = this.strips.get(send.target);
         if (!ts || ts === s) continue;
+        // never build a feedback loop, whatever the project says
+        if (send.target === MASTER_ID || wouldCycle(mixer.map((m) => (m.id === t.id ? { ...m, sends: m.sends.filter((x) => x.id !== send.id) } : m)), t.id, send.target)) {
+          diagnostics.log('warn', 'send-loop', `Send from “${t.name}” skipped (would create a feedback loop)`, 5000);
+          continue;
+        }
         const g = this.ctx.createGain();
-        g.gain.value = send.amount;
+        g.gain.value = clampFinite(send.amount, 0, 1, 0);
         s.output.connect(g).connect(ts.input);
         s.sendGains.set(send.id, g);
       }
@@ -431,7 +478,9 @@ export class MixGraph {
   }
 
   allNotesOff(time?: number) {
-    for (const h of this.channels.values()) h.instrument.allNotesOff(time);
+    for (const h of this.channels.values()) {
+      try { h.instrument.allNotesOff(time); } catch { /* keep stopping the others */ }
+    }
   }
 
   voiceCount() {
@@ -445,11 +494,13 @@ export class MixGraph {
   }
 
   dispose() {
-    for (const h of this.channels.values()) h.dispose();
-    for (const c of this.clips.values()) c.dispose();
-    for (const s of this.strips.values()) s.dispose();
+    for (const h of this.channels.values()) { try { h.dispose(); } catch { /* ignore */ } }
+    for (const c of this.clips.values()) { try { c.dispose(); } catch { /* ignore */ } }
+    for (const s of this.strips.values()) { try { s.dispose(); } catch { /* ignore */ } }
     this.channels.clear();
+    this.clips.clear();
     this.strips.clear();
-    this.out.disconnect();
+    this.project = null;
+    try { this.out.disconnect(); } catch { /* ignore */ }
   }
 }

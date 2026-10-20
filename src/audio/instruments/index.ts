@@ -9,6 +9,7 @@ export function createInstrument(ctx: BaseAudioContext, kind: ChannelKind): Inst
     case 'synth': return new Synth(ctx);
     case 'drum': return new DrumVoice(ctx);
     case 'sampler': return new Sampler(ctx);
+    case 'dream': return new Synth(ctx); // TODO DreamChord
   }
 }
 

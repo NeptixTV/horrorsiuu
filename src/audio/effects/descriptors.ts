@@ -216,13 +216,18 @@ export function defaultParams(type: EffectType): Record<string, ParamValue> {
 }
 
 export function num(params: Record<string, ParamValue>, key: string, fallback = 0): number {
-  const v = params[key];
-  return typeof v === 'number' ? v : typeof v === 'string' ? parseFloat(v) || fallback : fallback;
+  const v = params?.[key];
+  if (typeof v === 'number') return Number.isFinite(v) ? v : fallback;
+  if (typeof v === 'string') {
+    const f = parseFloat(v);
+    return Number.isFinite(f) ? f : fallback;
+  }
+  return fallback;
 }
 
 export function str(params: Record<string, ParamValue>, key: string, fallback = ''): string {
-  const v = params[key];
-  return v === undefined ? fallback : String(v);
+  const v = params?.[key];
+  return v === undefined || v === null ? fallback : String(v);
 }
 
 /** Built-in effect presets shown in the browser. */

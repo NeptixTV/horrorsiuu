@@ -170,8 +170,8 @@ function PerfDisplay() {
 
 function masterLevels() {
   if (!engine.initialized) return null;
-  const l = engine.graph.master.levels();
-  return { l: l.peakL, r: l.peakR };
+  const l = engine.graph?.strips.get('master')?.levels();
+  return l ? { l: l.peakL, r: l.peakR } : null;
 }
 
 export function Toolbar() {

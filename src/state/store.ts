@@ -6,14 +6,26 @@ import { produce, type Draft } from 'immer';
 import type { Project } from './types';
 import { createDemoProject } from './defaults';
 
-const HISTORY_LIMIT = 150;
+let historyLimit = 150;
+
+/** Number of undo steps kept (Settings → Projects). */
+export function setHistoryLimit(n: number) {
+  historyLimit = Math.max(10, Math.min(1000, Math.round(n) || 150));
+  const s = useProject.getState();
+  if (s.past.length > historyLimit) useProject.setState({ past: s.past.slice(-historyLimit), pastLabels: s.pastLabels.slice(-historyLimit) });
+}
 
 export interface ProjectState {
   project: Project;
   past: Project[];
+  /** label of the action that led from past[i] to the next state */
+  pastLabels: string[];
   future: Project[];
+  futureLabels: string[];
   /** project snapshot at the start of a continuous gesture (knob drag etc.) */
   gestureBase: Project | null;
+  gestureLabel: string;
+  gestureStart: number;
   dirty: boolean;
   lastSaved: number | null;
   lastAutosave: number | null;
@@ -23,8 +35,12 @@ export interface ProjectState {
 export const useProject = create<ProjectState>(() => ({
   project: createDemoProject(),
   past: [],
+  pastLabels: [],
   future: [],
+  futureLabels: [],
   gestureBase: null,
+  gestureLabel: '',
+  gestureStart: 0,
   dirty: false,
   lastSaved: null,
   lastAutosave: null,
@@ -46,16 +62,19 @@ export function update(label: string, recipe: (draft: Draft<Project>) => void, o
   const record = opts.history !== false && !s.gestureBase;
   useProject.setState({
     project: next,
-    past: record ? [...s.past, s.project].slice(-HISTORY_LIMIT) : s.past,
+    past: record ? [...s.past, s.project].slice(-historyLimit) : s.past,
+    pastLabels: record ? [...s.pastLabels, label].slice(-historyLimit) : s.pastLabels,
     future: record ? [] : s.future,
+    futureLabels: record ? [] : s.futureLabels,
     dirty: true,
     lastAction: label,
+    ...(s.gestureBase && !s.gestureLabel ? { gestureLabel: label } : {}),
   });
 }
 
 export function beginGesture() {
   const s = useProject.getState();
-  if (!s.gestureBase) useProject.setState({ gestureBase: s.project });
+  if (!s.gestureBase) useProject.setState({ gestureBase: s.project, gestureLabel: '', gestureStart: Date.now() });
 }
 
 export function endGesture() {
@@ -63,10 +82,36 @@ export function endGesture() {
   const base = s.gestureBase;
   if (!base) return;
   if (base !== s.project) {
-    useProject.setState({ gestureBase: null, past: [...s.past, base].slice(-HISTORY_LIMIT), future: [] });
+    useProject.setState({
+      gestureBase: null,
+      gestureLabel: '',
+      past: [...s.past, base].slice(-historyLimit),
+      pastLabels: [...s.pastLabels, s.gestureLabel || s.lastAction || 'Edit'].slice(-historyLimit),
+      future: [],
+      futureLabels: [],
+    });
   } else {
-    useProject.setState({ gestureBase: null });
+    useProject.setState({ gestureBase: null, gestureLabel: '' });
   }
+}
+
+/**
+ * Safety net: a gesture whose pointer-up never arrived (window lost focus
+ * mid-drag, a dialog opened …) would otherwise swallow every later edit
+ * from the undo history.
+ */
+export function installGestureSafety() {
+  const close = () => {
+    if (useProject.getState().gestureBase) setTimeout(endGesture, 0);
+  };
+  window.addEventListener('pointerup', close);
+  window.addEventListener('pointercancel', close);
+  window.addEventListener('blur', close);
+  setInterval(() => {
+    const s = useProject.getState();
+    // wheel gestures end on their own after ~0.5 s; anything open for > 30 s is stale
+    if (s.gestureBase && Date.now() - s.gestureStart > 30000) endGesture();
+  }, 5000);
 }
 
 export function undo() {
@@ -75,7 +120,16 @@ export function undo() {
   const st = useProject.getState();
   const prev = st.past[st.past.length - 1];
   if (!prev) return false;
-  useProject.setState({ project: prev, past: st.past.slice(0, -1), future: [st.project, ...st.future], dirty: true, lastAction: 'Undo' });
+  const label = st.pastLabels[st.pastLabels.length - 1] ?? 'Edit';
+  useProject.setState({
+    project: prev,
+    past: st.past.slice(0, -1),
+    pastLabels: st.pastLabels.slice(0, -1),
+    future: [st.project, ...st.future],
+    futureLabels: [label, ...st.futureLabels],
+    dirty: true,
+    lastAction: `Undo ${label}`,
+  });
   return true;
 }
 
@@ -83,13 +137,34 @@ export function redo() {
   const s = useProject.getState();
   const next = s.future[0];
   if (!next) return false;
-  useProject.setState({ project: next, past: [...s.past, s.project], future: s.future.slice(1), dirty: true, lastAction: 'Redo' });
+  const label = s.futureLabels[0] ?? 'Edit';
+  useProject.setState({
+    project: next,
+    past: [...s.past, s.project],
+    pastLabels: [...s.pastLabels, label],
+    future: s.future.slice(1),
+    futureLabels: s.futureLabels.slice(1),
+    dirty: true,
+    lastAction: `Redo ${label}`,
+  });
   return true;
+}
+
+/** Jumps to a point in the history: index into `past` (0 = oldest), or past.length = now. */
+export function jumpToHistory(index: number) {
+  const s = useProject.getState();
+  const n = s.past.length;
+  if (index < n) {
+    for (let i = n; i > index; i--) undo();
+  } else {
+    const steps = index - n;
+    for (let i = 0; i < steps; i++) redo();
+  }
 }
 
 export function loadProjectState(project: Project, opts: { dirty?: boolean } = {}) {
   useProject.setState({
-    project, past: [], future: [], gestureBase: null, dirty: opts.dirty ?? false,
+    project, past: [], pastLabels: [], future: [], futureLabels: [], gestureBase: null, gestureLabel: '', dirty: opts.dirty ?? false,
     lastSaved: opts.dirty ? null : Date.now(), lastAutosave: null, lastAction: 'Open',
   });
 }

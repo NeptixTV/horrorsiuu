@@ -6,8 +6,19 @@ let running = false;
 let last = 0;
 let busy = 0;
 let frameLoad = 0;
+let minInterval = 0;
+
+/** Caps how often meters / playheads / visualisers redraw (Settings → Performance). */
+export function setFrameRate(fps: number) {
+  minInterval = fps >= 60 ? 0 : 1000 / Math.max(5, fps) - 2;
+}
 
 function tick(now: number) {
+  if (minInterval > 0 && last && now - last < minInterval) {
+    if (cbs.size) requestAnimationFrame(tick);
+    else running = false;
+    return;
+  }
   const dt = last ? Math.min(0.1, (now - last) / 1000) : 0.016;
   last = now;
   const t0 = performance.now();

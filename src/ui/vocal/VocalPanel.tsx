@@ -3,7 +3,7 @@ import { useProject, getProject } from '../../state/store';
 import { setUI, toast, useUI } from '../../state/ui';
 import { addInsert, fxApplyChain, fxRemove, setEffectParam, toggleBypass } from '../../state/actions';
 import { engine } from '../../audio/engine';
-import { AudioInput, type DeviceInfo } from '../../audio/input';
+import { AudioInput, isBluetoothCallDevice, type DeviceInfo } from '../../audio/input';
 import { Knob } from '../components/Knob';
 import { Meter } from '../components/Meter';
 import { Icon } from '../components/Icon';
@@ -40,7 +40,11 @@ export function VocalPanel() {
   const recording = useUI((s) => s.recording);
   const selectedTrackId = useUI((s) => s.selectedTrackId);
   const [devices, setDevices] = useState<DeviceInfo[]>([]);
-  const [open, setOpen] = useState(engine.input?.isOpen ?? false);
+  const [openState, setOpen] = useState(engine.input?.isOpen ?? false);
+  // follow the engine (the mic can be released after a take or unplugged)
+  const [, bump] = useState(0);
+  useEffect(() => engine.onChange(() => bump((x) => x + 1)), []);
+  const open = openState && !!engine.input?.isOpen;
   const [, force] = useState(0);
   const [latencyMs, setLatencyMs] = useState(() => Math.round((engine.initialized ? engine.roundTripLatency : 0.02) * 1000));
 
@@ -56,7 +60,11 @@ export function VocalPanel() {
     const ok = await engine.input.open(id);
     setOpen(ok);
     if (ok) {
+      engine.input.pinned = true;
       setUI({ inputDeviceId: id });
+      if (isBluetoothCallDevice(engine.input.label)) {
+        toast('Bluetooth headset microphone: your headphones switch to low-quality call mode while it is open. A separate microphone sounds much better.', 'info', true);
+      }
       engine.input.setGain(inputGain);
       engine.input.setMonitoring(monitoring);
       engine.sync(getProject());

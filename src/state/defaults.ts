@@ -1,5 +1,5 @@
 import type {
-  Channel, DrumParams, DrumType, EffectInstance, EffectType, MixerTrack, Note, Pattern, PlaylistTrack, Project, SamplerParams, SynthParams,
+  Channel, DreamParams, DrumParams, DrumType, EffectInstance, EffectType, MixerTrack, Note, Pattern, PlaylistTrack, Project, SamplerParams, SynthParams,
 } from './types';
 import { MASTER_ID, PPQ, TICKS_PER_STEP } from './types';
 import { paletteColor, uid } from './utils';
@@ -88,6 +88,19 @@ export function defaultDrum(type: DrumType): DrumParams {
   return base;
 }
 
+/** Base sound of the DreamChord ("Ocean Dream"); presets override parts of it. */
+export function defaultDream(): DreamParams {
+  return {
+    preset: 'Ocean Dream',
+    key: 0, mode: 'major', octave: 0, voicing: 'open',
+    waveA: 'triangle', waveB: 'sawtooth', mixB: 0.35, detune: 14, sub: 0.25, air: 0.12,
+    cutoff: 2600, resonance: 1, filterEnv: 0.25,
+    attack: 0.35, decay: 1.2, sustain: 0.75, release: 2.2,
+    vibrato: 0.15, tape: 0.2, chorus: 0.55, delay: 0.25, delayTime: '1/8d', reverb: 0.55, space: 0.8, volume: 0.75,
+    strum: 0, strumDir: 'up', arp: 'off', arpRate: '1/8', arpOctaves: 1, arpGate: 0.8, hold: false, joystick: 'chord',
+  };
+}
+
 export function defaultSampler(assetId: string | null = null): SamplerParams {
   return { assetId, rootNote: 60, tune: 0, attack: 0.002, release: 0.1, reverse: false, level: 0.9 };
 }
@@ -120,6 +133,7 @@ export function makeChannel(kind: Channel['kind'], name: string, mixerTrackId: s
   if (kind === 'synth') ch.synth = defaultSynth();
   if (kind === 'drum') ch.drum = defaultDrum('kick');
   if (kind === 'sampler') ch.sampler = defaultSampler();
+  if (kind === 'dream') ch.dream = defaultDream();
   return { ...ch, ...extra };
 }
 
