@@ -8,6 +8,48 @@ Step-Sequencer · Playlist · Piano Roll · Mixer · Effekte · Synthesizer · D
 
 ---
 
+## Neu in Version 1.2.0
+
+**Audio-Stabilität (der große Fix)**
+- Behoben: Knistern/Stottern, plötzliche starke Verzerrung, „kaputte“ Geräusche und Kopfhörer, die in der App
+  verstummen. Ursachen waren u. a. ein Delay-Rückkopplungsfilter mit Resonanzspitze (Feedback konnte sich endlos
+  aufschaukeln), Nachhol-Schübe des Schedulers nach Rucklern, ungültige Werte (NaN), die die Wiedergabe anhielten,
+  ein offen gebliebenes Mikrofon (Bluetooth-Kopfhörer springen dann in den schlechten Telefonmodus) und Audiodaten,
+  die beim Öffnen vieler Projekte nie freigegeben wurden.
+- Neue **Schutzstufe vor dem Ausgang**: entfernt ungültige Samples, Brickwall-Limiter mit Look-ahead, schaltet bei
+  Runaway-Signalen stumm und baut den betroffenen Teil automatisch neu auf. Watchdog bei Geräte- und Kopfhörerwechsel.
+- **Diagnose** in den Einstellungen (Zähler, Ereignisprotokoll, sicherer Audio-Reset, Kopfhörer-Test).
+
+**DreamChord** – Akkord-Instrument (inspiriert von Pocket-Akkordsynths): 7 Akkord-Pads, Live-Joystick (Septime, None,
+sus, Dur/Moll-Tausch …), Display, Knöpfe, 14 verträumte Presets (Ocean Dream, Nostalgic Memories, Midnight Beach,
+Warm Sunset, Dreamy Piano, Space Ambient, Retro Synth, Lo-Fi Cassette …), Arpeggiator, Strum, Hold, eigene
+Klangerzeugung mit Chorus, Delay, Reverb, Filter, ADSR und Tape-Charakter. Gespieltes wird aufgenommen und ist
+danach normal im Piano Roll bearbeitbar.
+
+**Studio**
+- Piano Roll: Akkord-Stempel, Skalen-Sperre, Werkzeuge (Transponieren, Humanize, Legato, Strum, Arpeggio,
+  Umkehren, Spiegeln, Velocity-Verläufe), Kopieren/Einfügen, Pfeiltasten-Bearbeitung, Noten live einspielen.
+- **Automation** für Lautstärke, Pan und jeden Effekt-Regler (live und beim Export).
+- **Export**: WAV 16/24/32 Bit, Samplerate, Bereich, Ausklang, Normalisieren, **Stems als ZIP**, **MIDI** (Export & Import).
+- Neue Effekte **Tape Machine**, **Stereo Width** (mit Goniometer) und **Noise Gate**; eigene Presets für jeden
+  Effekt, Synth und DreamChord; Spitzenpegel-Anzeige im Mixer.
+- Undo-Verlauf zum Springen, Marker in der Playlist, Spuren verschieben/einfügen/duplizieren, Clips kopieren/einfügen.
+
+**Projekte**: automatische Backups mit Wiederherstellen, Projekt-Doktor repariert beschädigte Dateien beim Öffnen,
+Speicherübersicht und Aufräumen, 1.1-Projekte öffnen unverändert.
+
+**Einstellungen**: neues Einstellungs-Center mit 9 Seiten (Audio & Geräte, Performance, Diagnose, Aufnahme & MIDI,
+Design, Projekte & Backups, Allgemein, Datenschutz & Updates, Über).
+
+**Eigene Ideen in 1.2**
+- 🎲 **Ideen-Würfel** (Alt+I): würfelt Akkorde, Bass, Melodie und Beat passend zu Tonart und Tempo – Teile sperren,
+  den Rest neu würfeln, Strg+Z holt die vorige Idee zurück.
+- ⏺ **Capture** (Alt+C): Die App merkt sich, was du in den letzten 3 Minuten gespielt hast – auch ohne Aufnahme –
+  und macht daraus auf Knopfdruck ein Pattern.
+- 📝 **Song-Notizen mit Teleprompter** (Alt+N): Lyrics im Projekt; beim Aufnehmen groß und mitlaufend, springt zu
+  `[Chorus]`, wenn der Playhead einen Marker „Chorus“ erreicht.
+- „Neu in 1.2“-Tour beim ersten Start nach dem Update.
+
 ## Neu in Version 1.1.0
 
 - **Admin-Panel** (irgendwo in der App `187` tippen): Nachrichten an alle Nutzer schicken und Updates veröffentlichen.
@@ -191,6 +233,9 @@ Projektdatei exportieren/importieren (`.goofy.json` inkl. Aufnahmen). Gespeicher
 | M / S | Ausgewählten Kanal (bzw. Mixer-Insert) muten / solo |
 | F6 / F7 / F9 / F10 / F11 / F12 | Channel Rack / Piano Roll / Mixer / Drum Machine / Aufnahme & Tune / Analyzer |
 | Strg + Mausrad · Alt + Ziehen · Shift + Ziehen | Zoom · Snap umgehen · Kopieren |
+| Alt + C / Alt + I / Alt + N | Capture / Ideen-Würfel / Song-Notizen |
+| Strg + C / X / V (Playlist, Piano Roll) | Kopieren / Ausschneiden / Einfügen |
+| Pfeiltasten (Piano Roll) | Auswahl transponieren / verschieben |
 
 ## Architektur
 
@@ -205,18 +250,20 @@ src/
 │   ├── sequencer.ts    reine Event-Berechnung aus Patterns & Playlist (getestet)
 │   ├── mixgraph.ts     Mixer-Strips, Insert-Ketten, Sends, Routing, Kanäle → wird live UND offline genutzt
 │   ├── input.ts        Mikrofon, Monitoring, Aufnahme
-│   ├── render.ts       Offline-Mixdown + WAV-Encoder
+│   ├── render.ts       Offline-Mixdown, Stems, WAV-Encoder (16/24/32 Bit)
+│   ├── automation.ts   Automation von Mixer- und Effektparametern (live + offline)
+│   ├── safety.ts / diagnostics.ts  Wertebegrenzung, Fehler- und Ereignisprotokoll
 │   ├── library.ts      synthetisierte Sample-Bibliothek
 │   ├── effects/        EQ, Compressor, Reverb, Delay, Filter, Distortion, Chorus, Pitch, Voice Changer, Phaser,
 │   │                   Flanger, Tremolo, 8D, Limiter + Presets und Sound-FX-Ketten (fxPresets.ts)
 │   ├── stems/          Song-Trennung (Mitten-Extraktion + HPSS im Web Worker)
 │   ├── clipPlayback.ts Abspielen eines Audio-Clips (Fades, Speed, Reverse, Clip-Effekte)
-│   ├── instruments/    Synth, Drum-Voices, Sampler
-│   └── worklets/       AudioWorklet-Prozessoren (Recorder, Pitch Correction)
+│   ├── instruments/    Synth, Drum-Voices, Sampler, DreamChord-Synth
+│   └── worklets/       AudioWorklet-Prozessoren (Recorder, Pitch Correction, Ausgangsschutz, Noise Gate)
 ├── state/            Datenmodell, Store mit Undo/Redo (zustand + immer), Aktionen, Routing-Logik
 ├── admin/            News-/Update-Feed (lesen für alle, schreiben per GitHub-API fürs Admin-Panel)
 ├── project/          IndexedDB-Speicher, Projekt-Lebenszyklus, Import/Export
-├── midi/             Musiktheorie (Skalen, Notennamen, Frequenzen)
+├── midi/             Musiktheorie, Akkorde, Noten-Werkzeuge, MIDI-Dateien, Capture, Live-Aufnahme, Ideen-Würfel
 ├── ui/               React-Komponenten: toolbar, browser, playlist, channelrack, pianoroll, mixer, effects,
 │                     instruments, drums, vocal, visualizers, dialogs, setup, splash, components
 └── styles/           Theme-System und globale Styles
@@ -242,5 +289,11 @@ Designprinzipien:
   sich kaum trennen.
 - Das Update-System nutzt GitHub: Ohne Internet gibt es keine News/Updates, die App funktioniert aber normal. Tonhöhenerkennung und -korrektur selbst sind echt (in Tests: 452 Hz → 440 Hz).
 - Browser liefern keine echte CPU-Auslastung; die Anzeige zeigt die Auslastung der UI-Frames, aktive Stimmen und Speicher.
-- Die Buffer-Size bestimmt der Browser; einstellbar ist der Latenzmodus (Interactive / Balanced / Playback).
+- Die Buffer-Size bestimmt letztlich der Browser bzw. das Betriebssystem; einstellbar sind Latenzmodus und eine
+  Wunsch-Latenz in ms, die der Browser aber nur als Hinweis nimmt.
+- Der **Ideen-Würfel** ist ein regelbasierter Generator (Musiktheorie + Zufall), keine KI.
+- Die Noise Gate braucht AudioWorklets (alle aktuellen Browser und die Desktop-App haben sie); ohne sie lässt sie das
+  Signal unverändert durch.
+- Die Windows-.exe ist **nicht code-signiert** (dafür braucht es ein kostenpflichtiges Zertifikat); Windows
+  SmartScreen kann deshalb beim ersten Start warnen.
 - Projekte werden im Browser (IndexedDB) gespeichert. Zum Sichern oder Weitergeben: *File → Export project file*.
