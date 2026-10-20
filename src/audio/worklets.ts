@@ -42,3 +42,17 @@ export function markWorkletsReady(ctx: BaseAudioContext) {
 export function workletsReady(ctx: BaseAudioContext): boolean {
   return ready.has(ctx);
 }
+
+/**
+ * Ends an AudioWorkletNode for good. A processor that keeps returning true
+ * from process() keeps its node alive even when disconnected – and through
+ * the port's message handler everything the handler references. Every
+ * Goofy processor stops on a 'dispose' message.
+ */
+export function releaseWorklet(node: AudioWorkletNode | null | undefined) {
+  if (!node) return;
+  try { node.port.postMessage({ type: 'dispose' }); } catch { /* port closed */ }
+  node.port.onmessage = null;
+  try { node.port.close(); } catch { /* ignore */ }
+  try { node.disconnect(); } catch { /* ignore */ }
+}

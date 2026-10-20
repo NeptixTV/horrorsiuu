@@ -12,6 +12,11 @@ class GoofyRecorder extends AudioWorkletProcessor {
     this.buf = [new Float32Array(this.chunkSize), new Float32Array(this.chunkSize)];
     this.fill = 0;
     this.port.onmessage = (e) => {
+      // the owner removed this node: end the processor so the node can be freed
+      if (e.data && e.data.type === 'dispose') {
+        this.disposed = true;
+        return;
+      }
       const msg = e.data;
       if (msg.type === 'start') {
         this.recording = true;
@@ -39,6 +44,7 @@ class GoofyRecorder extends AudioWorkletProcessor {
   }
 
   process(inputs) {
+    if (this.disposed) return false;
     const input = inputs[0];
     if (!this.recording || !input || input.length === 0) return true;
     const frames = input[0].length;

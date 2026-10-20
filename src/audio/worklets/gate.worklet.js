@@ -20,6 +20,11 @@ class GoofyGate extends AudioWorkletProcessor {
     this.peak = 0;
     this.set({ threshold: -45, attack: 1, hold: 40, release: 120, range: -80 });
     this.port.onmessage = (e) => {
+      // the owner removed this node: end the processor so the node can be freed
+      if (e.data && e.data.type === 'dispose') {
+        this.disposed = true;
+        return;
+      }
       if (e.data && e.data.type === 'params') this.set(e.data);
     };
   }
@@ -39,6 +44,7 @@ class GoofyGate extends AudioWorkletProcessor {
   }
 
   process(inputs, outputs) {
+    if (this.disposed) return false;
     const input = inputs[0];
     const output = outputs[0];
     if (!output || !output.length) return true;

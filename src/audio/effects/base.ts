@@ -1,4 +1,5 @@
 import type { EffectInstance, ParamValue } from '../../state/types';
+import { releaseWorklet } from '../worklets';
 
 export interface EffectEnv {
   bpm: number;
@@ -38,6 +39,7 @@ export abstract class Effect {
       try { s.stop(); } catch { /* already stopped */ }
     }
     for (const n of [this.input, this.output, ...this.nodes]) {
+      if (typeof AudioWorkletNode !== 'undefined' && n instanceof AudioWorkletNode) releaseWorklet(n);
       try { n.disconnect(); } catch { /* ignore */ }
     }
   }

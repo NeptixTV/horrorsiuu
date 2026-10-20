@@ -1,6 +1,6 @@
 // Microphone / line input: device selection, input gain, metering, monitoring
 // through a mixer insert and sample-accurate capture via the recorder worklet.
-import { workletsReady } from './worklets';
+import { releaseWorklet, workletsReady } from './worklets';
 import { diagnostics } from './diagnostics';
 
 /** Labels Windows / macOS use for Bluetooth headsets in low-quality call mode. */
@@ -143,7 +143,7 @@ export class AudioInput {
     for (const n of [this.gain, this.analyser, this.monitor, this.sink, this.recorder]) {
       try { n?.disconnect(); } catch { /* ignore */ }
     }
-    if (this.recorder) this.recorder.port.onmessage = null;
+    releaseWorklet(this.recorder);
     this.recorder = null;
   }
 

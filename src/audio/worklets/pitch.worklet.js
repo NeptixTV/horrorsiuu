@@ -60,6 +60,11 @@ class GoofyPitch extends AudioWorkletProcessor {
     this.analysis = true;
 
     this.port.onmessage = (e) => {
+      // the owner removed this node: end the processor so the node can be freed
+      if (e.data && e.data.type === 'dispose') {
+        this.disposed = true;
+        return;
+      }
       const m = e.data;
       if (m.type === 'params') {
         // only finite numbers are accepted: a single NaN would otherwise stick in
@@ -167,6 +172,7 @@ class GoofyPitch extends AudioWorkletProcessor {
   }
 
   process(inputs, outputs) {
+    if (this.disposed) return false;
     const input = inputs[0];
     const output = outputs[0];
     if (!output || output.length === 0) return true;

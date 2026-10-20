@@ -228,8 +228,5 @@ export class GateEffect extends Effect {
     });
   }
 
-  dispose() {
-    if (this.node) this.node.port.onmessage = null;
-    super.dispose();
-  }
+
 }

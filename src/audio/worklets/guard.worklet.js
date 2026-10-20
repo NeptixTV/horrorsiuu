@@ -46,6 +46,11 @@ class GoofyGuard extends AudioWorkletProcessor {
     this.reportEvery = Math.round(0.25 * sr);
     this.sinceReport = 0;
     this.port.onmessage = (e) => {
+      // the owner removed this node: end the processor so the node can be freed
+      if (e.data && e.data.type === 'dispose') {
+        this.disposed = true;
+        return;
+      }
       const m = e.data;
       if (m.type === 'config') {
         if (typeof m.enabled === 'boolean') this.enabled = m.enabled;
@@ -82,6 +87,7 @@ class GoofyGuard extends AudioWorkletProcessor {
   }
 
   process(inputs, outputs) {
+    if (this.disposed) return false;
     const input = inputs[0];
     const output = outputs[0];
     if (!output || output.length === 0) return true;
