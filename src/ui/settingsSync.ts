@@ -7,6 +7,7 @@ import { useUI, type UIState } from '../state/ui';
 import { startAutosave } from '../project/manager';
 import { setFrameRate } from './components/frameLoop';
 import { desktop } from '../admin/desktop';
+import { liveRecorder } from '../midi/liveRecord';
 
 function applyScale(f: number) {
   const factor = Math.min(1.6, Math.max(0.7, f || 1));
@@ -29,6 +30,7 @@ export function installSettingsSync() {
     engine.countInBars = s.countInBars;
     engine.releaseMicAfterRecording = s.releaseMic;
     engine.autoFallbackOutput = s.autoFallbackOutput;
+    liveRecorder.quantize = s.recQuantize;
     if (changed('historyLimit')) setHistoryLimit(s.historyLimit);
     if (changed('meterFps')) setFrameRate(s.meterFps);
     if (changed('uiScale')) applyScale(s.uiScale);

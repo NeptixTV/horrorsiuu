@@ -1,7 +1,7 @@
 import { memo, useEffect, useRef, useState, type DragEvent } from 'react';
 import { useProject, beginGesture, endGesture, getProject } from '../../state/store';
 import { setUI, ui, useUI, toast } from '../../state/ui';
-import { addDreamChord, openChannelEditor } from '../commands';
+import { addDreamChord, channelHasContent, confirmDelete, openChannelEditor } from '../commands';
 import type { Channel, Note } from '../../state/types';
 import {
   addChannel, addPattern, clonePattern, duplicateChannel, fillSteps, moveChannel, removeChannel, setStep, setSwing, shiftSteps,
@@ -128,7 +128,7 @@ const ChannelRow = memo(function ChannelRow({
       { label: 'Move up', onClick: () => moveChannel(channel.id, -1) },
       { label: 'Move down', onClick: () => moveChannel(channel.id, 1) },
       { label: 'Duplicate', onClick: () => duplicateChannel(channel.id) },
-      { label: 'Delete', danger: true, onClick: () => removeChannel(channel.id) },
+      { label: 'Delete', danger: true, onClick: () => { if (confirmDelete(`channel “${channel.name}”`, channelHasContent(channel.id))) removeChannel(channel.id); } },
     ]);
   };
 

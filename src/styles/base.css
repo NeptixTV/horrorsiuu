@@ -186,3 +186,6 @@ select.input { cursor: pointer; padding-right: 4px; }
 }
 
 .drop-target { outline: 2px dashed var(--accent); outline-offset: -2px; }
+
+/* global: reduce motion */
+.reduce-motion *, .reduce-motion *::before, .reduce-motion *::after { animation-duration: 0s !important; animation-delay: 0s !important; transition-duration: 0s !important; }

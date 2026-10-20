@@ -180,6 +180,7 @@ export function DreamChordWindow({ w, channelId }: { w: FloatingWindow; channelI
   const view = usePerformer(performer);
   const recording = useRecorder();
   const focus = useUI((s) => s.focus);
+  const recQuantize = useUI((s) => s.recQuantize);
   const userPresets = usePresets((s) => s.list).filter((p) => p.kind === 'dream');
   const [popup, setPopup] = useState<{ label: string; value: string; norm: number } | null>(null);
   const [editOpen, setEditOpen] = useState(false);
@@ -445,7 +446,7 @@ export function DreamChordWindow({ w, channelId }: { w: FloatingWindow; channelI
               <label>Rate <select className="input small-select" value={p.arpRate} onChange={(e) => set({ arpRate: e.target.value as DreamParams['arpRate'] }, 'Arp rate')}>{(['1/4', '1/8', '1/8t', '1/16', '1/16t', '1/32'] as const).map((x) => <option key={x} value={x}>{x}</option>)}</select></label>
               <label>Octaves <select className="input small-select" value={p.arpOctaves} onChange={(e) => set({ arpOctaves: Number(e.target.value) }, 'Arp octaves')}>{[1, 2, 3].map((x) => <option key={x} value={x}>{x}</option>)}</select></label>
               <label>Strum <select className="input small-select" value={p.strumDir} onChange={(e) => set({ strumDir: e.target.value as DreamParams['strumDir'] }, 'Strum direction')}><option value="up">up</option><option value="down">down</option></select></label>
-              <label className="dc-check"><input type="checkbox" checked={liveRecorder.quantize} onChange={(e) => { liveRecorder.quantize = e.target.checked; setEditOpen(true); }} /> Quantise recording to 1/16</label>
+              <label className="dc-check"><input type="checkbox" checked={recQuantize} onChange={(e) => setUI({ recQuantize: e.target.checked })} /> Quantise recording to 1/16</label>
               <div className="dc-edit-knobs">
                 {knob('arpGate', 'Gate', 0.05, 1, 0.8, pct)}
                 {knob('strum', 'Strum', 0, 400, 0, (v) => `${Math.round(v)} ms`)}

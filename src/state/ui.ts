@@ -120,6 +120,7 @@ export interface UIState {
   showHints: boolean;
   confirmDeletes: boolean;
   midiInput: string; // '' = all devices, 'off' = disabled
+  recQuantize: boolean;
   seenWhatsNew: string;
   toast: { text: string; kind: 'info' | 'error' | 'ok'; id: number } | null;
   dragPayload: DragPayload | null;
@@ -142,7 +143,7 @@ const PERSISTED: (keyof UIState)[] = [
   'latencyMs', 'sampleRate', 'limiter', 'ceilingDb', 'protect', 'outputVolume', 'lookahead', 'metronomeVolume', 'countInBars',
   'autoFallbackOutput', 'releaseMic', 'uiScale', 'reduceMotion', 'meterFps', 'showSplash', 'autosaveInterval', 'backups',
   'backupCount', 'backupInterval', 'openLastProject', 'historyLimit', 'notifyLevel', 'checkUpdates', 'showNews', 'showHints',
-  'confirmDeletes', 'midiInput', 'seenWhatsNew',
+  'confirmDeletes', 'midiInput', 'recQuantize', 'seenWhatsNew',
 ];
 
 /** Defaults of every persisted setting (Settings → "Reset to defaults" uses these). */
@@ -176,6 +177,7 @@ export const SETTING_DEFAULTS = {
   showHints: true,
   confirmDeletes: true,
   midiInput: '',
+  recQuantize: true,
   followPlayhead: true,
 };
 

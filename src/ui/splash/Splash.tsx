@@ -6,21 +6,22 @@ import './splash.css';
  * Start-up splash: the logo floats up and settles with soft glows, then the
  * loading progress of the engine is shown and the splash fades out.
  */
-export function Splash({ progress, label, done, onGone }: { progress: number; label: string; done: boolean; onGone: () => void }) {
-  const [phase, setPhase] = useState<'intro' | 'loading' | 'out'>('intro');
+export function Splash({ progress, label, done, onGone, quick = false }: { progress: number; label: string; done: boolean; onGone: () => void; quick?: boolean }) {
+  const [phase, setPhase] = useState<'intro' | 'loading' | 'out'>(quick ? 'loading' : 'intro');
   useEffect(() => {
+    if (quick) return;
     const t = setTimeout(() => setPhase('loading'), 1100);
     return () => clearTimeout(t);
-  }, []);
+  }, [quick]);
   useEffect(() => {
     if (done && phase === 'loading') {
-      const t = setTimeout(() => setPhase('out'), 450);
+      const t = setTimeout(() => setPhase('out'), quick ? 0 : 450);
       return () => clearTimeout(t);
     }
   }, [done, phase]);
   useEffect(() => {
     if (phase === 'out') {
-      const t = setTimeout(onGone, 700);
+      const t = setTimeout(onGone, quick ? 150 : 700);
       return () => clearTimeout(t);
     }
   }, [phase, onGone]);

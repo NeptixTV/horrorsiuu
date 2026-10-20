@@ -2,6 +2,7 @@ import logo from '../../assets/logo.png';
 import type { FloatingWindow } from '../../state/ui';
 import { Window } from '../components/Window';
 import { exportWav } from '../commands';
+import { APP_VERSION } from '../../admin/feed';
 import './dialogs.css';
 
 const SHORTCUTS: [string, string][] = [
@@ -49,7 +50,7 @@ export function AboutWindow({ w }: { w: FloatingWindow }) {
     <Window w={w} title={<b>About</b>} width={380}>
       <div className="dlg about">
         <img src={logo} alt="" />
-        <h2>Goofy Studio <span className="crumb">v1.0</span></h2>
+        <h2>Goofy Studio <span className="crumb">v{APP_VERSION}</span></h2>
         <p>A browser based digital audio workstation built on the Web Audio API and AudioWorklets.</p>
         <p className="crumb">All instruments and samples are synthesised in real time – no third-party sample content.</p>
       </div>

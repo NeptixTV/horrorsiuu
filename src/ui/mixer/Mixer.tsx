@@ -1,4 +1,5 @@
 import { memo, useState, type DragEvent } from 'react';
+import { confirmDelete } from '../commands';
 import { useProject, getProject } from '../../state/store';
 import { setUI, toast, useUI, openWindow } from '../../state/ui';
 import type { EffectType, MixerTrack } from '../../state/types';
@@ -89,7 +90,7 @@ const Strip = memo(function Strip({ track, index, selected }: { track: MixerTrac
         { label: 'Use as vocal / mic input insert', checked: engine.inputTrackId === track.id, onClick: () => { engine.inputTrackId = track.id; engine.sync(getProject()); toast(`Mic monitoring → ${track.name}`, 'ok'); } },
         { separator: true },
         { label: 'Reset fader', onClick: () => updateMixerTrack(track.id, { volume: 0.8, pan: 0 }, 'Reset') },
-        { label: 'Delete insert', danger: true, onClick: () => removeMixerTrack(track.id) },
+        { label: 'Delete insert', danger: true, onClick: () => { if (confirmDelete(`mixer insert “${track.name}”`, track.inserts.length > 0 || p.channels.some((c) => c.mixerTrackId === track.id))) removeMixerTrack(track.id); } },
       ] as MenuItem[] : [{ label: 'Reset fader', onClick: () => updateMixerTrack(track.id, { volume: 0.85, pan: 0 }, 'Reset') }]),
     ]);
   };

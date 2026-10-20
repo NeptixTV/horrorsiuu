@@ -44,21 +44,25 @@ function StatusBar() {
   const lastAction = useProject((s) => s.lastAction);
   const name = useProject((s) => s.project.name);
   const dirty = useProject((s) => s.dirty);
+  const showHints = useUI((s) => s.showHints);
   const [running, setRunning] = useState(engine.running);
+  const [sr, setSr] = useState(engine.initialized ? engine.ctx.sampleRate : 0);
   useEffect(() => {
-    const id = setInterval(() => setRunning(engine.running), 800);
-    return () => clearInterval(id);
+    const tick = () => { setRunning(engine.running); setSr(engine.initialized ? engine.ctx.sampleRate : 0); };
+    const id = setInterval(tick, 800);
+    const off = engine.onChange(tick);
+    return () => { clearInterval(id); off(); };
   }, []);
   return (
     <div className="statusbar">
       <span className="sb-project"><b>{name}</b>{dirty ? ' •' : ''}</span>
       <span>{lastAction ? `Last action: ${lastAction}` : 'Ready'}</span>
       <span className="spacer" />
-      <span className="sb-hint">Space play · R record · Ctrl+Z undo · Ctrl+S save · double-click a channel to edit</span>
+      {showHints && <span className="sb-hint">Space play · R record · Ctrl+Z undo · Ctrl+S save · double-click a channel to edit</span>}
       <span className="spacer" />
       <button className={`sb-audio ${running ? 'on' : ''}`} onClick={() => void engine.resume()} title={running ? 'Audio engine running' : 'Click to start audio'}>
         <span className="sb-dot" />
-        {running ? `Audio ${(engine.ctx.sampleRate / 1000).toFixed(1)} kHz` : 'Audio suspended – click to enable'}
+        {running ? `Audio ${(sr / 1000).toFixed(1)} kHz` : 'Audio suspended – click to enable'}
       </button>
     </div>
   );
@@ -146,9 +150,9 @@ function boot(): Promise<void> {
       void loadLibrary();
       if (ui().outputDeviceId) void engine.setOutputDevice(ui().outputDeviceId);
       report('Building interface…', 0.95);
-      // give the splash animation time to breathe
+      // give the splash animation time to breathe (Settings → Design → Start-up animation)
       const elapsed = performance.now() - t0;
-      await new Promise((r) => setTimeout(r, Math.max(0, 1900 - elapsed)));
+      if (ui().showSplash && !ui().reduceMotion) await new Promise((r) => setTimeout(r, Math.max(0, 1900 - elapsed)));
       report('Ready', 1);
     })();
   }
@@ -197,7 +201,7 @@ export function App() {
   return (
     <>
       {ready && <div className={`app-shell ${splashGone ? 'entered' : ''}`}><Main /></div>}
-      {!splashGone && <Splash progress={progress} label={label} done={ready} onGone={() => setSplashGone(true)} />}
+      {!splashGone && <Splash progress={progress} label={label} done={ready} quick={!ui().showSplash || ui().reduceMotion} onGone={() => setSplashGone(true)} />}
       {ready && splashGone && !setupDone && <SetupWizard onDone={() => undefined} />}
       {ready && splashGone && setupDone && <StartupNotices />}
       <ContextMenuHost />

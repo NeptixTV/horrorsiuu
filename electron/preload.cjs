@@ -1,5 +1,5 @@
 // Exposes a small, explicit API to the renderer (contextIsolation stays on).
-const { contextBridge, ipcRenderer, webUtils } = require('electron');
+const { contextBridge, ipcRenderer, webFrame, webUtils } = require('electron');
 
 contextBridge.exposeInMainWorld('goofyDesktop', {
   info: () => ipcRenderer.invoke('app:info'),
@@ -12,6 +12,11 @@ contextBridge.exposeInMainWorld('goofyDesktop', {
   download: (url, fileName, kind) => ipcRenderer.invoke('update:download', url, fileName, kind),
   install: (path, kind) => ipcRenderer.invoke('update:install', path, kind),
   openExternal: (url) => ipcRenderer.invoke('app:openExternal', url),
+  // interface size (Settings → Design); limited to a sane range
+  setZoom: (factor) => {
+    const f = Number(factor);
+    if (Number.isFinite(f)) webFrame.setZoomFactor(Math.min(1.6, Math.max(0.7, f)));
+  },
   onProgress: (cb) => {
     const fn = (_e, p) => cb(p);
     ipcRenderer.on('progress', fn);

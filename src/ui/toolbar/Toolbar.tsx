@@ -19,7 +19,7 @@ import { onFrame, uiLoad } from '../components/frameLoop';
 import { showMenu, type MenuItem } from '../components/ContextMenu';
 import { Oscilloscope } from '../visualizers/Visualizers';
 import {
-  addDreamChord,
+  addDreamChord, confirmDelete, patternHasContent,
   deleteSelected, doRedo, doSave, doUndo, duplicateSelected, exportWav, selectAll, setMode, stop, toggleMetronome, togglePlay, toggleRecord, showDock,
 } from '../commands';
 import { exportProjectFile, importProjectFile, newProject, saveProjectAs } from '../../project/manager';
@@ -81,7 +81,7 @@ function patternMenu(): MenuItem[] {
   return [
     { label: 'New pattern', onClick: () => setUI({ selectedPatternId: addPattern() }) },
     { label: 'Clone current pattern', onClick: () => { if (sel) setUI({ selectedPatternId: clonePattern(sel) }); } },
-    { label: 'Delete current pattern', danger: true, disabled: p.patterns.length <= 1, onClick: () => { if (sel) { removePattern(sel); setUI({ selectedPatternId: getProject().patterns[0]?.id ?? null }); } } },
+    { label: 'Delete current pattern', danger: true, disabled: p.patterns.length <= 1, onClick: () => { if (sel && confirmDelete('the current pattern', patternHasContent(sel))) { removePattern(sel); setUI({ selectedPatternId: getProject().patterns[0]?.id ?? null }); } } },
     { separator: true },
     ...p.patterns.map((pt) => ({ label: pt.name, color: pt.color, checked: pt.id === sel, onClick: () => setUI({ selectedPatternId: pt.id }) })),
   ];

@@ -1,4 +1,5 @@
 import { useCallback, useEffect, useRef, useState, type DragEvent, type PointerEvent as RPE } from 'react';
+import { confirmDelete, patternHasContent } from '../commands';
 import { getProject, beginGesture, endGesture, update, useProject } from '../../state/store';
 import { setUI, ui, useUI, type PlaylistTool } from '../../state/ui';
 import type { Clip, Project } from '../../state/types';
@@ -645,7 +646,7 @@ export function Playlist() {
       { separator: true },
       { label: tr.mute ? 'Unmute' : 'Mute', onClick: () => updateTrack(tr.id, { mute: !tr.mute }, 'Mute track') },
       { label: 'Add track', onClick: () => addTrack() },
-      { label: 'Delete track', danger: true, disabled: project.tracks.length <= 1, onClick: () => removeTrack(tr.id) },
+      { label: 'Delete track', danger: true, disabled: project.tracks.length <= 1, onClick: () => { if (confirmDelete(`track “${tr.name}”`, project.clips.some((c) => c.trackId === tr.id))) removeTrack(tr.id); } },
     ]);
   }, []);
 
@@ -701,7 +702,7 @@ export function Playlist() {
                     { label: 'Rename…', onClick: () => { void askText('Pattern name', p.name).then((n) => { if (n) updatePattern(p.id, { name: n }); }); } },
                     { label: 'Clone', onClick: () => setUI({ selectedPatternId: clonePattern(p.id) }) },
                     { label: 'Colour', submenu: colorMenu(p.color, (c) => updatePattern(p.id, { color: c })) },
-                    { label: 'Delete', danger: true, disabled: patterns.length <= 1, onClick: () => removePattern(p.id) },
+                    { label: 'Delete', danger: true, disabled: patterns.length <= 1, onClick: () => { if (confirmDelete(`pattern “${p.name}”`, patternHasContent(p.id))) removePattern(p.id); } },
                   ]);
                 }}
               >

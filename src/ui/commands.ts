@@ -128,6 +128,19 @@ export function showDock(tab: ReturnType<typeof ui>['dockTab']) {
 
 export const openSettings = () => openWindow({ kind: 'settings' });
 
+/** Asks before deleting something that has content (Settings → General → Ask before deleting). */
+export function confirmDelete(what: string, hasContent: boolean): boolean {
+  if (!ui().confirmDeletes || !hasContent) return true;
+  return confirm(`Delete ${what}? It still contains music. (You can undo with Ctrl+Z.)`);
+}
+
+export const channelHasContent = (id: string) => getProject().patterns.some((p) => (p.notes[id]?.length ?? 0) > 0 || (p.steps[id] ?? []).some((v) => v > 0));
+export const patternHasContent = (id: string) => {
+  const p = getProject();
+  const pt = p.patterns.find((x) => x.id === id);
+  return !!pt && (Object.values(pt.notes).some((l) => l.length > 0) || Object.values(pt.steps).some((l) => l.some((v) => v > 0)) || p.clips.some((c) => c.patternId === id));
+};
+
 /** Opens the right editor for a channel (DreamChord has its own device window). */
 export function openChannelEditor(channelId: string) {
   const ch = getProject().channels.find((c) => c.id === channelId);
