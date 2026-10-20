@@ -11,6 +11,8 @@ export interface Instrument {
   dispose(): void;
   /** tempo-synced instruments (DreamChord delay) */
   setTempo?(bpm: number): void;
+  /** shared filter offset in cents (automation 'Filter' target) */
+  readonly filterOffset?: AudioParam;
 }
 
 /** Ramps an AudioParam to hold its current value at `time` (cancelAndHold fallback). */

@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest';
-import { normalizeProject, normalizeSynth } from '../state/normalize';
+import { normalizeEffect, normalizeProject, normalizeSynth } from '../state/normalize';
 import { createDemoProject, createEmptyProject } from '../state/defaults';
 import { MASTER_ID } from '../state/types';
 
@@ -81,5 +81,18 @@ describe('project doctor', () => {
   it('throws for things that are not projects at all', () => {
     expect(() => normalizeProject(null)).toThrow();
     expect(() => normalizeProject('hello')).toThrow();
+  });
+
+  it('repairs effect settings from presets / old files (new effect types included)', () => {
+    const tape = normalizeEffect({ id: 'a', type: 'tape', bypass: false, params: { wow: 'NaN', drive: 99, tone: -5, __proto__: { evil: 1 } } });
+    expect(tape?.params.drive).toBe(1);
+    expect(tape?.params.tone).toBe(1500);
+    expect(tape?.params.wow).toBe(0.25);
+    expect(Object.keys(tape!.params).sort()).toEqual(['drive', 'flutter', 'hiss', 'mix', 'tone', 'wow']);
+    const gate = normalizeEffect({ id: 'b', type: 'gate', params: { threshold: '-30', release: 1e9 } });
+    expect(gate?.params.threshold).toBe(-30);
+    expect(gate?.params.release).toBe(1000);
+    expect(normalizeEffect({ id: 'c', type: 'width', params: null })?.params.width).toBe(1.4);
+    expect(normalizeEffect({ id: 'd', type: 'nope', params: {} })).toBeNull();
   });
 });

@@ -2,6 +2,7 @@ import { memo, useEffect, useRef, useState, type DragEvent } from 'react';
 import { useProject, beginGesture, endGesture, getProject } from '../../state/store';
 import { setUI, ui, useUI, toast } from '../../state/ui';
 import { addDreamChord, channelHasContent, confirmDelete, openChannelEditor } from '../commands';
+import { createAutomation } from '../automation/AutomationWindow';
 import type { Channel, Note } from '../../state/types';
 import {
   addChannel, addPattern, clonePattern, duplicateChannel, fillSteps, moveChannel, removeChannel, setStep, setSwing, shiftSteps,
@@ -114,6 +115,11 @@ const ChannelRow = memo(function ChannelRow({
     showMenu(e.clientX, e.clientY, [
       { label: 'Open editor', onClick: openEditor },
       { label: 'Piano roll', onClick: () => setUI({ pianoChannelId: channel.id, selectedChannelId: channel.id, dockTab: 'piano' }) },
+      { label: 'Automate', submenu: [
+        { label: 'Volume', onClick: () => createAutomation({ kind: 'channel', id: channel.id, param: 'volume' }) },
+        { label: 'Pan', onClick: () => createAutomation({ kind: 'channel', id: channel.id, param: 'pan' }) },
+        ...(channel.kind === 'synth' || channel.kind === 'dream' ? [{ label: 'Filter (brightness)', onClick: () => createAutomation({ kind: 'channel', id: channel.id, param: 'cutoff' }) }] : []),
+      ] },
       { label: 'Rename…', onClick: () => { void askText('Channel name', channel.name).then((n) => { if (n) updateChannel(channel.id, { name: n }, 'Rename channel'); }); } },
       { label: 'Colour', submenu: colorMenu(channel.color, (c) => updateChannel(channel.id, { color: c }, 'Channel colour')) },
       { label: 'Route to mixer insert', submenu: p.mixer.map((m, i) => ({ label: i === 0 ? 'Master' : `${i} · ${m.name}`, checked: m.id === channel.mixerTrackId, onClick: () => updateChannel(channel.id, { mixerTrackId: m.id }, 'Route channel') })) },

@@ -1,7 +1,7 @@
 import { useCallback, useEffect, useRef, useState, type DragEvent, type PointerEvent as RPE } from 'react';
 import { confirmDelete, patternHasContent } from '../commands';
 import { getProject, beginGesture, endGesture, update, useProject } from '../../state/store';
-import { setUI, ui, useUI, type PlaylistTool } from '../../state/ui';
+import { openWindow, setUI, ui, useUI, type PlaylistTool } from '../../state/ui';
 import type { Clip, Project } from '../../state/types';
 import { PPQ, TICKS_PER_STEP } from '../../state/types';
 import { clamp, formatBBS, secondsToTicks, snapTicks, ticksPerBar, uid } from '../../state/utils';
@@ -17,9 +17,12 @@ import { Icon } from '../components/Icon';
 import { showMenu, type MenuItem } from '../components/ContextMenu';
 import { colorMenu } from '../components/ColorPicker';
 import { readDragPayload } from '../browser/Browser';
-import { decodeAudioFile, placeAudioClip } from '../../project/manager';
+import { decodeAudioFile, placeAudioClip, protectedAssets, registerAsset } from '../../project/manager';
 import { addChannel } from '../../state/actions';
-import { drawClips, drawGrid, drawLoop, drawRuler, RULER_H, type View } from './draw';
+import { drawClips, drawGrid, drawLoop, drawRuler, markerAt, RULER_H, type View } from './draw';
+import { addMarker, duplicateTrack, insertTrack, moveTrack, removeMarker, updateMarker } from '../../state/actions';
+import { registerKeyOverride } from '../shortcuts';
+import { exportPatternMidi, importMidiFile } from '../../midi/midiProject';
 import { openClipSettings, openTrackSettings } from '../settings/SettingsWindows';
 import { FX_CATEGORIES, FX_CHAINS } from '../../audio/effects/fxPresets';
 import { ensureTrackInsert, fxApplyChain, toggleTrackSolo } from '../../state/actions';
@@ -49,6 +52,8 @@ const SNAPS: { label: string; value: number }[] = [
 function trackIndexOf(project: Project, trackId: string) {
   return project.tracks.findIndex((t) => t.id === trackId);
 }
+
+let clipClipboard: Clip[] | null = null;
 
 export function Playlist() {
   const vpRef = useRef<HTMLDivElement>(null);
@@ -443,6 +448,10 @@ export function Playlist() {
       openClipSettings(hit.clip.id);
       return;
     }
+    if (hit?.clip.kind === 'automation') {
+      openWindow({ kind: 'automation', clipId: hit.clip.id });
+      return;
+    }
     if (hit?.clip.kind === 'pattern' && hit.clip.patternId) {
       const pat = getProject().patterns.find((p) => p.id === hit.clip.patternId);
       const hasNotes = pat && Object.values(pat.notes).some((l) => l.length);
@@ -470,7 +479,11 @@ export function Playlist() {
     const c = hit.clip;
     const ids = ui().selectedClipIds.includes(c.id) ? ui().selectedClipIds : [c.id];
     if (!ui().selectedClipIds.includes(c.id)) setUI({ selectedClipIds: [c.id] });
-    const items: MenuItem[] = [
+    const items: MenuItem[] = c.kind === 'automation' ? [
+      { label: 'Edit automation…', onClick: () => openWindow({ kind: 'automation', clipId: c.id }) },
+      { label: 'Duplicate', shortcut: 'Ctrl+D', onClick: () => setUI({ selectedClipIds: duplicateClips(new Set(ids)) }) },
+      { label: ids.length > 1 ? `Delete ${ids.length} clips` : 'Delete', shortcut: 'Del', danger: true, onClick: () => { deleteClips(new Set(ids)); setUI({ selectedClipIds: [] }); } },
+    ] : [
       { label: 'Settings… (volume, effects, voice)', onClick: () => openClipSettings(c.id) },
       ...(c.kind === 'audio' ? [{
         label: 'Sound FX', submenu: FX_CATEGORIES.map((cat) => ({
@@ -540,8 +553,28 @@ export function Playlist() {
     return Math.max(0, (e.clientX - r.left + view.current.scrollX) / view.current.pxPerTick);
   };
   const onRulerDown = (e: RPE) => {
-    (e.currentTarget as Element).setPointerCapture(e.pointerId);
     const tick = rulerTick(e);
+    // marker flags live in the top 12 px of the ruler
+    const rr = rulerRef.current!.getBoundingClientRect();
+    const mk = e.clientY - rr.top <= 12 ? markerAt(getProject(), e.clientX - rr.left, view.current.scrollX, view.current.pxPerTick) : null;
+    if (mk) {
+      const m = getProject().markers?.find((x) => x.id === mk);
+      if (!m) return;
+      if (e.button === 2) {
+        showMenu(e.clientX, e.clientY, [
+          { label: 'Play from here', onClick: () => { engine.transport.setMode('song'); engine.transport.setPosition(m.tick); if (!engine.transport.playing) engine.transport.play(m.tick); } },
+          { label: 'Rename…', onClick: () => { void askText('Marker name', m.name).then((n) => { if (n) updateMarker(m.id, { name: n }); }); } },
+          { label: 'Move to playhead', onClick: () => updateMarker(m.id, { tick: Math.round(engine.transport.getTick()) }) },
+          { label: 'Colour', submenu: colorMenu(m.color, (c) => updateMarker(m.id, { color: c })) },
+          { label: 'Delete marker', danger: true, onClick: () => removeMarker(m.id) },
+        ]);
+      } else {
+        if (engine.transport.mode !== 'song') engine.transport.setMode('song');
+        engine.transport.setPosition(m.tick);
+      }
+      return;
+    }
+    (e.currentTarget as Element).setPointerCapture(e.pointerId);
     if (e.button === 2 || e.shiftKey || e.ctrlKey) {
       const s = snapTicks(tick, Math.max(PPQ, ui().playlistSnap), 'floor');
       drag.current = { kind: 'loop', anchor: s };
@@ -588,7 +621,11 @@ export function Playlist() {
     const tIdx = clamp(track, 0, project.tracks.length - 1);
     const trackId = project.tracks[tIdx].id;
     const start = place(tick, e, 'floor');
-    const files = Array.from(e.dataTransfer.files ?? []).filter((f) => f.type.startsWith('audio') || /\.(wav|mp3|ogg|flac|m4a|aac|webm)$/i.test(f.name));
+    const all = Array.from(e.dataTransfer.files ?? []);
+    for (const f of all.filter((x) => /\.(mid|midi)$/i.test(x.name))) {
+      await importMidiFile(f).catch((err) => toast(err instanceof Error ? err.message : 'MIDI import failed', 'error'));
+    }
+    const files = all.filter((f) => !/\.(mid|midi)$/i.test(f.name) && (f.type.startsWith('audio') || /\.(wav|mp3|ogg|flac|m4a|aac|webm)$/i.test(f.name)));
     if (files.length) {
       let at = start;
       for (const f of files) {
@@ -627,6 +664,43 @@ export function Playlist() {
     }
   };
 
+  // clipboard: Ctrl+C / Ctrl+X / Ctrl+V (paste at the play position)
+  useEffect(() => registerKeyOverride((e, down) => {
+    if (!down || ui().focus !== 'playlist' || !(e.ctrlKey || e.metaKey)) return false;
+    const k = e.key.toLowerCase();
+    if (k === 'c' || k === 'x') {
+      const ids = ui().selectedClipIds;
+      if (!ids.length) return false;
+      const p = getProject();
+      clipClipboard = p.clips.filter((c) => ids.includes(c.id)).map((c) => structuredClone(c));
+      protectedAssets.clear();
+      for (const c of clipClipboard) if (c.assetId) protectedAssets.add(c.assetId);
+      if (k === 'x') {
+        deleteClips(new Set(ids));
+        setUI({ selectedClipIds: [] });
+      }
+      toast(`${k === 'x' ? 'Cut' : 'Copied'} ${clipClipboard.length} clip${clipClipboard.length === 1 ? '' : 's'}`, 'info');
+      return true;
+    }
+    if (k === 'v') {
+      if (!clipClipboard?.length) return false;
+      const p = getProject();
+      const at = place(engine.transport.mode === 'song' ? engine.transport.getTick() : 0, { altKey: false }, 'floor');
+      const first = Math.min(...clipClipboard.map((c) => c.start));
+      const trackIds = new Set(p.tracks.map((t) => t.id));
+      const patternIds = new Set(p.patterns.map((x) => x.id));
+      const copies = clipClipboard
+        .filter((c) => c.kind !== 'pattern' || patternIds.has(c.patternId ?? ''))
+        .map((c) => ({ ...structuredClone(c), id: uid('c'), start: Math.max(0, c.start - first + at), trackId: trackIds.has(c.trackId) ? c.trackId : p.tracks[0].id }));
+      for (const c of copies) if (c.assetId) registerAsset(c.assetId, assets.name(c.assetId));
+      if (!copies.length) return true;
+      update('Paste clips', (d) => { d.clips.push(...copies); });
+      setUI({ selectedClipIds: copies.map((c) => c.id) });
+      return true;
+    }
+    return false;
+  }), []);
+
   const setTool = (t: PlaylistTool) => setUI({ playlistTool: t });
   const pattern = patterns.find((p) => p.id === selectedPatternId);
 
@@ -645,6 +719,13 @@ export function Playlist() {
       { label: 'Route audio clips to', submenu: project.mixer.map((m, i) => ({ label: i === 0 ? 'Master' : `${i} · ${m.name}`, checked: tr.mixerTrackId === m.id, onClick: () => updateTrack(tr.id, { mixerTrackId: m.id }, 'Route track') })) },
       { separator: true },
       { label: tr.mute ? 'Unmute' : 'Mute', onClick: () => updateTrack(tr.id, { mute: !tr.mute }, 'Mute track') },
+      { label: 'Select all clips on this track', onClick: () => setUI({ selectedClipIds: project.clips.filter((c) => c.trackId === tr.id).map((c) => c.id), focus: 'playlist' }) },
+      { separator: true },
+      { label: 'Move up', disabled: project.tracks[0]?.id === tr.id, onClick: () => moveTrack(tr.id, -1) },
+      { label: 'Move down', disabled: project.tracks[project.tracks.length - 1]?.id === tr.id, onClick: () => moveTrack(tr.id, 1) },
+      { label: 'Insert track above', onClick: () => insertTrack(project.tracks.findIndex((t) => t.id === tr.id)) },
+      { label: 'Insert track below', onClick: () => insertTrack(project.tracks.findIndex((t) => t.id === tr.id) + 1) },
+      { label: 'Duplicate track (with clips)', onClick: () => duplicateTrack(tr.id) },
       { label: 'Add track', onClick: () => addTrack() },
       { label: 'Delete track', danger: true, disabled: project.tracks.length <= 1, onClick: () => { if (confirmDelete(`track “${tr.name}”`, project.clips.some((c) => c.trackId === tr.id))) removeTrack(tr.id); } },
     ]);
@@ -678,6 +759,7 @@ export function Playlist() {
         <span className="spacer" />
         {mode !== 'song' && <span className="pl-mode-hint" onClick={() => engine.transport.setMode('song')}>Pattern mode – click for SONG mode</span>}
         {recording && <span className="pl-rec-hint">● Recording</span>}
+        <button className="btn small" onClick={() => { void askText('Marker name', `Part ${(getProject().markers?.length ?? 0) + 1}`).then((n) => { if (n) addMarker(engine.transport.getTick(), n); }); }} title="Add a marker at the play position (verse, chorus …). Click a marker to jump, right-click for options."><Icon name="marker" size={11} /> Marker</button>
         <button className="btn small" onClick={() => addTrack()} title="Add playlist track"><Icon name="plus" size={11} /> Track</button>
       </div>
       <div className="pl-body">
@@ -702,6 +784,7 @@ export function Playlist() {
                     { label: 'Rename…', onClick: () => { void askText('Pattern name', p.name).then((n) => { if (n) updatePattern(p.id, { name: n }); }); } },
                     { label: 'Clone', onClick: () => setUI({ selectedPatternId: clonePattern(p.id) }) },
                     { label: 'Colour', submenu: colorMenu(p.color, (c) => updatePattern(p.id, { color: c })) },
+                    { label: 'Export as MIDI file', onClick: () => exportPatternMidi(p.id) },
                     { label: 'Delete', danger: true, disabled: patterns.length <= 1, onClick: () => { if (confirmDelete(`pattern “${p.name}”`, patternHasContent(p.id))) removePattern(p.id); } },
                   ]);
                 }}

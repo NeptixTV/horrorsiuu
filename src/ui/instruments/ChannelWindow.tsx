@@ -18,6 +18,8 @@ import { showMenu } from '../components/ContextMenu';
 import { useCanvas } from '../visualizers/Visualizers';
 import { readDragPayload } from '../browser/Browser';
 import { decodeAudioFile } from '../../project/manager';
+import { userPresetItems } from '../presetMenu';
+import { normalizeSynth } from '../../state/normalize';
 import './instruments.css';
 
 const WAVES: Waveform[] = ['sine', 'sawtooth', 'square', 'triangle'];
@@ -175,9 +177,12 @@ function SynthEditor({ ch }: { ch: Channel }) {
     <div className="synth">
       <div className="syn-header">
         <WavePreview p={p} />
-        <button className="btn small" onClick={(e) => showMenu(e.clientX, e.clientY, SYNTH_PRESETS.map((pr) => ({
-          label: `${pr.category} · ${pr.name}`, onClick: () => updateChannel(ch.id, { synth: structuredClone(pr.params) }, `Preset ${pr.name}`),
-        })))}>
+        <button className="btn small" onClick={(e) => showMenu(e.clientX, e.clientY, [
+          ...SYNTH_PRESETS.map((pr) => ({
+            label: `${pr.category} · ${pr.name}`, onClick: () => updateChannel(ch.id, { synth: structuredClone(pr.params) }, `Preset ${pr.name}`),
+          })),
+          ...userPresetItems('synth', () => ch.synth ?? {}, (params, name) => updateChannel(ch.id, { synth: normalizeSynth(params) }, `Preset ${name}`), `${ch.name} (mine)`),
+        ])}>
           <Icon name="preset" size={11} /> Presets
         </button>
       </div>

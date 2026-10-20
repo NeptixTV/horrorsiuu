@@ -1,5 +1,6 @@
-import { memo, useState, type DragEvent } from 'react';
+import { memo, useEffect, useRef, useState, type DragEvent } from 'react';
 import { confirmDelete } from '../commands';
+import { createAutomation } from '../automation/AutomationWindow';
 import { useProject, getProject } from '../../state/store';
 import { setUI, toast, useUI, openWindow } from '../../state/ui';
 import type { EffectType, MixerTrack } from '../../state/types';
@@ -15,6 +16,7 @@ import { wouldCycle } from '../../state/routing';
 import { Fader } from '../components/Fader';
 import { Knob } from '../components/Knob';
 import { Meter } from '../components/Meter';
+import { onFrame } from '../components/frameLoop';
 import { Icon } from '../components/Icon';
 import { showMenu, type MenuItem } from '../components/ContextMenu';
 import { colorMenu } from '../components/ColorPicker';
@@ -34,6 +36,46 @@ function levelsOf(id: string) {
     return { l: l.peakL, r: l.peakR };
   };
 }
+
+/**
+ * Highest peak since the last reset (click, or automatically when playback
+ * starts). Red = the signal went above 0 dBFS on this insert.
+ */
+const PeakReadout = memo(function PeakReadout({ id }: { id: string }) {
+  const ref = useRef<HTMLButtonElement>(null);
+  const max = useRef(0);
+  useEffect(() => {
+    const src = levelsOf(id);
+    let acc = 1;
+    let wasPlaying = false;
+    let shown = '';
+    return onFrame((dt) => {
+      const playing = !!engine.transport?.playing;
+      if (playing && !wasPlaying) max.current = 0;
+      wasPlaying = playing;
+      const v = src();
+      if (v && Number.isFinite(v.l) && Number.isFinite(v.r)) max.current = Math.max(max.current, v.l, v.r);
+      acc += dt;
+      if (acc < 0.12) return;
+      acc = 0;
+      const el = ref.current;
+      if (!el) return;
+      const m = max.current;
+      const text = m > 1e-5 ? (20 * Math.log10(m)).toFixed(1) : '-∞';
+      if (text !== shown) {
+        shown = text;
+        el.textContent = text;
+        el.classList.toggle('over', m >= 1);
+        el.classList.toggle('hot', m >= 0.7 && m < 1);
+      }
+    });
+  }, [id]);
+  return (
+    <button ref={ref} className="mx-peak" title="Highest peak in dBFS (click to reset). Red = above 0 dB – turn this insert down to avoid distortion." onClick={() => { max.current = 0; }}>
+      -∞
+    </button>
+  );
+});
 
 function effectMenu(trackId: string, index?: number): MenuItem[] {
   return EFFECT_TYPES.map((t) => ({
@@ -85,6 +127,11 @@ const Strip = memo(function Strip({ track, index, selected }: { track: MixerTrac
       { label: 'Rename…', onClick: () => { void askText('Insert name', track.name).then((n) => { if (n) updateMixerTrack(track.id, { name: n }, 'Rename insert'); }); } },
       { label: 'Colour', submenu: colorMenu(track.color, (c) => updateMixerTrack(track.id, { color: c }, 'Insert colour')) },
       { label: 'Add effect', submenu: effectMenu(track.id) },
+      { label: 'Automate', submenu: [
+        { label: 'Volume', onClick: () => createAutomation({ kind: 'mixer', id: track.id, param: 'volume' }) },
+        { label: 'Pan', onClick: () => createAutomation({ kind: 'mixer', id: track.id, param: 'pan' }) },
+        ...track.inserts.map((fx) => ({ label: EFFECTS[fx.type].name, submenu: EFFECTS[fx.type].params.filter((d) => d.kind === 'number').map((d) => ({ label: d.label, onClick: () => createAutomation({ kind: 'effect', trackId: track.id, effectId: fx.id, param: d.key }) })) })),
+      ] },
       ...(!isMaster ? [
         { label: 'Route output to', submenu: p.mixer.filter((m) => m.id !== track.id).map((m) => ({ label: m.id === MASTER_ID ? 'Master' : `${p.mixer.indexOf(m)} · ${m.name}`, checked: track.output === m.id, disabled: m.id !== MASTER_ID && wouldCycle(p.mixer.map((x) => (x.id === track.id ? { ...x, output: null } : x)), track.id, m.id), onClick: () => setOutput(track.id, m.id) })) },
         { label: 'Use as vocal / mic input insert', checked: engine.inputTrackId === track.id, onClick: () => { engine.inputTrackId = track.id; engine.sync(getProject()); toast(`Mic monitoring → ${track.name}`, 'ok'); } },
@@ -116,7 +163,8 @@ const Strip = memo(function Strip({ track, index, selected }: { track: MixerTrac
         <Meter source={levelsOf(track.id)} width={isMaster ? 18 : 12} height={150} />
         <Fader value={track.volume} defaultValue={isMaster ? 0.85 : 0.8} height={150} onChange={(v) => updateMixerTrack(track.id, { volume: v }, 'Volume')} title={formatDb(track.volume)} />
       </div>
-      <div className="mx-db">{isFinite(db) ? db.toFixed(1) : '-∞'}</div>
+      <div className="mx-db" title="Fader position in dB">{isFinite(db) ? db.toFixed(1) : '-∞'}</div>
+      <PeakReadout id={track.id} />
       <div className="mx-ms">
         <button className={`toggle-ms mute ${track.mute ? 'on' : ''}`} onClick={() => toggleMixerMute(track.id)} title="Mute">M</button>
         {!isMaster && <button className={`toggle-ms solo ${track.solo ? 'on' : ''}`} onClick={(e) => toggleMixerSolo(track.id, e.ctrlKey || e.metaKey)} title="Solo (Ctrl: exclusive)">S</button>}

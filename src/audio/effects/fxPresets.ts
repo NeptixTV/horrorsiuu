@@ -51,6 +51,8 @@ export const FX_CHAINS: FxChainPreset[] = [
   { name: 'Nightcore', icon: '⚡', category: 'Character', effects: [['voice', { transpose: 4, formant: 2 }], ['eq', { high: 3, highMid: 2 }]] },
   { name: 'Phaser Swirl', icon: '🌀', category: 'Character', effects: [['phaser', { rate: 0.3, depth: 0.8, feedback: 0.6, mix: 0.5 }]] },
   { name: 'Loud & Clear', icon: '✨', category: 'Character', effects: [['eq', { low: -3, highMid: 3, high: 4 }], ['compressor', { threshold: -22, ratio: 4, makeup: 6 }], ['limiter', { drive: 4, ceiling: -0.5 }]] },
+  { name: 'Cassette Dream', icon: '📼', category: 'Character', effects: [['tape', { wow: 0.35, flutter: 0.3, drive: 0.5, tone: 7000, hiss: 0.12 }], ['width', { width: 1.3, monoBass: 140 }], ['reverb', { size: 0.8, decay: 3.5, damping: 5000, wet: 0.3 }]] },
+  { name: 'Clean Vocal', icon: '🎧', category: 'Character', effects: [['gate', { threshold: -45, range: -25, hold: 60, release: 180 }], ['eq', { low: -8, lowFreq: 100, highMid: 2, high: 3 }], ['compressor', { threshold: -22, ratio: 4, makeup: 5 }]] },
 
   // ---- autotune flavours
   { name: 'Hard Autotune', icon: '🎤', category: 'Autotune', effects: [['pitch', { correction: 1, retune: 0, humanize: 0 }]] },

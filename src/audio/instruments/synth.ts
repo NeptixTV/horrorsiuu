@@ -31,9 +31,18 @@ export class Synth implements Instrument {
   private p: SynthParams = defaultSynth();
   private voices: Voice[] = [];
   private lastFreq = 0;
+  private cutMod: ConstantSourceNode;
+
+  /** shared filter offset in cents (automation) */
+  get filterOffset() {
+    return this.cutMod.offset;
+  }
 
   constructor(private ctx: BaseAudioContext) {
     this.output = ctx.createGain();
+    this.cutMod = ctx.createConstantSource();
+    this.cutMod.offset.value = 0;
+    this.cutMod.start();
     this.tremolo = ctx.createGain();
     this.tremolo.connect(this.output);
     this.lfo = ctx.createOscillator();
@@ -84,6 +93,7 @@ export class Synth implements Instrument {
     filter.frequency.value = p.cutoff;
     filter.Q.value = p.resonance;
     this.lfoFilter.connect(filter.detune);
+    this.cutMod.connect(filter.detune);
     const detunes: AudioParam[] = [];
     const vca = ctx.createGain();
     vca.gain.value = 0;
@@ -149,6 +159,7 @@ export class Synth implements Instrument {
       if (cleaned) return;
       cleaned = true;
       try { this.lfoFilter.disconnect(filter.detune); } catch { /* ignore */ }
+      try { this.cutMod.disconnect(filter.detune); } catch { /* ignore */ }
       for (const d of detunes) { try { this.lfoPitch.disconnect(d); } catch { /* ignore */ } }
       try { vca.disconnect(); } catch { /* ignore */ }
       try { filter.disconnect(); } catch { /* ignore */ }
@@ -197,7 +208,8 @@ export class Synth implements Instrument {
   dispose() {
     this.allNotesOff();
     try { this.lfo.stop(); } catch { /* ignore */ }
-    for (const n of [this.lfo, this.lfoPitch, this.lfoFilter, this.lfoAmp, this.tremolo, this.output]) {
+    try { this.cutMod.stop(); } catch { /* ignore */ }
+    for (const n of [this.lfo, this.cutMod, this.lfoPitch, this.lfoFilter, this.lfoAmp, this.tremolo, this.output]) {
       try { n.disconnect(); } catch { /* ignore */ }
     }
   }

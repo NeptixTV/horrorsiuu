@@ -1,0 +1,4 @@
+.auto { display: flex; flex-direction: column; gap: 8px; padding: 10px; }
+.auto-tools { display: flex; align-items: center; gap: 5px; flex-wrap: wrap; }
+.auto-canvas { display: block; border-radius: 6px; border: 1px solid var(--border); cursor: crosshair; touch-action: none; }
+.auto-foot { display: flex; gap: 8px; font-size: 11px; color: var(--dim); font-family: var(--mono); }

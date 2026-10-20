@@ -66,8 +66,12 @@ async function loadAssets(project: Project) {
  * every decoded file in memory, which caused heavy garbage collection pauses
  * – and those pauses made playback stutter.
  */
+/** Audio that must survive a project switch (e.g. clips on the clipboard). */
+export const protectedAssets = new Set<string>();
+
 export function releaseUnusedAssets(keep: Project) {
   const needed = projectAssetIds(keep);
+  for (const id of protectedAssets) needed.add(id);
   let freed = 0;
   for (const id of assets.ids()) {
     if (id.startsWith('builtin:') || needed.has(id) || isLibrarySample(id)) continue;

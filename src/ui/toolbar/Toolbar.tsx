@@ -4,6 +4,7 @@ import { engine } from '../../audio/engine';
 import { useProject, getProject } from '../../state/store';
 import { setUI, toast, ui, useUI, openWindow, type DockTab } from '../../state/ui';
 import { DREAM_PRESETS } from '../../audio/instruments/dreamPresets';
+import { exportSongMidi, importMidiFile } from '../../midi/midiProject';
 import { formatBBS, formatTime, ticksToSeconds, formatDb } from '../../state/utils';
 import { MASTER_ID } from '../../state/types';
 import {
@@ -41,8 +42,11 @@ function fileMenu(): MenuItem[] {
     { label: 'Save', shortcut: 'Ctrl+S', onClick: () => void doSave() },
     { label: 'Save as…', shortcut: 'Ctrl+Shift+S', onClick: () => { void askText('Save project as', `${getProject().name} copy`).then((n) => { if (n) void saveProjectAs(n); }); } },
     { separator: true },
-    { label: 'Export WAV (song)…', onClick: () => void exportWav('song') },
-    { label: 'Export WAV (current pattern)…', onClick: () => void exportWav('pattern') },
+    { label: 'Export… (WAV, stems, MIDI)', onClick: () => openWindow({ kind: 'export' }) },
+    { label: 'Export WAV (song)', onClick: () => void exportWav('song') },
+    { label: 'Export WAV (current pattern)', onClick: () => void exportWav('pattern') },
+    { label: 'Export song as MIDI', onClick: exportSongMidi },
+    { label: 'Import MIDI file…', onClick: () => pickFile('.mid,.midi,audio/midi', (f) => void importMidiFile(f).catch((e) => toast(e instanceof Error ? e.message : 'MIDI import failed', 'error'))) },
     { label: 'Export project file (.goofy.json)', onClick: exportProjectFile },
     { label: 'Import project file…', onClick: () => pickFile('.json,application/json', (f) => void importProjectFile(f)) },
     { separator: true },
@@ -53,8 +57,9 @@ function fileMenu(): MenuItem[] {
 function editMenu(): MenuItem[] {
   const s = useProject.getState();
   return [
-    { label: s.past.length ? `Undo ${s.lastAction}` : 'Undo', shortcut: 'Ctrl+Z', disabled: !s.past.length, onClick: doUndo },
-    { label: 'Redo', shortcut: 'Ctrl+Shift+Z', disabled: !s.future.length, onClick: doRedo },
+    { label: s.past.length ? `Undo ${s.pastLabels[s.pastLabels.length - 1] ?? ''}` : 'Undo', shortcut: 'Ctrl+Z', disabled: !s.past.length, onClick: doUndo },
+    { label: s.future.length ? `Redo ${s.futureLabels[0] ?? ''}` : 'Redo', shortcut: 'Ctrl+Shift+Z', disabled: !s.future.length, onClick: doRedo },
+    { label: 'Undo history…', onClick: () => openWindow({ kind: 'history' }) },
     { separator: true },
     { label: 'Select all', shortcut: 'Ctrl+A', onClick: selectAll },
     { label: 'Duplicate selection', shortcut: 'Ctrl+D', onClick: duplicateSelected },

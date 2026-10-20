@@ -8,6 +8,8 @@ import { StemSplitterWindow } from './stems/StemSplitter';
 import { AdminWindow } from './admin/AdminWindow';
 import { ChannelWindow } from './instruments/ChannelWindow';
 import { DreamChordWindow } from './dreamchord/DreamChordWindow';
+import { AutomationWindow } from './automation/AutomationWindow';
+import { HistoryWindow } from './dialogs/HistoryWindow';
 import { SettingsWindow } from './dialogs/SettingsWindow';
 import { ProjectsWindow } from './dialogs/ProjectsWindow';
 import { AboutWindow, ExportWindow, ShortcutsWindow } from './dialogs/InfoWindows';
@@ -42,6 +44,8 @@ function renderWindow(w: FloatingWindow) {
           case 'admin': return <AdminWindow key={w.id} w={w} />;
           case 'channel': return <ChannelWindow key={w.id} w={w} channelId={k.channelId} />;
           case 'dreamchord': return <DreamChordWindow key={w.id} w={w} channelId={k.channelId} />;
+          case 'automation': return <AutomationWindow key={w.id} w={w} clipId={k.clipId} />;
+          case 'history': return <HistoryWindow key={w.id} w={w} />;
           case 'settings': return <SettingsWindow key={w.id} w={w} />;
           case 'projects': return <ProjectsWindow key={w.id} w={w} />;
           case 'shortcuts': return <ShortcutsWindow key={w.id} w={w} />;

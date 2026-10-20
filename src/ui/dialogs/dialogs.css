@@ -30,3 +30,18 @@
 .ask-form { padding: 14px; display: flex; flex-direction: column; gap: 12px; }
 .ask-form .input { height: 30px; font-size: 13px; }
 .ask-actions { display: flex; justify-content: flex-end; gap: 6px; }
+.export section h3 { margin-bottom: 8px; }
+.exp-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 8px 12px; margin-bottom: 8px; }
+.exp-grid label { display: flex; flex-direction: column; gap: 4px; font-size: 11px; color: var(--dim); }
+.exp-actions { display: flex; flex-wrap: wrap; gap: 6px; margin-bottom: 6px; }
+.exp-progress { display: flex; flex-direction: column; gap: 6px; font-size: 11px; color: var(--dim); }
+.exp-bar { height: 8px; border-radius: 4px; background: var(--panel3); overflow: hidden; }
+.exp-bar > div { height: 100%; background: var(--accent); transition: width 0.2s; }
+.hist { max-height: 420px; }
+.hist-row { display: flex; align-items: center; gap: 8px; padding: 5px 8px; border: 0; border-radius: 4px; background: none; color: var(--text); text-align: left; cursor: pointer; font-size: 12px; }
+.hist-row:hover { background: var(--panel3); }
+.hist-row.current { background: color-mix(in srgb, var(--accent) 20%, transparent); }
+.hist-row.future { color: var(--dim); font-style: italic; }
+.hist-n { width: 26px; text-align: right; font-family: var(--mono); font-size: 10px; color: var(--dim); }
+.hist-label { flex: 1; }
+.hist-now { font-size: 9px; text-transform: uppercase; letter-spacing: .08em; color: var(--accent); }

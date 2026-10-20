@@ -4,7 +4,8 @@ import { useRef } from 'react';
 import type { EffectInstance, ParamValue } from '../../state/types';
 import { EFFECTS, num, str } from '../../audio/effects/descriptors';
 import type { Effect } from '../../audio/effects/base';
-import { CompressorEffect, DelayEffect, DistortionEffect, EqEffect, FilterEffect, LimiterEffect, PitchEffect } from '../../audio/effects';
+import { CompressorEffect, DelayEffect, DistortionEffect, EqEffect, FilterEffect, GateEffect, LimiterEffect, PitchEffect, TapeEffect, WidthEffect } from '../../audio/effects';
+import { tapeCurve } from '../../audio/effects/studio';
 import { makeCurve } from '../../audio/effects/distortion';
 import { engine } from '../../audio/engine';
 import { beginGesture, endGesture } from '../../state/store';
@@ -634,6 +635,148 @@ export function ModView(p: ViewProps) {
   );
 }
 
+// ---------------- tape / width / gate ----------------
+const scopeA = new Float32Array(512);
+const scopeB = new Float32Array(512);
+
+function drawReel(ctx: CanvasRenderingContext2D, x: number, y: number, r: number, angle: number, color: string) {
+  ctx.strokeStyle = color;
+  ctx.lineWidth = 2;
+  ctx.beginPath();
+  ctx.arc(x, y, r, 0, Math.PI * 2);
+  ctx.stroke();
+  ctx.beginPath();
+  ctx.arc(x, y, r * 0.28, 0, Math.PI * 2);
+  ctx.stroke();
+  for (let k = 0; k < 3; k++) {
+    const a = angle + (k * Math.PI * 2) / 3;
+    ctx.beginPath();
+    ctx.moveTo(x + Math.cos(a) * r * 0.28, y + Math.sin(a) * r * 0.28);
+    ctx.lineTo(x + Math.cos(a) * r * 0.85, y + Math.sin(a) * r * 0.85);
+    ctx.stroke();
+  }
+}
+
+export function StudioFxView(p: ViewProps) {
+  const d = EFFECTS[p.fx.type];
+  const color = d.color;
+  const curveRef = useRef<{ drive: number; curve: Float32Array }>({ drive: -1, curve: new Float32Array(0) });
+  const ref = useCanvas((ctx, w, h) => {
+    const t = theme();
+    ctx.fillStyle = '#08090b';
+    ctx.fillRect(0, 0, w, h);
+    const prm = p.fx.params;
+    const eff = p.effect();
+    const now = performance.now() / 1000;
+    ctx.font = '10px Inter, sans-serif';
+    if (p.fx.type === 'tape') {
+      drawTrackSpectrum(ctx, p.trackId, w, h, color);
+      // reels turn a little unevenly with the wow amount
+      const wow = num(prm, 'wow', 0.25);
+      const angle = now * 2.2 + Math.sin(now * 0.55 * Math.PI * 2) * wow * 0.6 + Math.sin(now * 0.83 * Math.PI * 2) * wow * 0.4;
+      const r = Math.min(h * 0.32, w * 0.12);
+      drawReel(ctx, w * 0.2, h * 0.45, r, angle, color);
+      drawReel(ctx, w * 0.45, h * 0.45, r, angle * 1.15, color);
+      ctx.strokeStyle = rgba(color, 0.6);
+      ctx.beginPath();
+      ctx.moveTo(w * 0.2, h * 0.45 + r);
+      ctx.lineTo(w * 0.45, h * 0.45 + r);
+      ctx.stroke();
+      // saturation curve
+      const drive = num(prm, 'drive', 0.35);
+      if (curveRef.current.drive !== drive) curveRef.current = { drive, curve: eff instanceof TapeEffect ? eff.curve : tapeCurve(drive) };
+      const c = curveRef.current.curve;
+      const bx = w * 0.62;
+      const bw = w * 0.34;
+      const by = 10;
+      const bh = h - 26;
+      ctx.strokeStyle = rgba(t.text, 0.15);
+      ctx.strokeRect(bx, by, bw, bh);
+      ctx.beginPath();
+      ctx.moveTo(bx, by + bh);
+      ctx.lineTo(bx + bw, by);
+      ctx.stroke();
+      ctx.strokeStyle = color;
+      ctx.lineWidth = 2;
+      ctx.beginPath();
+      for (let i = 0; i < c.length; i += 8) {
+        const x = bx + (i / (c.length - 1)) * bw;
+        const y = by + bh / 2 - c[i] * (bh / 2);
+        if (i === 0) ctx.moveTo(x, y); else ctx.lineTo(x, y);
+      }
+      ctx.stroke();
+      ctx.lineWidth = 1;
+      ctx.fillStyle = t.dim;
+      ctx.fillText(`saturation ${Math.round(drive * 100)}% · wow ${Math.round(wow * 100)}% · flutter ${Math.round(num(prm, 'flutter', 0.2) * 100)}%`, 8, h - 8);
+      return;
+    }
+    if (p.fx.type === 'width') {
+      // goniometer: mono = vertical line, wide = cloud, out of phase = horizontal
+      const cx = w / 2;
+      const cy = h / 2;
+      const R = h / 2 - 12;
+      ctx.strokeStyle = rgba(t.text, 0.1);
+      ctx.beginPath();
+      ctx.moveTo(cx, cy - R); ctx.lineTo(cx, cy + R);
+      ctx.moveTo(cx - R, cy); ctx.lineTo(cx + R, cy);
+      ctx.stroke();
+      ctx.fillStyle = t.dim;
+      ctx.fillText('M', cx + 4, 12);
+      ctx.fillText('S', cx + R - 8, cy - 4);
+      let corr = 1;
+      if (eff instanceof WidthEffect && eff.scopeL && eff.scopeR) {
+        eff.scopeL.getFloatTimeDomainData(scopeA);
+        eff.scopeR.getFloatTimeDomainData(scopeB);
+        let lr = 0, ll = 0, rr = 0;
+        ctx.fillStyle = rgba(color, 0.55);
+        for (let i = 0; i < scopeA.length; i++) {
+          const l = scopeA[i];
+          const r = scopeB[i];
+          lr += l * r; ll += l * l; rr += r * r;
+          const x = cx + ((l - r) / Math.SQRT2) * R * 1.4;
+          const y = cy - ((l + r) / Math.SQRT2) * R * 1.4;
+          ctx.fillRect(x, y, 1.5, 1.5);
+        }
+        corr = ll > 1e-9 && rr > 1e-9 ? lr / Math.sqrt(ll * rr) : 1;
+      }
+      ctx.fillStyle = t.text;
+      ctx.fillText(`width ${Math.round(num(prm, 'width', 1.4) * 100)}%`, 8, 14);
+      ctx.fillStyle = corr < 0 ? '#ff5c5c' : t.dim;
+      ctx.fillText(`correlation ${corr.toFixed(2)}${corr < 0 ? ' – phase problems in mono!' : ''}`, 8, h - 8);
+      return;
+    }
+    // gate: level meter with threshold and gate state
+    const st = eff instanceof GateEffect ? eff.state : null;
+    const thr = num(prm, 'threshold', -45);
+    const db = (v: number) => (v > 1e-5 ? 20 * Math.log10(v) : -100);
+    const x0 = 20;
+    const bw = w - 40;
+    const xOf = (dbv: number) => x0 + clamp((dbv + 80) / 80, 0, 1) * bw;
+    const y = h / 2 - 12;
+    ctx.fillStyle = '#15181c';
+    ctx.fillRect(x0, y, bw, 24);
+    if (st && performance.now() - st.time < 500) {
+      ctx.fillStyle = rgba(color, 0.8);
+      ctx.fillRect(x0, y, xOf(db(st.peak)) - x0, 24);
+    }
+    ctx.fillStyle = '#fff';
+    ctx.fillRect(xOf(thr) - 1, y - 6, 2, 36);
+    ctx.fillStyle = t.dim;
+    for (const m of [-60, -40, -20, 0]) ctx.fillText(`${m}`, xOf(m) - 8, y + 40);
+    const open = st ? st.open : true;
+    ctx.font = '700 14px Inter, sans-serif';
+    ctx.fillStyle = !eff || !(eff instanceof GateEffect) || !eff.available ? t.dim : open ? color : '#ff5c5c';
+    ctx.fillText(eff instanceof GateEffect && !eff.available ? 'Gate unavailable (no AudioWorklet)' : open ? 'OPEN' : `CLOSED  ${db(st?.gain ?? 1).toFixed(0)} dB`, x0, y - 12);
+  });
+  return (
+    <div className="fx-view">
+      {d.info && <div className="fx-info">{d.info}</div>}
+      <canvas ref={ref} className="fx-canvas" />
+      <Knobs fx={p.fx} set={p.set} />
+    </div>
+  );
+}
+
 export const VIEWS: Record<EffectInstance['type'], (p: ViewProps) => React.ReactElement> = {
   eq: EqView,
   compressor: CompressorView,
@@ -649,4 +792,7 @@ export const VIEWS: Record<EffectInstance['type'], (p: ViewProps) => React.React
   tremolo: ModView,
   autopan: ModView,
   limiter: ModView,
+  tape: StudioFxView,
+  width: StudioFxView,
+  gate: StudioFxView,
 };

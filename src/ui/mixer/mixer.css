@@ -14,6 +14,10 @@
 .mx-dot.off { opacity: .25; }
 .mx-fader-area { display: flex; gap: 3px; align-items: flex-end; flex: 1; min-height: 0; }
 .mx-db { font-family: var(--mono); font-size: 10px; color: var(--accent2); background: #07080a; padding: 1px 4px; border-radius: 2px; min-width: 40px; text-align: center; }
+.mx-peak { font-family: var(--mono); font-size: 9px; color: var(--dim); background: #07080a; border: 1px solid transparent; padding: 0 4px; border-radius: 2px; min-width: 40px; text-align: center; cursor: pointer; line-height: 14px; }
+.mx-peak:hover { border-color: var(--border); }
+.mx-peak.hot { color: #ffb340; }
+.mx-peak.over { color: #fff; background: var(--rec); }
 .mx-ms { display: flex; gap: 3px; }
 .mx-out { font-size: 9px; color: var(--dim); font-family: var(--mono); }
 .mx-add { width: 30px; flex-shrink: 0; border: 1px dashed var(--panel3); border-radius: 4px; background: none; color: var(--dim); cursor: pointer; }

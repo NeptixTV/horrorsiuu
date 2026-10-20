@@ -20,6 +20,7 @@ import { Icon } from '../components/Icon';
 import { showMenu, type MenuItem } from '../components/ContextMenu';
 import { onFrame } from '../components/frameLoop';
 import { askText } from '../dialogs/askText';
+import { normalizeDream } from '../../state/normalize';
 import { registerKeyOverride } from '../shortcuts';
 import { getPerformer, installArpClock, type DreamPerformer } from './performer';
 import './dreamchord.css';
@@ -253,7 +254,7 @@ export function DreamChordWindow({ w, channelId }: { w: FloatingWindow; channelI
     }));
     if (userPresets.length) {
       items.push({ separator: true });
-      items.push({ label: 'My presets', submenu: userPresets.map((u) => ({ label: u.name, checked: u.name === p.preset, onClick: () => set({ ...p, ...(u.params as Partial<DreamParams>), preset: u.name }, `Preset ${u.name}`) })) });
+      items.push({ label: 'My presets', submenu: userPresets.map((u) => ({ label: u.name, checked: u.name === p.preset, onClick: () => set({ ...normalizeDream({ ...p, ...u.params }), key: p.key, mode: p.mode, octave: p.octave, hold: p.hold, preset: u.name }, `Preset ${u.name}`) })) });
       items.push({ label: 'Delete my preset', submenu: userPresets.map((u) => ({ label: u.name, danger: true, onClick: () => { deleteUserPreset(u.id); toast(`Deleted “${u.name}”`, 'ok'); } })) });
     }
     items.push({ separator: true });

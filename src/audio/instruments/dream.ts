@@ -77,6 +77,12 @@ export class DreamSynth implements Instrument {
   // shared modulation
   private pitchMod: ConstantSourceNode;
   private cutMod: ConstantSourceNode;
+  private autoCut: ConstantSourceNode;
+
+  /** shared filter offset in cents for automation (separate from the joystick) */
+  get filterOffset() {
+    return this.autoCut.offset;
+  }
   private vibLfo: OscillatorNode;
   private vibGain: GainNode;
   private extraVib = 0;
@@ -121,6 +127,10 @@ export class DreamSynth implements Instrument {
     this.pitchMod.offset.value = 0;
     this.cutMod = ctx.createConstantSource();
     this.cutMod.offset.value = 0;
+    this.autoCut = ctx.createConstantSource();
+    this.autoCut.offset.value = 0;
+    // both offsets drive every voice filter through one shared node
+    this.autoCut.connect(this.cutMod.offset);
     this.vibLfo = ctx.createOscillator();
     this.vibLfo.frequency.value = 5.2;
     this.vibGain = t(ctx.createGain());
@@ -215,7 +225,7 @@ export class DreamSynth implements Instrument {
     this.post.connect(this.reverbSend).connect(this.convolver).connect(this.revTone).connect(this.output);
     this.post.connect(this.output);
 
-    for (const s of [this.pitchMod, this.cutMod, this.vibLfo, this.wow, this.flutter, this.chLfo]) s.start();
+    for (const s of [this.pitchMod, this.cutMod, this.autoCut, this.vibLfo, this.wow, this.flutter, this.chLfo]) s.start();
     this.hiss.start(0, Math.random() * 1.5);
     this.apply();
   }
@@ -433,7 +443,7 @@ export class DreamSynth implements Instrument {
   dispose() {
     this.allNotesOff();
     if (this.irTimer) clearTimeout(this.irTimer);
-    for (const s of [this.pitchMod, this.cutMod, this.vibLfo, this.wow, this.flutter, this.chLfo, this.hiss]) {
+    for (const s of [this.pitchMod, this.cutMod, this.autoCut, this.vibLfo, this.wow, this.flutter, this.chLfo, this.hiss]) {
       try { s.stop(); } catch { /* ignore */ }
       try { s.disconnect(); } catch { /* ignore */ }
     }

@@ -3,6 +3,7 @@ import { engine } from './audio/engine';
 import { getProject, installGestureSafety, useProject } from './state/store';
 import { setUI, toast, ui, useUI } from './state/ui';
 import { installSettingsSync } from './ui/settingsSync';
+import { installAutomationPlayback } from './ui/automationPlayback';
 import { applyTheme, resolveTheme } from './styles/themes';
 import { installRecordingHandler, restoreLastProject, startAutosave } from './project/manager';
 import { Splash } from './ui/splash/Splash';
@@ -145,6 +146,7 @@ function boot(): Promise<void> {
       installRecordingHandler();
       installSettingsSync();
       installGestureSafety();
+      installAutomationPlayback();
       startAutosave();
       installShortcuts();
       void loadLibrary();

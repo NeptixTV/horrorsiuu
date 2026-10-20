@@ -4,7 +4,15 @@ import { setUI, ui, useUI } from '../../state/ui';
 import type { Note } from '../../state/types';
 import { PPQ, TICKS_PER_STEP } from '../../state/types';
 import { clamp, rgba, shade, snapTicks, ticksPerBar, uid } from '../../state/utils';
-import { deleteNotes, quantizeNotes, setKeyScale, updateNotes } from '../../state/actions';
+import { deleteNotes, quantizeNotes, setKeyScale, setNotes, updateNotes } from '../../state/actions';
+import {
+  arpeggiate, chordAt, CHORD_STAMPS, duplicateAfter, humanize, invert, legato, reverse, setLength, shift, snapToScale, strum, transpose, velocityRamp,
+  type ChordStamp,
+} from '../../midi/noteTools';
+import { liveRecorder } from '../../midi/liveRecord';
+import { registerKeyOverride } from '../shortcuts';
+import { showMenu, type MenuItem } from '../components/ContextMenu';
+import { toast } from '../../state/ui';
 import { isBlackKey, noteName, NOTE_NAMES, scaleMask, SCALE_NAMES } from '../../midi/music';
 import { patternLength } from '../../audio/sequencer';
 import { engine } from '../../audio/engine';
@@ -39,6 +47,8 @@ type Drag =
   | { kind: 'velocity' }
   | { kind: 'keys'; pitch: number };
 
+let noteClipboard: { patternId: string; channelId: string; notes: Note[] } | null = null;
+
 export function PianoRoll() {
   const vpRef = useRef<HTMLDivElement>(null);
   const gridRef = useRef<HTMLCanvasElement>(null);
@@ -52,6 +62,10 @@ export function PianoRoll() {
   const heldKey = useRef<number | null>(null);
   const [tool, setTool] = useState<'draw' | 'select'>('draw');
   const [ghosts, setGhosts] = useState(true);
+  const [stamp, setStamp] = useState<ChordStamp>('none');
+  const [scaleLock, setScaleLock] = useState(false);
+  const [recording, setRecording] = useState(liveRecorder.active);
+  useEffect(() => liveRecorder.onChange(() => setRecording(liveRecorder.active)), []);
 
   const patterns = useProject((s) => s.project.patterns);
   const channels = useProject((s) => s.project.channels);
@@ -324,6 +338,121 @@ export function PianoRoll() {
   const preview = (pitch: number, vel = 0.8) => engine.previewNote(channel.id, pitch, vel, 0.25);
   const snapOf = (e: { altKey: boolean }) => (e.altKey ? 1 : ui().pianoSnap);
 
+  // ---------- note tools (selection, or every note when nothing is selected) ----------
+  const applyTool = (label: string, fn: (sel: Note[]) => Note[]) => {
+    const all = notesOf();
+    const selIds = new Set(ui().selectedNoteIds);
+    const target = selIds.size ? all.filter((n) => selIds.has(n.id)) : all;
+    if (!target.length) {
+      toast('No notes to change', 'info');
+      return;
+    }
+    const ids = new Set(target.map((n) => n.id));
+    const out = fn(target);
+    setNotes(pattern.id, channel.id, [...all.filter((n) => !ids.has(n.id)), ...out], label);
+    if (selIds.size) setUI({ selectedNoteIds: out.map((n) => n.id) });
+  };
+  const grid = () => Math.max(TICKS_PER_STEP / 2, ui().pianoSnap);
+  const toolsMenu = (x: number, y: number) => {
+    const prj = getProject();
+    const mask = scaleMask(prj.key, prj.scale);
+    const items: MenuItem[] = [
+      { label: 'Transpose', submenu: [
+        { label: '+1 semitone', shortcut: '↑', onClick: () => applyTool('Transpose', (n) => transpose(n, 1)) },
+        { label: '−1 semitone', shortcut: '↓', onClick: () => applyTool('Transpose', (n) => transpose(n, -1)) },
+        { label: '+1 octave', shortcut: 'Shift+↑', onClick: () => applyTool('Transpose', (n) => transpose(n, 12)) },
+        { label: '−1 octave', shortcut: 'Shift+↓', onClick: () => applyTool('Transpose', (n) => transpose(n, -12)) },
+      ] },
+      { label: 'Snap to scale', onClick: () => applyTool('Snap to scale', (n) => n.map((k) => ({ ...k, pitch: snapToScale(k.pitch, mask) }))) },
+      { label: 'Quantize to grid', onClick: () => { const sel = ui().selectedNoteIds; quantizeNotes(pattern.id, channel.id, grid(), sel.length ? new Set(sel) : undefined); } },
+      { label: 'Humanize (timing + velocity)', onClick: () => applyTool('Humanize', (n) => humanize(n, PPQ / 32, 0.12)) },
+      { separator: true },
+      { label: 'Legato (connect notes)', onClick: () => applyTool('Legato', legato) },
+      { label: 'Strum chords', submenu: [
+        { label: 'Up (fast)', onClick: () => applyTool('Strum', (n) => strum(n, PPQ / 32, 'up')) },
+        { label: 'Up (slow)', onClick: () => applyTool('Strum', (n) => strum(n, PPQ / 12, 'up')) },
+        { label: 'Down (fast)', onClick: () => applyTool('Strum', (n) => strum(n, PPQ / 32, 'down')) },
+      ] },
+      { label: 'Arpeggiate chords', submenu: [
+        { label: '1/16 up', onClick: () => applyTool('Arpeggiate', (n) => arpeggiate(n, PPQ / 4, 'up')) },
+        { label: '1/16 up-down', onClick: () => applyTool('Arpeggiate', (n) => arpeggiate(n, PPQ / 4, 'updown')) },
+        { label: '1/8 down', onClick: () => applyTool('Arpeggiate', (n) => arpeggiate(n, PPQ / 2, 'down')) },
+      ] },
+      { label: 'Reverse (backwards in time)', onClick: () => applyTool('Reverse notes', reverse) },
+      { label: 'Invert (mirror pitches)', onClick: () => applyTool('Invert notes', invert) },
+      { separator: true },
+      { label: 'Velocity', submenu: [
+        { label: 'Crescendo (soft → loud)', onClick: () => applyTool('Velocity ramp', (n) => velocityRamp(n, 0.3, 1)) },
+        { label: 'Fade (loud → soft)', onClick: () => applyTool('Velocity ramp', (n) => velocityRamp(n, 1, 0.3)) },
+        { label: 'All 80 %', onClick: () => applyTool('Velocity', (n) => n.map((k) => ({ ...k, velocity: 0.8 }))) },
+        { label: 'All 100 %', onClick: () => applyTool('Velocity', (n) => n.map((k) => ({ ...k, velocity: 1 }))) },
+      ] },
+      { label: 'Set length to grid', onClick: () => applyTool('Note length', (n) => setLength(n, grid())) },
+      { separator: true },
+      { label: 'Duplicate after selection', shortcut: 'Ctrl+D', onClick: duplicateNotes },
+      { label: 'Copy', shortcut: 'Ctrl+C', onClick: () => copyNotes(false) },
+      { label: 'Cut', shortcut: 'Ctrl+X', onClick: () => copyNotes(true) },
+      { label: 'Paste', shortcut: 'Ctrl+V', disabled: !noteClipboard, onClick: pasteNotes },
+    ];
+    showMenu(x, y, items);
+  };
+  function selectedNotes() {
+    const sel = new Set(ui().selectedNoteIds);
+    return notesOf().filter((n) => sel.has(n.id));
+  }
+  function duplicateNotes() {
+    const sel = selectedNotes();
+    if (!sel.length) return;
+    const copies = duplicateAfter(sel, ticksPerBar(getProject().timeSig) / 4);
+    update('Duplicate notes', (d) => { (d.patterns.find((p) => p.id === pattern.id)!.notes[channel.id] ??= []).push(...copies); });
+    setUI({ selectedNoteIds: copies.map((n) => n.id) });
+  }
+  function copyNotes(cut: boolean) {
+    const sel = selectedNotes();
+    if (!sel.length) return;
+    noteClipboard = { patternId: pattern.id, channelId: channel.id, notes: sel.map((n) => ({ ...n })) };
+    if (cut) {
+      deleteNotes(pattern.id, channel.id, new Set(sel.map((n) => n.id)));
+      setUI({ selectedNoteIds: [] });
+    }
+    toast(`${cut ? 'Cut' : 'Copied'} ${sel.length} note${sel.length === 1 ? '' : 's'}`, 'info');
+  }
+  function pasteNotes() {
+    const clip = noteClipboard;
+    if (!clip) return;
+    // same place → right after the copied notes; another pattern / channel → same positions
+    const same = clip.patternId === pattern.id && clip.channelId === channel.id;
+    const notes = same ? duplicateAfter(clip.notes, ticksPerBar(getProject().timeSig) / 4) : clip.notes.map((n) => ({ ...n, id: uid('n') }));
+    update('Paste notes', (d) => { (d.patterns.find((p) => p.id === pattern.id)!.notes[channel.id] ??= []).push(...notes); });
+    setUI({ selectedNoteIds: notes.map((n) => n.id) });
+    if (same) noteClipboard = { ...clip, notes: notes.map((n) => ({ ...n })) };
+  }
+
+  // keyboard: arrows move / transpose the selection, Ctrl+C/X/V/D (while the piano roll has focus)
+  useEffect(() => registerKeyOverride((e, down) => {
+    if (!down || ui().focus !== 'piano') return false;
+    const mod = e.ctrlKey || e.metaKey;
+    const k = e.key.toLowerCase();
+    if (mod && k === 'c') { copyNotes(false); return true; }
+    if (mod && k === 'x') { copyNotes(true); return true; }
+    if (mod && k === 'v') { pasteNotes(); return true; }
+    if (mod && k === 'd') { duplicateNotes(); return true; }
+    if (mod) return false;
+    if (!ui().selectedNoteIds.length) return false;
+    if (e.key === 'ArrowUp' || e.key === 'ArrowDown') {
+      const semis = (e.key === 'ArrowUp' ? 1 : -1) * (e.shiftKey ? 12 : 1);
+      applyTool('Transpose', (n) => transpose(n, semis));
+      const first = selectedNotes()[0];
+      if (first) preview(first.pitch);
+      return true;
+    }
+    if (e.key === 'ArrowLeft' || e.key === 'ArrowRight') {
+      applyTool('Move notes', (n) => shift(n, (e.key === 'ArrowRight' ? 1 : -1) * grid()));
+      return true;
+    }
+    return false;
+  }));
+
   const onDown = (e: RPE) => {
     setUI({ focus: 'piano' });
     void engine.resume();
@@ -369,15 +498,19 @@ export function PianoRoll() {
     }
     if (pitch < LOW || pitch > HIGH) return;
     beginGesture();
-    const id = uid('n');
-    const note: Note = { id, pitch, start: Math.max(0, snapTicks(tick, snapOf(e), 'floor')), length: ui().lastNoteLength, velocity: 0.8 };
-    update('Add note', (d) => {
+    const prj = getProject();
+    const mask = scaleMask(prj.key, prj.scale);
+    const root = scaleLock ? snapToScale(pitch, mask) : pitch;
+    const start = Math.max(0, snapTicks(tick, snapOf(e), 'floor'));
+    const pitches = chordAt(root, stamp, mask).filter((p) => p >= LOW && p <= HIGH);
+    const added: Note[] = pitches.map((p) => ({ id: uid('n'), pitch: p, start, length: ui().lastNoteLength, velocity: 0.8 }));
+    update(added.length > 1 ? 'Add chord' : 'Add note', (d) => {
       const p = d.patterns.find((pp) => pp.id === pattern.id)!;
-      (p.notes[channel.id] ??= []).push(note);
+      (p.notes[channel.id] ??= []).push(...added);
     });
-    setUI({ selectedNoteIds: [id] });
-    preview(pitch);
-    drag.current = { kind: 'move', startTick: note.start, startPitch: pitch, anchor: id, orig: new Map([[id, { start: note.start, pitch }]]), lastPitch: pitch };
+    setUI({ selectedNoteIds: added.map((n) => n.id) });
+    for (const n of added) preview(n.pitch);
+    drag.current = { kind: 'move', startTick: start, startPitch: root, anchor: added[0].id, orig: new Map(added.map((n) => [n.id, { start, pitch: n.pitch }])), lastPitch: root };
   };
 
   const onMove = (e: RPE) => {
@@ -398,9 +531,10 @@ export function PianoRoll() {
       const minStart = Math.min(...origs.map((o) => o.start));
       if (minStart + dt < 0) dt = -minStart;
       dp = clamp(dp, LOW - Math.min(...origs.map((o) => o.pitch)), HIGH - Math.max(...origs.map((o) => o.pitch)));
+      const lock = scaleLock ? scaleMask(getProject().key, getProject().scale) : null;
       updateNotes(pattern.id, channel.id, (n) => {
         const o = d.orig.get(n.id);
-        if (o) { n.start = o.start + dt; n.pitch = o.pitch + dp; }
+        if (o) { n.start = o.start + dt; n.pitch = lock ? snapToScale(o.pitch + dp, lock) : o.pitch + dp; }
       }, new Set(d.orig.keys()));
       const newPitch = a.pitch + dp;
       if (newPitch !== d.lastPitch) {
@@ -537,13 +671,21 @@ export function PianoRoll() {
             {SCALE_NAMES.map((s) => <option key={s}>{s}</option>)}
           </select>
         </div>
+        <div className="pl-tools">
+          <select className="input small-select" value={stamp} onChange={(e) => setStamp(e.target.value as ChordStamp)} title="Draw single notes or whole chords (built from the scale)">
+            {CHORD_STAMPS.map((c) => <option key={c.value} value={c.value}>{c.label}</option>)}
+          </select>
+          <button className={`btn small ${scaleLock ? 'on' : ''}`} onClick={() => setScaleLock(!scaleLock)} title="Scale lock: drawn and moved notes always stay in the scale">Scale lock</button>
+          <button className="btn small" onClick={(e) => toolsMenu(e.clientX, e.clientY)} title="Transpose, humanize, legato, strum, arpeggiate, reverse, velocity, copy / paste …"><Icon name="wand" size={11} /> Tools</button>
+          <button className={`btn small ${recording ? 'on rec' : ''}`} onClick={() => liveRecorder.toggle()} title="Record notes played on a MIDI keyboard, the computer keyboard or the DreamChord into this pattern">● Rec notes</button>
+        </div>
         <button className={`btn small ${ghosts ? 'on' : ''}`} onClick={() => setGhosts(!ghosts)} title="Show notes of other channels">Ghosts</button>
         <div className="pl-tools" title="Zoom (Ctrl/Alt + wheel)">
           <input type="range" className="zoom-range" min={15} max={400} value={zoomX} onChange={(e) => setUI({ pianoZoomX: Number(e.target.value) })} />
           <input type="range" className="zoom-range short" min={7} max={30} value={zoomY} onChange={(e) => setUI({ pianoZoomY: Number(e.target.value) })} />
         </div>
         <span className="spacer" />
-        <span className="label">{selectedCount ? `${selectedCount} selected · ` : ''}right-click deletes · shift-drag copies</span>
+        <span className="label">{selectedCount ? `${selectedCount} selected · ↑↓ transpose · ←→ move · ` : ''}right-click deletes · shift-drag copies</span>
       </div>
       <div className="piano-body">
         <div className="piano-ruler-row">

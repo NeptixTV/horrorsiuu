@@ -5,7 +5,8 @@ import { Knob } from '../components/Knob';
 
 export function formatParam(def: NumberParamDef, v: number): string {
   switch (def.unit) {
-    case 'Hz': return formatHz(v);
+    case 'Hz': return v < 1 ? 'off' : formatHz(v);
+    case '%': return `${Math.round(v * 100)}%`;
     case 'dB': return `${v > 0 ? '+' : ''}${v.toFixed(1)} dB`;
     case 'ms': return v >= 1000 ? `${(v / 1000).toFixed(2)} s` : `${v < 10 ? v.toFixed(1) : Math.round(v)} ms`;
     case 's': return `${v.toFixed(2)} s`;

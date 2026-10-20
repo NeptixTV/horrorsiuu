@@ -29,7 +29,9 @@ export function hideMenu() {
   useMenu.setState({ items: null });
 }
 
-function MenuList({ items, x, y }: { items: MenuItem[]; x: number; y: number }) {
+// `leftEdge`: for submenus, the left edge of the parent item – a submenu that
+// does not fit on the right opens to the left instead of covering its parent.
+function MenuList({ items, x, y, leftEdge }: { items: MenuItem[]; x: number; y: number; leftEdge?: number }) {
   const ref = useRef<HTMLDivElement>(null);
   const [pos, setPos] = useState({ x, y });
   const [open, setOpen] = useState<number | null>(null);
@@ -37,11 +39,12 @@ function MenuList({ items, x, y }: { items: MenuItem[]; x: number; y: number }) 
     const el = ref.current;
     if (!el) return;
     const r = el.getBoundingClientRect();
+    const fitsRight = x + r.width + 4 <= window.innerWidth;
     setPos({
-      x: Math.min(x, window.innerWidth - r.width - 4),
+      x: !fitsRight && leftEdge !== undefined && leftEdge - r.width >= 4 ? leftEdge - r.width : Math.min(x, window.innerWidth - r.width - 4),
       y: Math.min(y, window.innerHeight - r.height - 4),
     });
-  }, [x, y]);
+  }, [x, y, leftEdge]);
   return (
     <div ref={ref} className="ctx-menu" style={{ left: pos.x, top: pos.y }} onContextMenu={(e) => e.preventDefault()}>
       {items.map((it, i) =>
@@ -73,12 +76,12 @@ function MenuList({ items, x, y }: { items: MenuItem[]; x: number; y: number }) 
 
 function SubMenu({ items }: { items: MenuItem[] }) {
   const ref = useRef<HTMLSpanElement>(null);
-  const [anchor, setAnchor] = useState<{ x: number; y: number } | null>(null);
+  const [anchor, setAnchor] = useState<{ x: number; y: number; left: number } | null>(null);
   useLayoutEffect(() => {
     const r = ref.current?.parentElement?.getBoundingClientRect();
-    if (r) setAnchor({ x: r.right - 2, y: r.top - 4 });
+    if (r) setAnchor({ x: r.right - 2, y: r.top - 4, left: r.left + 2 });
   }, []);
-  return <span ref={ref}>{anchor && <MenuList items={items} x={anchor.x} y={anchor.y} />}</span>;
+  return <span ref={ref}>{anchor && <MenuList items={items} x={anchor.x} y={anchor.y} leftEdge={anchor.left} />}</span>;
 }
 
 export function ContextMenuHost() {

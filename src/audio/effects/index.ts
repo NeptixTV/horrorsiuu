@@ -10,6 +10,7 @@ import { ChorusEffect } from './chorus';
 import { PitchEffect } from './pitch';
 import { VoiceEffect } from './voice';
 import { AutoPanEffect, FlangerEffect, LimiterEffect, PhaserEffect, TremoloEffect } from './modulation';
+import { GateEffect, TapeEffect, WidthEffect } from './studio';
 
 export function createEffect(ctx: BaseAudioContext, type: EffectType): Effect {
   switch (type) {
@@ -27,10 +28,13 @@ export function createEffect(ctx: BaseAudioContext, type: EffectType): Effect {
     case 'tremolo': return new TremoloEffect(ctx);
     case 'autopan': return new AutoPanEffect(ctx);
     case 'limiter': return new LimiterEffect(ctx);
+    case 'tape': return new TapeEffect(ctx);
+    case 'width': return new WidthEffect(ctx);
+    case 'gate': return new GateEffect(ctx);
   }
 }
 
 export {
   EqEffect, CompressorEffect, ReverbEffect, DelayEffect, FilterEffect, DistortionEffect, ChorusEffect, PitchEffect, VoiceEffect,
-  PhaserEffect, FlangerEffect, TremoloEffect, AutoPanEffect, LimiterEffect,
+  PhaserEffect, FlangerEffect, TremoloEffect, AutoPanEffect, LimiterEffect, TapeEffect, WidthEffect, GateEffect,
 };

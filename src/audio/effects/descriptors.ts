@@ -205,6 +205,38 @@ export const EFFECTS: Record<EffectType, EffectDescriptor> = {
       n('release', 'Release', 10, 500, 80, 'ms', true),
     ],
   },
+  tape: {
+    type: 'tape', name: 'Tape Machine', short: 'TAPE', category: 'Character', color: '#d9a55b',
+    info: 'Warm, slightly wobbly cassette sound – wow, flutter, soft saturation and optional hiss.',
+    params: [
+      n('wow', 'Wow', 0, 1, 0.25),
+      n('flutter', 'Flutter', 0, 1, 0.2),
+      n('drive', 'Saturation', 0, 1, 0.35),
+      n('tone', 'Tone', 1500, 20000, 9000, 'Hz', true),
+      n('hiss', 'Hiss', 0, 1, 0),
+      n('mix', 'Mix', 0, 1, 1),
+    ],
+  },
+  width: {
+    type: 'width', name: 'Stereo Width', short: 'WIDE', category: 'Space', color: '#5fd3c7',
+    info: '0 % = mono, 100 % = unchanged, 200 % = extra wide. Mono bass keeps the low end in the centre.',
+    params: [
+      n('width', 'Width', 0, 2, 1.4, '%'),
+      n('monoBass', 'Mono bass', 0, 400, 120, 'Hz'),
+      n('gain', 'Output', -12, 6, 0, 'dB'),
+    ],
+  },
+  gate: {
+    type: 'gate', name: 'Noise Gate', short: 'GATE', category: 'Dynamics', color: '#c0d65a',
+    info: 'Turns the signal down between notes and phrases – removes hum, breathing and room noise.',
+    params: [
+      n('threshold', 'Threshold', -80, 0, -45, 'dB'),
+      n('range', 'Range', -80, 0, -80, 'dB'),
+      n('attack', 'Attack', 0.1, 50, 1, 'ms', true),
+      n('hold', 'Hold', 0, 500, 40, 'ms'),
+      n('release', 'Release', 5, 1000, 120, 'ms', true),
+    ],
+  },
 };
 
 export const EFFECT_TYPES = Object.keys(EFFECTS) as EffectType[];
@@ -271,4 +303,11 @@ EFFECT_PRESETS.push(
   { name: 'Helicopter', type: 'tremolo', params: { shape: 'square', rate: 12, depth: 0.9 } },
   { name: '8D Slow Orbit', type: 'autopan', params: { rate: 0.1, depth: 1, motion: 0.5 } },
   { name: 'Loud & Proud', type: 'limiter', params: { drive: 10, ceiling: -0.3, release: 60 } },
+  { name: 'Warm Cassette', type: 'tape', params: { wow: 0.3, flutter: 0.25, drive: 0.45, tone: 8000, hiss: 0.15, mix: 1 } },
+  { name: 'Worn VHS', type: 'tape', params: { wow: 0.75, flutter: 0.5, drive: 0.6, tone: 4500, hiss: 0.35, mix: 1 } },
+  { name: 'Subtle Glue', type: 'tape', params: { wow: 0.05, flutter: 0.05, drive: 0.3, tone: 16000, hiss: 0, mix: 1 } },
+  { name: 'Super Wide', type: 'width', params: { width: 1.8, monoBass: 150, gain: -1 } },
+  { name: 'Make Mono', type: 'width', params: { width: 0, monoBass: 0, gain: 0 } },
+  { name: 'Vocal Gate', type: 'gate', params: { threshold: -42, range: -30, attack: 2, hold: 60, release: 180 } },
+  { name: 'Tight Drums', type: 'gate', params: { threshold: -28, range: -80, attack: 0.3, hold: 15, release: 60 } },
 );

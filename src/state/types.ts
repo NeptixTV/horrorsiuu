@@ -222,7 +222,10 @@ export type EffectType =
   | 'flanger'
   | 'tremolo'
   | 'autopan'
-  | 'limiter';
+  | 'limiter'
+  | 'tape'
+  | 'width'
+  | 'gate';
 
 export type ParamValue = number | string | boolean;
 

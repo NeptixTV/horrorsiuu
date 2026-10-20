@@ -1,4 +1,5 @@
 // Canvas drawing for the playlist grid and clips.
+import { targetInfo, valueAt } from '../../audio/automation';
 import type { Clip, Pattern, Project } from '../../state/types';
 import { PPQ, TICKS_PER_STEP } from '../../state/types';
 import { patternLength } from '../../audio/sequencer';
@@ -153,12 +154,40 @@ function audioPreview(ctx: CanvasRenderingContext2D, clip: Clip, x: number, y: n
   }
 }
 
+/** Envelope line of an automation clip. */
+function automationPreview(ctx: CanvasRenderingContext2D, clip: Clip, x: number, y: number, w: number, h: number, ppt: number) {
+  const a = clip.automation;
+  if (!a || h < 4) return;
+  const pad = 2;
+  const yOf = (v: number) => y + pad + (1 - v) * (h - pad * 2);
+  const xOf = (t: number) => x + (t - clip.offset) * ppt;
+  ctx.beginPath();
+  ctx.moveTo(x, yOf(valueAt(a.points, clip.offset)));
+  for (const p of a.points) if (p.t > clip.offset && p.t < clip.offset + clip.length) ctx.lineTo(xOf(p.t), yOf(p.v));
+  ctx.lineTo(x + w, yOf(valueAt(a.points, clip.offset + clip.length)));
+  ctx.strokeStyle = 'rgba(255,255,255,0.9)';
+  ctx.lineWidth = 1.5;
+  ctx.stroke();
+  ctx.lineTo(x + w, y + h);
+  ctx.lineTo(x, y + h);
+  ctx.closePath();
+  ctx.fillStyle = 'rgba(255,255,255,0.12)';
+  ctx.fill();
+  ctx.fillStyle = '#fff';
+  for (const p of a.points) {
+    if (p.t < clip.offset || p.t > clip.offset + clip.length) continue;
+    ctx.fillRect(xOf(p.t) - 1.5, yOf(p.v) - 1.5, 3, 3);
+  }
+}
+
 export function clipColor(clip: Clip, project: Project): string {
   if (clip.kind === 'audio') return '#3fa7a0';
+  if (clip.kind === 'automation') return '#8f6bff';
   return project.patterns.find((p) => p.id === clip.patternId)?.color ?? '#888';
 }
 
 export function clipLabel(clip: Clip, project: Project): string {
+  if (clip.kind === 'automation' && clip.automation) return targetInfo(project, clip.automation.target)?.label ?? `${clip.name ?? 'Automation'} (missing)`;
   if (clip.name) return clip.name;
   if (clip.kind === 'audio') return project.assets[clip.assetId ?? '']?.name ?? assets.name(clip.assetId ?? '');
   return project.patterns.find((p) => p.id === clip.patternId)?.name ?? 'Pattern';
@@ -200,6 +229,8 @@ export function drawClips(ctx: CanvasRenderingContext2D, v: View, project: Proje
     if (clip.kind === 'pattern') {
       const pat = patterns.get(clip.patternId ?? '');
       if (pat) patternPreview(ctx, pat, project, body.x, body.y, body.w, body.h, clip, v.pxPerTick, color);
+    } else if (clip.kind === 'automation') {
+      automationPreview(ctx, clip, body.x, body.y, body.w, body.h, v.pxPerTick);
     } else {
       audioPreview(ctx, clip, body.x, body.y, body.w, body.h, project.bpm, v.pxPerTick, color, v.w);
     }
@@ -280,6 +311,27 @@ export function drawRuler(ctx: CanvasRenderingContext2D, w: number, h: number, s
       }
     }
   }
+  // markers: small flags with their name
+  ctx.font = '600 9px Inter, sans-serif';
+  for (const m of project.markers ?? []) {
+    const x = Math.round(m.tick * pxPerTick - scrollX);
+    if (x < -120 || x > w + 2) continue;
+    const tw = Math.min(110, ctx.measureText(m.name).width + 8);
+    ctx.fillStyle = m.color;
+    ctx.fillRect(x, 0, 2, h);
+    ctx.fillRect(x, 0, tw, 11);
+    ctx.fillStyle = '#0b0d10';
+    ctx.fillText(m.name, x + 4, 1, tw - 6);
+  }
   ctx.fillStyle = t.border;
   ctx.fillRect(0, h - 1, w, 1);
+}
+
+/** Marker under a ruler x position (within a few pixels of its flag). */
+export function markerAt(project: Project, x: number, scrollX: number, pxPerTick: number): string | null {
+  for (const m of [...(project.markers ?? [])].reverse()) {
+    const mx = m.tick * pxPerTick - scrollX;
+    if (x >= mx - 3 && x <= mx + 100) return m.id;
+  }
+  return null;
 }

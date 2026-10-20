@@ -4,13 +4,14 @@
 import recorderSrc from './worklets/recorder.worklet.js?raw';
 import pitchSrc from './worklets/pitch.worklet.js?raw';
 import guardSrc from './worklets/guard.worklet.js?raw';
+import gateSrc from './worklets/gate.worklet.js?raw';
 
 const loaded = new WeakMap<BaseAudioContext, Promise<boolean>>();
 let urls: string[] | null = null;
 
 function moduleUrls(): string[] {
   if (!urls) {
-    urls = [recorderSrc, pitchSrc, guardSrc].map((src) => URL.createObjectURL(new Blob([src], { type: 'application/javascript' })));
+    urls = [recorderSrc, pitchSrc, guardSrc, gateSrc].map((src) => URL.createObjectURL(new Blob([src], { type: 'application/javascript' })));
   }
   return urls;
 }

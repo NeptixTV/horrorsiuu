@@ -334,6 +334,62 @@ export function removeTrack(id: string) {
   });
 }
 
+export function moveTrack(id: string, dir: -1 | 1) {
+  update('Move track', (d) => {
+    const i = d.tracks.findIndex((t) => t.id === id);
+    const j = i + dir;
+    if (i < 0 || j < 0 || j >= d.tracks.length) return;
+    [d.tracks[i], d.tracks[j]] = [d.tracks[j], d.tracks[i]];
+  });
+}
+
+/** New empty track at `index` (default: end). */
+export function insertTrack(index?: number): string {
+  const t = makeTrack(getProject().tracks.length + 1);
+  update('Insert track', (d) => {
+    const at = index === undefined ? d.tracks.length : Math.max(0, Math.min(d.tracks.length, index));
+    d.tracks.splice(at, 0, t);
+  });
+  return t.id;
+}
+
+/** Copy of a track with all its clips, right below it. */
+export function duplicateTrack(id: string): string | null {
+  const p = getProject();
+  const src = p.tracks.find((t) => t.id === id);
+  if (!src) return null;
+  const copy: PlaylistTrack = { ...src, id: uid('tr'), name: `${src.name} copy`, solo: false };
+  const clips = p.clips.filter((c) => c.trackId === id).map((c) => ({ ...structuredClone(c), id: uid('c'), trackId: copy.id }));
+  update('Duplicate track', (d) => {
+    const i = d.tracks.findIndex((t) => t.id === id);
+    d.tracks.splice(i + 1, 0, copy);
+    d.clips.push(...clips);
+  });
+  return copy.id;
+}
+
+// ---------- markers ----------
+export function addMarker(tick: number, name: string): string {
+  const id = uid('mk');
+  update('Add marker', (d) => {
+    (d.markers ??= []).push({ id, tick: Math.max(0, Math.round(tick)), name: name.trim().slice(0, 40) || 'Marker', color: paletteColor((d.markers?.length ?? 0) * 2 + 1) });
+    d.markers.sort((a, b) => a.tick - b.tick);
+  });
+  return id;
+}
+
+export function updateMarker(id: string, patch: Partial<{ name: string; tick: number; color: string }>) {
+  update('Edit marker', (d) => {
+    const m = d.markers?.find((x) => x.id === id);
+    if (m) Object.assign(m, patch);
+    d.markers?.sort((a, b) => a.tick - b.tick);
+  });
+}
+
+export function removeMarker(id: string) {
+  update('Delete marker', (d) => { d.markers = (d.markers ?? []).filter((m) => m.id !== id); });
+}
+
 export function setLoop(patch: Partial<{ enabled: boolean; start: number; end: number }>) {
   update('Loop region', (d) => { Object.assign(d.loop, patch); });
 }

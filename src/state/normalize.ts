@@ -212,7 +212,7 @@ export function normalizeDream(v: unknown, f = new Fixer()): DreamParams {
 }
 
 /** Effect instance with known type, every param present and in range. */
-export function normalizeEffect(v: unknown, used: Set<string>, f: Fixer): EffectInstance | null {
+export function normalizeEffect(v: unknown, used: Set<string> = new Set(), f: Fixer = new Fixer()): EffectInstance | null {
   if (!isObj(v)) {
     f.note('Broken effect removed');
     return null;

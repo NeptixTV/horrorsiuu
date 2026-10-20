@@ -13,6 +13,9 @@ import { Window } from '../components/Window';
 import { Icon } from '../components/Icon';
 import { showMenu } from '../components/ContextMenu';
 import { VIEWS } from './views';
+import { createAutomation } from '../automation/AutomationWindow';
+import { userPresetItems } from '../presetMenu';
+import { normalizeEffect } from '../../state/normalize';
 import './effects.css';
 
 function resolve(p: Project, target: FxTarget, effectId: string): { fx?: EffectInstance; owner: string; meterTrack: string } {
@@ -56,9 +59,20 @@ export function EffectWindow({ w, target, effectId }: { w: FloatingWindow; targe
           <button className="btn small" onClick={(e) => showMenu(e.clientX, e.clientY, [
             { label: 'Default', onClick: () => setAll(defaultParams(fx.type)) },
             ...presets.map((p) => ({ label: p.name, onClick: () => setAll(p.params) })),
+            ...userPresetItems(`effect:${fx.type}`, () => fx.params, (params) => {
+              const clean = normalizeEffect({ id: fx.id, type: fx.type, bypass: false, params });
+              if (clean) setAll(clean.params);
+            }, `My ${d.name}`),
           ])}>
             <Icon name="preset" size={11} /> Presets
           </button>
+          {target.kind === 'mixer' && (
+            <button className="btn small" title="Automate a parameter of this effect over the song" onClick={(e) => showMenu(e.clientX, e.clientY, d.params.filter((p) => p.kind === 'number').map((p) => ({
+              label: p.label, onClick: () => createAutomation({ kind: 'effect', trackId: target.id, effectId, param: p.key }),
+            })))}>
+              <Icon name="automation" size={11} /> Automate
+            </button>
+          )}
           <button className={`btn small ${fx.bypass ? '' : 'on'}`} title="Bypass" onClick={() => fxBypass(target, effectId)}>
             <Icon name="power" size={11} /> {fx.bypass ? 'Off' : 'On'}
           </button>

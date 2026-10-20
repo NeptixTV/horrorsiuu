@@ -1,12 +1,13 @@
 // User level commands shared by toolbar, menus and keyboard shortcuts.
 import { engine } from '../audio/engine';
-import { downloadBlob, encodeWav, renderProject } from '../audio/render';
+import { downloadBlob, encodeWav, normalizeBuffer, renderProject, renderStems } from '../audio/render';
+import { makeZip, zipName } from '../project/zip';
 import { getProject, redo, undo } from '../state/store';
 import { setUI, toast, ui, openWindow } from '../state/ui';
 import {
   addChannel, deleteClips, deleteNotes, duplicateClips, toggleChannelMute, toggleChannelSolo, toggleMixerMute, toggleMixerSolo,
 } from '../state/actions';
-import { saveProject } from '../project/manager';
+import { safeFileName, saveProject } from '../project/manager';
 
 export function syncTransportUI() {
   const t = engine.transport;
@@ -109,16 +110,59 @@ export function soloSelected() {
   else if (s.selectedChannelId) toggleChannelSolo(s.selectedChannelId);
 }
 
-export async function exportWav(mode: 'song' | 'pattern') {
+export interface ExportOptions {
+  mode: 'song' | 'pattern';
+  range?: 'auto' | 'song' | 'loop';
+  bits?: 16 | 24 | 32;
+  sampleRate?: number;
+  normalize?: boolean;
+  tail?: number;
+  onProgress?: (p: number) => void;
+}
+
+function exportOpts(o: ExportOptions) {
+  const s = ui();
+  return {
+    mode: o.mode, range: o.range ?? 'auto', patternId: s.selectedPatternId, sampleRate: o.sampleRate ?? s.exportRate,
+    tail: o.tail ?? s.exportTail, onProgress: o.onProgress,
+  } as const;
+}
+
+/** Renders and downloads the mix as WAV. */
+export async function exportWav(mode: 'song' | 'pattern', o: Partial<ExportOptions> = {}) {
   const p = getProject();
+  const opts = { ...exportOpts({ mode, ...o }) };
   toast('Rendering mixdown…', 'info');
   try {
-    const buf = await renderProject(p, { mode, patternId: ui().selectedPatternId });
-    downloadBlob(encodeWav(buf), `${p.name.replace(/[^\w\- ]+/g, '_') || 'mixdown'}.wav`);
+    const buf = await renderProject(p, opts);
+    if (o.normalize ?? ui().exportNormalize) normalizeBuffer(buf, -1);
+    const name = safeFileName(mode === 'pattern' ? `${p.name} - ${p.patterns.find((x) => x.id === ui().selectedPatternId)?.name ?? 'pattern'}` : p.name, 'mixdown');
+    downloadBlob(encodeWav(buf, o.bits ?? ui().exportBits), `${name}.wav`);
     toast(`Exported ${buf.duration.toFixed(1)} s WAV`, 'ok');
   } catch (err) {
     console.error(err);
-    toast('Export failed', 'error');
+    toast(`Export failed${err instanceof Error ? `: ${err.message}` : ''}`, 'error');
+  }
+}
+
+/** Renders every used mixer insert separately and downloads them as one ZIP. */
+export async function exportStems(o: Partial<ExportOptions> = {}) {
+  const p = getProject();
+  toast('Rendering stems…', 'info');
+  try {
+    const stems = await renderStems(p, exportOpts({ mode: 'song', ...o }));
+    const used = new Set<string>();
+    const bits = o.bits ?? ui().exportBits;
+    const entries = await Promise.all(stems.map(async (st, i) => {
+      if (o.normalize ?? ui().exportNormalize) normalizeBuffer(st.buffer, -1);
+      const data = new Uint8Array(await encodeWav(st.buffer, bits).arrayBuffer());
+      return { name: zipName(`${String(i).padStart(2, '0')} ${st.name}`, used, '.wav'), data };
+    }));
+    downloadBlob(makeZip(entries), `${safeFileName(p.name, 'project')} - stems.zip`);
+    toast(`Exported ${stems.length} stems`, 'ok');
+  } catch (err) {
+    console.error(err);
+    toast(`Stem export failed${err instanceof Error ? `: ${err.message}` : ''}`, 'error');
   }
 }
 
