@@ -4,7 +4,6 @@ export interface DesktopInfo {
   version: string;
   portable: boolean;
   platform: string;
-  exePath: string;
 }
 
 export interface GhResponse {
@@ -18,10 +17,11 @@ export interface GoofyDesktop {
   hasToken(): Promise<boolean>;
   setToken(token: string | null): Promise<boolean>;
   gh(method: string, path: string, body?: unknown): Promise<GhResponse>;
-  ghUpload(uploadUrl: string, filePath: string, name: string): Promise<GhResponse>;
+  /** `sha256` of the uploaded file (1.2+) – goes into the feed so clients can verify the download */
+  ghUpload(uploadUrl: string, filePath: string, name: string): Promise<GhResponse & { sha256?: string }>;
   fetchText(url: string): Promise<{ ok: boolean; status: number; text: string }>;
   pathForFile(file: File): string;
-  download(url: string, fileName: string, kind: 'setup' | 'portable'): Promise<{ ok: boolean; path?: string; error?: string }>;
+  download(url: string, fileName: string, kind: 'setup' | 'portable', sha256?: string): Promise<{ ok: boolean; path?: string; error?: string; verified?: boolean }>;
   install(path: string, kind: 'setup' | 'portable'): Promise<boolean>;
   openExternal(url: string): Promise<void>;
   onProgress(cb: (p: { id: string; done: number; total: number }) => void): () => void;

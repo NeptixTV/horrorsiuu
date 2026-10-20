@@ -19,4 +19,19 @@ describe('update feed', () => {
     expect(parseFeed('not json')).toBeNull();
     expect(parseFeed('{}')?.update).toBeNull();
   });
+
+  it('drops unsafe links and malformed values from the feed', () => {
+    const f = parseFeed(JSON.stringify({
+      messages: [{ id: 'm', title: 'Hi', body: 42, kind: 'evil' }, { title: 'no id' }, null],
+      update: {
+        version: '1.3.0', notes: 'n',
+        assets: { setup: 'javascript:alert(1)', portable: 'https://github.com/NeptixTV/horrorsiuu/releases/download/v1.3.0/a.exe', page: 'file:///C:/x', setupSha256: 'xyz', portableSha256: 'A'.repeat(64) },
+        mandatory: 'yes',
+      },
+    }))!;
+    expect(f.messages).toEqual([{ id: 'm', title: 'Hi', body: '', kind: 'info', date: '' }]);
+    expect(f.update?.assets).toEqual({ portable: 'https://github.com/NeptixTV/horrorsiuu/releases/download/v1.3.0/a.exe', portableSha256: 'a'.repeat(64) });
+    expect(f.update?.mandatory).toBe(false);
+    expect(parseFeed(JSON.stringify({ update: { version: '<script>' } }))?.update).toBeNull();
+  });
 });

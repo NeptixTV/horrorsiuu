@@ -52,8 +52,9 @@ function UpdateModal() {
 
   const download = async () => {
     if (!desktop) {
+      // the feed parser only lets https links through; checked again here
       const url = upd.assets.setup ?? upd.assets.portable ?? upd.assets.page;
-      if (url) window.open(url, '_blank', 'noopener');
+      if (url && url.startsWith('https://')) window.open(url, '_blank', 'noopener,noreferrer');
       useNotices.setState({ show: null });
       return;
     }
@@ -70,7 +71,7 @@ function UpdateModal() {
     setState('downloading');
     setProgress(0);
     const name = kind === 'setup' ? `GoofyStudio-${upd.version}-Setup.exe` : `GoofyStudio-${upd.version}-portable.exe`;
-    const r = await desktop.download(url, name, kind);
+    const r = await desktop.download(url, name, kind, kind === 'setup' ? upd.assets.setupSha256 : upd.assets.portableSha256);
     if (r.ok && r.path) {
       setFile({ path: r.path, kind });
       setState('ready');

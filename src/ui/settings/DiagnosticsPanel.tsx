@@ -50,7 +50,7 @@ export function DiagnosticsSection() {
     });
     try {
       await navigator.clipboard.writeText(text);
-      toast('Diagnostics report copied (contains no personal data)', 'ok');
+      toast('Report copied – no device names or file paths; channel names from your project can appear in the events', 'ok');
     } catch {
       toast('Could not access the clipboard', 'error');
     }

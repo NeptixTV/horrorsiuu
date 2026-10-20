@@ -6,3 +6,4 @@ dist-single
 .vite
 coverage
 release
+*.tsbuildinfo

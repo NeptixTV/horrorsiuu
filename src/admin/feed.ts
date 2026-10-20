@@ -20,7 +20,8 @@ export interface FeedUpdate {
   version: string;
   notes: string;
   date: string;
-  assets: { setup?: string; portable?: string; page?: string };
+  /** download links; the *Sha256 fields (1.2+) let the app verify the downloaded file */
+  assets: { setup?: string; portable?: string; page?: string; setupSha256?: string; portableSha256?: string };
   mandatory?: boolean;
 }
 
@@ -45,14 +46,55 @@ export function compareVersions(a: string, b: string): number {
   return 0;
 }
 
+const clip = (v: unknown, max: number) => (typeof v === 'string' ? v.slice(0, max) : '');
+const httpsUrl = (v: unknown) => {
+  if (typeof v !== 'string' || v.length > 2000) return undefined;
+  try {
+    return new URL(v).protocol === 'https:' ? v : undefined;
+  } catch {
+    return undefined;
+  }
+};
+const sha = (v: unknown) => (typeof v === 'string' && /^[0-9a-f]{64}$/i.test(v) ? v.toLowerCase() : undefined);
+
+/** Only well-formed values from the feed reach the UI (https links only – no javascript: or file: URLs). */
+function cleanUpdate(u: unknown): FeedUpdate | null {
+  if (!u || typeof u !== 'object') return null;
+  const x = u as Record<string, unknown>;
+  const version = clip(x.version, 40);
+  if (!/^v?\d+(\.\d+){0,3}([-.][\w.]+)?$/.test(version)) return null;
+  const a = (x.assets && typeof x.assets === 'object' ? x.assets : {}) as Record<string, unknown>;
+  const assets: FeedUpdate['assets'] = {};
+  const setup = httpsUrl(a.setup);
+  const portable = httpsUrl(a.portable);
+  const page = httpsUrl(a.page);
+  if (setup) assets.setup = setup;
+  if (portable) assets.portable = portable;
+  if (page) assets.page = page;
+  const ss = sha(a.setupSha256);
+  const ps = sha(a.portableSha256);
+  if (ss) assets.setupSha256 = ss;
+  if (ps) assets.portableSha256 = ps;
+  return { version, notes: clip(x.notes, 20000), date: clip(x.date, 40), assets, mandatory: x.mandatory === true };
+}
+
 export function parseFeed(text: string): Feed | null {
   try {
     const j = JSON.parse(text);
     if (!j || typeof j !== 'object') return null;
     return {
       version: 1,
-      messages: Array.isArray(j.messages) ? j.messages.filter((m: FeedMessage) => m && m.id && m.title !== undefined) : [],
-      update: j.update && j.update.version ? j.update : null,
+      messages: Array.isArray(j.messages)
+        ? (j.messages as unknown[]).slice(0, 100).flatMap((m): FeedMessage[] => {
+          if (!m || typeof m !== 'object') return [];
+          const x = m as Record<string, unknown>;
+          const id = clip(x.id, 80);
+          if (!id || x.title === undefined) return [];
+          const kind: MessageKind = x.kind === 'warning' || x.kind === 'party' ? x.kind : 'info';
+          return [{ id, title: clip(x.title, 200), body: clip(x.body, 20000), kind, date: clip(x.date, 40) }];
+        })
+        : [],
+      update: cleanUpdate(j.update),
     };
   } catch {
     return null;

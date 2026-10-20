@@ -44,7 +44,9 @@
     "shortcutName": "Goofy Studio",
     "installerIcon": "build/icon.ico",
     "uninstallerIcon": "build/icon.ico",
-    "artifactName": "GoofyStudio-${version}-Setup.exe"
+    "artifactName": "GoofyStudio-${version}-Setup.exe",
+    "perMachine": false,
+    "allowElevation": true
   },
   "linux": {
     "target": [
@@ -59,5 +61,20 @@
     ],
     "icon": "build/icon.png",
     "category": "public.app-category.music"
-  }
+  },
+  "electronFuses": {
+    "runAsNode": false,
+    "enableCookieEncryption": true,
+    "enableNodeOptionsEnvironmentVariable": false,
+    "enableNodeCliInspectArguments": false,
+    "enableEmbeddedAsarIntegrityValidation": true,
+    "onlyLoadAppFromAsar": true,
+    "grantFileProtocolExtraPrivileges": false
+  },
+  "extraResources": [
+    {
+      "from": "dist/THIRD_PARTY_NOTICES.txt",
+      "to": "THIRD_PARTY_NOTICES.txt"
+    }
+  ]
 }

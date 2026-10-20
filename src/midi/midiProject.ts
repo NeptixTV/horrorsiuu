@@ -113,19 +113,38 @@ function soundFor(track: SmfTrack): Pick<Channel, 'kind' | 'synth' | 'dream'> {
 }
 
 const MAX_BARS_PER_PATTERN = 64;
+const MAX_SONG_BARS = 1000;
+const MAX_TRACKS = 48;
+const MAX_NOTES = 200_000;
 const CHUNK_BARS = 8;
 
 /** Imports a .mid file. Returns the number of notes imported. */
 export async function importMidiFile(file: File): Promise<number> {
   if (file.size > 16 * 1024 * 1024) throw new Error('The MIDI file is too large');
   const song = rescale(readMidi(await file.arrayBuffer()), PPQ);
-  const tracks = song.tracks.filter((t) => t.notes.length);
-  if (!tracks.length) throw new Error('The MIDI file contains no notes');
   const base = file.name.replace(/\.(mid|midi|kar)$/i, '').slice(0, 40) || 'MIDI';
   const project = getProject();
   const adoptTempo = project.clips.length === 0;
   const bar = ticksPerBar(adoptTempo ? song.timeSig : project.timeSig);
-  const end = Math.max(...tracks.flatMap((t) => t.notes.map((n) => n.start + n.length)));
+  // a damaged or hostile file must not freeze the studio: limit length, tracks and notes
+  const limit = MAX_SONG_BARS * bar;
+  let dropped = 0;
+  let tracks = song.tracks
+    .map((t) => {
+      const notes = t.notes.filter((n) => n.start >= 0 && n.start < limit);
+      dropped += t.notes.length - notes.length;
+      return { ...t, notes: notes.map((n) => ({ ...n, length: Math.min(n.length, limit - n.start) })) };
+    })
+    .filter((t) => t.notes.length);
+  if (!tracks.length) throw new Error('The MIDI file contains no notes');
+  if (tracks.length > MAX_TRACKS) {
+    tracks = [...tracks].sort((a, b) => b.notes.length - a.notes.length).slice(0, MAX_TRACKS);
+    toast(`Only the ${MAX_TRACKS} busiest MIDI tracks were imported`, 'info', true);
+  }
+  if (tracks.reduce((n, t) => n + t.notes.length, 0) > MAX_NOTES) throw new Error(`The MIDI file has more than ${MAX_NOTES.toLocaleString()} notes`);
+  if (dropped) toast(`${dropped} notes after bar ${MAX_SONG_BARS} were left out`, 'info', true);
+  let end = 0;
+  for (const t of tracks) for (const n of t.notes) end = Math.max(end, n.start + n.length);
   const totalBars = Math.max(1, Math.ceil(end / bar));
   const chunks = totalBars <= MAX_BARS_PER_PATTERN ? [{ from: 0, bars: totalBars }] : Array.from({ length: Math.ceil(totalBars / CHUNK_BARS) }, (_, i) => ({ from: i * CHUNK_BARS * bar, bars: CHUNK_BARS }));
 

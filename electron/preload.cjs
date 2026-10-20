@@ -9,7 +9,7 @@ contextBridge.exposeInMainWorld('goofyDesktop', {
   ghUpload: (uploadUrl, filePath, name) => ipcRenderer.invoke('gh:upload', uploadUrl, filePath, name),
   fetchText: (url) => ipcRenderer.invoke('net:text', url),
   pathForFile: (file) => webUtils.getPathForFile(file),
-  download: (url, fileName, kind) => ipcRenderer.invoke('update:download', url, fileName, kind),
+  download: (url, fileName, kind, sha256) => ipcRenderer.invoke('update:download', url, fileName, kind, sha256),
   install: (path, kind) => ipcRenderer.invoke('update:install', path, kind),
   openExternal: (url) => ipcRenderer.invoke('app:openExternal', url),
   // interface size (Settings → Design); limited to a sane range

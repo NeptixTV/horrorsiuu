@@ -6,16 +6,23 @@ import { uid } from '../state/utils';
 
 const WEB_TOKEN_KEY = 'goofy-admin-token';
 
+// In the browser version the token lives only in this tab (sessionStorage) and
+// is forgotten when the tab closes; 1.1 kept it in localStorage – remove that copy.
+try { localStorage.removeItem(WEB_TOKEN_KEY); } catch { /* storage blocked */ }
+const webToken = () => {
+  try { return sessionStorage.getItem(WEB_TOKEN_KEY); } catch { return null; }
+};
+
 export async function hasToken(): Promise<boolean> {
   if (desktop) return desktop.hasToken();
-  try { return !!localStorage.getItem(WEB_TOKEN_KEY); } catch { return false; }
+  return !!webToken();
 }
 
 export async function setToken(token: string | null): Promise<boolean> {
   if (desktop) return desktop.setToken(token);
   try {
-    if (token) localStorage.setItem(WEB_TOKEN_KEY, token);
-    else localStorage.removeItem(WEB_TOKEN_KEY);
+    if (token) sessionStorage.setItem(WEB_TOKEN_KEY, token);
+    else sessionStorage.removeItem(WEB_TOKEN_KEY);
     return true;
   } catch {
     return false;
@@ -24,7 +31,7 @@ export async function setToken(token: string | null): Promise<boolean> {
 
 async function gh(method: string, path: string, body?: unknown): Promise<GhResponse> {
   if (desktop) return desktop.gh(method, path, body);
-  const token = localStorage.getItem(WEB_TOKEN_KEY);
+  const token = webToken();
   const r = await fetch(`https://api.github.com${path}`, {
     method,
     headers: {
@@ -151,6 +158,7 @@ export async function publishUpdate(input: PublishUpdateInput): Promise<FeedUpda
       input.onStatus(`Uploading ${name}…`);
       const r = await desktop!.ghUpload(release.upload_url, desktop!.pathForFile(file), name);
       if (!r.ok) throw new Error(errorText(r, `Uploading ${name}`));
+      if (r.sha256) assets[kind === 'setup' ? 'setupSha256' : 'portableSha256'] = r.sha256;
       return (r.data as { browser_download_url: string }).browser_download_url;
     };
     if (input.setupFile) assets.setup = await up(input.setupFile, 'setup');

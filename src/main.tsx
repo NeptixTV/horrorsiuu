@@ -17,11 +17,16 @@ import * as manager from './project/manager';
 import { diagnostics } from './audio/diagnostics';
 import { renderProject } from './audio/render';
 
-// Handy for power users and automated tests: window.goofy.engine etc.
+// Debug handle for development and automated tests (window.goofy.engine …).
+// Release builds only expose it after localStorage['goofy-debug'] = '1'.
 // (Everything here is also reachable from the UI; no secrets live in the page.)
-(window as unknown as { goofy: unknown }).goofy = {
-  engine, useProject: store.useProject, useUI: ui.useUI, store, ui, actions, commands, manager, diagnostics, renderProject,
-};
+let debug = import.meta.env.DEV;
+try { debug ||= localStorage.getItem('goofy-debug') === '1'; } catch { /* storage blocked */ }
+if (debug) {
+  (window as unknown as { goofy: unknown }).goofy = {
+    engine, useProject: store.useProject, useUI: ui.useUI, store, ui, actions, commands, manager, diagnostics, renderProject,
+  };
+}
 
 createRoot(document.getElementById('root')!).render(
   <StrictMode>
