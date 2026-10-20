@@ -4,7 +4,7 @@ import type { EffectType, Id } from './types';
 import { PPQ } from './types';
 
 export type DockTab = 'rack' | 'piano' | 'mixer' | 'drums' | 'vocal' | 'analyzer';
-export type Focus = 'playlist' | 'piano' | 'rack' | 'mixer' | 'other';
+export type Focus = 'playlist' | 'piano' | 'rack' | 'mixer' | 'dream' | 'other';
 export type ThemeName = 'dark' | 'darkblue' | 'purple' | 'neon' | 'custom';
 export type PlaylistTool = 'draw' | 'select' | 'slice';
 
@@ -18,6 +18,7 @@ export interface CustomTheme {
 
 export type WindowKind =
   | { kind: 'channel'; channelId: Id }
+  | { kind: 'dreamchord'; channelId: Id }
   | { kind: 'effect'; trackId: Id; effectId: Id }
   | { kind: 'clipEffect'; clipId: Id; effectId: Id }
   | { kind: 'clip'; clipId: Id }
@@ -125,7 +126,7 @@ export interface UIState {
 }
 
 export type DragPayload =
-  | { type: 'instrument'; kind: 'synth' | 'sampler'; preset?: string }
+  | { type: 'instrument'; kind: 'synth' | 'sampler' | 'dream'; preset?: string }
   | { type: 'drum'; drum: string }
   | { type: 'sample'; assetId: string; name: string }
   | { type: 'effect'; effect: EffectType; preset?: string }

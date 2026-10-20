@@ -1,5 +1,5 @@
 import { beforeEach, describe, expect, it } from 'vitest';
-import { beginGesture, endGesture, loadProjectState, redo, undo, update, useProject } from '../state/store';
+import { beginGesture, endGesture, jumpToHistory, loadProjectState, redo, undo, update, useProject } from '../state/store';
 import { createEmptyProject } from '../state/defaults';
 import { addSend, setOutput } from '../state/actions';
 import { audibleTracks, wouldCycle } from '../state/routing';
@@ -8,6 +8,25 @@ import { MASTER_ID } from '../state/types';
 beforeEach(() => loadProjectState(createEmptyProject()));
 
 describe('undo / redo', () => {
+  it('keeps a label for every step and can jump through the history', () => {
+    update('Tempo', (d) => { d.bpm = 99; });
+    update('Swing', (d) => { d.swing = 0.5; });
+    expect(useProject.getState().pastLabels).toEqual(['Tempo', 'Swing']);
+    jumpToHistory(0);
+    expect(useProject.getState().project.bpm).toBe(130);
+    expect(useProject.getState().futureLabels).toEqual(['Tempo', 'Swing']);
+    jumpToHistory(2);
+    expect(useProject.getState().project.swing).toBe(0.5);
+  });
+
+  it('labels a gesture with its first action', () => {
+    beginGesture();
+    update('Volume', (d) => { d.mixer[1].volume = 0.2; });
+    update('Volume', (d) => { d.mixer[1].volume = 0.3; });
+    endGesture();
+    expect(useProject.getState().pastLabels).toEqual(['Volume']);
+  });
+
   it('undoes and redoes a change', () => {
     update('Tempo', (d) => { d.bpm = 99; });
     expect(useProject.getState().project.bpm).toBe(99);

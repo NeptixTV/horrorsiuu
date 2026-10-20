@@ -1,0 +1,152 @@
+/* DreamChord – a pocket chord synthesizer. The device colour follows the preset (--dc). */
+.dc { display: flex; flex-direction: column; gap: 8px; user-select: none; }
+.dc-body {
+  position: relative; border-radius: 22px; padding: 16px 18px 18px;
+  background:
+    radial-gradient(120% 90% at 15% 0%, color-mix(in srgb, var(--dc) 38%, #ffffff 0%) 0%, transparent 55%),
+    linear-gradient(160deg, color-mix(in srgb, var(--dc) 55%, #2a2f38) 0%, color-mix(in srgb, var(--dc) 22%, #15181d) 60%, #0e1013 100%);
+  box-shadow:
+    inset 0 1px 0 rgba(255, 255, 255, 0.25), inset 0 -2px 6px rgba(0, 0, 0, 0.5),
+    0 10px 30px rgba(0, 0, 0, 0.55), 0 0 0 1px rgba(0, 0, 0, 0.6);
+  transition: background 0.6s ease;
+}
+/* brushed aluminium grain */
+.dc-body::before {
+  content: ''; position: absolute; inset: 0; border-radius: inherit; pointer-events: none; opacity: 0.22;
+  background: repeating-linear-gradient(90deg, rgba(255, 255, 255, 0.05) 0 1px, transparent 1px 3px);
+  mix-blend-mode: overlay;
+}
+.dc.focused .dc-body { box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.25), inset 0 -2px 6px rgba(0, 0, 0, 0.5), 0 10px 30px rgba(0, 0, 0, 0.55), 0 0 0 2px color-mix(in srgb, var(--dc) 70%, transparent); }
+
+.dc-top { display: flex; gap: 16px; align-items: stretch; }
+
+/* ---------- display ---------- */
+.dc-display {
+  flex: 1; position: relative; min-height: 150px; border-radius: 12px; padding: 10px 14px; overflow: hidden;
+  background: radial-gradient(100% 140% at 50% 0%, #10161b 0%, #050708 100%);
+  box-shadow: inset 0 0 0 1px rgba(255, 255, 255, 0.06), inset 0 4px 18px rgba(0, 0, 0, 0.9), 0 1px 0 rgba(255, 255, 255, 0.12);
+  font-family: var(--mono); color: color-mix(in srgb, var(--dc) 70%, #e9fbff);
+  display: flex; flex-direction: column;
+  text-shadow: 0 0 8px color-mix(in srgb, var(--dc) 60%, transparent);
+}
+.dc-display::after { /* scanlines + glass */
+  content: ''; position: absolute; inset: 0; pointer-events: none;
+  background: repeating-linear-gradient(0deg, rgba(255, 255, 255, 0.025) 0 1px, transparent 1px 3px), linear-gradient(175deg, rgba(255, 255, 255, 0.07), transparent 40%);
+}
+.dc-disp-row { display: flex; gap: 10px; align-items: center; font-size: 10.5px; letter-spacing: 0.06em; text-transform: uppercase; opacity: 0.9; }
+.dc-disp-row.bottom { gap: 12px; align-items: flex-end; margin-top: auto; }
+.dc-pill { padding: 1px 6px; border-radius: 4px; border: 1px solid currentColor; font-size: 9px; line-height: 13px; }
+.dc-pill.rec { color: #ff5c5c; text-shadow: 0 0 8px #ff5c5c; animation: dcBlink 1s steps(2) infinite; }
+.dc-pill.blink { animation: dcFlash 0.18s ease-out; }
+.dc-disp-main { flex: 1; display: flex; align-items: center; justify-content: center; min-height: 72px; }
+.dc-chord, .dc-idle { text-align: center; }
+.dc-chord { animation: dcPop 0.28s cubic-bezier(0.2, 1.4, 0.4, 1); }
+.dc-chord-name { font-size: 40px; font-weight: 700; line-height: 1; letter-spacing: 0.02em; }
+.dc-chord-name.dim { font-size: 24px; opacity: 0.85; }
+.dc-chord-sub { font-size: 11px; margin-top: 6px; opacity: 0.75; letter-spacing: 0.1em; }
+.dc-popup { width: 70%; text-align: center; animation: dcFade 0.12s ease-out; }
+.dc-popup-label { font-size: 12px; letter-spacing: 0.2em; }
+.dc-popup-bar { height: 8px; margin: 8px 0 6px; border-radius: 4px; background: rgba(255, 255, 255, 0.08); overflow: hidden; }
+.dc-popup-bar > div { height: 100%; background: currentColor; box-shadow: 0 0 10px currentColor; transition: width 0.06s; }
+.dc-popup-value { font-size: 20px; font-weight: 700; }
+.dc-scope { width: 220px; height: 44px; color: color-mix(in srgb, var(--dc) 70%, #e9fbff); flex-shrink: 0; }
+.dc-keys { position: relative; flex: 1; height: 26px; }
+.dc-key { position: absolute; top: 0; border-radius: 0 0 2px 2px; transition: background 0.08s, box-shadow 0.08s; }
+.dc-key.w { height: 26px; background: rgba(255, 255, 255, 0.07); border-right: 1px solid rgba(0, 0, 0, 0.6); }
+.dc-key.b { height: 16px; background: #050708; z-index: 1; border: 1px solid rgba(255, 255, 255, 0.05); }
+.dc-key.on { background: currentColor; box-shadow: 0 0 8px currentColor; }
+
+/* ---------- joystick ---------- */
+.dc-joy { display: flex; flex-direction: column; align-items: center; gap: 6px; width: 164px; }
+.dc-joy-well {
+  position: relative; width: 148px; height: 148px; border-radius: 50%; cursor: grab; touch-action: none;
+  background: radial-gradient(circle at 50% 45%, #1b1f25 0%, #0a0c0f 70%);
+  box-shadow: inset 0 6px 14px rgba(0, 0, 0, 0.85), inset 0 -2px 4px rgba(255, 255, 255, 0.08), 0 1px 0 rgba(255, 255, 255, 0.2);
+}
+.dc-joy-well.drag { cursor: grabbing; }
+.dc-joy-ring { position: absolute; inset: 30px; border-radius: 50%; border: 1px dashed color-mix(in srgb, var(--dc) 45%, transparent); }
+.dc-joy-label {
+  position: absolute; transform: translate(-50%, -50%); font: 600 9px/1 var(--mono); color: rgba(255, 255, 255, 0.45);
+  padding: 2px 3px; border-radius: 3px; pointer-events: none; transition: color 0.1s, background 0.1s;
+}
+.dc-joy-label.on { color: #0b0d10; background: var(--dc); box-shadow: 0 0 10px var(--dc); }
+.dc-joy-stick {
+  position: absolute; left: 50%; top: 50%; width: 54px; height: 54px; border-radius: 50%;
+  transition: transform 0.35s cubic-bezier(0.25, 1.6, 0.45, 1);
+}
+.dc-joy-cap {
+  width: 100%; height: 100%; border-radius: 50%;
+  background: radial-gradient(circle at 35% 30%, #ffffff 0%, color-mix(in srgb, var(--dc) 55%, #c8cdd4) 35%, color-mix(in srgb, var(--dc) 35%, #3b4048) 100%);
+  box-shadow: 0 6px 12px rgba(0, 0, 0, 0.7), inset 0 -3px 6px rgba(0, 0, 0, 0.35), 0 0 0 3px rgba(0, 0, 0, 0.35);
+}
+.dc-joy-mode { display: flex; gap: 4px; }
+.dc-mini {
+  font: 600 9px/1 var(--mono); text-transform: uppercase; padding: 4px 6px; border-radius: 5px; border: 0; cursor: pointer;
+  color: rgba(255, 255, 255, 0.7); background: rgba(0, 0, 0, 0.35); box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.08);
+}
+.dc-mini.on { color: #0b0d10; background: var(--dc); }
+
+/* ---------- knobs ---------- */
+.dc-knobs {
+  display: flex; justify-content: space-between; gap: 6px; margin: 14px 2px 10px; padding: 8px 10px 4px; border-radius: 12px;
+  background: rgba(0, 0, 0, 0.22); box-shadow: inset 0 2px 6px rgba(0, 0, 0, 0.45);
+}
+.dc-knobs .knob-label { color: rgba(255, 255, 255, 0.8); letter-spacing: 0.08em; text-transform: uppercase; font-size: 9px; }
+
+/* ---------- function buttons ---------- */
+.dc-funcs { display: flex; gap: 6px; align-items: center; flex-wrap: wrap; margin-bottom: 12px; }
+.dc-sep { width: 1px; height: 22px; background: rgba(255, 255, 255, 0.12); margin: 0 2px; }
+.dc-fn {
+  height: 28px; min-width: 50px; padding: 0 10px; border-radius: 8px; border: 0; cursor: pointer;
+  font: 700 10px/1 var(--mono); letter-spacing: 0.06em; color: rgba(255, 255, 255, 0.85);
+  background: linear-gradient(180deg, #3a3f47, #23272d); box-shadow: 0 2px 0 #0b0d10, inset 0 1px 0 rgba(255, 255, 255, 0.12);
+  transition: transform 0.05s, box-shadow 0.05s, background 0.15s, color 0.15s;
+}
+.dc-fn.wide { min-width: 62px; }
+.dc-fn:hover:not(:disabled) { color: #fff; }
+.dc-fn:active:not(:disabled) { transform: translateY(2px); box-shadow: 0 0 0 #0b0d10, inset 0 1px 0 rgba(255, 255, 255, 0.08); }
+.dc-fn:disabled { opacity: 0.4; cursor: default; }
+.dc-fn.on { color: #0b0d10; background: linear-gradient(180deg, color-mix(in srgb, var(--dc) 80%, #fff), var(--dc)); box-shadow: 0 2px 0 #0b0d10, 0 0 12px color-mix(in srgb, var(--dc) 60%, transparent); }
+.dc-fn.rec.on { background: linear-gradient(180deg, #ff8a8a, #e23b3b); box-shadow: 0 2px 0 #0b0d10, 0 0 14px rgba(255, 70, 70, 0.6); animation: dcRecPulse 1.2s ease-in-out infinite; }
+
+/* ---------- chord pads ---------- */
+.dc-pads { display: grid; grid-template-columns: repeat(7, 1fr); gap: 10px; }
+.dc-pad {
+  position: relative; height: 96px; border-radius: 16px; border: 0; cursor: pointer; touch-action: none; overflow: hidden;
+  display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 4px;
+  color: rgba(255, 255, 255, 0.9);
+  background: linear-gradient(180deg, #474d57 0%, #2a2e35 55%, #1f2228 100%);
+  box-shadow: 0 5px 0 #0a0b0e, 0 8px 14px rgba(0, 0, 0, 0.5), inset 0 1px 0 rgba(255, 255, 255, 0.18);
+  transition: transform 0.06s ease-out, box-shadow 0.06s ease-out, background 0.2s;
+}
+.dc-pad::after { /* glow */
+  content: ''; position: absolute; inset: 0; border-radius: inherit; opacity: 0; pointer-events: none;
+  background: radial-gradient(circle at 50% 60%, color-mix(in srgb, var(--dc) 75%, #fff) 0%, transparent 70%);
+  transition: opacity 0.35s ease-out;
+}
+.dc-pad:hover::after { opacity: 0.15; }
+.dc-pad.on { transform: translateY(4px); box-shadow: 0 1px 0 #0a0b0e, 0 2px 6px rgba(0, 0, 0, 0.5), inset 0 1px 0 rgba(255, 255, 255, 0.2), 0 0 22px color-mix(in srgb, var(--dc) 55%, transparent); color: #fff; }
+.dc-pad.on::after { opacity: 0.55; transition: opacity 0.05s; }
+.dc-pad-num { position: relative; z-index: 1; font: 800 26px/1 var(--mono); }
+.dc-pad-chord { position: relative; z-index: 1; font: 700 13px/1 var(--mono); color: color-mix(in srgb, var(--dc) 55%, #fff); }
+.dc-pad-roman { position: relative; z-index: 1; font: 600 9px/1 var(--mono); opacity: 0.55; letter-spacing: 0.1em; }
+
+/* ---------- editor ---------- */
+.dc-edit-toggle { align-self: flex-start; display: flex; align-items: center; gap: 6px; background: none; border: 0; color: var(--dim); cursor: pointer; font-size: 11px; padding: 2px 4px; }
+.dc-edit-toggle:hover { color: var(--text); }
+.dc-edit { display: grid; grid-template-columns: repeat(4, 1fr); gap: 10px; }
+.dc-edit section { background: var(--panel2); border: 1px solid var(--border); border-radius: 8px; padding: 8px 10px; display: flex; flex-direction: column; gap: 6px; }
+.dc-edit h4 { margin: 0; font-size: 10px; text-transform: uppercase; letter-spacing: 0.08em; color: var(--dim); }
+.dc-edit label { display: flex; align-items: center; justify-content: space-between; gap: 6px; font-size: 11px; color: var(--text); }
+.dc-edit .dc-check { justify-content: flex-start; }
+.dc-edit-knobs { display: flex; flex-wrap: wrap; gap: 4px 6px; }
+.dc-help { font-size: 10.5px; color: var(--dim); line-height: 1.45; }
+
+@keyframes dcPop { from { transform: scale(0.82); opacity: 0.2; filter: blur(2px); } to { transform: scale(1); opacity: 1; filter: none; } }
+@keyframes dcFade { from { opacity: 0; } to { opacity: 1; } }
+@keyframes dcBlink { 50% { opacity: 0.35; } }
+@keyframes dcFlash { from { background: currentColor; color: #000; } to { background: transparent; } }
+@keyframes dcRecPulse { 50% { box-shadow: 0 2px 0 #0b0d10, 0 0 22px rgba(255, 70, 70, 0.85); } }
+
+.reduce-motion .dc-chord, .reduce-motion .dc-popup, .reduce-motion .dc-pill, .reduce-motion .dc-fn.rec.on { animation: none !important; }
+.reduce-motion .dc-joy-stick { transition: none; }

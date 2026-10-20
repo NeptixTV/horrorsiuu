@@ -64,7 +64,7 @@ export function PianoRoll() {
   const zoomX = useUI((s) => s.pianoZoomX);
   const zoomY = useUI((s) => s.pianoZoomY);
   const pattern = patterns.find((p) => p.id === patternId) ?? patterns[0];
-  const channel = channels.find((c) => c.id === channelId) ?? channels.find((c) => c.kind === 'synth') ?? channels[0];
+  const channel = channels.find((c) => c.id === channelId) ?? channels.find((c) => c.kind === 'synth' || c.kind === 'dream') ?? channels[0];
   const len = pattern ? patternLength(pattern, timeSig) : PPQ * 4;
   const contentW = (len + ticksPerBar(timeSig) * 4) * (zoomX / PPQ);
   const contentH = ROWS * zoomY;

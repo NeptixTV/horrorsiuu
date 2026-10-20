@@ -3,6 +3,7 @@ import logo from '../../assets/logo.png';
 import { engine } from '../../audio/engine';
 import { useProject, getProject } from '../../state/store';
 import { setUI, toast, ui, useUI, openWindow, type DockTab } from '../../state/ui';
+import { DREAM_PRESETS } from '../../audio/instruments/dreamPresets';
 import { formatBBS, formatTime, ticksToSeconds, formatDb } from '../../state/utils';
 import { MASTER_ID } from '../../state/types';
 import {
@@ -18,6 +19,7 @@ import { onFrame, uiLoad } from '../components/frameLoop';
 import { showMenu, type MenuItem } from '../components/ContextMenu';
 import { Oscilloscope } from '../visualizers/Visualizers';
 import {
+  addDreamChord,
   deleteSelected, doRedo, doSave, doUndo, duplicateSelected, exportWav, selectAll, setMode, stop, toggleMetronome, togglePlay, toggleRecord, showDock,
 } from '../commands';
 import { exportProjectFile, importProjectFile, newProject, saveProjectAs } from '../../project/manager';
@@ -65,6 +67,7 @@ function addMenu(): MenuItem[] {
     { label: 'Goofy Synth', submenu: SYNTH_PRESETS.map((p) => ({ label: p.name, onClick: () => setUI({ selectedChannelId: addChannel('synth', { synthPreset: p.name }) }) })) },
     { label: 'Drum sound', submenu: (Object.keys(DRUM_LABELS) as DrumType[]).map((d) => ({ label: DRUM_LABELS[d], onClick: () => setUI({ selectedChannelId: addChannel('drum', { drum: d }) }) })) },
     { label: 'Sampler (empty)', onClick: () => setUI({ selectedChannelId: addChannel('sampler') }) },
+    { label: 'DreamChord', submenu: DREAM_PRESETS.map((p) => ({ label: p.name, onClick: () => addDreamChord(p.name) })) },
     { separator: true },
     { label: 'Pattern', onClick: () => setUI({ selectedPatternId: addPattern() }) },
     { label: 'Playlist track', onClick: () => addTrack() },

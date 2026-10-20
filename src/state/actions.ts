@@ -2,12 +2,13 @@
 // around `update` so it produces a labelled undo step.
 import type { Draft } from 'immer';
 import type {
-  AssetMeta, Channel, ChannelKind, Clip, DrumParams, EffectInstance, EffectType, MixerTrack, Note, ParamValue, Pattern,
+  AssetMeta, Channel, ChannelKind, Clip, DreamParams, DrumParams, EffectInstance, EffectType, MixerTrack, Note, ParamValue, Pattern,
   PlaylistTrack, Project, SamplerParams, SynthParams,
 } from './types';
 import { MASTER_ID, TICKS_PER_STEP } from './types';
 import { getProject, update } from './store';
-import { defaultDrum, defaultSampler, DRUM_LABELS, makeChannel, makeEffect, makeMixerTrack, makePattern, makeTrack, SYNTH_PRESETS } from './defaults';
+import { defaultDream, defaultDrum, defaultSampler, DRUM_LABELS, makeChannel, makeEffect, makeMixerTrack, makePattern, makeTrack, SYNTH_PRESETS } from './defaults';
+import { applyDreamPreset, findDreamPreset } from '../audio/instruments/dreamPresets';
 import { clamp, paletteColor, uid } from './utils';
 import { wouldCycle } from './routing';
 import type { DrumType } from './types';
@@ -31,6 +32,7 @@ export interface AddChannelOpts {
   name?: string;
   drum?: DrumType;
   synthPreset?: string;
+  dreamPreset?: string;
   assetId?: string;
   rootNote?: number;
 }
@@ -53,6 +55,12 @@ export function addChannel(kind: ChannelKind, opts: AddChannelOpts = {}): string
   } else if (kind === 'sampler') {
     extra.sampler = { ...defaultSampler(opts.assetId ?? null), rootNote: opts.rootNote ?? 60 };
     name = opts.name ?? 'Sampler';
+  } else if (kind === 'dream') {
+    const preset = findDreamPreset(opts.dreamPreset ?? 'Ocean Dream');
+    // start in the key of the project
+    const base: DreamParams = { ...defaultDream(), key: ((p.key % 12) + 12) % 12, mode: /minor/i.test(p.scale) ? 'minor' : 'major' };
+    extra.dream = preset ? applyDreamPreset(base, preset) : base;
+    name = opts.name ?? 'DreamChord';
   }
   const ch = makeChannel(kind, name, mixerId, p.channels.length, extra);
   update(`Add ${name}`, (d) => {
@@ -111,6 +119,13 @@ export function updateSynth(id: string, patch: Partial<SynthParams>) {
   update('Synth parameter', (d) => {
     const c = d.channels.find((x) => x.id === id);
     if (c?.synth) Object.assign(c.synth, patch);
+  });
+}
+
+export function updateDream(id: string, patch: Partial<DreamParams>, label = 'DreamChord parameter') {
+  update(label, (d) => {
+    const c = d.channels.find((x) => x.id === id);
+    if (c?.dream) Object.assign(c.dream, patch);
   });
 }
 

@@ -150,6 +150,21 @@ export function redo() {
   return true;
 }
 
+/**
+ * Adds one undo step from `base` to the current project (used by long
+ * operations like live recording that update the project without history).
+ */
+export function pushHistory(base: Project, label: string) {
+  const s = useProject.getState();
+  if (base === s.project) return;
+  useProject.setState({
+    past: [...s.past, base].slice(-historyLimit),
+    pastLabels: [...s.pastLabels, label].slice(-historyLimit),
+    future: [],
+    futureLabels: [],
+  });
+}
+
 /** Jumps to a point in the history: index into `past` (0 = oldest), or past.length = now. */
 export function jumpToHistory(index: number) {
   const s = useProject.getState();

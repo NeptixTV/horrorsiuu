@@ -37,3 +37,10 @@
   .pl-patterns { display: none; }
   .mx-panel { width: 200px; }
 }
+
+/* error boundary */
+.crash { display: flex; flex-direction: column; gap: 6px; padding: 14px 16px; margin: 8px; border-radius: 8px; background: color-mix(in srgb, var(--rec, #ff5c5c) 12%, var(--panel2)); border: 1px solid color-mix(in srgb, var(--rec, #ff5c5c) 40%, var(--border)); color: var(--text); font-size: 12px; }
+.crash.inline { margin: 0; padding: 8px 10px; }
+.crash-msg { color: var(--dim); font-family: var(--mono); font-size: 11px; word-break: break-word; }
+.crash-actions { display: flex; gap: 6px; }
+.crash-hint { color: var(--dim); font-size: 10.5px; }

@@ -1,6 +1,7 @@
 import { memo, useEffect, useRef, useState, type DragEvent } from 'react';
 import { useProject, beginGesture, endGesture, getProject } from '../../state/store';
-import { setUI, ui, useUI, openWindow, toast } from '../../state/ui';
+import { setUI, ui, useUI, toast } from '../../state/ui';
+import { addDreamChord, openChannelEditor } from '../commands';
 import type { Channel, Note } from '../../state/types';
 import {
   addChannel, addPattern, clonePattern, duplicateChannel, fillSteps, moveChannel, removeChannel, setStep, setSwing, shiftSteps,
@@ -106,7 +107,7 @@ const ChannelRow = memo(function ChannelRow({
     if (levelRef.current) levelRef.current.style.opacity = h ? String(Math.min(1, h.level() * 3)) : '0';
   }), [channel.id]);
 
-  const openEditor = () => openWindow({ kind: 'channel', channelId: channel.id });
+  const openEditor = () => openChannelEditor(channel.id);
   const menu = (e: React.MouseEvent) => {
     e.preventDefault();
     const p = getProject();
@@ -197,7 +198,7 @@ const ChannelRow = memo(function ChannelRow({
       >
         <span className="rack-name-level" ref={levelRef} />
         <span className="rack-name-text">{channel.name}</span>
-        <Icon name={channel.kind === 'drum' ? 'drums' : channel.kind === 'sampler' ? 'wave' : 'synth'} size={10} style={{ opacity: 0.6 }} />
+        <Icon name={channel.kind === 'drum' ? 'drums' : channel.kind === 'sampler' ? 'wave' : channel.kind === 'dream' ? 'dream' : 'synth'} size={10} style={{ opacity: 0.6 }} />
       </button>
       {hasNotes && !steps?.some((v) => v > 0) ? (
         <MiniNotes notes={notes!} length={patternLen} color={channel.color} onOpen={() => setUI({ pianoChannelId: channel.id, selectedChannelId: channel.id, dockTab: 'piano' })} />
@@ -223,7 +224,10 @@ async function rackDrop(e: DragEvent) {
   const p = readDragPayload(e);
   setUI({ dragPayload: null });
   if (!p) return;
-  if (p.type === 'instrument') setUI({ selectedChannelId: addChannel(p.kind) });
+  if (p.type === 'instrument') {
+    if (p.kind === 'dream') addDreamChord(p.preset);
+    else setUI({ selectedChannelId: addChannel(p.kind) });
+  }
   else if (p.type === 'drum') {
     if (p.drum === 'kit') addDrumKit();
     else setUI({ selectedChannelId: addChannel('drum', { drum: p.drum as DrumType }) });

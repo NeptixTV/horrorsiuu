@@ -567,7 +567,7 @@ export function normalizeProject(raw: unknown): RepairReport {
     version: 1,
     id: typeof raw.id === 'string' && raw.id ? raw.id.slice(0, 120) : uid('prj'),
     name: str(raw.name, 'Untitled', 120) || 'Untitled',
-    bpm: num(raw.bpm, 10, 999, 120, f, 'Tempo repaired'),
+    bpm: num(raw.bpm, 20, 400, 120, f, 'Tempo repaired'),
     timeSig,
     swing: opt(raw.swing, 0, 1, 0, f, 'Swing repaired'),
     key: Math.round(opt(raw.key, 0, 11, 0, f, 'Key repaired')),

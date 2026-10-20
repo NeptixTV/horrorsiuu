@@ -1,10 +1,13 @@
-import { useUI } from '../state/ui';
+import { closeWindow, useUI, type FloatingWindow } from '../state/ui';
+import { ErrorBoundary } from './components/ErrorBoundary';
+import { Window as FloatWindow } from './components/Window';
 import { EffectWindow } from './effects/EffectWindow';
 import { ClipSettingsWindow, TrackSettingsWindow } from './settings/SettingsWindows';
 import { SampleEditorWindow } from './library/SampleEditor';
 import { StemSplitterWindow } from './stems/StemSplitter';
 import { AdminWindow } from './admin/AdminWindow';
 import { ChannelWindow } from './instruments/ChannelWindow';
+import { DreamChordWindow } from './dreamchord/DreamChordWindow';
 import { SettingsWindow } from './dialogs/SettingsWindow';
 import { ProjectsWindow } from './dialogs/ProjectsWindow';
 import { AboutWindow, ExportWindow, ShortcutsWindow } from './dialogs/InfoWindows';
@@ -13,7 +16,21 @@ export function Windows() {
   const windows = useUI((s) => s.windows);
   return (
     <>
-      {windows.map((w) => {
+      {windows.map((w) => (
+        <ErrorBoundary key={w.id} name={windowName(w)} onClose={() => closeWindow(w.id)} frame={(c) => <FloatWindow w={w} title={<b>{windowName(w)}</b>} width={420}>{c}</FloatWindow>}>
+          {renderWindow(w)}
+        </ErrorBoundary>
+      ))}
+    </>
+  );
+}
+
+function windowName(w: FloatingWindow) {
+  const n: Record<string, string> = { dreamchord: 'DreamChord', channel: 'Instrument', effect: 'Effect', clipEffect: 'Effect', settings: 'Settings' };
+  return n[w.win.kind] ?? 'Window';
+}
+
+function renderWindow(w: FloatingWindow) {
         const k = w.win;
         switch (k.kind) {
           case 'effect': return <EffectWindow key={w.id} w={w} target={{ kind: 'mixer', id: k.trackId }} effectId={k.effectId} />;
@@ -24,6 +41,7 @@ export function Windows() {
           case 'stems': return <StemSplitterWindow key={w.id} w={w} />;
           case 'admin': return <AdminWindow key={w.id} w={w} />;
           case 'channel': return <ChannelWindow key={w.id} w={w} channelId={k.channelId} />;
+          case 'dreamchord': return <DreamChordWindow key={w.id} w={w} channelId={k.channelId} />;
           case 'settings': return <SettingsWindow key={w.id} w={w} />;
           case 'projects': return <ProjectsWindow key={w.id} w={w} />;
           case 'shortcuts': return <ShortcutsWindow key={w.id} w={w} />;
@@ -31,7 +49,4 @@ export function Windows() {
           case 'export': return <ExportWindow key={w.id} w={w} />;
           default: return null;
         }
-      })}
-    </>
-  );
 }

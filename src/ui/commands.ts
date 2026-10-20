@@ -4,7 +4,7 @@ import { downloadBlob, encodeWav, renderProject } from '../audio/render';
 import { getProject, redo, undo } from '../state/store';
 import { setUI, toast, ui, openWindow } from '../state/ui';
 import {
-  deleteClips, deleteNotes, duplicateClips, toggleChannelMute, toggleChannelSolo, toggleMixerMute, toggleMixerSolo,
+  addChannel, deleteClips, deleteNotes, duplicateClips, toggleChannelMute, toggleChannelSolo, toggleMixerMute, toggleMixerSolo,
 } from '../state/actions';
 import { saveProject } from '../project/manager';
 
@@ -127,3 +127,18 @@ export function showDock(tab: ReturnType<typeof ui>['dockTab']) {
 }
 
 export const openSettings = () => openWindow({ kind: 'settings' });
+
+/** Opens the right editor for a channel (DreamChord has its own device window). */
+export function openChannelEditor(channelId: string) {
+  const ch = getProject().channels.find((c) => c.id === channelId);
+  if (!ch) return;
+  openWindow(ch.kind === 'dream' ? { kind: 'dreamchord', channelId } : { kind: 'channel', channelId });
+}
+
+/** Adds a DreamChord channel (optionally with a preset) and opens it. */
+export function addDreamChord(preset?: string) {
+  const id = addChannel('dream', { dreamPreset: preset });
+  setUI({ selectedChannelId: id, pianoChannelId: id });
+  openWindow({ kind: 'dreamchord', channelId: id });
+  return id;
+}

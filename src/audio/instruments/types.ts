@@ -9,6 +9,8 @@ export interface Instrument {
   update(channel: Channel): void;
   activeVoices(): number;
   dispose(): void;
+  /** tempo-synced instruments (DreamChord delay) */
+  setTempo?(bpm: number): void;
 }
 
 /** Ramps an AudioParam to hold its current value at `time` (cancelAndHold fallback). */

@@ -18,6 +18,7 @@ import { AskTextHost } from './ui/dialogs/askText';
 import { StartupNotices } from './ui/admin/StartupNotices';
 import { loadLibrary } from './ui/library/libraryStore';
 import { Icon } from './ui/components/Icon';
+import { ErrorBoundary } from './ui/components/ErrorBoundary';
 import { installShortcuts } from './ui/shortcuts';
 import { syncTransportUI, showDock } from './ui/commands';
 import { clamp } from './state/utils';
@@ -71,20 +72,20 @@ function Main() {
   useAudioUnlockHint();
   return (
     <div className="app">
-      <Toolbar />
+      <ErrorBoundary name="Toolbar" inline><Toolbar /></ErrorBoundary>
       <div className="app-body">
         {browserOpen && (
           <>
-            <div className="app-browser" style={{ width: browserWidth }}><Browser /></div>
+            <div className="app-browser" style={{ width: browserWidth }}><ErrorBoundary name="Browser"><Browser /></ErrorBoundary></div>
             <Splitter dir="x" onDrag={(d) => setUI({ browserWidth: clamp(ui().browserWidth + d, 160, 480) })} />
           </>
         )}
         <div className="app-center">
-          <div className="app-playlist"><Playlist /></div>
+          <div className="app-playlist"><ErrorBoundary name="Playlist"><Playlist /></ErrorBoundary></div>
           {dockOpen ? (
             <>
               <Splitter dir="y" onDrag={(d) => setUI({ dockHeight: clamp(ui().dockHeight - d, 140, window.innerHeight - 200) })} />
-              <div className="app-dock" style={{ height: dockHeight }}><Dock /></div>
+              <div className="app-dock" style={{ height: dockHeight }}><ErrorBoundary name="Panel"><Dock /></ErrorBoundary></div>
             </>
           ) : (
             <div className="dock-collapsed">

@@ -16,6 +16,8 @@ import { addToLibrary, deleteLibrarySample, loadLibrary, renameLibrarySample, us
 import { FX_CATEGORIES, FX_CHAINS } from '../../audio/effects/fxPresets';
 import { fxApplyChain } from '../../state/actions';
 import { openWindow } from '../../state/ui';
+import { addDreamChord } from '../commands';
+import { DREAM_PRESETS } from '../../audio/instruments/dreamPresets';
 import { Icon } from '../components/Icon';
 import { pickFile } from '../dialogs/filePick';
 import { applyVocalChain, VOCAL_CHAINS } from './vocalChains';
@@ -187,7 +189,18 @@ export function Browser() {
           { key: 'i-synth', label: 'Goofy Synth', icon: 'synth', color: '#f28c28', payload: { type: 'instrument', kind: 'synth' }, onActivate: () => setUI({ selectedChannelId: addChannel('synth') }) },
           { key: 'i-sampler', label: 'Goofy Sampler', icon: 'sample', color: '#56ccf2', payload: { type: 'instrument', kind: 'sampler' }, onActivate: () => setUI({ selectedChannelId: addChannel('sampler') }) },
           { key: 'i-kit', label: 'Goofy Drum Kit (7 pads)', icon: 'drums', color: '#ff5c5c', payload: { type: 'drum', drum: 'kit' }, onActivate: addDrumKit },
+          { key: 'i-dream', label: 'DreamChord (chord synth)', icon: 'dream', color: '#3fc7e8', payload: { type: 'instrument', kind: 'dream' }, onActivate: () => addDreamChord() },
         ],
+      },
+      {
+        key: 'dreamchord', label: 'DreamChord', icon: 'dream', color: '#3fc7e8', items: [],
+        groups: [...new Set(DREAM_PRESETS.map((p) => p.category))].map((g) => ({
+          label: g,
+          items: DREAM_PRESETS.filter((p) => p.category === g).map((p) => ({
+            key: `dc-${p.name}`, label: p.name, icon: 'dream', color: p.color, sub: g, payload: { type: 'instrument', kind: 'dream', preset: p.name },
+            onActivate: () => addDreamChord(p.name),
+          })),
+        })),
       },
       {
         key: 'synths', label: 'Synthesizers', icon: 'piano', color: '#5b8cff', items: [],

@@ -8,6 +8,25 @@ import {
 } from './commands';
 import { newProject, saveProjectAs } from '../project/manager';
 import { askText } from './dialogs/askText';
+import { liveRecorder } from '../midi/liveRecord';
+import { capture } from '../midi/capture';
+import { DreamSynth } from '../audio/instruments/dream';
+import { diagnostics } from '../audio/diagnostics';
+
+/** Live notes from the computer keyboard / MIDI: sound + recording + capture buffer. */
+function liveNoteOn(ch: string, pitch: number, vel: number) {
+  const t = engine.ctx.currentTime + 0.005;
+  engine.previewNote(ch, pitch, vel, undefined, t);
+  liveRecorder.noteOn(ch, pitch, vel, t);
+  capture.noteOn(ch, pitch, vel, t);
+}
+
+function liveNoteOff(ch: string, pitch: number) {
+  const t = engine.ctx.currentTime;
+  engine.previewNoteOff(ch, pitch, t);
+  liveRecorder.noteOff(ch, pitch, t);
+  capture.noteOff(ch, pitch, t);
+}
 
 const held = new Map<string, number>();
 let octave = 0;
@@ -38,8 +57,27 @@ function secretCode(e: KeyboardEvent) {
   return false;
 }
 
+/** Instruments with their own keys (DreamChord) can take a key before the global shortcuts. */
+type KeyOverride = (e: KeyboardEvent, down: boolean) => boolean;
+const overrides = new Set<KeyOverride>();
+export function registerKeyOverride(fn: KeyOverride): () => void {
+  overrides.add(fn);
+  return () => { overrides.delete(fn); };
+}
+
+function override(e: KeyboardEvent, down: boolean) {
+  for (const fn of overrides) {
+    if (fn(e, down)) {
+      e.preventDefault();
+      return true;
+    }
+  }
+  return false;
+}
+
 function onKeyDown(e: KeyboardEvent) {
   if (isTextTarget(e.target)) return;
+  if (override(e, true)) return;
   if (!e.repeat && secretCode(e)) { e.preventDefault(); return; }
   const mod = e.ctrlKey || e.metaKey;
   const k = e.key.toLowerCase();
@@ -87,7 +125,7 @@ function onKeyDown(e: KeyboardEvent) {
       if (!ch) return;
       const pitch = 48 + octave * 12 + semi;
       held.set(k, pitch);
-      engine.previewNote(ch, pitch, 0.85);
+      liveNoteOn(ch, pitch, 0.85);
       return;
     }
   }
@@ -99,36 +137,102 @@ function onKeyDown(e: KeyboardEvent) {
 }
 
 function onKeyUp(e: KeyboardEvent) {
+  if (!isTextTarget(e.target) && override(e, false)) return;
   const k = e.key.toLowerCase();
   const pitch = held.get(k);
   if (pitch !== undefined) {
     held.delete(k);
     const ch = liveChannel();
-    if (ch) engine.previewNoteOff(ch, pitch);
+    if (ch) liveNoteOff(ch, pitch);
+  }
+}
+
+// ---------- MIDI keyboards ----------
+
+export interface MidiDeviceInfo {
+  id: string;
+  name: string;
+}
+
+let midiAccess: MIDIAccess | null = null;
+const midiListeners = new Set<() => void>();
+const sustained = new Map<string, Set<number>>(); // channel → notes held by the pedal
+const midiHeld = new Map<string, Set<number>>(); // channel → notes held by keys
+let pedal = false;
+
+export function midiDevices(): MidiDeviceInfo[] {
+  const out: MidiDeviceInfo[] = [];
+  midiAccess?.inputs.forEach((i) => out.push({ id: i.id, name: i.name ?? 'MIDI input' }));
+  return out;
+}
+
+export function onMidiDevices(l: () => void): () => void {
+  midiListeners.add(l);
+  return () => { midiListeners.delete(l); };
+}
+
+function dreamOf(ch: string): DreamSynth | null {
+  const inst = engine.initialized ? engine.graph.channels.get(ch)?.instrument : undefined;
+  return inst instanceof DreamSynth ? inst : null;
+}
+
+function onMidi(input: MIDIInput, msg: MIDIMessageEvent) {
+  const want = ui().midiInput;
+  if (want === 'off' || (want && want !== input.id)) return;
+  const d = msg.data;
+  if (!d || d.length < 2) return;
+  const cmd = d[0] & 0xf0;
+  const ch = liveChannel();
+  if (!ch) return;
+  if (cmd === 0x90 && d.length > 2 && d[2] > 0) {
+    (midiHeld.get(ch) ?? midiHeld.set(ch, new Set()).get(ch)!).add(d[1]);
+    sustained.get(ch)?.delete(d[1]);
+    liveNoteOn(ch, d[1], d[2] / 127);
+  } else if (cmd === 0x80 || (cmd === 0x90 && d.length > 2 && d[2] === 0)) {
+    midiHeld.get(ch)?.delete(d[1]);
+    // sustain pedal: keep the note until the pedal goes up
+    if (pedal) (sustained.get(ch) ?? sustained.set(ch, new Set()).get(ch)!).add(d[1]);
+    else liveNoteOff(ch, d[1]);
+  } else if (cmd === 0xb0 && d.length > 2) {
+    if (d[1] === 64) {
+      pedal = d[2] >= 64;
+      if (!pedal) {
+        for (const [c, set] of sustained) for (const n of set) if (!midiHeld.get(c)?.has(n)) liveNoteOff(c, n);
+        sustained.clear();
+      }
+    } else if (d[1] === 1) {
+      dreamOf(ch)?.setExpression(d[2] / 127); // mod wheel → vibrato
+    } else if (d[1] === 123 || d[1] === 120) {
+      engine.graph.allNotesOff(); // all notes off / all sound off
+    }
+  } else if (cmd === 0xe0 && d.length > 2) {
+    const v = ((d[2] << 7) | d[1]) - 8192;
+    dreamOf(ch)?.setBend((v / 8192) * 2);
   }
 }
 
 async function setupMidi() {
-  const nav = navigator as Navigator & { requestMIDIAccess?: () => Promise<MIDIAccess> };
-  if (!nav.requestMIDIAccess) return;
+  const nav = navigator as Navigator & { requestMIDIAccess?: (o?: { sysex?: boolean }) => Promise<MIDIAccess> };
+  if (!nav.requestMIDIAccess || ui().midiInput === 'off') return;
   try {
-    const access = await nav.requestMIDIAccess();
-    const bind = () => access.inputs.forEach((input) => {
-      input.onmidimessage = (msg) => {
-        const d = msg.data;
-        if (!d || d.length < 3) return;
-        const cmd = d[0] & 0xf0;
-        const ch = liveChannel();
-        if (!ch) return;
-        if (cmd === 0x90 && d[2] > 0) engine.previewNote(ch, d[1], d[2] / 127);
-        else if (cmd === 0x80 || (cmd === 0x90 && d[2] === 0)) engine.previewNoteOff(ch, d[1]);
-      };
-    });
+    const access = await nav.requestMIDIAccess({ sysex: false });
+    midiAccess = access;
+    const bind = () => {
+      access.inputs.forEach((input) => { input.onmidimessage = (msg) => onMidi(input, msg); });
+      midiListeners.forEach((l) => l());
+      diagnostics.log('info', 'midi', `${access.inputs.size} MIDI input${access.inputs.size === 1 ? '' : 's'} available`);
+    };
     bind();
     access.onstatechange = bind;
   } catch {
     /* MIDI permission denied – ignore */
   }
+}
+
+/** Re-checks MIDI after the setting changed (e.g. switched back on). */
+export function refreshMidi() {
+  if (!midiAccess) void setupMidi();
+  midiListeners.forEach((l) => l());
 }
 
 export function installShortcuts() {

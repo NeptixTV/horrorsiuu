@@ -322,11 +322,13 @@ export class MixGraph {
       }
     };
 
+    if (!prev) this.bpm = project.bpm;
     if (!prev || prev.mixer !== project.mixer) phase('mixer', () => this.syncMixer(project.mixer, env));
     if (prev && prev.bpm !== project.bpm) {
       phase('tempo', () => {
         for (const s of this.strips.values()) s.setTempo(project.bpm);
         for (const c of this.clips.values()) c.chain.setTempo(project.bpm);
+        for (const h of this.channels.values()) h.instrument.setTempo?.(project.bpm);
       });
     }
     this.bpm = project.bpm;
@@ -459,6 +461,7 @@ export class MixGraph {
       }
       if (!h) {
         h = new ChannelHost(this.ctx, ch);
+        h.instrument.setTempo?.(this.bpm);
         this.channels.set(ch.id, h);
       } else if (h.state !== ch) {
         h.apply(ch);
