@@ -4,7 +4,7 @@ import { TYPING_KEYS } from '../midi/music';
 import { getProject, useProject } from '../state/store';
 import { openWindow, setUI, ui } from '../state/ui';
 import {
-  deleteSelected, doRedo, doSave, doUndo, duplicateSelected, muteSelected, selectAll, setMode, showDock, soloSelected, togglePlay, toggleRecord,
+  captureNow, deleteSelected, doRedo, doSave, doUndo, duplicateSelected, muteSelected, selectAll, setMode, showDock, soloSelected, togglePlay, toggleRecord,
 } from './commands';
 import { newProject, saveProjectAs } from '../project/manager';
 import { askText } from './dialogs/askText';
@@ -113,6 +113,12 @@ function onKeyDown(e: KeyboardEvent) {
   };
   if (fkeys[e.key]) { e.preventDefault(); fkeys[e.key](); return; }
   if (e.key === 'F8' && e.altKey) { e.preventDefault(); setUI({ browserOpen: !ui().browserOpen }); return; }
+  if (e.altKey && !e.repeat) {
+    // e.code: Alt+letter produces special characters on macOS
+    if (e.code === 'KeyC') { e.preventDefault(); captureNow(); return; }
+    if (e.code === 'KeyN') { e.preventDefault(); openWindow({ kind: 'notes' }); return; }
+    if (e.code === 'KeyI') { e.preventDefault(); openWindow({ kind: 'ideas' }); return; }
+  }
 
   // typing keyboard piano takes over letter keys
   if (ui().typingKeyboard && !e.altKey) {

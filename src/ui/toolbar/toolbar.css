@@ -41,3 +41,6 @@
 .tb-status-dot { width: 7px; height: 7px; border-radius: 50%; background: var(--led); }
 .tb-status.dirty .tb-status-dot { background: var(--accent); }
 .tb-status.rec .tb-status-dot { background: var(--rec); animation: recPulse 1s infinite; }
+
+.tb-capture.ready { color: #9be15d; box-shadow: inset 0 0 0 1px color-mix(in srgb, #9be15d 45%, transparent); }
+.tb-capture.ready:hover { background: color-mix(in srgb, #9be15d 18%, var(--panel3)); }

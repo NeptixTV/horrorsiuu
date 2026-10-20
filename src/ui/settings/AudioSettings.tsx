@@ -198,6 +198,9 @@ export function RecordingSection() {
         <Row label="Quantise recorded notes" desc="Snaps notes played on DreamChord, MIDI or the computer keyboard to 1/16.">
           <Toggle value={s.recQuantize} onChange={(v) => setUI({ recQuantize: v })} />
         </Row>
+        <Row label="Show lyrics while recording" desc="Opens the song notes as a teleprompter when you start an audio recording (only if the project has notes).">
+          <Toggle value={s.lyricsOnRecord} onChange={(v) => setUI({ lyricsOnRecord: v })} />
+        </Row>
       </Section>
       <Section title="MIDI keyboard" hint="Plug in a MIDI keyboard to play the selected channel. Sustain pedal, pitch bend and mod wheel (DreamChord) are supported.">
         <Row label="MIDI input" desc={list.length ? `${list.length} device${list.length === 1 ? '' : 's'} found.` : 'No MIDI device found.'}>

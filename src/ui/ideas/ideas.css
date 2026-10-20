@@ -1,0 +1,31 @@
+.dice { padding: 12px 14px 10px; display: flex; flex-direction: column; gap: 10px; }
+.dice-top { display: flex; gap: 12px; align-items: center; }
+.dice-roll {
+  display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 4px;
+  width: 112px; height: 84px; flex-shrink: 0; border-radius: 10px; cursor: pointer;
+  border: 1px solid color-mix(in srgb, #ffbe3d 60%, transparent);
+  background: radial-gradient(circle at 30% 20%, color-mix(in srgb, #ffbe3d 35%, var(--panel2)), var(--panel2));
+  color: var(--text); font-weight: 700; font-size: 12px;
+  box-shadow: 0 4px 18px color-mix(in srgb, #ffbe3d 18%, transparent);
+  transition: transform .12s ease, box-shadow .12s ease;
+}
+.dice-roll:hover { transform: translateY(-1px); box-shadow: 0 6px 22px color-mix(in srgb, #ffbe3d 30%, transparent); }
+.dice-roll:active { transform: translateY(1px) scale(.98); }
+.dice-roll.pulse { animation: dicePulse 1.8s ease-in-out infinite; }
+.dice-face { display: inline-flex; color: #ffbe3d; animation: diceSpin .45s cubic-bezier(.2,.9,.3,1.3) both; }
+@keyframes diceSpin { from { transform: rotate(-200deg) scale(.6); opacity: .3; } to { transform: rotate(0) scale(1); opacity: 1; } }
+@keyframes dicePulse { 0%, 100% { box-shadow: 0 4px 18px color-mix(in srgb, #ffbe3d 18%, transparent); } 50% { box-shadow: 0 4px 28px color-mix(in srgb, #ffbe3d 45%, transparent); } }
+.dice-result { display: flex; flex-direction: column; gap: 4px; min-width: 0; line-height: 1.4; }
+.dice-result b { font-size: 15px; font-family: var(--mono); color: #ffd27a; }
+.dice-section { display: flex; flex-direction: column; gap: 4px; }
+.dice-chips { display: flex; flex-wrap: wrap; gap: 4px; }
+.dice-chip { padding: 4px 9px; border-radius: 12px; border: 1px solid var(--border); background: var(--bg); color: var(--text); cursor: pointer; font-size: 11px; }
+.dice-chip:hover { border-color: color-mix(in srgb, #ffbe3d 50%, var(--border)); }
+.dice-chip.on { background: #ffbe3d; border-color: #ffbe3d; color: #111; font-weight: 600; }
+.dice-parts { display: flex; flex-direction: column; gap: 3px; }
+.dice-part { display: flex; align-items: center; gap: 6px; padding: 5px 8px; border-radius: 5px; background: var(--bg); border: 1px solid var(--border); }
+.dice-part.off { opacity: .55; }
+.dice-part-name { display: flex; align-items: center; gap: 8px; font-weight: 600; cursor: pointer; }
+.dice-foot { display: flex; align-items: center; gap: 6px; }
+.dice-hint { margin: 0; font-size: 10px; line-height: 1.45; }
+@media (prefers-reduced-motion: reduce) { .dice-face, .dice-roll.pulse { animation: none; } }

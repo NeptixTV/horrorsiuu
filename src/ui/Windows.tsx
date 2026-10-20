@@ -10,6 +10,9 @@ import { ChannelWindow } from './instruments/ChannelWindow';
 import { DreamChordWindow } from './dreamchord/DreamChordWindow';
 import { AutomationWindow } from './automation/AutomationWindow';
 import { HistoryWindow } from './dialogs/HistoryWindow';
+import { IdeaDiceWindow } from './ideas/IdeaDiceWindow';
+import { NotesWindow } from './notes/NotesWindow';
+import { WhatsNewWindow } from './dialogs/WhatsNewWindow';
 import { SettingsWindow } from './dialogs/SettingsWindow';
 import { ProjectsWindow } from './dialogs/ProjectsWindow';
 import { AboutWindow, ExportWindow, ShortcutsWindow } from './dialogs/InfoWindows';
@@ -28,7 +31,7 @@ export function Windows() {
 }
 
 function windowName(w: FloatingWindow) {
-  const n: Record<string, string> = { dreamchord: 'DreamChord', channel: 'Instrument', effect: 'Effect', clipEffect: 'Effect', settings: 'Settings' };
+  const n: Record<string, string> = { dreamchord: 'DreamChord', channel: 'Instrument', effect: 'Effect', clipEffect: 'Effect', settings: 'Settings', ideas: 'Idea dice', notes: 'Song notes', whatsnew: "What's new" };
   return n[w.win.kind] ?? 'Window';
 }
 
@@ -46,6 +49,9 @@ function renderWindow(w: FloatingWindow) {
           case 'dreamchord': return <DreamChordWindow key={w.id} w={w} channelId={k.channelId} />;
           case 'automation': return <AutomationWindow key={w.id} w={w} clipId={k.clipId} />;
           case 'history': return <HistoryWindow key={w.id} w={w} />;
+          case 'ideas': return <IdeaDiceWindow key={w.id} w={w} />;
+          case 'notes': return <NotesWindow key={w.id} w={w} />;
+          case 'whatsnew': return <WhatsNewWindow key={w.id} w={w} />;
           case 'settings': return <SettingsWindow key={w.id} w={w} />;
           case 'projects': return <ProjectsWindow key={w.id} w={w} />;
           case 'shortcuts': return <ShortcutsWindow key={w.id} w={w} />;

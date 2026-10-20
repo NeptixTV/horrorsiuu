@@ -20,12 +20,13 @@ import { onFrame, uiLoad } from '../components/frameLoop';
 import { showMenu, type MenuItem } from '../components/ContextMenu';
 import { Oscilloscope } from '../visualizers/Visualizers';
 import {
-  addDreamChord, confirmDelete, patternHasContent,
+  addDreamChord, captureNow, confirmDelete, patternHasContent,
   deleteSelected, doRedo, doSave, doUndo, duplicateSelected, exportWav, selectAll, setMode, stop, toggleMetronome, togglePlay, toggleRecord, showDock,
 } from '../commands';
 import { exportProjectFile, importProjectFile, newProject, saveProjectAs } from '../../project/manager';
 import { pickFile } from '../dialogs/filePick';
 import { checkNotices } from '../admin/notices';
+import { capture } from '../../midi/capture';
 import './toolbar.css';
 import { askText } from '../dialogs/askText';
 
@@ -124,6 +125,7 @@ function optionsMenu(): MenuItem[] {
 
 function helpMenu(): MenuItem[] {
   return [
+    { label: "What's new in this version", onClick: () => openWindow({ kind: 'whatsnew' }) },
     { label: 'Check for updates & news', onClick: () => void checkNotices(true) },
     { label: 'Keyboard shortcuts', onClick: () => openWindow({ kind: 'shortcuts' }) },
     { label: 'About Goofy Studio', onClick: () => openWindow({ kind: 'about' }) },
@@ -133,6 +135,21 @@ function helpMenu(): MenuItem[] {
 const MENUS: [string, () => MenuItem[]][] = [
   ['File', fileMenu], ['Edit', editMenu], ['Add', addMenu], ['Patterns', patternMenu], ['View', viewMenu], ['Options', optionsMenu], ['Help', helpMenu],
 ];
+
+/** Capture, idea dice and song notes – the "creative" corner of the toolbar. */
+function CreativeButtons() {
+  const [captured, setCaptured] = useState(capture.notes.length);
+  useEffect(() => capture.onChange(() => setCaptured(capture.notes.length)), []);
+  return (
+    <div className="tb-group">
+      <button className={`btn icon tb-capture ${captured ? 'ready' : ''}`} disabled={!captured} title={captured ? `Capture (Alt+C): turn what you just played into a pattern – ${captured} notes remembered` : 'Capture (Alt+C): play something on DreamChord, a MIDI keyboard or the computer keyboard – the studio remembers it even without recording'} onClick={captureNow}>
+        <Icon name="capture" />
+      </button>
+      <button className="btn icon" title="Idea dice (Alt+I): roll chords, bass, melody and a beat" onClick={() => openWindow({ kind: 'ideas' })}><Icon name="dice" /></button>
+      <button className="btn icon" title="Song notes & teleprompter (Alt+N)" onClick={() => openWindow({ kind: 'notes' })}><Icon name="notes" /></button>
+    </div>
+  );
+}
 
 function TimeDisplay() {
   const ref = useRef<HTMLDivElement>(null);
@@ -254,6 +271,8 @@ export function Toolbar() {
         <button className={`btn icon ${typingKeyboard ? 'on' : ''}`} title="Typing keyboard to piano (Z–M / Q–U rows play notes)" onClick={() => setUI({ typingKeyboard: !typingKeyboard })}><Icon name="keyboard" /></button>
         <button className={`btn icon ${loopOn ? 'on' : ''}`} title="Song loop region (set it by dragging in the playlist ruler)" onClick={() => setLoop({ enabled: !loopOn })}><Icon name="loop" /></button>
       </div>
+
+      <CreativeButtons />
 
       <div className="tb-group">
         <Knob

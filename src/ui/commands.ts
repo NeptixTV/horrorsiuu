@@ -8,6 +8,8 @@ import {
   addChannel, deleteClips, deleteNotes, duplicateClips, toggleChannelMute, toggleChannelSolo, toggleMixerMute, toggleMixerSolo,
 } from '../state/actions';
 import { safeFileName, saveProject } from '../project/manager';
+import { captureToPattern } from '../midi/capture';
+import { openNotes } from './notes/NotesWindow';
 
 export function syncTransportUI() {
   const t = engine.transport;
@@ -44,7 +46,10 @@ export async function toggleRecord() {
   engine.input.setGain(s.inputGain);
   const err = await engine.startRecording(trackId);
   if (err) toast(err, 'error');
-  else toast('Recording… press R or Space to stop', 'info');
+  else {
+    toast('Recording… press R or Space to stop', 'info');
+    if (s.lyricsOnRecord && p.notes?.trim()) openNotes(true);
+  }
 }
 
 export function setMode(mode: 'pattern' | 'song') {
@@ -198,4 +203,10 @@ export function addDreamChord(preset?: string) {
   setUI({ selectedChannelId: id, pianoChannelId: id });
   openWindow({ kind: 'dreamchord', channelId: id });
   return id;
+}
+
+/** Capture: the last played phrase (DreamChord, MIDI or typing keyboard) becomes a new pattern. */
+export function captureNow() {
+  const id = captureToPattern(engine.initialized ? engine.ctx.currentTime : 0);
+  if (id) showDock('piano');
 }

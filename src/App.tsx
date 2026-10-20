@@ -1,7 +1,8 @@
 import { useEffect, useState } from 'react';
 import { engine } from './audio/engine';
 import { getProject, installGestureSafety, useProject } from './state/store';
-import { setUI, toast, ui, useUI } from './state/ui';
+import { openWindow, setUI, toast, ui, useUI } from './state/ui';
+import { APP_VERSION } from './admin/feed';
 import { installSettingsSync } from './ui/settingsSync';
 import { installAutomationPlayback } from './ui/automationPlayback';
 import { applyTheme, resolveTheme } from './styles/themes';
@@ -206,9 +207,20 @@ export function App() {
       {!splashGone && <Splash progress={progress} label={label} done={ready} quick={!ui().showSplash || ui().reduceMotion} onGone={() => setSplashGone(true)} />}
       {ready && splashGone && !setupDone && <SetupWizard onDone={() => undefined} />}
       {ready && splashGone && setupDone && <StartupNotices />}
+      {ready && splashGone && setupDone && <WhatsNewOnce />}
       <ContextMenuHost />
       <AskTextHost />
       <Toast />
     </>
   );
+}
+
+/** Opens the "What's new" tour once after an update (not on top of the setup wizard). */
+function WhatsNewOnce() {
+  useEffect(() => {
+    if (ui().seenWhatsNew === APP_VERSION) return;
+    const t = setTimeout(() => openWindow({ kind: 'whatsnew' }), 700);
+    return () => clearTimeout(t);
+  }, []);
+  return null;
 }

@@ -21,6 +21,9 @@ export type WindowKind =
   | { kind: 'dreamchord'; channelId: Id }
   | { kind: 'automation'; clipId: Id }
   | { kind: 'history' }
+  | { kind: 'ideas' }
+  | { kind: 'notes' }
+  | { kind: 'whatsnew' }
   | { kind: 'effect'; trackId: Id; effectId: Id }
   | { kind: 'clipEffect'; clipId: Id; effectId: Id }
   | { kind: 'clip'; clipId: Id }
@@ -123,6 +126,7 @@ export interface UIState {
   confirmDeletes: boolean;
   midiInput: string; // '' = all devices, 'off' = disabled
   recQuantize: boolean;
+  lyricsOnRecord: boolean;
   exportBits: 16 | 24 | 32;
   exportRate: number;
   exportNormalize: boolean;
@@ -149,7 +153,7 @@ const PERSISTED: (keyof UIState)[] = [
   'latencyMs', 'sampleRate', 'limiter', 'ceilingDb', 'protect', 'outputVolume', 'lookahead', 'metronomeVolume', 'countInBars',
   'autoFallbackOutput', 'releaseMic', 'uiScale', 'reduceMotion', 'meterFps', 'showSplash', 'autosaveInterval', 'backups',
   'backupCount', 'backupInterval', 'openLastProject', 'historyLimit', 'notifyLevel', 'checkUpdates', 'showNews', 'showHints',
-  'confirmDeletes', 'midiInput', 'recQuantize', 'exportBits', 'exportRate', 'exportNormalize', 'exportTail', 'seenWhatsNew',
+  'confirmDeletes', 'midiInput', 'recQuantize', 'lyricsOnRecord', 'exportBits', 'exportRate', 'exportNormalize', 'exportTail', 'seenWhatsNew',
 ];
 
 /** Defaults of every persisted setting (Settings → "Reset to defaults" uses these). */
@@ -184,6 +188,7 @@ export const SETTING_DEFAULTS = {
   confirmDeletes: true,
   midiInput: '',
   recQuantize: true,
+  lyricsOnRecord: true,
   exportBits: 24 as 16 | 24 | 32,
   exportRate: 44100,
   exportNormalize: false,
