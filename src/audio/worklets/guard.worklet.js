@@ -58,6 +58,8 @@ class GoofyGuard extends AudioWorkletProcessor {
         if (typeof m.enabled === 'boolean') this.enabled = m.enabled;
         if (typeof m.ceiling === 'number' && Number.isFinite(m.ceiling)) this.ceiling = Math.min(1, Math.max(0.05, m.ceiling));
         if (typeof m.protect === 'boolean') this.protect = m.protect;
+        // release time in ms (used when the guard runs as the "True Peak" limiter effect)
+        if (typeof m.release === 'number' && Number.isFinite(m.release)) this.releaseTc = (Math.min(1000, Math.max(5, m.release)) / 1000) * this.sr;
       } else if (m.type === 'unmute') {
         this.muted = false;
         this.hot = 0;

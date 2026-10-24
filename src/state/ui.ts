@@ -35,7 +35,8 @@ export type WindowKind =
   | { kind: 'projects' }
   | { kind: 'export' }
   | { kind: 'shortcuts' }
-  | { kind: 'about' };
+  | { kind: 'about' }
+  | { kind: 'beatStarter' };
 
 export interface FloatingWindow {
   id: string;
@@ -147,7 +148,9 @@ export type DragPayload =
   | { type: 'effect'; effect: EffectType; preset?: string }
   | { type: 'synthPreset'; preset: string }
   | { type: 'pattern'; patternId: string }
-  | { type: 'fxchain'; name: string };
+  | { type: 'fxchain'; name: string }
+  | { type: 'pro'; sound: string; name: string }
+  | { type: 'kit'; kit: string };
 
 const PERSIST_KEY = 'goofy-studio-ui';
 const PERSISTED: (keyof UIState)[] = [

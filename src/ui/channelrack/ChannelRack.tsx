@@ -24,6 +24,21 @@ import { decodeAudioFile } from '../../project/manager';
 import { currentStepFor } from './playhead';
 import './rack.css';
 import { askText } from '../dialogs/askText';
+import { addProChannel, loadKit, loadProIntoChannel } from '../proSounds';
+import { proSound } from '../../audio/pro/catalog';
+import { setRoll } from '../../state/actions';
+
+/** Hits per step a roll can have; Alt+click on a step cycles through them. */
+export const ROLLS = [1, 2, 3, 4, 6, 8];
+export const nextRoll = (r: number) => ROLLS[(ROLLS.indexOf(r) + 1) % ROLLS.length] ?? 1;
+
+export function channelIcon(ch: Channel): string {
+  if (ch.kind === 'pro') {
+    const s = proSound(ch.pro?.sound);
+    return s?.oneShot ? 'drums' : 'crown';
+  }
+  return ch.kind === 'drum' ? 'drums' : ch.kind === 'sampler' ? 'wave' : ch.kind === 'dream' ? 'dream' : 'synth';
+}
 
 // paint-drag state shared by all step buttons
 let paint: { patternId: string; channelId: string; value: number } | null = null;
@@ -43,15 +58,23 @@ function addChannelMenu(): MenuItem[] {
   ];
 }
 
-const StepButton = memo(function StepButton({ i, value, color, patternId, channelId }: { i: number; value: number; color: string; patternId: string; channelId: string }) {
+const StepButton = memo(function StepButton({ i, value, roll, color, patternId, channelId }: { i: number; value: number; roll: number; color: string; patternId: string; channelId: string }) {
   return (
     <button
-      className={`step ${value > 0 ? 'on' : ''} ${Math.floor(i / 4) % 2 ? 'alt' : ''}`}
+      className={`step ${value > 0 ? 'on' : ''} ${Math.floor(i / 4) % 2 ? 'alt' : ''} ${roll > 1 && value > 0 ? 'roll' : ''}`}
       data-i={i}
+      data-roll={roll > 1 && value > 0 ? roll : undefined}
       style={value > 0 ? { ['--sc' as string]: color, opacity: 0.45 + value * 0.55 } : undefined}
       onPointerDown={(e) => {
         e.preventDefault();
         (e.currentTarget as Element).releasePointerCapture(e.pointerId);
+        if (e.altKey && e.button === 0) {
+          // Alt+click: hi-hat roll (2, 3, 4, 6, 8 hits in this step)
+          const r = nextRoll(value > 0 ? roll : 1);
+          setRoll(patternId, channelId, i, r);
+          engine.previewNote(channelId, getProject().channels.find((c) => c.id === channelId)?.rootNote ?? 60, 0.8, 0.1);
+          return;
+        }
         beginGesture();
         const v = e.button === 2 ? 0 : value > 0 ? 0 : 1;
         paint = { patternId, channelId, value: v };
@@ -67,7 +90,7 @@ const StepButton = memo(function StepButton({ i, value, color, patternId, channe
         const nv = Math.max(0.05, Math.min(1, value + (e.deltaY < 0 ? 0.1 : -0.1)));
         setStep(patternId, channelId, i, Math.round(nv * 100) / 100);
       }}
-      title={value > 0 ? `Velocity ${Math.round(value * 100)}% (scroll to change)` : undefined}
+      title={value > 0 ? `Velocity ${Math.round(value * 100)}% (scroll to change)${roll > 1 ? ` · roll ×${roll}` : ''} · Alt+click: hi-hat roll` : 'Click: hit · Alt+click: hi-hat roll'}
     />
   );
 });
@@ -96,9 +119,9 @@ function MiniNotes({ notes, length, color, onOpen }: { notes: Note[]; length: nu
 }
 
 const ChannelRow = memo(function ChannelRow({
-  channel, steps, notes, lengthSteps, patternLen, patternId, selected, mixerIndex, mixerName,
+  channel, steps, rolls, notes, lengthSteps, patternLen, patternId, selected, mixerIndex, mixerName,
 }: {
-  channel: Channel; steps: number[] | undefined; notes: Note[] | undefined; lengthSteps: number; patternLen: number; patternId: string;
+  channel: Channel; steps: number[] | undefined; rolls: number[] | undefined; notes: Note[] | undefined; lengthSteps: number; patternLen: number; patternId: string;
   selected: boolean; mixerIndex: number; mixerName: string;
 }) {
   const [drop, setDrop] = useState(false);
@@ -152,7 +175,11 @@ const ChannelRow = memo(function ChannelRow({
       const p = readDragPayload(e);
       setUI({ dragPayload: null });
       if (p?.type === 'sample') { assetId = p.assetId; name = p.name; }
-      else if (p?.type === 'synthPreset' && channel.kind === 'synth') {
+      else if (p?.type === 'pro') {
+        loadProIntoChannel(channel.id, p.sound);
+        toast(`Loaded “${p.name}” into ${channel.name}`, 'ok');
+        return;
+      } else if (p?.type === 'synthPreset' && channel.kind === 'synth') {
         const preset = SYNTH_PRESETS.find((x) => x.name === p.preset);
         if (preset) { updateChannel(channel.id, { synth: structuredClone(preset.params), name: preset.name }, 'Load preset'); toast(`Loaded ${preset.name}`, 'ok'); }
         return;
@@ -204,14 +231,14 @@ const ChannelRow = memo(function ChannelRow({
       >
         <span className="rack-name-level" ref={levelRef} />
         <span className="rack-name-text">{channel.name}</span>
-        <Icon name={channel.kind === 'drum' ? 'drums' : channel.kind === 'sampler' ? 'wave' : channel.kind === 'dream' ? 'dream' : 'synth'} size={10} style={{ opacity: 0.6 }} />
+        <Icon name={channelIcon(channel)} size={10} style={{ opacity: 0.6 }} />
       </button>
       {hasNotes && !steps?.some((v) => v > 0) ? (
         <MiniNotes notes={notes!} length={patternLen} color={channel.color} onOpen={() => setUI({ pianoChannelId: channel.id, selectedChannelId: channel.id, dockTab: 'piano' })} />
       ) : (
         <div className="steps" data-channel={channel.id}>
           {Array.from({ length: n }, (_, i) => (
-            <StepButton key={i} i={i} value={steps?.[i] ?? 0} color={channel.color} patternId={patternId} channelId={channel.id} />
+            <StepButton key={i} i={i} value={steps?.[i] ?? 0} roll={rolls?.[i] ?? 1} color={channel.color} patternId={patternId} channelId={channel.id} />
           ))}
         </div>
       )}
@@ -238,6 +265,8 @@ async function rackDrop(e: DragEvent) {
     if (p.drum === 'kit') addDrumKit();
     else setUI({ selectedChannelId: addChannel('drum', { drum: p.drum as DrumType }) });
   } else if (p.type === 'synthPreset') setUI({ selectedChannelId: addChannel('synth', { synthPreset: p.preset }) });
+  else if (p.type === 'pro') addProChannel(p.sound);
+  else if (p.type === 'kit') loadKit(p.kit);
   else if (p.type === 'sample') setUI({ selectedChannelId: addChannel('sampler', { assetId: p.assetId, name: p.name }) });
 }
 
@@ -306,6 +335,7 @@ export function ChannelRack() {
             key={c.id}
             channel={c}
             steps={pattern.steps[c.id]}
+            rolls={pattern.rolls?.[c.id]}
             notes={pattern.notes[c.id]}
             lengthSteps={pattern.lengthSteps}
             patternLen={plen}

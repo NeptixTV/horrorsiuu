@@ -74,13 +74,20 @@ export function collectPatternEvents(
     if (!active.has(ch.id)) continue;
     const steps = pattern.steps[ch.id];
     if (steps) {
+      const rolls = pattern.rolls?.[ch.id];
       const n = Math.min(steps.length, pattern.lengthSteps);
       for (let i = 0; i < n; i++) {
         const v = steps[i];
         if (!v) continue;
         const t = i * TICKS_PER_STEP + (i % 2 === 1 ? swing : 0);
-        if (t >= from && t < to) {
-          out.push({ tick: base + t, channelId: ch.id, pitch: ch.rootNote + transpose, velocity: Math.min(1, v * gain), length: Math.min(TICKS_PER_STEP, limit - t), step: i });
+        // a roll splits the step into equal hits (hi-hat rolls); later hits a touch softer
+        const r = rolls ? Math.max(1, Math.min(8, Math.round(rolls[i] ?? 1))) : 1;
+        const len = TICKS_PER_STEP / r;
+        for (let k = 0; k < r; k++) {
+          const tk = t + k * len;
+          if (tk >= from && tk < to) {
+            out.push({ tick: base + tk, channelId: ch.id, pitch: ch.rootNote + transpose, velocity: Math.min(1, v * gain * (k ? 0.82 : 1)), length: Math.min(len, limit - tk), step: i });
+          }
         }
       }
     }

@@ -34,3 +34,10 @@
 .mini-note { position: absolute; border-radius: 1px; min-height: 2px; opacity: .9; }
 .rack-add { margin-top: 6px; height: 28px; display: flex; align-items: center; justify-content: center; gap: 6px; border: 1px dashed var(--panel3); border-radius: 4px; color: var(--dim); cursor: pointer; }
 .rack-add:hover { border-color: var(--accent); color: var(--accent); }
+/* hi-hat roll: thin dividers show how many hits the step has */
+.step.roll { position: relative; }
+.step.roll::after { content: attr(data-roll); position: absolute; right: 2px; bottom: 1px; font-size: 8px; font-weight: 800; color: rgba(0,0,0,.65); line-height: 1; }
+.step.roll::before { content: ''; position: absolute; inset: 3px 2px; background: repeating-linear-gradient(90deg, transparent 0 calc(25% - 1px), rgba(0,0,0,.35) calc(25% - 1px) 25%); border-radius: 2px; pointer-events: none; }
+.step.roll[data-roll="2"]::before { background: linear-gradient(90deg, transparent calc(50% - 1px), rgba(0,0,0,.35) calc(50% - 1px) calc(50% + 1px), transparent calc(50% + 1px)); }
+.step.roll[data-roll="3"]::before { background: repeating-linear-gradient(90deg, transparent 0 calc(33.3% - 1px), rgba(0,0,0,.35) calc(33.3% - 1px) 33.3%); }
+.step.roll[data-roll="6"]::before, .step.roll[data-roll="8"]::before { background: repeating-linear-gradient(90deg, transparent 0 3px, rgba(0,0,0,.35) 3px 4px); }

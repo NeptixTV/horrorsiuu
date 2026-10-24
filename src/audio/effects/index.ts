@@ -11,6 +11,7 @@ import { PitchEffect } from './pitch';
 import { VoiceEffect } from './voice';
 import { AutoPanEffect, FlangerEffect, LimiterEffect, PhaserEffect, TremoloEffect } from './modulation';
 import { GateEffect, TapeEffect, WidthEffect } from './studio';
+import { ClipperEffect, LofiEffect, MultibandEffect, PumpEffect, TransientEffect } from './beat';
 
 export function createEffect(ctx: BaseAudioContext, type: EffectType): Effect {
   switch (type) {
@@ -31,10 +32,16 @@ export function createEffect(ctx: BaseAudioContext, type: EffectType): Effect {
     case 'tape': return new TapeEffect(ctx);
     case 'width': return new WidthEffect(ctx);
     case 'gate': return new GateEffect(ctx);
+    case 'clipper': return new ClipperEffect(ctx);
+    case 'pump': return new PumpEffect(ctx);
+    case 'ott': return new MultibandEffect(ctx);
+    case 'transient': return new TransientEffect(ctx);
+    case 'lofi': return new LofiEffect(ctx);
   }
 }
 
 export {
   EqEffect, CompressorEffect, ReverbEffect, DelayEffect, FilterEffect, DistortionEffect, ChorusEffect, PitchEffect, VoiceEffect,
   PhaserEffect, FlangerEffect, TremoloEffect, AutoPanEffect, LimiterEffect, TapeEffect, WidthEffect, GateEffect,
+  ClipperEffect, PumpEffect, MultibandEffect, TransientEffect, LofiEffect,
 };

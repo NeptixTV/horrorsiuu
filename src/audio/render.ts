@@ -6,6 +6,7 @@ import type { AutomationTarget, Project } from '../state/types';
 import { MASTER_ID, PPQ, TICKS_PER_STEP } from '../state/types';
 import { MixGraph } from './mixgraph';
 import { loadWorklets, markWorkletsReady } from './worklets';
+import { ensureProjectSounds } from './pro/loader';
 import { scheduleAudioClip } from './clipPlayback';
 import { scheduleAutomation } from './automation';
 import {
@@ -100,6 +101,8 @@ export async function renderProject(project: Project, opts: RenderOptions): Prom
   const spt = 60 / (project.bpm * PPQ);
   const [fromTick, toTick] = rangeOf(project, opts);
   const duration = (toTick - fromTick) * spt + (opts.tail ?? 2.5);
+  // every Pro Sound sample the song plays has to be in memory first
+  await ensureProjectSounds(project);
   const ctx = new OfflineAudioContext(2, Math.max(1, Math.ceil(duration * sr)), sr);
   if (await loadWorklets(ctx)) markWorkletsReady(ctx);
   const graph = new MixGraph(ctx);
@@ -135,6 +138,7 @@ export async function renderStems(project: Project, opts: RenderOptions): Promis
   const duration = (toTick - fromTick) * spt + (opts.tail ?? 2.5);
   const sources = [project.mixer[0], ...stemSources(project)];
   const out: Stem[] = [];
+  await ensureProjectSounds(project);
   const PER_PASS = 15;
   for (let i = 0; i < sources.length; i += PER_PASS) {
     const group = sources.slice(i, i + PER_PASS);

@@ -3,7 +3,7 @@
 // (e.g. the live microphone) or on a single clip in the playlist.
 import type { EffectType, ParamValue } from '../../state/types';
 
-export type FxChainCategory = 'Voice' | 'Funny' | 'Space' | 'Character' | 'Autotune';
+export type FxChainCategory = 'Beat' | 'Voice' | 'Funny' | 'Space' | 'Character' | 'Autotune';
 
 export interface FxChainPreset {
   name: string;
@@ -13,6 +13,19 @@ export interface FxChainPreset {
 }
 
 export const FX_CHAINS: FxChainPreset[] = [
+  // ---- beats: put them on the master, the drum bus or a single sound
+  { name: 'Hard Trap Master', icon: '🔥', category: 'Beat', effects: [['eq', { low: 2, lowFreq: 60, high: 2, highFreq: 10000 }], ['ott', { depth: 0.2 }], ['clipper', { drive: 3, ceiling: -1.5, softness: 0.35 }], ['limiter', { drive: 1, ceiling: -0.5, release: 60, mode: 'true' }]] },
+  { name: 'Drum Bus Punch', icon: '🥊', category: 'Beat', effects: [['transient', { attack: 0.45, sustain: -0.1 }], ['compressor', { threshold: -14, ratio: 3, attack: 25, release: 120, knee: 6, makeup: 0 }], ['clipper', { drive: 3, ceiling: -1, softness: 0.3, output: -3 }]] },
+  { name: '808 Grit', icon: '🔊', category: 'Beat', effects: [['distortion', { shape: 'soft', drive: 0.3, tone: 8000, mix: 0.45, output: -3 }], ['clipper', { drive: 4, ceiling: -2, softness: 0.4, output: -4 }], ['eq', { low: 2, lowFreq: 55, lowMid: -2, lowMidFreq: 300 }]] },
+  { name: 'Sidechain Pump', icon: '💨', category: 'Beat', effects: [['pump', { source: 'kick', depth: 0.7, release: 150 }]] },
+  { name: 'Lo-Fi Beat', icon: '📼', category: 'Beat', effects: [['lofi', { bits: 11, rate: 18000, tone: 6000, wobble: 0.25, crackle: 0.35 }], ['tape', { wow: 0.2, flutter: 0.15, drive: 0.4, tone: 9000 }]] },
+  { name: 'Lo-Fi Keys', icon: '🎹', category: 'Beat', effects: [['lofi', { bits: 12, rate: 22000, tone: 4500, wobble: 0.45, crackle: 0.4 }], ['chorus', { rate: 0.5, depth: 0.35, mix: 0.3 }], ['reverb', { size: 0.6, decay: 2.2, damping: 4000, wet: 0.25 }]] },
+  { name: 'Dark Bells', icon: '🔔', category: 'Beat', effects: [['eq', { low: -6, lowFreq: 200, high: -2 }], ['delay', { sync: '1/8d', feedback: 0.35, tone: 4000, pingpong: 0.7, mix: 0.22 }], ['reverb', { size: 0.85, decay: 3.5, damping: 6000, wet: 0.3 }]] },
+  { name: 'Sad Piano', icon: '🌧️', category: 'Beat', effects: [['eq', { low: -4, lowFreq: 120, highMid: -2, high: -3 }], ['tape', { wow: 0.15, flutter: 0.1, drive: 0.25, tone: 9000 }], ['reverb', { size: 0.8, decay: 3, damping: 7000, wet: 0.3 }]] },
+  { name: 'Wide Pad', icon: '☁️', category: 'Beat', effects: [['width', { width: 1.7, monoBass: 180 }], ['pump', { source: 'kick', depth: 0.5, release: 200 }], ['reverb', { size: 0.9, decay: 4, wet: 0.3 }]] },
+  { name: 'Phonk Cowbell', icon: '🐄', category: 'Beat', effects: [['distortion', { shape: 'hard', drive: 0.5, tone: 6000, mix: 0.6, output: -6 }], ['eq', { mid: 4, midFreq: 1800 }], ['reverb', { size: 0.4, decay: 1.2, wet: 0.15 }]] },
+  { name: 'Telephone Melody', icon: '📞', category: 'Beat', effects: [['filter', { mode: 'bandpass', cutoff: 1400, resonance: 1.2 }], ['lofi', { bits: 9, rate: 12000, tone: 4000, wobble: 0.2, crackle: 0.2 }]] },
+
   // ---- voice changers
   { name: 'Chipmunk', icon: '🐿️', category: 'Voice', effects: [['voice', { transpose: 8, formant: 5 }]] },
   { name: 'Helium', icon: '🎈', category: 'Voice', effects: [['voice', { transpose: 12, formant: 6 }], ['eq', { low: -6, high: 3 }]] },
@@ -63,4 +76,4 @@ export const FX_CHAINS: FxChainPreset[] = [
   { name: 'Choir Tune', icon: '⛪', category: 'Autotune', effects: [['pitch', { correction: 1, retune: 20 }], ['chorus', { rate: 0.6, depth: 0.7, mix: 0.5 }], ['reverb', { size: 0.9, decay: 4, wet: 0.35 }]] },
 ];
 
-export const FX_CATEGORIES: FxChainCategory[] = ['Voice', 'Funny', 'Space', 'Character', 'Autotune'];
+export const FX_CATEGORIES: FxChainCategory[] = ['Beat', 'Voice', 'Funny', 'Space', 'Character', 'Autotune'];

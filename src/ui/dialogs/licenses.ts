@@ -6,6 +6,7 @@ export const THIRD_PARTY: { name: string; license: string; copyright: string }[]
   { name: 'Immer', license: 'MIT', copyright: 'Copyright (c) 2017 Michel Weststrate' },
   { name: 'Inter (font)', license: 'SIL Open Font License 1.1', copyright: 'Copyright 2016 The Inter Project Authors' },
   { name: 'JetBrains Mono (font)', license: 'SIL Open Font License 1.1', copyright: 'Copyright 2020 The JetBrains Mono Project Authors' },
+  { name: 'VS Chamber Orchestra: Community Edition (recorded Pro Sounds)', license: 'CC0 1.0 (public domain)', copyright: 'Sam Gossner, Simon Dalzell (Ivy Audio), Elan Hickler (Soundemote), Versilian Studios – see sounds/CREDITS.txt' },
   { name: 'Electron (desktop app only)', license: 'MIT', copyright: 'Copyright (c) Electron contributors, (c) 2013-2020 GitHub Inc.' },
   { name: 'Chromium (desktop app only)', license: 'BSD-3-Clause and others', copyright: 'Copyright The Chromium Authors – see LICENSES.chromium.html' },
 ];

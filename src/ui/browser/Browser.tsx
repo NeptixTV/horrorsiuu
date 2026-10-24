@@ -21,6 +21,8 @@ import { DREAM_PRESETS } from '../../audio/instruments/dreamPresets';
 import { Icon } from '../components/Icon';
 import { pickFile } from '../dialogs/filePick';
 import { applyVocalChain, VOCAL_CHAINS } from './vocalChains';
+import { PRO_GROUPS, PRO_KITS, PRO_SOUNDS } from '../../audio/pro/catalog';
+import { addProChannel, loadKit, loadProIntoChannel, previewPro } from '../proSounds';
 import './browser.css';
 
 interface Item {
@@ -34,6 +36,8 @@ interface Item {
   onClick?: () => void;
   menu?: () => MenuItem[];
   noDrag?: boolean;
+  /** extra words the search matches */
+  tags?: string;
 }
 
 interface Category {
@@ -114,7 +118,7 @@ export function addDrumKit() {
 
 export function Browser() {
   const [query, setQuery] = useState('');
-  const [open, setOpen] = useState<Record<string, boolean>>({ instruments: true, drums: true });
+  const [open, setOpen] = useState<Record<string, boolean>>({ kits: true, pro: true });
   const userSamples = useLibrary((s) => s.samples);
   const patterns = useProject((s) => s.project.patterns);
   const projectAssets = useProject((s) => s.project.assets);
@@ -164,7 +168,41 @@ export function Browser() {
     const libGroup = (cat: string) => LIBRARY.filter((s) => s.category === cat).map((s) => sampleItem(s.id, s.name, '#56ccf2', cat));
     const libCats = ['Drums', 'Percussion', 'Bass', 'Melodic', 'FX', 'Funny', 'Game', 'Loops'];
     const action = (key: string, label: string, icon: string, fn: () => void): Item => ({ key, label, icon, color: 'var(--accent)', payload: { type: 'instrument', kind: 'synth' }, onActivate: fn, onClick: fn, noDrag: true });
+    const proItem = (id: string): Item => {
+      const s = PRO_SOUNDS.find((x) => x.id === id)!;
+      return {
+        key: `pro-${id}`, label: s.name, icon: s.oneShot ? 'drums' : s.group === '808s & Bass' ? 'wave' : 'piano', color: s.real ? '#ffd36b' : '#ff9a3d',
+        sub: s.real ? 'real' : undefined, payload: { type: 'pro', sound: id, name: s.name }, tags: `${s.group} ${s.tags ?? ''}`,
+        onClick: () => void previewPro(id),
+        onActivate: () => { addProChannel(id); toast(`“${s.name}” added to the Channel Rack`, 'ok'); },
+        menu: () => {
+          const sel = ui().selectedChannelId;
+          const selCh = getProject().channels.find((c) => c.id === sel);
+          return [
+            { label: '▶ Preview', onClick: () => void previewPro(id) },
+            { label: 'Add as new channel', onClick: () => addProChannel(id) },
+            ...(selCh ? [{ label: `Load into “${selCh.name}”`, onClick: () => loadProIntoChannel(selCh.id, id) }] : []),
+          ];
+        },
+      };
+    };
     return [
+      {
+        key: 'kits', label: 'Drum Kits', icon: 'drums', color: '#ffbe3d',
+        items: PRO_KITS.map((k) => ({
+          key: `kit-${k.id}`, label: k.name, icon: 'drums', color: k.color, sub: `${k.genre} · ${k.bpm}`, payload: { type: 'kit', kit: k.id } as DragPayload,
+          onClick: () => void previewPro(k.slots[0].sound),
+          onActivate: () => { loadKit(k.id); setUI({ dockTab: 'drums', dockOpen: true }); },
+          menu: () => [
+            { label: 'Load kit with starter beat', onClick: () => { loadKit(k.id); setUI({ dockTab: 'drums', dockOpen: true }); } },
+            { label: 'Load sounds only', onClick: () => loadKit(k.id, { pattern: false, bass: false }) },
+          ],
+        })),
+      },
+      {
+        key: 'pro', label: 'Pro Sounds', icon: 'crown', color: '#ffd36b', items: [],
+        groups: PRO_GROUPS.map((g) => ({ label: g, items: PRO_SOUNDS.filter((x) => x.group === g).map((x) => proItem(x.id)) })),
+      },
       {
         key: 'library', label: 'My Library', icon: 'star', color: '#9be15d',
         items: [
@@ -269,7 +307,7 @@ export function Browser() {
   }, [userSamples, patterns, projectAssets, selectedPatternId]);
 
   const q = query.trim().toLowerCase();
-  const match = (it: Item) => !q || it.label.toLowerCase().includes(q) || (it.sub ?? '').toLowerCase().includes(q);
+  const match = (it: Item) => !q || it.label.toLowerCase().includes(q) || (it.sub ?? '').toLowerCase().includes(q) || (it.tags ?? '').toLowerCase().includes(q);
 
   const renderItem = (it: Item) => (
     <div

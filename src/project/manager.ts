@@ -166,12 +166,16 @@ export async function openProject(id: string): Promise<boolean> {
 }
 
 export function newProject() {
+  loadNewProject(createEmptyProject(), 'New project');
+}
+
+/** Replaces the open project with a freshly built one (File → New, Beat Starter). */
+export function loadNewProject(p: Project, message: string) {
   engine.transport?.stop();
-  const p = createEmptyProject();
   loadProjectState(p, { dirty: true });
   releaseUnusedAssets(p);
   resetSelection();
-  toast('New project', 'info');
+  toast(message, 'info');
 }
 
 function resetSelection() {

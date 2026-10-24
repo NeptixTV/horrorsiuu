@@ -4,6 +4,7 @@ import type {
 import { MASTER_ID, PPQ, TICKS_PER_STEP } from './types';
 import { paletteColor, uid } from './utils';
 import { defaultParams } from '../audio/effects/descriptors';
+import { defaultPro } from '../audio/pro/catalog';
 
 export function defaultSynth(): SynthParams {
   return {
@@ -134,6 +135,7 @@ export function makeChannel(kind: Channel['kind'], name: string, mixerTrackId: s
   if (kind === 'drum') ch.drum = defaultDrum('kick');
   if (kind === 'sampler') ch.sampler = defaultSampler();
   if (kind === 'dream') ch.dream = defaultDream();
+  if (kind === 'pro') ch.pro = defaultPro();
   return { ...ch, ...extra };
 }
 

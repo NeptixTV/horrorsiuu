@@ -7,6 +7,7 @@ import { audibleTracks, wouldCycle } from '../state/routing';
 import { createEffect } from './effects';
 import { Effect, EffectSlot, setParam, type EffectEnv } from './effects/base';
 import { createInstrument, type Instrument } from './instruments';
+import { triggerPumps } from './effects/beat';
 import { diagnostics } from './diagnostics';
 import { clampFinite } from './safety';
 
@@ -473,7 +474,12 @@ export class MixGraph {
   }
 
   noteOn(channelId: string, pitch: number, velocity: number, time: number, duration?: number) {
-    this.channels.get(channelId)?.instrument.noteOn(pitch, velocity, time, duration);
+    const h = this.channels.get(channelId);
+    if (!h) return;
+    h.instrument.noteOn(pitch, velocity, time, duration);
+    // kicks drive the sidechain pumps (muted channels produce no notes, so
+    // they do not pump)
+    triggerPumps(this.ctx, h.state, time, velocity);
   }
 
   noteOff(channelId: string, pitch: number, time: number) {

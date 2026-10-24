@@ -295,6 +295,12 @@ function drumPart(o: IdeaOptions): Partial<Record<DrumType, number[]>> {
   return out;
 }
 
+/** The chords of an idea and the ticks each one lasts (for parts written elsewhere, e.g. an 808 line). */
+export function ideaChords(o: IdeaOptions): { chords: Chord[]; span: number } {
+  const { chords, span } = progressionFor(o);
+  return { chords, span };
+}
+
 export function rollIdea(o: IdeaOptions): Idea {
   const { chords, span, r } = progressionFor(o);
   return {

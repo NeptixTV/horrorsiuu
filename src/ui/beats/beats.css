@@ -1,0 +1,17 @@
+.beat-start { gap: 12px; }
+.beat-genres { display: grid; grid-template-columns: repeat(4, 1fr); gap: 8px; }
+.beat-genre {
+  display: flex; flex-direction: column; align-items: flex-start; gap: 2px; padding: 10px 12px 9px; border-radius: 6px; cursor: pointer; text-align: left;
+  border: 1px solid var(--border); border-left: 4px solid var(--gc); background: linear-gradient(160deg, var(--panel2), var(--panel)); color: var(--text);
+}
+.beat-genre:hover { filter: brightness(1.12); }
+.beat-genre.on { border-color: var(--gc); box-shadow: 0 0 0 1px var(--gc), 0 0 16px color-mix(in srgb, var(--gc) 30%, transparent); }
+.beat-emoji { font-size: 18px; line-height: 1; margin-bottom: 4px; }
+.beat-bpm { font-size: 10px; color: var(--dim); font-family: var(--mono); }
+.beat-info { display: flex; flex-direction: column; gap: 6px; padding: 8px 10px; border-radius: 5px; background: var(--bg); border: 1px solid var(--border); }
+.beat-desc { font-weight: 600; }
+.beat-parts { display: flex; flex-wrap: wrap; gap: 10px; color: var(--dim); font-size: 11px; }
+.beat-parts span { display: inline-flex; align-items: center; gap: 4px; }
+.beat-actions { align-items: center; }
+.beat-key { display: flex; align-items: center; gap: 6px; color: var(--dim); }
+.beat-hint { font-size: 11px; color: var(--dim); }

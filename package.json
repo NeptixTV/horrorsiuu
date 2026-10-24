@@ -14,6 +14,7 @@
     "build:single": "vite build --mode single",
     "preview": "vite preview",
     "typecheck": "tsc --noEmit",
+    "sounds": "node scripts/sounds/build.mjs",
     "test": "vitest run",
     "desktop": "vite build && electron .",
     "dist:win": "vite build && electron-builder --win --publish never",

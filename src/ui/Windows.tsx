@@ -16,6 +16,7 @@ import { WhatsNewWindow } from './dialogs/WhatsNewWindow';
 import { SettingsWindow } from './dialogs/SettingsWindow';
 import { ProjectsWindow } from './dialogs/ProjectsWindow';
 import { AboutWindow, ExportWindow, ShortcutsWindow } from './dialogs/InfoWindows';
+import { BeatStarterWindow } from './beats/BeatStarterWindow';
 
 export function Windows() {
   const windows = useUI((s) => s.windows);
@@ -57,6 +58,7 @@ function renderWindow(w: FloatingWindow) {
           case 'shortcuts': return <ShortcutsWindow key={w.id} w={w} />;
           case 'about': return <AboutWindow key={w.id} w={w} />;
           case 'export': return <ExportWindow key={w.id} w={w} />;
+          case 'beatStarter': return <BeatStarterWindow key={w.id} w={w} />;
           default: return null;
         }
 }

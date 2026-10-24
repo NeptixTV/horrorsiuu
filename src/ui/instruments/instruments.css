@@ -27,3 +27,9 @@
 .mk-white.held { background: linear-gradient(180deg, var(--accent2), var(--accent)); }
 .mk-black { position: absolute; top: 0; right: -30%; width: 60%; height: 60%; background: linear-gradient(180deg, #2b2f33, #0d0e10); border-radius: 0 0 3px 3px; z-index: 2; cursor: pointer; }
 .mk-black.held { background: var(--accent); }
+
+/* Pro Sounds */
+.pro-head { display: flex; gap: 6px; align-items: center; }
+.pro-select { flex: 1; min-width: 0; }
+.pro-badge { font-size: 9px; font-weight: 800; letter-spacing: .08em; padding: 2px 6px; border-radius: 3px; border: 1px solid var(--border); color: var(--dim); }
+.pro-badge.real { color: #111; background: linear-gradient(180deg, #ffd36b, #f2a93b); border-color: transparent; }

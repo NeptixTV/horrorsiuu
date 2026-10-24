@@ -28,6 +28,8 @@ import { pickFile } from '../dialogs/filePick';
 import { checkNotices } from '../admin/notices';
 import { capture } from '../../midi/capture';
 import './toolbar.css';
+import { PRO_GROUPS, PRO_KITS, PRO_SOUNDS } from '../../audio/pro/catalog';
+import { addProChannel, loadKit } from '../proSounds';
 import { askText } from '../dialogs/askText';
 
 function menuAt(e: React.MouseEvent, items: MenuItem[]) {
@@ -37,6 +39,7 @@ function menuAt(e: React.MouseEvent, items: MenuItem[]) {
 
 function fileMenu(): MenuItem[] {
   return [
+    { label: 'New beat from a genre…', shortcut: 'Ctrl+B', onClick: () => openWindow({ kind: 'beatStarter' }) },
     { label: 'New project', shortcut: 'Ctrl+N', onClick: () => { if (!useProject.getState().dirty || confirm('Discard unsaved changes?')) newProject(); } },
     { label: 'Open…', shortcut: 'Ctrl+O', onClick: () => openWindow({ kind: 'projects' }) },
     { separator: true },
@@ -70,6 +73,9 @@ function editMenu(): MenuItem[] {
 
 function addMenu(): MenuItem[] {
   return [
+    { label: 'Pro Sound', submenu: PRO_GROUPS.map((g) => ({ label: g, submenu: PRO_SOUNDS.filter((x) => x.group === g).map((x) => ({ label: x.name, onClick: () => addProChannel(x.id) })) })) },
+    { label: 'Pro drum kit', submenu: PRO_KITS.map((k) => ({ label: `${k.name} · ${k.genre}`, onClick: () => { loadKit(k.id); setUI({ dockOpen: true, dockTab: 'drums' }); } })) },
+    { separator: true },
     { label: 'Goofy Synth', submenu: SYNTH_PRESETS.map((p) => ({ label: p.name, onClick: () => setUI({ selectedChannelId: addChannel('synth', { synthPreset: p.name }) }) })) },
     { label: 'Drum sound', submenu: (Object.keys(DRUM_LABELS) as DrumType[]).map((d) => ({ label: DRUM_LABELS[d], onClick: () => setUI({ selectedChannelId: addChannel('drum', { drum: d }) }) })) },
     { label: 'Sampler (empty)', onClick: () => setUI({ selectedChannelId: addChannel('sampler') }) },
@@ -142,6 +148,9 @@ function CreativeButtons() {
   useEffect(() => capture.onChange(() => setCaptured(capture.notes.length)), []);
   return (
     <div className="tb-group">
+      <button className="btn tb-newbeat" title="New beat (Ctrl+B): pick a genre – drums, 808, chords, melody, mixed and arranged" onClick={() => openWindow({ kind: 'beatStarter' })}>
+        <Icon name="bolt" size={13} /> New Beat
+      </button>
       <button className={`btn icon tb-capture ${captured ? 'ready' : ''}`} disabled={!captured} title={captured ? `Capture (Alt+C): turn what you just played into a pattern – ${captured} notes remembered` : 'Capture (Alt+C): play something on DreamChord, a MIDI keyboard or the computer keyboard – the studio remembers it even without recording'} onClick={captureNow}>
         <Icon name="capture" />
       </button>

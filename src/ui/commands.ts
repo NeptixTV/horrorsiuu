@@ -10,6 +10,7 @@ import {
 import { safeFileName, saveProject } from '../project/manager';
 import { captureToPattern } from '../midi/capture';
 import { openNotes } from './notes/NotesWindow';
+import { ensureProjectSounds, useProLoading } from '../audio/pro/loader';
 
 export function syncTransportUI() {
   const t = engine.transport;
@@ -25,6 +26,8 @@ export async function togglePlay() {
     t.pause();
   } else {
     t.patternId = ui().selectedPatternId;
+    // Pro Sounds still loading? wait a moment so the first bar is not silent
+    if (useProLoading.getState().pending > 0) await ensureProjectSounds(getProject(), 2500);
     t.play();
   }
 }

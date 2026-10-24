@@ -3,12 +3,13 @@
 import type { Draft } from 'immer';
 import type {
   AssetMeta, Channel, ChannelKind, Clip, DreamParams, DrumParams, EffectInstance, EffectType, MixerTrack, Note, ParamValue, Pattern,
-  PlaylistTrack, Project, SamplerParams, SynthParams,
+  PlaylistTrack, ProParams, Project, SamplerParams, SynthParams,
 } from './types';
 import { MASTER_ID, TICKS_PER_STEP } from './types';
 import { getProject, update } from './store';
 import { defaultDream, defaultDrum, defaultSampler, DRUM_LABELS, makeChannel, makeEffect, makeMixerTrack, makePattern, makeTrack, SYNTH_PRESETS } from './defaults';
 import { applyDreamPreset, findDreamPreset } from '../audio/instruments/dreamPresets';
+import { defaultPro, proSound } from '../audio/pro/catalog';
 import { clamp, paletteColor, uid } from './utils';
 import { wouldCycle } from './routing';
 import type { DrumType } from './types';
@@ -35,6 +36,10 @@ export interface AddChannelOpts {
   dreamPreset?: string;
   assetId?: string;
   rootNote?: number;
+  /** Pro Sounds: id from the catalog */
+  proSound?: string;
+  volume?: number;
+  pan?: number;
 }
 
 export function addChannel(kind: ChannelKind, opts: AddChannelOpts = {}): string {
@@ -61,7 +66,14 @@ export function addChannel(kind: ChannelKind, opts: AddChannelOpts = {}): string
     const base: DreamParams = { ...defaultDream(), key: ((p.key % 12) + 12) % 12, mode: /minor/i.test(p.scale) ? 'minor' : 'major' };
     extra.dream = preset ? applyDreamPreset(base, preset) : base;
     name = opts.name ?? 'DreamChord';
+  } else if (kind === 'pro') {
+    const def = proSound(opts.proSound);
+    extra.pro = defaultPro(opts.proSound ?? 'keys.upright');
+    name = opts.name ?? def?.name ?? 'Pro Sound';
+    if (def?.volume !== undefined) extra.volume = def.volume;
   }
+  if (opts.volume !== undefined) extra.volume = opts.volume;
+  if (opts.pan !== undefined) extra.pan = opts.pan;
   const ch = makeChannel(kind, name, mixerId, p.channels.length, extra);
   update(`Add ${name}`, (d) => {
     d.channels.push(ch);
@@ -80,6 +92,7 @@ export function removeChannel(id: string) {
     for (const pt of d.patterns) {
       delete pt.steps[id];
       delete pt.notes[id];
+      if (pt.rolls) delete pt.rolls[id];
     }
   });
 }
@@ -93,6 +106,7 @@ export function duplicateChannel(id: string): string | null {
     d.channels.splice(i + 1, 0, copy);
     for (const pt of d.patterns) {
       if (pt.steps[id]) pt.steps[copy.id] = [...pt.steps[id]];
+      if (pt.rolls?.[id]) pt.rolls[copy.id] = [...pt.rolls[id]];
     }
   });
   return copy.id;
@@ -133,6 +147,27 @@ export function updateDrum(id: string, patch: Partial<DrumParams>) {
   update('Drum parameter', (d) => {
     const c = d.channels.find((x) => x.id === id);
     if (c?.drum) Object.assign(c.drum, patch);
+  });
+}
+
+export function updatePro(id: string, patch: Partial<ProParams>, label = 'Pro Sound parameter') {
+  update(label, (d) => {
+    const c = d.channels.find((x) => x.id === id);
+    if (c?.pro) Object.assign(c.pro, patch);
+  });
+}
+
+/** Changes the sound of a Pro channel (keeps level/tone/drive, takes the new sound's other defaults). */
+export function setProSound(id: string, sound: string) {
+  update('Change sound', (d) => {
+    const c = d.channels.find((x) => x.id === id);
+    if (!c?.pro) return;
+    const oldName = proSound(c.pro.sound)?.name;
+    const keep = { level: c.pro.level, tone: c.pro.tone, drive: c.pro.drive, tune: c.pro.tune };
+    c.pro = { ...defaultPro(sound), ...keep };
+    const def = proSound(sound);
+    // the channel follows the sound's name unless the user renamed it
+    if (def && (c.name === oldName || /^Pro Sound/.test(c.name))) c.name = def.name;
   });
 }
 
@@ -201,11 +236,31 @@ export function setStep(patternId: string, channelId: string, index: number, vel
   });
 }
 
+/** Hits per step (hi-hat roll): 1 = normal, 2/3/4/6/8 = roll. */
+export function setRoll(patternId: string, channelId: string, index: number, hits: number) {
+  update('Hi-hat roll', (d) => {
+    const p = d.patterns.find((x) => x.id === patternId);
+    if (!p) return;
+    const rolls = (p.rolls ??= {});
+    const arr = rolls[channelId] ?? [];
+    while (arr.length < p.lengthSteps) arr.push(1);
+    arr[index] = Math.max(1, Math.min(8, Math.round(hits)));
+    if (arr.every((x) => x <= 1)) delete rolls[channelId];
+    else rolls[channelId] = arr;
+    // a roll on an empty step switches the step on
+    const steps = p.steps[channelId] ?? [];
+    while (steps.length < p.lengthSteps) steps.push(0);
+    if (hits > 1 && !steps[index]) steps[index] = 0.8;
+    p.steps[channelId] = steps;
+  });
+}
+
 export function fillSteps(patternId: string, channelId: string, every: number) {
   update('Fill steps', (d) => {
     const p = d.patterns.find((x) => x.id === patternId);
     if (!p) return;
     p.steps[channelId] = Array.from({ length: p.lengthSteps }, (_, i) => (every > 0 && i % every === 0 ? 1 : 0));
+    if (p.rolls) delete p.rolls[channelId];
   });
 }
 
@@ -217,6 +272,11 @@ export function shiftSteps(patternId: string, channelId: string, dir: number) {
     const n = p.lengthSteps;
     const src = Array.from({ length: n }, (_, i) => arr[i] ?? 0);
     p.steps[channelId] = src.map((_, i) => src[(i - dir + n) % n]);
+    const r = p.rolls?.[channelId];
+    if (r) {
+      const rs = Array.from({ length: n }, (_, i) => r[i] ?? 1);
+      p.rolls![channelId] = rs.map((_, i) => rs[(i - dir + n) % n]);
+    }
   });
 }
 

@@ -3,6 +3,7 @@ import { Synth } from './synth';
 import { DrumVoice } from './drums';
 import { Sampler } from './sampler';
 import { DreamSynth } from './dream';
+import { ProInstrument } from './pro';
 import type { Instrument } from './types';
 
 export function createInstrument(ctx: BaseAudioContext, kind: ChannelKind): Instrument {
@@ -11,6 +12,7 @@ export function createInstrument(ctx: BaseAudioContext, kind: ChannelKind): Inst
     case 'drum': return new DrumVoice(ctx);
     case 'sampler': return new Sampler(ctx);
     case 'dream': return new DreamSynth(ctx);
+    case 'pro': return new ProInstrument(ctx);
   }
 }
 

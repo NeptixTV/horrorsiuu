@@ -7,8 +7,9 @@ import type { Effect } from '../../audio/effects/base';
 import { CompressorEffect, DelayEffect, DistortionEffect, EqEffect, FilterEffect, GateEffect, LimiterEffect, PitchEffect, TapeEffect, WidthEffect } from '../../audio/effects';
 import { tapeCurve } from '../../audio/effects/studio';
 import { makeCurve } from '../../audio/effects/distortion';
+import { ClipperEffect, MultibandEffect, PumpEffect, clipCurve } from '../../audio/effects/beat';
 import { engine } from '../../audio/engine';
-import { beginGesture, endGesture } from '../../state/store';
+import { beginGesture, endGesture, useProject } from '../../state/store';
 import { clamp, formatHz, rgba } from '../../state/utils';
 import { theme } from '../../styles/themes';
 import { NOTE_NAMES, noteName } from '../../midi/music';
@@ -777,6 +778,137 @@ export function StudioFxView(p: ViewProps) {
   );
 }
 
+// ---------------- beat effects ----------------
+export function BeatFxView(p: ViewProps) {
+  const d = EFFECTS[p.fx.type];
+  const color = d.color;
+  const ref = useCanvas((ctx, w, h) => {
+    const t = theme();
+    ctx.fillStyle = '#08090b';
+    ctx.fillRect(0, 0, w, h);
+    const prm = p.fx.params;
+    const eff = p.effect();
+    ctx.font = '10px Inter, sans-serif';
+    ctx.lineWidth = 2;
+    if (p.fx.type === 'clipper') {
+      const ceil = Math.pow(10, num(prm, 'ceiling', -1) / 20);
+      const curve = eff instanceof ClipperEffect ? eff.curve : clipCurve(ceil, num(prm, 'softness', 0.4));
+      const drive = Math.pow(10, num(prm, 'drive', 6) / 20);
+      // a drum-like decaying wave before (grey) and after (colour) the clipper
+      const wave = (x: number) => Math.sin(x * 0.11) * Math.exp(-x / (w * 0.35)) * 1.6;
+      const yOf = (v: number) => h / 2 - v * (h / 2 - 12) / 1.6;
+      ctx.strokeStyle = rgba(t.text, 0.22);
+      ctx.beginPath();
+      for (let x = 0; x < w; x++) { const y = yOf(wave(x) * drive / 2); if (x === 0) ctx.moveTo(x, y); else ctx.lineTo(x, y); }
+      ctx.stroke();
+      ctx.strokeStyle = color;
+      ctx.beginPath();
+      for (let x = 0; x < w; x++) {
+        const v = (wave(x) * drive) / 2 / CLIP_VIEW_RANGE;
+        const i = clamp(Math.round(((clamp(v, -1, 1) + 1) / 2) * (curve.length - 1)), 0, curve.length - 1);
+        const y = yOf(curve[i]);
+        if (x === 0) ctx.moveTo(x, y); else ctx.lineTo(x, y);
+      }
+      ctx.stroke();
+      ctx.strokeStyle = rgba('#ff5c5c', 0.6);
+      ctx.setLineDash([4, 4]);
+      ctx.lineWidth = 1;
+      ctx.beginPath(); ctx.moveTo(0, yOf(ceil)); ctx.lineTo(w, yOf(ceil)); ctx.moveTo(0, yOf(-ceil)); ctx.lineTo(w, yOf(-ceil)); ctx.stroke();
+      ctx.setLineDash([]);
+      ctx.fillStyle = t.dim;
+      ctx.fillText(`ceiling ${num(prm, 'ceiling', -1).toFixed(1)} dB · drive +${num(prm, 'drive', 6).toFixed(1)} dB`, 8, h - 8);
+      return;
+    }
+    if (p.fx.type === 'pump') {
+      const depth = num(prm, 'depth', 0.7);
+      const atk = num(prm, 'attack', 3) / 1000;
+      const hold = num(prm, 'hold', 10) / 1000;
+      const rel = num(prm, 'release', 160) / 1000;
+      const beat = 60 / (useProject.getState().project.bpm || 120);
+      // the gain over two beats (a kick on each)
+      ctx.strokeStyle = color;
+      ctx.beginPath();
+      for (let x = 0; x < w; x++) {
+        const tt = ((x / w) * 2 * beat) % beat;
+        let g;
+        if (tt < atk) g = 1 - depth * (1 - Math.exp(-3 * tt / atk));
+        else if (tt < atk + hold) g = 1 - depth * 0.95;
+        else g = 1 - depth * 0.95 * Math.exp(-4 * (tt - atk - hold) / rel);
+        const y = 10 + (1 - g) * (h - 30);
+        if (x === 0) ctx.moveTo(x, y); else ctx.lineTo(x, y);
+      }
+      ctx.stroke();
+      const live = eff instanceof PumpEffect ? eff.duck.gain.value : 1;
+      ctx.fillStyle = color;
+      ctx.fillRect(w - 16, 10 + (1 - live) * (h - 30), 8, (h - 30) * live);
+      ctx.fillStyle = t.dim;
+      ctx.fillText(`${str(prm, 'source', 'kick') === 'drums' ? 'all drums' : 'kick'} → duck ${Math.round(depth * 100)}% · release ${Math.round(rel * 1000)} ms`, 8, h - 8);
+      return;
+    }
+    if (p.fx.type === 'ott') {
+      const bands = eff instanceof MultibandEffect ? eff.bands : [];
+      const names = ['LOW', 'MID', 'HIGH'];
+      const bw = (w - 40) / 3;
+      names.forEach((n, i) => {
+        const x = 20 + i * bw;
+        const red = bands[i] ? -bands[i].comp.reduction : 0;
+        ctx.fillStyle = '#15181c';
+        ctx.fillRect(x + 6, 14, bw - 12, h - 40);
+        ctx.fillStyle = color;
+        const fh = clamp(red / 30, 0, 1) * (h - 40);
+        ctx.fillRect(x + 6, 14, bw - 12, fh);
+        ctx.fillStyle = t.text;
+        ctx.fillText(`${n} −${red.toFixed(1)} dB`, x + 10, h - 12);
+      });
+      return;
+    }
+    if (p.fx.type === 'transient') {
+      const a = num(prm, 'attack', 0.5);
+      const sus = num(prm, 'sustain', 0);
+      ctx.strokeStyle = rgba(t.text, 0.25);
+      const env = (x: number, shaped: boolean) => {
+        const tt = x / w;
+        let e = Math.exp(-tt * 6) * Math.min(1, tt * 60);
+        if (shaped) e *= tt < 0.06 ? Math.pow(10, (a * 10) / 20) : Math.pow(10, (sus * 10 * Math.min(1, (tt - 0.06) * 8)) / 20);
+        return h - 14 - e * (h - 30) / 1.9;
+      };
+      for (const shaped of [false, true]) {
+        ctx.strokeStyle = shaped ? color : rgba(t.text, 0.25);
+        ctx.beginPath();
+        for (let x = 0; x < w; x++) { const y = env(x, shaped); if (x === 0) ctx.moveTo(x, y); else ctx.lineTo(x, y); }
+        ctx.stroke();
+      }
+      ctx.fillStyle = t.dim;
+      ctx.fillText(`attack ${a > 0 ? '+' : ''}${Math.round(a * 100)}% · sustain ${sus > 0 ? '+' : ''}${Math.round(sus * 100)}%`, 8, h - 4);
+      return;
+    }
+    // lo-fi: a sine through the bit / rate reduction
+    const bits = num(prm, 'bits', 10);
+    const rate = num(prm, 'rate', 16000);
+    const q = Math.pow(2, bits - 1);
+    const hold = Math.max(1, Math.round((44100 / rate) * 1.5));
+    ctx.strokeStyle = color;
+    ctx.beginPath();
+    let held = 0;
+    for (let x = 0; x < w; x++) {
+      if (x % hold === 0) held = Math.round(Math.sin((x / w) * Math.PI * 4) * q) / q;
+      const y = h / 2 - held * (h / 2 - 14);
+      if (x === 0) ctx.moveTo(x, y); else ctx.lineTo(x, y);
+    }
+    ctx.stroke();
+    ctx.fillStyle = t.dim;
+    ctx.fillText(`${Math.round(bits)} bit · ${Math.round(rate)} Hz`, 8, h - 8);
+  });
+  return (
+    <div className="fx-view">
+      {d.info && <div className="fx-info">{d.info}</div>}
+      <canvas ref={ref} className="fx-canvas" />
+      <Knobs fx={p.fx} set={p.set} />
+    </div>
+  );
+}
+const CLIP_VIEW_RANGE = 16;
+
 export const VIEWS: Record<EffectInstance['type'], (p: ViewProps) => React.ReactElement> = {
   eq: EqView,
   compressor: CompressorView,
@@ -795,4 +927,9 @@ export const VIEWS: Record<EffectInstance['type'], (p: ViewProps) => React.React
   tape: StudioFxView,
   width: StudioFxView,
   gate: StudioFxView,
+  clipper: BeatFxView,
+  pump: BeatFxView,
+  ott: BeatFxView,
+  transient: BeatFxView,
+  lofi: BeatFxView,
 };

@@ -9,12 +9,13 @@
 // playback of older projects completely.
 import type {
   AutomationData, AutomationTarget, Channel, Clip, DreamParams, DrumParams, EffectInstance, Marker, MixerTrack, Note, OscParams,
-  ParamValue, Pattern, PlaylistTrack, Project, SamplerParams, Send, SynthParams,
+  ParamValue, Pattern, PlaylistTrack, ProParams, Project, SamplerParams, Send, SynthParams,
 } from './types';
 import { MASTER_ID, PPQ } from './types';
 import { EFFECTS } from '../audio/effects/descriptors';
 import { defaultDream, defaultDrum, defaultSampler, defaultSynth, makeMaster, makePattern, makeTrack } from './defaults';
 import { uid } from './utils';
+import { defaultPro } from '../audio/pro/catalog';
 
 export interface RepairReport {
   project: Project;
@@ -211,6 +212,29 @@ export function normalizeDream(v: unknown, f = new Fixer()): DreamParams {
   };
 }
 
+export function normalizePro(v: unknown, f = new Fixer()): ProParams {
+  const s = isObj(v) ? v : {};
+  // the id is kept even if this version does not know the sound (a newer
+  // version may have made the project) – it just stays silent here
+  const sound = typeof s.sound === 'string' && /^[a-z0-9.\-]{1,80}$/.test(s.sound) ? s.sound : 'keys.upright';
+  if (sound !== s.sound) f.note('Unknown Pro sound replaced');
+  const d = defaultPro(sound);
+  const w = 'Pro Sound setting out of range';
+  return {
+    sound,
+    tune: num(s.tune, -48, 48, d.tune, f, w),
+    attack: num(s.attack, 0, 4, d.attack, f, w),
+    release: num(s.release, 0.005, 10, d.release, f, w),
+    tone: num(s.tone, 0, 1, d.tone, f, w),
+    drive: num(s.drive, 0, 1, d.drive, f, w),
+    glide: num(s.glide, 0, 1, d.glide, f, w),
+    mono: bool(s.mono, d.mono),
+    velocity: num(s.velocity, 0, 1, d.velocity, f, w),
+    reverse: bool(s.reverse, d.reverse),
+    level: num(s.level, 0, 1.5, d.level, f, w),
+  };
+}
+
 /** Effect instance with known type, every param present and in range. */
 export function normalizeEffect(v: unknown, used: Set<string> = new Set(), f: Fixer = new Fixer()): EffectInstance | null {
   if (!isObj(v)) {
@@ -329,7 +353,7 @@ function channel(v: unknown, used: Set<string>, mixerIds: Set<string>, f: Fixer)
     return null;
   }
   const kind = v.kind;
-  if (kind !== 'synth' && kind !== 'drum' && kind !== 'sampler' && kind !== 'dream') {
+  if (kind !== 'synth' && kind !== 'drum' && kind !== 'sampler' && kind !== 'dream' && kind !== 'pro') {
     f.note('Unknown instrument removed');
     return null;
   }
@@ -352,6 +376,7 @@ function channel(v: unknown, used: Set<string>, mixerIds: Set<string>, f: Fixer)
   if (kind === 'drum') ch.drum = normalizeDrum(v.drum, f);
   if (kind === 'sampler') ch.sampler = normalizeSampler(v.sampler, f);
   if (kind === 'dream') ch.dream = normalizeDream(v.dream, f);
+  if (kind === 'pro') ch.pro = normalizePro(v.pro, f);
   return ch;
 }
 
@@ -374,6 +399,15 @@ function pattern(v: unknown, used: Set<string>, channelIds: Set<string>, f: Fixe
       if (BAD_KEYS.has(chId) || !channelIds.has(chId) || !Array.isArray(list)) continue;
       p.steps[chId] = list.slice(0, 1024).map((x) => (typeof x === 'number' && Number.isFinite(x) ? Math.min(1, Math.max(0, x)) : 0));
     }
+  }
+  if (isObj(v.rolls)) {
+    const rolls: Record<string, number[]> = {};
+    for (const [chId, list] of Object.entries(v.rolls)) {
+      if (BAD_KEYS.has(chId) || !channelIds.has(chId) || !Array.isArray(list)) continue;
+      const arr = list.slice(0, 1024).map((x) => (typeof x === 'number' && Number.isFinite(x) ? Math.min(8, Math.max(1, Math.round(x))) : 1));
+      if (arr.some((x) => x > 1)) rolls[chId] = arr;
+    }
+    if (Object.keys(rolls).length) p.rolls = rolls;
   }
   if (isObj(v.notes)) {
     for (const [chId, list] of Object.entries(v.notes)) {

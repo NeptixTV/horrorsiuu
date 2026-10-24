@@ -27,7 +27,7 @@ export interface EffectDescriptor {
   type: EffectType;
   name: string;
   short: string;
-  category: 'EQ & Filter' | 'Dynamics' | 'Space' | 'Modulation' | 'Character' | 'Vocal';
+  category: 'EQ & Filter' | 'Dynamics' | 'Space' | 'Modulation' | 'Character' | 'Vocal' | 'Beat';
   /** one line explaining what the effect does */
   info?: string;
   color: string;
@@ -198,11 +198,12 @@ export const EFFECTS: Record<EffectType, EffectDescriptor> = {
   },
   limiter: {
     type: 'limiter', name: 'Goofy Limiter', short: 'LIM', category: 'Dynamics', color: '#ff9a1f',
-    info: 'Makes things loud without clipping.',
+    info: 'Makes things loud without clipping. "True peak" looks ahead and never lets anything above the ceiling through.',
     params: [
       n('drive', 'Drive', 0, 24, 6, 'dB'),
       n('ceiling', 'Ceiling', -12, 0, -0.5, 'dB'),
       n('release', 'Release', 10, 500, 80, 'ms', true),
+      { key: 'mode', label: 'Mode', kind: 'choice', default: 'classic', options: [{ value: 'classic', label: 'Classic' }, { value: 'true', label: 'True peak' }] },
     ],
   },
   tape: {
@@ -235,6 +236,63 @@ export const EFFECTS: Record<EffectType, EffectDescriptor> = {
       n('attack', 'Attack', 0.1, 50, 1, 'ms', true),
       n('hold', 'Hold', 0, 500, 40, 'ms'),
       n('release', 'Release', 5, 1000, 120, 'ms', true),
+    ],
+  },
+  clipper: {
+    type: 'clipper', name: 'Goofy Clipper', short: 'CLIP', category: 'Beat', color: '#ff4d6d',
+    info: 'Makes drums and whole beats loud without losing punch – the trap mastering trick. Put it last on the master or on the drum bus.',
+    params: [
+      n('drive', 'Drive', 0, 24, 6, 'dB'),
+      n('ceiling', 'Ceiling', -18, 0, -1, 'dB'),
+      n('softness', 'Softness', 0, 1, 0.4),
+      n('mix', 'Mix', 0, 1, 1),
+      n('output', 'Output', -24, 6, 0, 'dB'),
+    ],
+  },
+  pump: {
+    type: 'pump', name: 'Sidechain Pump', short: 'PUMP', category: 'Beat', color: '#ffbe3d',
+    info: 'Ducks this sound every time the kick hits, so the 808 / bass and pads make room for it – that pumping sound.',
+    params: [
+      { key: 'source', label: 'Triggered by', kind: 'choice', default: 'kick', options: [{ value: 'kick', label: 'Kick' }, { value: 'drums', label: 'All drums' }] },
+      n('depth', 'Depth', 0, 1, 0.7),
+      n('attack', 'Attack', 0.5, 50, 3, 'ms', true),
+      n('hold', 'Hold', 0, 200, 10, 'ms'),
+      n('release', 'Release', 20, 1000, 160, 'ms', true),
+    ],
+  },
+  ott: {
+    type: 'ott', name: 'Multiband Smash', short: 'OTT', category: 'Beat', color: '#c86bff',
+    info: 'Three-band "OTT" compressor: squashes lows, mids and highs separately – brings out details and makes things bright and loud.',
+    params: [
+      n('depth', 'Depth', 0, 1, 0.5),
+      n('time', 'Time', 0.2, 3, 1, '×', true),
+      n('low', 'Low', -18, 18, 0, 'dB'),
+      n('mid', 'Mid', -18, 18, 0, 'dB'),
+      n('high', 'High', -18, 18, 0, 'dB'),
+      n('lowFreq', 'Low / Mid', 60, 400, 120, 'Hz', true),
+      n('highFreq', 'Mid / High', 1000, 8000, 2500, 'Hz', true),
+      n('output', 'Output', -24, 12, 0, 'dB'),
+    ],
+  },
+  transient: {
+    type: 'transient', name: 'Punch (Transient Shaper)', short: 'PNCH', category: 'Beat', color: '#4cd6a3',
+    info: 'More attack = harder, snappier hits. Less sustain = tighter, drier drums.',
+    params: [
+      n('attack', 'Attack', -1, 1, 0.5),
+      n('sustain', 'Sustain', -1, 1, 0),
+      n('output', 'Output', -24, 12, 0, 'dB'),
+    ],
+  },
+  lofi: {
+    type: 'lofi', name: 'Lo-Fi Crusher', short: 'LOFI', category: 'Beat', color: '#c8a2ff',
+    info: 'Old sampler sound: fewer bits, lower sample rate, dull tone, tape wobble and vinyl crackle.',
+    params: [
+      n('bits', 'Bits', 2, 16, 10),
+      n('rate', 'Sample rate', 2000, 44100, 16000, 'Hz', true),
+      n('tone', 'Tone', 800, 20000, 6000, 'Hz', true),
+      n('wobble', 'Wobble', 0, 1, 0.3),
+      n('crackle', 'Crackle', 0, 1, 0.3),
+      n('mix', 'Mix', 0, 1, 1),
     ],
   },
 };
@@ -303,8 +361,20 @@ EFFECT_PRESETS.push(
   { name: 'Helicopter', type: 'tremolo', params: { shape: 'square', rate: 12, depth: 0.9 } },
   { name: '8D Slow Orbit', type: 'autopan', params: { rate: 0.1, depth: 1, motion: 0.5 } },
   { name: 'Loud & Proud', type: 'limiter', params: { drive: 10, ceiling: -0.3, release: 60 } },
+  { name: 'True Peak Master', type: 'limiter', params: { drive: 3, ceiling: -0.5, release: 80, mode: 'true' } },
   { name: 'Warm Cassette', type: 'tape', params: { wow: 0.3, flutter: 0.25, drive: 0.45, tone: 8000, hiss: 0.15, mix: 1 } },
   { name: 'Worn VHS', type: 'tape', params: { wow: 0.75, flutter: 0.5, drive: 0.6, tone: 4500, hiss: 0.35, mix: 1 } },
+  { name: 'Soft Clip', type: 'clipper', params: { drive: 3, ceiling: -1, softness: 0.8, mix: 1, output: 0 } },
+  { name: 'Loud Trap Master', type: 'clipper', params: { drive: 7, ceiling: -0.5, softness: 0.35, mix: 1, output: 0 } },
+  { name: 'Drum Smash', type: 'clipper', params: { drive: 12, ceiling: -3, softness: 0.2, mix: 0.7, output: 0 } },
+  { name: 'Kick Duck (light)', type: 'pump', params: { source: 'kick', depth: 0.45, attack: 3, hold: 5, release: 120 } },
+  { name: 'Big Pump', type: 'pump', params: { source: 'kick', depth: 0.9, attack: 5, hold: 20, release: 260 } },
+  { name: 'OTT Light', type: 'ott', params: { depth: 0.25, time: 1, low: 0, mid: 0, high: 0, lowFreq: 120, highFreq: 2500, output: 0 } },
+  { name: 'OTT Full', type: 'ott', params: { depth: 0.8, time: 1, low: 0, mid: 0, high: 0, lowFreq: 120, highFreq: 2500, output: 2 } },
+  { name: 'More Punch', type: 'transient', params: { attack: 0.6, sustain: 0, output: 0 } },
+  { name: 'Tight Drums', type: 'transient', params: { attack: 0.3, sustain: -0.6, output: 2 } },
+  { name: 'SP-1200 Grit', type: 'lofi', params: { bits: 12, rate: 26040, tone: 9000, wobble: 0, crackle: 0, mix: 1 } },
+  { name: 'Dusty Vinyl', type: 'lofi', params: { bits: 10, rate: 16000, tone: 5000, wobble: 0.4, crackle: 0.55, mix: 1 } },
   { name: 'Subtle Glue', type: 'tape', params: { wow: 0.05, flutter: 0.05, drive: 0.3, tone: 16000, hiss: 0, mix: 1 } },
   { name: 'Super Wide', type: 'width', params: { width: 1.8, monoBass: 150, gain: -1 } },
   { name: 'Make Mono', type: 'width', params: { width: 0, monoBass: 0, gain: 0 } },

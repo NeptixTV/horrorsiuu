@@ -108,7 +108,23 @@ export interface DreamParams {
   joystick: JoystickMode;
 }
 
-export type ChannelKind = 'synth' | 'drum' | 'sampler' | 'dream';
+/** Pro Sounds: built-in multi-sampled instruments and one-shots (see audio/pro/catalog.ts). */
+export interface ProParams {
+  /** id of the sound in the Pro catalog */
+  sound: string;
+  tune: number; // semitones -24..24
+  attack: number; // s
+  release: number; // s
+  tone: number; // 0..1 (1 = open, lower = darker)
+  drive: number; // 0..1 saturation
+  glide: number; // s, mono only
+  mono: boolean;
+  velocity: number; // 0..1 how much the velocity changes the level
+  reverse: boolean;
+  level: number; // 0..1.5
+}
+
+export type ChannelKind = 'synth' | 'drum' | 'sampler' | 'dream' | 'pro';
 
 export interface Channel {
   id: Id;
@@ -125,6 +141,7 @@ export interface Channel {
   drum?: DrumParams;
   sampler?: SamplerParams;
   dream?: DreamParams;
+  pro?: ProParams;
 }
 
 export interface Note {
@@ -143,6 +160,8 @@ export interface Pattern {
   lengthSteps: number;
   /** Per channel step velocities (0 = off). */
   steps: Record<Id, number[]>;
+  /** Per channel hits per step (hi-hat rolls); missing or 1 = a single hit. */
+  rolls?: Record<Id, number[]>;
   /** Per channel piano roll notes. */
   notes: Record<Id, Note[]>;
 }
@@ -225,7 +244,12 @@ export type EffectType =
   | 'limiter'
   | 'tape'
   | 'width'
-  | 'gate';
+  | 'gate'
+  | 'clipper'
+  | 'pump'
+  | 'ott'
+  | 'transient'
+  | 'lofi';
 
 export type ParamValue = number | string | boolean;
 

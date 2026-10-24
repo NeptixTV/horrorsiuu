@@ -3,6 +3,7 @@ import { num, str } from './descriptors';
 import { Effect, mixGains, setParam } from './base';
 import { MAX_FEEDBACK, clampFinite } from '../safety';
 import { blockRate } from '../instruments/types';
+import { workletsReady } from '../worklets';
 
 /** 4 stage all-pass phaser with feedback. */
 export class PhaserEffect extends Effect {
@@ -164,6 +165,10 @@ export class AutoPanEffect extends Effect {
 export class LimiterEffect extends Effect {
   private drive: GainNode;
   readonly comp: DynamicsCompressorNode;
+  /** look-ahead brickwall limiter (same processor as the output guard) */
+  private wall: AudioWorkletNode | null = null;
+  private mode = '';
+  private wallStats = { minGain: 1 };
 
   constructor(ctx: BaseAudioContext) {
     super(ctx);
@@ -172,16 +177,31 @@ export class LimiterEffect extends Effect {
     this.comp.ratio.value = 20;
     this.comp.knee.value = 0;
     this.comp.attack.value = 0.001;
-    this.input.connect(this.drive).connect(this.comp).connect(this.output);
+    this.input.connect(this.drive);
+    this.comp.connect(this.output);
   }
 
   update(p: Record<string, ParamValue>) {
     setParam(this.drive.gain, Math.pow(10, num(p, 'drive', 6) / 20), this.ctx);
     setParam(this.comp.threshold, num(p, 'ceiling', -0.5) - 1, this.ctx);
     setParam(this.comp.release, num(p, 'release', 80) / 1000, this.ctx);
+    // "true peak" needs the AudioWorklet; without it the classic limiter is used
+    const mode = str(p, 'mode', 'classic') === 'true' && workletsReady(this.ctx) ? 'true' : 'classic';
+    if (mode === 'true' && !this.wall) {
+      this.wall = this.track(new AudioWorkletNode(this.ctx, 'goofy-guard', { numberOfInputs: 1, numberOfOutputs: 1, outputChannelCount: [2] }));
+      this.wall.port.onmessage = (e) => { if (e.data?.type === 'stats') this.wallStats = { minGain: e.data.minGain }; };
+      this.wall.connect(this.output);
+    }
+    this.wall?.port.postMessage({ type: 'config', enabled: true, protect: false, ceiling: Math.pow(10, num(p, 'ceiling', -0.5) / 20), release: num(p, 'release', 80) });
+    if (mode !== this.mode) {
+      this.mode = mode;
+      try { this.drive.disconnect(); } catch { /* ignore */ }
+      this.drive.connect(mode === 'true' && this.wall ? this.wall : this.comp);
+    }
   }
 
   get reduction() {
+    if (this.mode === 'true') return 20 * Math.log10(Math.max(1e-4, this.wallStats.minGain));
     return this.comp.reduction;
   }
 }

@@ -20,6 +20,7 @@ import { readDragPayload } from '../browser/Browser';
 import { decodeAudioFile } from '../../project/manager';
 import { userPresetItems } from '../presetMenu';
 import { normalizeSynth } from '../../state/normalize';
+import { ProEditor } from './ProEditor';
 import './instruments.css';
 
 const WAVES: Waveform[] = ['sine', 'sawtooth', 'square', 'triangle'];
@@ -385,14 +386,15 @@ export function ChannelWindow({ w, channelId }: { w: FloatingWindow; channelId: 
     if (!ch) closeWindow(w.id);
   }, [ch, w.id]);
   if (!ch) return null;
-  const title = ch.kind === 'synth' ? 'Goofy Synth' : ch.kind === 'drum' ? 'Goofy Drum' : 'Goofy Sampler';
+  const title = ch.kind === 'synth' ? 'Goofy Synth' : ch.kind === 'drum' ? 'Goofy Drum' : ch.kind === 'pro' ? 'Pro Sound' : 'Goofy Sampler';
   return (
-    <Window w={w} width={ch.kind === 'synth' ? 640 : 560} color={ch.color} title={<><b>{ch.name}</b> <span className="crumb">· {title}</span></>}>
+    <Window w={w} width={ch.kind === 'synth' ? 640 : ch.kind === 'pro' ? 600 : 560} color={ch.color} title={<><b>{ch.name}</b> <span className="crumb">· {title}</span></>}>
       <div className="inst-body" style={{ ['--cc' as string]: ch.color }}>
         <ChannelStrip ch={ch} />
         {ch.kind === 'synth' && ch.synth && <SynthEditor ch={ch} />}
         {ch.kind === 'drum' && ch.drum && <DrumEditor ch={ch} />}
         {ch.kind === 'sampler' && ch.sampler && <SamplerEditor ch={ch} />}
+        {ch.kind === 'pro' && ch.pro && <ProEditor ch={ch} />}
         <MiniKeyboard channelId={ch.id} root={ch.kind === 'drum' ? 48 : 48} />
       </div>
     </Window>

@@ -90,6 +90,7 @@ function onKeyDown(e: KeyboardEvent) {
     if (k === 'd') { e.preventDefault(); duplicateSelected(); return; }
     if (k === 'o') { e.preventDefault(); openWindow({ kind: 'projects' }); return; }
     if (k === 'n') { e.preventDefault(); if (!useProject.getState().dirty || confirm('Discard unsaved changes?')) newProject(); return; }
+    if (k === 'b') { e.preventDefault(); openWindow({ kind: 'beatStarter' }); return; }
     return;
   }
 

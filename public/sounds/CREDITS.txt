@@ -1,0 +1,32 @@
+Goofy Studio – Pro Sounds: where the samples come from
+=======================================================
+
+1) Recorded instruments ("REAL" in the app)
+   Upright piano, church organ, glockenspiel, marimba, harp, violin and cello
+   sections, flute, trumpet, French horns and the real percussion one-shots
+   (congas, claves, cowbell, tambourine, triangle, shaker, woodblock, sleigh
+   bells, orchestra cymbal) come from:
+
+     VS Chamber Orchestra: Community Edition (VSCO-2-CE)
+     https://github.com/sgossner/VSCO-2-CE  (commit 440300901dfe9275fd84e0b7763af1f8443ae62e)
+     License: CC0 1.0 Universal (public domain dedication) – see LICENSE-VSCO-2-CE.txt
+
+     Recorded by Sam Gossner & Simon Dalzell; sample cutting by Elan Hickler /
+     Soundemote. Upright Piano and Organ sampled by Simon Dalzell of Ivy Audio
+     ("Bearer is granted right to redistribute this sample set by Versilian
+     Studios LLC. Credit to both original author and Versilian Studios is
+     encouraged."). Thank you!
+
+   Goofy Studio edited the recordings for its sampler: level matching,
+   trimmed silence and decays, seamless sustain loops, Opus encoding
+   (scripts/sounds/vsco.mjs). The key/velocity mapping follows the library's
+   own SFZ files.
+
+2) Synthesized sounds ("SYNTH" in the app)
+   All drum kits (kicks, snares, claps, hats, cymbals, 808 toms and cowbells),
+   808 and sub basses, the E-piano, music box, supersaw pluck and pad, and the
+   FX were generated for Goofy Studio by original code in scripts/sounds/
+   (kits.mjs, synth.mjs, dsp.mjs). No third-party samples are used for them.
+
+Everything you make with these sounds is yours – no royalties, no credit
+needed in your songs.
