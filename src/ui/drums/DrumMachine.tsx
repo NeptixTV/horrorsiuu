@@ -16,7 +16,10 @@ import { addDrumKit, readDragPayload } from '../browser/Browser';
 import { togglePlay } from '../commands';
 import { addProChannel, loadKit, loadProIntoChannel, previewPro } from '../proSounds';
 import { decodeAudioFile } from '../../project/manager';
+import { useLibrary } from '../library/libraryStore';
+import { DRUM_CATEGORIES } from '../../audio/soundAnalysis';
 import './drums.css';
+import { Select } from '../components/Select';
 
 let paint: { ch: string; v: number; roll: number } | null = null;
 window.addEventListener('pointerup', () => {
@@ -27,7 +30,11 @@ window.addEventListener('pointerup', () => {
 export function isDrumChannel(c: Channel) {
   if (c.kind === 'drum') return true;
   if (c.kind === 'pro') return !!proSound(c.pro?.sound)?.oneShot;
-  return c.kind === 'sampler' && /kick|snare|clap|hat|tom|perc|drum|rim|crash|ride|shaker/i.test(c.name);
+  if (c.kind !== 'sampler') return false;
+  if (/kick|snare|clap|hat|tom|perc|drum|rim|crash|ride|shaker|808/i.test(c.name)) return true;
+  // one of My Sounds that was sorted as a drum
+  const own = c.sampler?.assetId ? useLibrary.getState().samples.find((x) => x.id === c.sampler!.assetId) : undefined;
+  return !!own && DRUM_CATEGORIES.has(own.category);
 }
 
 const BRUSHES = [1, 2, 3, 4, 6];
@@ -52,6 +59,8 @@ export function trapHats(len: number): { steps: number[]; rolls: number[] } {
 
 function PadEditor({ d }: { d: Channel }) {
   const def = d.kind === 'pro' ? proSound(d.pro?.sound) : undefined;
+  // the user's own one-shots (My Sounds) can go on a pad too
+  const mine = useLibrary((s) => s.samples).filter((x) => DRUM_CATEGORIES.has(x.category) || x.category === 'FX' || x.category === 'Vocals' || x.category === 'Other');
   const list = PRO_SOUNDS.filter((s) => s.oneShot && (!def || s.group === def.group));
   const step = (dir: number) => {
     if (!def) return;
@@ -68,19 +77,36 @@ function PadEditor({ d }: { d: Channel }) {
       </div>
       <div className="dm-sound">
         {def && <button className="btn icon small" title="Previous sound" onClick={() => step(-1)}><Icon name="chevronLeft" size={11} /></button>}
-        <select
+        <Select
           className="input"
-          value={d.kind === 'pro' ? d.pro?.sound : ''}
-          onChange={(e) => { if (e.target.value) { loadProIntoChannel(d.id, e.target.value); void previewPro(e.target.value); } }}
-          title="Pick a sound for this pad"
+          value={d.kind === 'pro' ? d.pro?.sound : d.kind === 'sampler' && d.sampler?.assetId && mine.some((m) => m.id === d.sampler!.assetId) ? `my:${d.sampler.assetId}` : ''}
+          onChange={(e) => {
+            const v = e.target.value;
+            if (!v) return;
+            if (v.startsWith('my:')) {
+              const id = v.slice(3);
+              const m = mine.find((x) => x.id === id);
+              updateChannel(d.id, { kind: 'sampler', sampler: { assetId: id, rootNote: 60, tune: 0, attack: 0.001, release: 0.05, reverse: false, level: 0.9 }, rootNote: 60, name: m?.name ?? d.name }, 'Load sound on pad');
+              engine.previewNote(d.id, 60, 1, 0.2);
+              return;
+            }
+            loadProIntoChannel(d.id, v);
+            void previewPro(v);
+          }}
+          title="Pick a sound for this pad – Pro Sounds or your own (My Sounds)"
         >
-          {d.kind !== 'pro' && <option value="">{d.kind === 'drum' ? 'Classic synth drum – pick a Pro sound…' : 'Own sample – pick a Pro sound…'}</option>}
+          {d.kind !== 'pro' && <option value="">{d.kind === 'drum' ? 'Classic synth drum – pick a sound…' : 'Own sample – pick a sound…'}</option>}
+          {mine.length > 0 && (
+            <optgroup label="My Sounds">
+              {mine.map((m) => <option key={m.id} value={`my:${m.id}`}>{m.name}</option>)}
+            </optgroup>
+          )}
           {DRUM_GROUPS.map((g) => (
             <optgroup key={g} label={g}>
               {PRO_SOUNDS.filter((s) => s.group === g).map((s) => <option key={s.id} value={s.id}>{s.name}</option>)}
             </optgroup>
           ))}
-        </select>
+        </Select>
         {def && <button className="btn icon small" title="Next sound" onClick={() => step(1)}><Icon name="chevronRight" size={11} /></button>}
       </div>
       <div className="dm-knobs">
@@ -127,6 +153,7 @@ export function DrumMachine() {
   const patternId = useUI((s) => s.selectedPatternId);
   const playing = useUI((s) => s.playing);
   const pattern = patterns.find((p) => p.id === patternId) ?? patterns[0];
+  useLibrary((s) => s.samples); // own sounds decide which samplers are pads
   const drums = channels.filter(isDrumChannel);
   const [sel, setSel] = useState<string | null>(null);
   const [brush, setBrush] = useState(1);
@@ -250,12 +277,12 @@ export function DrumMachine() {
       </div>
       <div className="dm-right">
         <div className="dm-top">
-          <select className="input" value={pattern.id} onChange={(e) => { setUI({ selectedPatternId: e.target.value }); if (engine.transport) engine.transport.patternId = e.target.value; }}>
+          <Select className="input" value={pattern.id} onChange={(e) => { setUI({ selectedPatternId: e.target.value }); if (engine.transport) engine.transport.patternId = e.target.value; }}>
             {patterns.map((p) => <option key={p.id} value={p.id}>{p.name}</option>)}
-          </select>
-          <select className="input" value={n} onChange={(e) => updatePattern(pattern.id, { lengthSteps: Number(e.target.value) })}>
+          </Select>
+          <Select className="input" value={n} onChange={(e) => updatePattern(pattern.id, { lengthSteps: Number(e.target.value) })}>
             {[8, 16, 32, 64].map((x) => <option key={x} value={x}>{x} steps</option>)}
-          </select>
+          </Select>
           <Knob value={swing} min={0} max={1} defaultValue={0} size={24} onChange={setSwing} format={(v) => `${Math.round(v * 100)}%`} title="Swing" />
           <span className="label">Swing</span>
           <span className="dm-sep" />

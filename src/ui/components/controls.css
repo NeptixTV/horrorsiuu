@@ -71,3 +71,23 @@
 .splitter-x { width: 4px; cursor: col-resize; }
 .splitter-y { height: 4px; cursor: row-resize; }
 .splitter:hover, .splitter:active { background: var(--accent); }
+
+/* Select: the app's own drop-down list */
+.gsel { display: inline-flex; align-items: center; gap: 6px; text-align: left; cursor: default; min-width: 44px; padding-right: 6px !important; }
+.gsel:disabled { opacity: .45; }
+.gsel-label { flex: 1; min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.gsel-arrow { flex-shrink: 0; opacity: .65; transition: transform .12s ease; }
+.gsel.open { border-color: var(--accent); }
+.gsel.open .gsel-arrow { transform: rotate(180deg); opacity: 1; }
+.gsel-pop {
+  position: fixed; z-index: 9100; overflow-y: auto; padding: 3px 0; color: var(--text);
+  background: var(--panel2); border: 1px solid var(--border); border-radius: 5px; box-shadow: var(--shadow);
+  animation: fadeIn .08s ease both;
+}
+.gsel-group { padding: 6px 10px 2px; font-size: 9.5px; font-weight: 700; letter-spacing: .07em; text-transform: uppercase; color: var(--dim); }
+.gsel-opt { display: flex; align-items: center; gap: 4px; height: 22px; padding: 0 12px 0 4px; white-space: nowrap; cursor: default; }
+.gsel-opt.in-group { padding-left: 10px; }
+.gsel-opt.hi { background: var(--accent); color: #111; }
+.gsel-opt.cur:not(.hi) { color: var(--accent2); }
+.gsel-opt.disabled { opacity: .4; }
+.gsel-check { width: 12px; text-align: center; font-size: 10px; }

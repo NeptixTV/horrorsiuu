@@ -11,6 +11,7 @@ import { Window } from '../components/Window';
 import { Icon } from '../components/Icon';
 import { loadKit, previewPro } from '../proSounds';
 import './beats.css';
+import { Select } from '../components/Select';
 
 const KEYS = ['C', 'C#', 'D', 'D#', 'E', 'F', 'F#', 'G', 'G#', 'A', 'A#', 'B'];
 
@@ -75,10 +76,10 @@ export function BeatStarterWindow({ w }: { w: FloatingWindow }) {
         <div className="dlg-row beat-actions">
           <label className="beat-key">
             Key
-            <select className="input" value={key} onChange={(e) => setKey(e.target.value === 'random' ? 'random' : Number(e.target.value))}>
+            <Select className="input" value={key} onChange={(e) => setKey(e.target.value === 'random' ? 'random' : Number(e.target.value))}>
               <option value="random">🎲 Surprise me</option>
               {KEYS.map((k, i) => <option key={k} value={i}>{k} {g.minor ? 'minor' : 'major'}</option>)}
-            </select>
+            </Select>
           </label>
           <span className="spacer" />
           <button className="btn" title="Only add this genre's drum kit, its groove and the 808 to the open project" onClick={() => { loadKit(g.kit); closeWindow(w.id); setUI({ dockOpen: true, dockTab: 'drums' }); }}>

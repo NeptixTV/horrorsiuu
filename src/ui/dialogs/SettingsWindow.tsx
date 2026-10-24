@@ -87,7 +87,7 @@ function DesignSection() {
         </div>
       </Section>
       <Section title="Layout & motion">
-        <Row label="Interface size" desc="Makes everything bigger or smaller (also Ctrl + / Ctrl − in the browser).">
+        <Row label="Interface size" desc="Makes everything bigger or smaller (also Ctrl + / Ctrl − / Ctrl 0).">
           <Slider value={s.uiScale} min={0.7} max={1.6} step={0.05} format={(v) => `${Math.round(v * 100)} %`} onChange={(v) => setUI({ uiScale: v })} />
         </Row>
         <Row label="Reduce motion" desc="No animations or transitions.">
@@ -98,6 +98,9 @@ function DesignSection() {
         </Row>
         <Row label="Hints in the status bar">
           <Toggle value={s.showHints} onChange={(v) => setUI({ showHints: v })} />
+        </Row>
+        <Row label="Tooltips" desc="Short explanations when the mouse rests on a button or knob.">
+          <Toggle value={s.showTooltips} onChange={(v) => setUI({ showTooltips: v })} />
         </Row>
       </Section>
     </>

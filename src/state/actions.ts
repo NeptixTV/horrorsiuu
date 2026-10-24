@@ -22,11 +22,15 @@ export const renameProject = (name: string) => update('Rename project', (d) => {
 export const setKeyScale = (key: number, scale: string) => update('Key/scale', (d) => { d.key = key; d.scale = scale; });
 
 // ---------- channels ----------
-function freeMixerTrack(): string {
+const MAX_INSERTS = 64;
+
+/** A free mixer insert for a new channel; `null` = a new one is needed (if there is room). */
+function freeMixerTrack(): string | null {
   const p = getProject();
   const used = new Set(p.channels.map((c) => c.mixerTrackId));
   const free = p.mixer.find((m) => m.id !== MASTER_ID && !used.has(m.id) && m.inserts.length === 0 && m.sends.length === 0 && /^Insert \d+$/.test(m.name));
-  return free?.id ?? MASTER_ID;
+  if (free) return free.id;
+  return p.mixer.length < MAX_INSERTS ? null : MASTER_ID;
 }
 
 export interface AddChannelOpts {
@@ -44,7 +48,10 @@ export interface AddChannelOpts {
 
 export function addChannel(kind: ChannelKind, opts: AddChannelOpts = {}): string {
   const p = getProject();
-  const mixerId = freeMixerTrack();
+  // every channel gets its own mixer insert – a new one when all are taken
+  const found = freeMixerTrack();
+  const newInsert = found === null ? makeMixerTrack(p.mixer.length) : null;
+  const mixerId = found ?? newInsert!.id;
   const extra: Partial<Channel> = {};
   let name = opts.name ?? 'Goofy Synth';
   if (kind === 'drum') {
@@ -59,6 +66,8 @@ export function addChannel(kind: ChannelKind, opts: AddChannelOpts = {}): string
     }
   } else if (kind === 'sampler') {
     extra.sampler = { ...defaultSampler(opts.assetId ?? null), rootNote: opts.rootNote ?? 60 };
+    // steps play the sample at its own pitch
+    if (opts.rootNote !== undefined) extra.rootNote = opts.rootNote;
     name = opts.name ?? 'Sampler';
   } else if (kind === 'dream') {
     const preset = findDreamPreset(opts.dreamPreset ?? 'Ocean Dream');
@@ -76,6 +85,7 @@ export function addChannel(kind: ChannelKind, opts: AddChannelOpts = {}): string
   if (opts.pan !== undefined) extra.pan = opts.pan;
   const ch = makeChannel(kind, name, mixerId, p.channels.length, extra);
   update(`Add ${name}`, (d) => {
+    if (newInsert) d.mixer.push(newInsert);
     d.channels.push(ch);
     const mx = d.mixer.find((m) => m.id === mixerId);
     if (mx && mx.id !== MASTER_ID) {

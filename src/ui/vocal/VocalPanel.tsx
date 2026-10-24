@@ -15,6 +15,7 @@ import { toggleRecord } from '../commands';
 import { FxChainEditor, SoundFxPicker, projectChainOps } from '../effects/FxChainEditor';
 import '../effects/effects.css';
 import './vocal.css';
+import { Select } from '../components/Select';
 
 function inputLevel() {
   if (!engine.initialized || !engine.input?.isOpen) return null;
@@ -83,10 +84,10 @@ export function VocalPanel() {
         <label className="vc-field">
           <span className="label">Device</span>
           <div className="vc-row">
-            <select className="input" value={inputDeviceId} onChange={(e) => { setUI({ inputDeviceId: e.target.value }); if (open) void openInput(e.target.value); }}>
+            <Select className="input" value={inputDeviceId} onChange={(e) => { setUI({ inputDeviceId: e.target.value }); if (open) void openInput(e.target.value); }}>
               <option value="">System default</option>
               {devices.map((d) => <option key={d.deviceId} value={d.deviceId}>{d.label}</option>)}
-            </select>
+            </Select>
             <button className="btn icon" title="Refresh devices" onClick={() => void refresh()}><Icon name="loop" size={12} /></button>
           </div>
         </label>
@@ -108,15 +109,15 @@ export function VocalPanel() {
           <div className="vc-col">
             <label className="vc-field">
               <span className="label">Monitor / FX insert</span>
-              <select className="input small-select" value={target.id} onChange={(e) => { engine.inputTrackId = e.target.value; engine.sync(getProject()); force((x) => x + 1); }}>
+              <Select className="input small-select" value={target.id} onChange={(e) => { engine.inputTrackId = e.target.value; engine.sync(getProject()); force((x) => x + 1); }}>
                 {mixer.map((m, i) => <option key={m.id} value={m.id}>{i === 0 ? 'Master' : `${i} · ${m.name}`}</option>)}
-              </select>
+              </Select>
             </label>
             <label className="vc-field">
               <span className="label">Record to playlist track</span>
-              <select className="input small-select" value={recTrack?.id} onChange={(e) => setUI({ selectedTrackId: e.target.value })}>
+              <Select className="input small-select" value={recTrack?.id} onChange={(e) => setUI({ selectedTrackId: e.target.value })}>
                 {tracks.map((t) => <option key={t.id} value={t.id}>{t.name}</option>)}
-              </select>
+              </Select>
             </label>
             <label className="vc-field">
               <span className="label">Latency compensation</span>

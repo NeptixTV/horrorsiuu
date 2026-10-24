@@ -31,6 +31,7 @@ import { toast } from '../../state/ui';
 import { rgba } from '../../state/utils';
 import './playlist.css';
 import { askText } from '../dialogs/askText';
+import { Select } from '../components/Select';
 
 type Drag =
   | { kind: 'move'; startTick: number; startTrack: number; anchorId: string; orig: Map<string, { start: number; track: number }>; moved: boolean }
@@ -743,13 +744,13 @@ export function Playlist() {
         </div>
         <div className="pl-tools">
           <Icon name="magnet" size={12} style={{ color: 'var(--dim)' }} />
-          <select className="input small-select" value={snapMode} onChange={(e) => setUI({ snapMode: e.target.value as 'grid' | 'off' })} title="Free: clips move, resize and cut exactly at the mouse – no jumping to other clips' edges · Grid: snap to the grid size (Alt = free)">
+          <Select className="input small-select" value={snapMode} onChange={(e) => setUI({ snapMode: e.target.value as 'grid' | 'off' })} title="Free: clips move, resize and cut exactly at the mouse – no jumping to other clips' edges · Grid: snap to the grid size (Alt = free)">
             <option value="off">Free</option>
             <option value="grid">Grid</option>
-          </select>
-          <select className="input small-select" value={snap} onChange={(e) => setUI({ playlistSnap: Number(e.target.value) })} title="Grid size (hold Alt to bypass)">
+          </Select>
+          <Select className="input small-select" value={snap} onChange={(e) => setUI({ playlistSnap: Number(e.target.value) })} title="Grid size (hold Alt to bypass)">
             {SNAPS.map((s) => <option key={s.value} value={s.value}>{s.label}</option>)}
-          </select>
+          </Select>
         </div>
         <div className="pl-tools" title="Horizontal zoom (Ctrl + wheel)">
           <Icon name="search" size={12} style={{ color: 'var(--dim)' }} />

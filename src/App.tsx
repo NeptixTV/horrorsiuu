@@ -11,12 +11,15 @@ import { installRecordingHandler, restoreLastProject, startAutosave } from './pr
 import { Splash } from './ui/splash/Splash';
 import { SetupWizard } from './ui/setup/SetupWizard';
 import { Toolbar, useAudioUnlockHint } from './ui/toolbar/Toolbar';
+import { TitleBar } from './ui/toolbar/TitleBar';
+import { desktop } from './admin/desktop';
 import { Browser } from './ui/browser/Browser';
 import { Playlist } from './ui/playlist/Playlist';
 import { Dock } from './ui/Dock';
 import { Windows } from './ui/Windows';
 import { Splitter } from './ui/components/Splitter';
 import { ContextMenuHost } from './ui/components/ContextMenu';
+import { SelectPopupHost } from './ui/components/Select';
 import { AskTextHost } from './ui/dialogs/askText';
 import { StartupNotices } from './ui/admin/StartupNotices';
 import { loadLibrary } from './ui/library/libraryStore';
@@ -27,6 +30,10 @@ import { syncTransportUI, showDock } from './ui/commands';
 import { clamp } from './state/utils';
 import './styles/base.css';
 import './styles/app.css';
+import './styles/native.css';
+import { installNativeFeel } from './ui/nativeFeel';
+import { useProLoading } from './audio/pro/loader';
+import { installProMemorySweep } from './audio/instruments/pro';
 
 function useTheme() {
   const theme = useUI((s) => s.theme);
@@ -48,6 +55,7 @@ function StatusBar() {
   const name = useProject((s) => s.project.name);
   const dirty = useProject((s) => s.dirty);
   const showHints = useUI((s) => s.showHints);
+  const proPending = useProLoading((s) => s.pending);
   const [running, setRunning] = useState(engine.running);
   const [sr, setSr] = useState(engine.initialized ? engine.ctx.sampleRate : 0);
   useEffect(() => {
@@ -61,6 +69,7 @@ function StatusBar() {
       <span className="sb-project"><b>{name}</b>{dirty ? ' •' : ''}</span>
       <span>{lastAction ? `Last action: ${lastAction}` : 'Ready'}</span>
       <span className="spacer" />
+      {proPending > 0 && <span className="sb-loading" title="Pro Sounds are loaded when a channel uses them"><span className="sb-spin" /> Loading sounds… {proPending}</span>}
       {showHints && <span className="sb-hint">Space play · R record · Ctrl+Z undo · Ctrl+S save · double-click a channel to edit</span>}
       <span className="spacer" />
       <button className={`sb-audio ${running ? 'on' : ''}`} onClick={() => void engine.resume()} title={running ? 'Audio engine running' : 'Click to start audio'}>
@@ -77,8 +86,10 @@ function Main() {
   const dockOpen = useUI((s) => s.dockOpen);
   const dockHeight = useUI((s) => s.dockHeight);
   useAudioUnlockHint();
+  const titleBar = useUI((s) => s.titleBar);
   return (
-    <div className="app">
+    <div className={`app ${titleBar ? 'has-titlebar' : ''}`}>
+      {titleBar && <ErrorBoundary name="Title bar" inline><TitleBar /></ErrorBoundary>}
       <ErrorBoundary name="Toolbar" inline><Toolbar /></ErrorBoundary>
       <div className="app-body">
         {browserOpen && (
@@ -152,6 +163,10 @@ function boot(): Promise<void> {
       installAudioStability();
       startAutosave();
       installShortcuts();
+      installNativeFeel();
+      installProMemorySweep();
+      // Windows desktop app: our own dark title bar instead of the white system one
+      void desktop?.info().then((i) => { if (i.titleBar === 'overlay') setUI({ titleBar: true }); }).catch(() => undefined);
       void loadLibrary();
       if (ui().outputDeviceId) void engine.setOutputDevice(ui().outputDeviceId);
       report('Building interface…', 0.95);
@@ -211,6 +226,7 @@ export function App() {
       {ready && splashGone && setupDone && <StartupNotices />}
       {ready && splashGone && setupDone && <WhatsNewOnce />}
       <ContextMenuHost />
+      <SelectPopupHost />
       <AskTextHost />
       <Toast />
     </>

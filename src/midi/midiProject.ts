@@ -1,6 +1,7 @@
 // MIDI files ⇄ project: export a pattern or the whole song as .mid, import a
 // .mid file as new instruments + patterns (drums on drum channels, melodic
 // tracks on fitting synth / DreamChord sounds).
+import { proSound } from '../audio/pro/catalog';
 import type { Channel, DrumType, Note, Pattern, Project } from '../state/types';
 import { MASTER_ID, PPQ, TICKS_PER_STEP } from '../state/types';
 import { getProject, update } from '../state/store';
@@ -32,6 +33,28 @@ function drumFor(note: number): { type: DrumType; pitch: number } {
   return { type: 'perc', pitch: 60 + Math.max(-12, Math.min(12, note - 62)) };
 }
 
+/** General MIDI drum note of a Pro one-shot (null for melodic Pro sounds). */
+function gmForPro(sound: string | undefined): number | null {
+  const s = proSound(sound);
+  if (!s?.oneShot) return null;
+  if (s.group === 'Kicks') return 36;
+  if (s.group === 'Snares') return 38;
+  if (s.group === 'Claps & Rims') return /rim/i.test(s.id) ? 37 : 39;
+  if (s.group === 'Hi-Hats') return /shaker/i.test(s.id) ? 70 : 42;
+  if (s.group === 'Open Hats & Cymbals') return /ohat/.test(s.id) ? 46 : /ride/.test(s.id) ? 51 : 49;
+  if (/cowbell/.test(s.id)) return 56;
+  if (/tom/.test(s.id)) return 45;
+  if (/conga\.low/.test(s.id)) return 64;
+  if (/conga\.high/.test(s.id)) return 62;
+  if (/conga/.test(s.id)) return 63;
+  if (/claves/.test(s.id)) return 75;
+  if (/tambourine/.test(s.id)) return 54;
+  if (/shaker/.test(s.id)) return 70;
+  if (/triangle/.test(s.id)) return 81;
+  if (/woodblock/.test(s.id)) return 76;
+  return 39;
+}
+
 function toSmfTracks(project: Project, events: NoteEvent[]): SmfTrack[] {
   const byChannel = new Map<string, NoteEvent[]>();
   for (const e of events) (byChannel.get(e.channelId) ?? byChannel.set(e.channelId, []).get(e.channelId)!).push(e);
@@ -42,12 +65,14 @@ function toSmfTracks(project: Project, events: NoteEvent[]): SmfTrack[] {
   for (const ch of project.channels) {
     const list = byChannel.get(ch.id);
     if (!list?.length) continue;
-    const drum = ch.kind === 'drum' && ch.drum;
+    // classic synth drums and Pro one-shots go to the General MIDI drum channel
+    const gm = ch.kind === 'drum' && ch.drum ? GM_DRUM[ch.drum.type] : ch.kind === 'pro' ? gmForPro(ch.pro?.sound) : null;
+    const drum = gm !== null;
     tracks.push({
       name: ch.name,
       channel: drum ? 9 : MELODIC[melodic++ % MELODIC.length],
       notes: list.map((e) => ({
-        pitch: drum ? GM_DRUM[ch.drum!.type] : e.pitch,
+        pitch: drum ? gm! : e.pitch,
         start: e.tick,
         length: Math.max(1, e.length),
         velocity: e.velocity,

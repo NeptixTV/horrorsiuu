@@ -21,6 +21,7 @@ import { onFrame } from '../components/frameLoop';
 import { Icon } from '../components/Icon';
 import { currentPatternTick } from '../channelrack/playhead';
 import './pianoroll.css';
+import { Select } from '../components/Select';
 
 const KEYS_W = 56;
 const RULER_H = 20;
@@ -642,21 +643,21 @@ export function PianoRoll() {
   return (
     <div className="piano" onPointerDown={() => setUI({ focus: 'piano' })}>
       <div className="piano-head">
-        <select className="input" value={pattern.id} onChange={(e) => setUI({ selectedPatternId: e.target.value, selectedNoteIds: [] })} title="Pattern">
+        <Select className="input" value={pattern.id} onChange={(e) => setUI({ selectedPatternId: e.target.value, selectedNoteIds: [] })} title="Pattern">
           {patterns.map((p) => <option key={p.id} value={p.id}>{p.name}</option>)}
-        </select>
-        <select className="input" value={channel.id} onChange={(e) => setUI({ pianoChannelId: e.target.value, selectedChannelId: e.target.value, selectedNoteIds: [] })} title="Channel" style={{ borderLeft: `4px solid ${channel.color}` }}>
+        </Select>
+        <Select className="input" value={channel.id} onChange={(e) => setUI({ pianoChannelId: e.target.value, selectedChannelId: e.target.value, selectedNoteIds: [] })} title="Channel" style={{ borderLeft: `4px solid ${channel.color}` }}>
           {channels.map((c) => <option key={c.id} value={c.id}>{c.name}</option>)}
-        </select>
+        </Select>
         <div className="pl-tools">
           <button className={`btn icon small ${tool === 'draw' ? 'on' : ''}`} title="Draw notes" onClick={() => setTool('draw')}><Icon name="pencil" size={12} /></button>
           <button className={`btn icon small ${tool === 'select' ? 'on' : ''}`} title="Select notes" onClick={() => setTool('select')}><Icon name="pointer" size={12} /></button>
         </div>
         <div className="pl-tools">
           <Icon name="magnet" size={12} style={{ color: 'var(--dim)' }} />
-          <select className="input small-select" value={snap} onChange={(e) => setUI({ pianoSnap: Number(e.target.value) })} title="Snap (hold Alt to bypass)">
+          <Select className="input small-select" value={snap} onChange={(e) => setUI({ pianoSnap: Number(e.target.value) })} title="Snap (hold Alt to bypass)">
             {SNAPS.map((s) => <option key={s.label} value={s.value}>{s.label}</option>)}
-          </select>
+          </Select>
           <button className="btn small" title="Quantize selected (or all) notes to the snap grid" onClick={() => {
             const sel = ui().selectedNoteIds;
             quantizeNotes(pattern.id, channel.id, Math.max(TICKS_PER_STEP / 2, ui().pianoSnap), sel.length ? new Set(sel) : undefined);
@@ -664,17 +665,17 @@ export function PianoRoll() {
         </div>
         <div className="pl-tools">
           <span className="label">Scale</span>
-          <select className="input small-select" value={key} onChange={(e) => setKeyScale(Number(e.target.value), scale)}>
+          <Select className="input small-select" value={key} onChange={(e) => setKeyScale(Number(e.target.value), scale)}>
             {NOTE_NAMES.map((n, i) => <option key={n} value={i}>{n}</option>)}
-          </select>
-          <select className="input small-select" value={scale} onChange={(e) => setKeyScale(key, e.target.value)}>
+          </Select>
+          <Select className="input small-select" value={scale} onChange={(e) => setKeyScale(key, e.target.value)}>
             {SCALE_NAMES.map((s) => <option key={s}>{s}</option>)}
-          </select>
+          </Select>
         </div>
         <div className="pl-tools">
-          <select className="input small-select" value={stamp} onChange={(e) => setStamp(e.target.value as ChordStamp)} title="Draw single notes or whole chords (built from the scale)">
+          <Select className="input small-select" value={stamp} onChange={(e) => setStamp(e.target.value as ChordStamp)} title="Draw single notes or whole chords (built from the scale)">
             {CHORD_STAMPS.map((c) => <option key={c.value} value={c.value}>{c.label}</option>)}
-          </select>
+          </Select>
           <button className={`btn small ${scaleLock ? 'on' : ''}`} onClick={() => setScaleLock(!scaleLock)} title="Scale lock: drawn and moved notes always stay in the scale">Scale lock</button>
           <button className="btn small" onClick={(e) => toolsMenu(e.clientX, e.clientY)} title="Transpose, humanize, legato, strum, arpeggiate, reverse, velocity, copy / paste …"><Icon name="wand" size={11} /> Tools</button>
           <button className={`btn small ${recording ? 'on rec' : ''}`} onClick={() => liveRecorder.toggle()} title="Record notes played on a MIDI keyboard, the computer keyboard or the DreamChord into this pattern">● Rec notes</button>

@@ -1,5 +1,6 @@
 // Small building blocks of the settings center.
 import type { ReactNode } from 'react';
+import { Select as DropDown } from '../components/Select';
 
 export function Section({ title, children, hint }: { title: string; children: ReactNode; hint?: ReactNode }) {
   return (
@@ -35,7 +36,7 @@ export function Select<T extends string | number>({ value, options, onChange, wi
   value: T; options: { value: T; label: string }[]; onChange: (v: T) => void; width?: number;
 }) {
   return (
-    <select
+    <DropDown
       className="input sc-select"
       style={width ? { width } : undefined}
       value={String(value)}
@@ -45,7 +46,7 @@ export function Select<T extends string | number>({ value, options, onChange, wi
       }}
     >
       {options.map((o) => <option key={String(o.value)} value={String(o.value)}>{o.label}</option>)}
-    </select>
+    </DropDown>
   );
 }
 

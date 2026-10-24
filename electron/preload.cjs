@@ -12,6 +12,7 @@ contextBridge.exposeInMainWorld('goofyDesktop', {
   download: (url, fileName, kind, sha256) => ipcRenderer.invoke('update:download', url, fileName, kind, sha256),
   install: (path, kind) => ipcRenderer.invoke('update:install', path, kind),
   openExternal: (url) => ipcRenderer.invoke('app:openExternal', url),
+  setTitleBarColors: (color, symbol) => ipcRenderer.invoke('window:titleBar', color, symbol),
   // interface size (Settings → Design); limited to a sane range
   setZoom: (factor) => {
     const f = Number(factor);

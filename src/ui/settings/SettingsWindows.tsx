@@ -16,6 +16,7 @@ import { Meter } from '../components/Meter';
 import { Icon } from '../components/Icon';
 import { FxChainEditor } from '../effects/FxChainEditor';
 import './settings.css';
+import { Select } from '../components/Select';
 
 /** Knob + exact numeric entry in dB. */
 export function DbControl({ value, onChange, label = 'Volume', min = -60, max = 12 }: { value: number; onChange: (lin: number) => void; label?: string; min?: number; max?: number }) {
@@ -206,9 +207,9 @@ export function TrackSettingsWindow({ w, trackId }: { w: FloatingWindow; trackId
               </label>
               <label className="set-field">
                 <span className="label">Output</span>
-                <select className="input small-select" value={insert.output ?? MASTER_ID} onChange={(e) => { if (!setOutput(insert.id, e.target.value)) toast('That would create a feedback loop', 'error'); }}>
+                <Select className="input small-select" value={insert.output ?? MASTER_ID} onChange={(e) => { if (!setOutput(insert.id, e.target.value)) toast('That would create a feedback loop', 'error'); }}>
                   {mixer.filter((m) => m.id !== insert.id).map((m) => <option key={m.id} value={m.id}>{m.id === MASTER_ID ? 'Master' : `${mixer.indexOf(m)} ${m.name}`}</option>)}
-                </select>
+                </Select>
               </label>
             </div>
             <FxChainEditor target={{ kind: 'mixer', id: insert.id }} effects={insert.inserts} title="Effects on this row (audio clips)" />

@@ -3,7 +3,7 @@
 // robin, seamless sustain loops, 808-style mono glide and choke groups.
 import type { Channel, ProParams } from '../../state/types';
 import { defaultPro, proSound, proZones, type ProSound, type ProZone } from '../pro/catalog';
-import { loadZone, midiVel, preloadSound, zoneBuffer, zonesFor } from '../pro/loader';
+import { loadZone, midiVel, preloadSound, releaseUnused, zoneBuffer, zonesFor } from '../pro/loader';
 import { clampFinite } from '../safety';
 import { holdAt, type Instrument } from './types';
 
@@ -52,6 +52,17 @@ function reverseOf(b: AudioBuffer): AudioBuffer {
 const instances = new Set<ProInstrument>();
 export function proSoundsInUse(): Set<string> {
   return new Set([...instances].map((i) => i.soundId));
+}
+
+/** Every 30 s: decoded samples of sounds that no channel uses any more are freed (exports keep theirs while they run). */
+export function installProMemorySweep() {
+  let lastUsed = new Set<string>();
+  setInterval(() => {
+    const used = proSoundsInUse();
+    // a sound switched away from a moment ago (or undone) is kept for one more round
+    releaseUnused(new Set([...used, ...lastUsed]));
+    lastUsed = used;
+  }, 30000);
 }
 
 export function driveCurve(amount: number): Float32Array<ArrayBuffer> {

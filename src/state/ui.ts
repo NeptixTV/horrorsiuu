@@ -128,6 +128,10 @@ export interface UIState {
   checkUpdates: boolean;
   showNews: boolean;
   showHints: boolean;
+  /** desktop app on Windows: the app draws its own title bar with the menus (not saved) */
+  titleBar: boolean;
+  /** tooltips when hovering buttons and knobs */
+  showTooltips: boolean;
   confirmDeletes: boolean;
   midiInput: string; // '' = all devices, 'off' = disabled
   recQuantize: boolean;
@@ -159,7 +163,7 @@ const PERSISTED: (keyof UIState)[] = [
   'inputDeviceId', 'outputDeviceId', 'inputGain', 'setupDone', 'metronome', 'lastNoteLength',
   'latencyMs', 'sampleRate', 'limiter', 'ceilingDb', 'protect', 'outputVolume', 'lookahead', 'autoStabilize', 'audioProfile', 'metronomeVolume', 'countInBars',
   'autoFallbackOutput', 'releaseMic', 'uiScale', 'reduceMotion', 'meterFps', 'showSplash', 'autosaveInterval', 'backups',
-  'backupCount', 'backupInterval', 'openLastProject', 'historyLimit', 'notifyLevel', 'checkUpdates', 'showNews', 'showHints',
+  'backupCount', 'backupInterval', 'openLastProject', 'historyLimit', 'notifyLevel', 'checkUpdates', 'showNews', 'showHints', 'showTooltips',
   'confirmDeletes', 'midiInput', 'recQuantize', 'lyricsOnRecord', 'exportBits', 'exportRate', 'exportNormalize', 'exportTail', 'seenWhatsNew',
 ];
 
@@ -194,6 +198,8 @@ export const SETTING_DEFAULTS = {
   checkUpdates: true,
   showNews: true,
   showHints: true,
+  titleBar: false,
+  showTooltips: true,
   confirmDeletes: true,
   midiInput: '',
   recQuantize: true,

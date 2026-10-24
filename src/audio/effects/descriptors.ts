@@ -253,7 +253,7 @@ export const EFFECTS: Record<EffectType, EffectDescriptor> = {
     type: 'pump', name: 'Sidechain Pump', short: 'PUMP', category: 'Beat', color: '#ffbe3d',
     info: 'Ducks this sound every time the kick hits, so the 808 / bass and pads make room for it – that pumping sound.',
     params: [
-      { key: 'source', label: 'Triggered by', kind: 'choice', default: 'kick', options: [{ value: 'kick', label: 'Kick' }, { value: 'drums', label: 'All drums' }] },
+      { key: 'source', label: 'Trigger', kind: 'choice', default: 'kick', options: [{ value: 'kick', label: 'Kick' }, { value: 'drums', label: 'All drums' }] },
       n('depth', 'Depth', 0, 1, 0.7),
       n('attack', 'Attack', 0.5, 50, 3, 'ms', true),
       n('hold', 'Hold', 0, 200, 10, 'ms'),

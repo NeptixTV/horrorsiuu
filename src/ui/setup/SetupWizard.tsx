@@ -6,6 +6,7 @@ import { setUI, useUI, type ThemeName } from '../../state/ui';
 import { THEMES } from '../../styles/themes';
 import { Icon } from '../components/Icon';
 import './setup.css';
+import { Select } from '../components/Select';
 
 const STEPS = ['Welcome', 'Audio Devices', 'Audio Engine', 'Theme'];
 
@@ -80,10 +81,10 @@ export function SetupWizard({ onDone }: { onDone: () => void }) {
               <h2>Audio Devices</h2>
               <label className="setup-field">
                 <span>Audio Input (Microphone)</span>
-                <select className="input" value={inputDeviceId} onChange={(e) => setUI({ inputDeviceId: e.target.value })}>
+                <Select className="input" value={inputDeviceId} onChange={(e) => setUI({ inputDeviceId: e.target.value })}>
                   <option value="">System default</option>
                   {inputs.map((d) => <option key={d.deviceId} value={d.deviceId}>{d.label}</option>)}
-                </select>
+                </Select>
               </label>
               <div className="setup-perm">
                 <button className="btn" onClick={askPermission}><Icon name="mic" /> {permission === 'granted' ? 'Microphone connected' : 'Allow microphone access'}</button>
@@ -93,7 +94,7 @@ export function SetupWizard({ onDone }: { onDone: () => void }) {
               </div>
               <label className="setup-field">
                 <span>Audio Output</span>
-                <select
+                <Select
                   className="input"
                   value={outputDeviceId}
                   disabled={!engine.supportsOutputSelection}
@@ -105,7 +106,7 @@ export function SetupWizard({ onDone }: { onDone: () => void }) {
                 >
                   <option value="">System default</option>
                   {outputs.filter((d) => d.deviceId !== 'default').map((d) => <option key={d.deviceId} value={d.deviceId}>{d.label}</option>)}
-                </select>
+                </Select>
                 {!engine.supportsOutputSelection && <small className="dim">Output selection is not supported by this browser – the system default is used.</small>}
               </label>
             </div>
@@ -121,11 +122,11 @@ export function SetupWizard({ onDone }: { onDone: () => void }) {
               </div>
               <label className="setup-field">
                 <span>Latency mode (applies after restart)</span>
-                <select className="input" value={latencyHint} onChange={(e) => setUI({ latencyHint: e.target.value as typeof latencyHint })}>
+                <Select className="input" value={latencyHint} onChange={(e) => setUI({ latencyHint: e.target.value as typeof latencyHint })}>
                   <option value="interactive">Interactive – lowest latency (recommended)</option>
                   <option value="balanced">Balanced</option>
                   <option value="playback">Playback – largest buffer, most stable</option>
-                </select>
+                </Select>
               </label>
               <p className="dim">The browser chooses the hardware buffer size. If you hear crackles, pick "Balanced" or "Playback".</p>
             </div>

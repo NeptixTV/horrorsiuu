@@ -4,9 +4,7 @@
 import { useEffect } from 'react';
 import { APP_VERSION } from '../../admin/feed';
 import { closeWindow, openWindow, setUI, type FloatingWindow } from '../../state/ui';
-import { addDreamChord, showDock } from '../commands';
-import { openNotes } from '../notes/NotesWindow';
-import { openSettingsPage } from './SettingsWindow';
+import { showDock } from '../commands';
 import { Window } from '../components/Window';
 import { Icon } from '../components/Icon';
 import './dialogs.css';
@@ -20,17 +18,13 @@ interface Item {
 }
 
 const ITEMS: Item[] = [
-  { icon: 'shield', title: 'Rock-solid audio', text: 'Fixed the crackling, sudden distortion and dead headphones. A protection stage now catches extreme peaks and broken signals, and the engine repairs itself if a device disappears.', action: ['Diagnostics', () => openSettingsPage('diagnostics')] },
-  { icon: 'dream', title: 'DreamChord', text: 'A chord instrument with 7 pads and a joystick: dreamy, warm, nostalgic sounds with arpeggiator, strum and hold. Everything you play can be recorded.', action: ['Try DreamChord', () => addDreamChord('Ocean Dream')] },
-  { icon: 'dice', title: 'Idea dice', text: 'Out of ideas? Roll chords, bass, melody and a beat that fit your key – lock what you like, re-roll the rest.', action: ['Roll an idea', () => openWindow({ kind: 'ideas' })], mine: true },
-  { icon: 'capture', title: 'Capture', text: 'The studio quietly remembers what you played in the last 3 minutes – even without recording. One click (or Alt+C) turns it into a pattern.', mine: true },
-  { icon: 'notes', title: 'Song notes & teleprompter', text: 'Write lyrics inside the project. While recording they scroll in big letters – and jump to [Chorus] when the playhead passes a marker called Chorus.', action: ['Open notes', () => openNotes()], mine: true },
-  { icon: 'automation', title: 'Automation', text: 'Volume, pan and every effect knob can change over the song. Mixer → right-click a strip → Automate, or the Automate button in any effect.' },
-  { icon: 'wand', title: 'Piano roll tools', text: 'Chord stamps, scale lock, strum, arpeggiate, humanize, legato, reverse, copy & paste, arrow-key editing.', action: ['Open piano roll', () => showDock('piano')] },
-  { icon: 'midi', title: 'Export & MIDI', text: 'WAV in 16 / 24 / 32 bit, stems as one ZIP, MIDI export and import.', action: ['Export…', () => openWindow({ kind: 'export' })] },
-  { icon: 'sparkle', title: 'New effects', text: 'Tape Machine (wow, flutter, saturation), Stereo Width with goniometer and a Noise Gate – plus your own presets for every effect and synth.' },
-  { icon: 'history', title: 'Safer projects', text: 'Automatic backups, a project doctor that repairs damaged files, and an undo history you can jump around in.', action: ['Backups', () => openSettingsPage('projects')] },
-  { icon: 'settings', title: 'Settings center', text: 'Audio devices, latency, headphone test, themes, scaling, autosave, notifications and privacy – all in one place.', action: ['Settings', () => openSettingsPage('audio')] },
+  { icon: 'bolt', title: 'New Beat in one click', text: 'Pick a genre – Trap, Drill, Boom Bap, Lo-Fi, House, Phonk or Afrobeats – and get a finished, mixed beat: drums, 808, chords, melody, intro, drop and break. Ctrl+B.', action: ['Make a beat', () => openWindow({ kind: 'beatStarter' })], mine: true },
+  { icon: 'crown', title: 'Pro Sounds', text: '73 new sounds: a real upright piano with three velocity layers, strings, flute, horns, organ, bells and percussion recorded from real instruments – plus hard 808s, kicks, snares and hats made for beats. The old sounds are still there.', action: ['Open the browser', () => setUI({ browserOpen: true })] },
+  { icon: 'drums', title: 'Drum kits & hi-hat rolls', text: '7 ready kits with a starter groove. Hi-hat rolls (×2 … ×8 per step) with the roll brush, Alt+click on a step or the 🎲 on a hat row. Swap a pad\'s sound with ◀ ▶.', action: ['Drum Machine', () => showDock('drums')] },
+  { icon: 'upload', title: 'Your own sounds', text: 'Drag WAV / MP3 files or a whole sample-pack folder anywhere into the studio. They are trimmed and sorted into kicks, snares, 808s, loops … in My Sounds – for every project.', action: ['My Sounds', () => setUI({ browserOpen: true })], mine: true },
+  { icon: 'wave', title: '808 slides', text: 'Pro 808s play mono with glide: let two notes overlap in the piano roll and the 808 slides into the next note.' },
+  { icon: 'sparkle', title: 'Beat effects', text: 'Clipper, Sidechain Pump (ducks under the kick), Multiband "OTT", Punch (transient shaper) and Lo-Fi Crusher – plus one-click chains like Hard Trap Master, Drum Bus Punch and 808 Grit.' },
+  { icon: 'maximize', title: 'Feels like a real program', text: 'Dark title bar with a menu bar in the desktop app, drop-down lists and tooltips in the studio\'s own style, no browser menus or page zoom, and the window remembers its size.' },
 ];
 
 export function WhatsNewWindow({ w }: { w: FloatingWindow }) {

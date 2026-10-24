@@ -24,6 +24,7 @@ import { normalizeDream } from '../../state/normalize';
 import { registerKeyOverride } from '../shortcuts';
 import { getPerformer, installArpClock, type DreamPerformer } from './performer';
 import './dreamchord.css';
+import { Select } from '../components/Select';
 
 const WAVES: { value: DreamWave; label: string }[] = [
   { value: 'sine', label: 'Sine' }, { value: 'triangle', label: 'Triangle' }, { value: 'sawtooth', label: 'Saw' }, { value: 'square', label: 'Square' },
@@ -415,8 +416,8 @@ export function DreamChordWindow({ w, channelId }: { w: FloatingWindow; channelI
           <div className="dc-edit">
             <section>
               <h4>Oscillators</h4>
-              <label>Wave A <select className="input small-select" value={p.waveA} onChange={(e) => set({ waveA: e.target.value as DreamWave }, 'Wave A')}>{WAVES.map((x) => <option key={x.value} value={x.value}>{x.label}</option>)}</select></label>
-              <label>Wave B <select className="input small-select" value={p.waveB} onChange={(e) => set({ waveB: e.target.value as DreamWave }, 'Wave B')}>{WAVES.map((x) => <option key={x.value} value={x.value}>{x.label}</option>)}</select></label>
+              <label>Wave A <Select className="input small-select" value={p.waveA} onChange={(e) => set({ waveA: e.target.value as DreamWave }, 'Wave A')}>{WAVES.map((x) => <option key={x.value} value={x.value}>{x.label}</option>)}</Select></label>
+              <label>Wave B <Select className="input small-select" value={p.waveB} onChange={(e) => set({ waveB: e.target.value as DreamWave }, 'Wave B')}>{WAVES.map((x) => <option key={x.value} value={x.value}>{x.label}</option>)}</Select></label>
               <div className="dc-edit-knobs">
                 {knob('mixB', 'Mix B', 0, 1, 0.35, pct)}
                 {knob('detune', 'Detune', 0, 60, 14, (v) => `${Math.round(v)} ct`)}
@@ -436,17 +437,17 @@ export function DreamChordWindow({ w, channelId }: { w: FloatingWindow; channelI
             </section>
             <section>
               <h4>Space</h4>
-              <label>Echo time <select className="input small-select" value={p.delayTime} onChange={(e) => set({ delayTime: e.target.value as DreamParams['delayTime'] }, 'Echo time')}>{(['1/4', '1/8', '1/8d', '1/16'] as const).map((x) => <option key={x} value={x}>{x === '1/8d' ? '1/8 dotted' : x}</option>)}</select></label>
+              <label>Echo time <Select className="input small-select" value={p.delayTime} onChange={(e) => set({ delayTime: e.target.value as DreamParams['delayTime'] }, 'Echo time')}>{(['1/4', '1/8', '1/8d', '1/16'] as const).map((x) => <option key={x} value={x}>{x === '1/8d' ? '1/8 dotted' : x}</option>)}</Select></label>
               <div className="dc-edit-knobs">
                 {knob('space', 'Size', 0, 1, 0.8, pct)}
               </div>
             </section>
             <section>
               <h4>Performance</h4>
-              <label>Arp <select className="input small-select" value={p.arp} onChange={(e) => set({ arp: e.target.value as DreamParams['arp'] }, 'Arp mode')}>{(['off', ...ARP_MODES] as const).map((x) => <option key={x} value={x}>{x}</option>)}</select></label>
-              <label>Rate <select className="input small-select" value={p.arpRate} onChange={(e) => set({ arpRate: e.target.value as DreamParams['arpRate'] }, 'Arp rate')}>{(['1/4', '1/8', '1/8t', '1/16', '1/16t', '1/32'] as const).map((x) => <option key={x} value={x}>{x}</option>)}</select></label>
-              <label>Octaves <select className="input small-select" value={p.arpOctaves} onChange={(e) => set({ arpOctaves: Number(e.target.value) }, 'Arp octaves')}>{[1, 2, 3].map((x) => <option key={x} value={x}>{x}</option>)}</select></label>
-              <label>Strum <select className="input small-select" value={p.strumDir} onChange={(e) => set({ strumDir: e.target.value as DreamParams['strumDir'] }, 'Strum direction')}><option value="up">up</option><option value="down">down</option></select></label>
+              <label>Arp <Select className="input small-select" value={p.arp} onChange={(e) => set({ arp: e.target.value as DreamParams['arp'] }, 'Arp mode')}>{(['off', ...ARP_MODES] as const).map((x) => <option key={x} value={x}>{x}</option>)}</Select></label>
+              <label>Rate <Select className="input small-select" value={p.arpRate} onChange={(e) => set({ arpRate: e.target.value as DreamParams['arpRate'] }, 'Arp rate')}>{(['1/4', '1/8', '1/8t', '1/16', '1/16t', '1/32'] as const).map((x) => <option key={x} value={x}>{x}</option>)}</Select></label>
+              <label>Octaves <Select className="input small-select" value={p.arpOctaves} onChange={(e) => set({ arpOctaves: Number(e.target.value) }, 'Arp octaves')}>{[1, 2, 3].map((x) => <option key={x} value={x}>{x}</option>)}</Select></label>
+              <label>Strum <Select className="input small-select" value={p.strumDir} onChange={(e) => set({ strumDir: e.target.value as DreamParams['strumDir'] }, 'Strum direction')}><option value="up">up</option><option value="down">down</option></Select></label>
               <label className="dc-check"><input type="checkbox" checked={recQuantize} onChange={(e) => setUI({ recQuantize: e.target.checked })} /> Quantise recording to 1/16</label>
               <div className="dc-edit-knobs">
                 {knob('arpGate', 'Gate', 0.05, 1, 0.8, pct)}

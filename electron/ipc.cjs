@@ -105,7 +105,18 @@ function register(getWindow) {
     version: app.getVersion(),
     portable: !!process.env.PORTABLE_EXECUTABLE_FILE,
     platform: process.platform,
+    // the window draws its own (dark) title bar; Windows adds its buttons on the right
+    titleBar: process.platform === 'win32' ? 'overlay' : 'native',
   }));
+
+  // colours of the window buttons area, so it matches the app theme
+  const HEX = /^#[0-9a-f]{6}$/i;
+  handle('window:titleBar', (color, symbol) => {
+    const win = getWindow();
+    if (!win || process.platform !== 'win32' || !HEX.test(color) || !HEX.test(symbol)) return false;
+    try { win.setTitleBarOverlay({ color, symbolColor: symbol, height: 30 }); } catch { return false; }
+    return true;
+  });
 
   handle('app:openExternal', (url) => {
     if (isHttpsUrl(url)) return shell.openExternal(url);

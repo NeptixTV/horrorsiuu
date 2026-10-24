@@ -27,6 +27,7 @@ import { askText } from '../dialogs/askText';
 import { addProChannel, loadKit, loadProIntoChannel } from '../proSounds';
 import { proSound } from '../../audio/pro/catalog';
 import { setRoll } from '../../state/actions';
+import { Select } from '../components/Select';
 
 /** Hits per step a roll can have; Alt+click on a step cycles through them. */
 export const ROLLS = [1, 2, 3, 4, 6, 8];
@@ -306,15 +307,15 @@ export function ChannelRack() {
   return (
     <div className="rack" onPointerDown={() => setUI({ focus: 'rack' })}>
       <div className="rack-head">
-        <select className="input" value={pattern.id} onChange={(e) => { setUI({ selectedPatternId: e.target.value }); if (engine.transport) engine.transport.patternId = e.target.value; }} title="Pattern">
+        <Select className="input" value={pattern.id} onChange={(e) => { setUI({ selectedPatternId: e.target.value }); if (engine.transport) engine.transport.patternId = e.target.value; }} title="Pattern">
           {patterns.map((p) => <option key={p.id} value={p.id}>{p.name}</option>)}
-        </select>
+        </Select>
         <button className="btn icon small" title="New pattern" onClick={() => { const id = addPattern(); setUI({ selectedPatternId: id }); }}><Icon name="plus" size={11} /></button>
         <button className="btn icon small" title="Clone pattern" onClick={() => setUI({ selectedPatternId: clonePattern(pattern.id) })}><Icon name="copy" size={11} /></button>
         <span className="label" style={{ marginLeft: 8 }}>Steps</span>
-        <select className="input" value={pattern.lengthSteps} onChange={(e) => updatePattern(pattern.id, { lengthSteps: Number(e.target.value) })}>
+        <Select className="input" value={pattern.lengthSteps} onChange={(e) => updatePattern(pattern.id, { lengthSteps: Number(e.target.value) })}>
           {[8, 12, 16, 24, 32, 48, 64].map((n) => <option key={n} value={n}>{n}</option>)}
-        </select>
+        </Select>
         <Knob value={swing} min={0} max={1} defaultValue={0} size={24} onChange={setSwing} format={(v) => `${Math.round(v * 100)}%`} title="Swing" />
         <span className="label">Swing</span>
         <span className="spacer" />

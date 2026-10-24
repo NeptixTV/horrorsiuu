@@ -2,6 +2,7 @@ import type { NumberParamDef, ParamDef } from '../../audio/effects/descriptors';
 import type { ParamValue } from '../../state/types';
 import { formatHz } from '../../state/utils';
 import { Knob } from '../components/Knob';
+import { Select } from '../components/Select';
 
 export function formatParam(def: NumberParamDef, v: number): string {
   switch (def.unit) {
@@ -23,9 +24,9 @@ export function ParamControl({ def, value, onChange, size = 40, color }: { def: 
     return (
       <label className="fx-choice">
         <span className="knob-label">{def.label}</span>
-        <select className="input" value={String(value ?? def.default)} onChange={(e) => onChange(e.target.value)} onKeyDown={(e) => e.stopPropagation()}>
+        <Select className="input" value={String(value ?? def.default)} onChange={(e) => onChange(e.target.value)} onKeyDown={(e) => e.stopPropagation()}>
           {def.options.map((o) => <option key={o.value} value={o.value}>{o.label}</option>)}
-        </select>
+        </Select>
       </label>
     );
   }

@@ -1,10 +1,10 @@
-import { useEffect, useMemo, useState, type DragEvent } from 'react';
+import { useEffect, useMemo, useRef, useState, type DragEvent } from 'react';
 import { LIBRARY } from '../../audio/library';
 import { EFFECTS, EFFECT_PRESETS, EFFECT_TYPES } from '../../audio/effects/descriptors';
 import { DRUM_LABELS, SYNTH_PRESETS } from '../../state/defaults';
 import { setUI, toast, ui, useUI, type DragPayload } from '../../state/ui';
 import { useProject } from '../../state/store';
-import { addChannel, addInsert } from '../../state/actions';
+import { addChannel, addInsert, updateChannel } from '../../state/actions';
 import type { DrumType, EffectType } from '../../state/types';
 import { assets } from '../../audio/assets';
 import { engine } from '../../audio/engine';
@@ -12,14 +12,15 @@ import { getProject } from '../../state/store';
 import { placeAudioClip } from '../../project/manager';
 import { showMenu, type MenuItem } from '../components/ContextMenu';
 import { askText } from '../dialogs/askText';
-import { addToLibrary, deleteLibrarySample, loadLibrary, renameLibrarySample, useLibrary } from '../library/libraryStore';
+import { deleteLibrarySample, importSounds, loadLibrary, renameLibrarySample, setSampleCategory, useLibrary, type LibrarySampleInfo } from '../library/libraryStore';
+import { DRUM_CATEGORIES, SOUND_CATEGORIES, type SoundCategory } from '../../audio/soundAnalysis';
 import { FX_CATEGORIES, FX_CHAINS } from '../../audio/effects/fxPresets';
 import { fxApplyChain } from '../../state/actions';
 import { openWindow } from '../../state/ui';
 import { addDreamChord } from '../commands';
 import { DREAM_PRESETS } from '../../audio/instruments/dreamPresets';
 import { Icon } from '../components/Icon';
-import { pickFile } from '../dialogs/filePick';
+import { pickFiles, pickFolder } from '../dialogs/filePick';
 import { applyVocalChain, VOCAL_CHAINS } from './vocalChains';
 import { PRO_GROUPS, PRO_KITS, PRO_SOUNDS } from '../../audio/pro/catalog';
 import { addProChannel, loadKit, loadProIntoChannel, previewPro } from '../proSounds';
@@ -106,6 +107,40 @@ export function applyFxChainToSelection(name: string) {
 
 const DRUM_KIT: DrumType[] = ['kick', 'snare', 'clap', 'hihat', 'openhat', 'tom', 'perc'];
 
+const NOTE_NAMES = ['C', 'C#', 'D', 'D#', 'E', 'F', 'F#', 'G', 'G#', 'A', 'A#', 'B'];
+const noteLabel = (m: number) => `${NOTE_NAMES[((m % 12) + 12) % 12]}${Math.floor(m / 12) - 1}`;
+
+/** A sampler channel for one of My Sounds: drums play as they are, melodic sounds on their root note. */
+function addAsChannel(x: LibrarySampleInfo) {
+  const drum = DRUM_CATEGORIES.has(x.category);
+  const root = !drum && x.root !== undefined ? x.root : 60;
+  const id = addChannel('sampler', { assetId: x.id, name: x.name, rootNote: root });
+  setUI({ selectedChannelId: id, ...(drum ? {} : { pianoChannelId: id }) });
+  toast(drum ? `“${x.name}” is a new drum pad` : `“${x.name}” added – play it on the piano roll`, 'ok');
+  return id;
+}
+
+function loadIntoSelected(x: LibrarySampleInfo) {
+  const id = ui().selectedChannelId;
+  const ch = getProject().channels.find((c) => c.id === id);
+  if (!ch) return;
+  const root = !DRUM_CATEGORIES.has(x.category) && x.root !== undefined ? x.root : 60;
+  updateChannel(ch.id, { kind: 'sampler', sampler: { assetId: x.id, rootNote: root, tune: 0, attack: 0.001, release: 0.08, reverse: false, level: 0.9 }, name: x.name }, 'Load sound');
+  toast(`Loaded “${x.name}” into ${ch.name}`, 'ok');
+}
+
+/** Double-click on one of My Sounds: loops go to the playlist, everything else becomes a channel. */
+function activateMySound(x: LibrarySampleInfo) {
+  if (x.category === 'Loops') {
+    const p = getProject();
+    const trackId = ui().selectedTrackId ?? p.tracks[0].id;
+    placeAudioClip(x.id, trackId, Math.round(engine.transport?.getTick() ?? 0));
+    toast(`Loop “${x.name}” added to the playlist at the playhead`, 'ok');
+    return;
+  }
+  addAsChannel(x);
+}
+
 export function addDrumKit() {
   let first: string | null = null;
   for (const d of DRUM_KIT) {
@@ -125,18 +160,21 @@ export function Browser() {
   const selectedPatternId = useUI((s) => s.selectedPatternId);
 
   useEffect(() => { void loadLibrary(); }, []);
+  // new sounds (also dropped somewhere else in the app) open My Sounds
+  const soundCount = userSamples.length;
+  const lastCount = useRef(soundCount);
+  useEffect(() => {
+    if (soundCount > lastCount.current) setOpen((o) => ({ ...o, library: true }));
+    lastCount.current = soundCount;
+  }, [soundCount]);
 
-  const importSamples = () => pickFile('audio/*', async (f) => {
-    try {
-      const buffer = await engine.ctx.decodeAudioData(await f.arrayBuffer());
-      const name = f.name.replace(/\.[^.]+$/, '');
-      await addToLibrary(buffer, name);
-      setOpen((o) => ({ ...o, library: true }));
-      toast(`Imported “${name}” into My Library`, 'ok');
-    } catch {
-      toast(`Could not read “${f.name}”`, 'error');
-    }
-  }, true);
+  const [dropping, setDropping] = useState(false);
+  const doImport = async (files: File[]) => {
+    const ids = await importSounds(files);
+    if (ids.length) setOpen((o) => ({ ...o, library: true }));
+  };
+  const importSamples = () => pickFiles('audio/*,.wav,.mp3,.ogg,.flac,.m4a,.aif,.aiff', (f) => void doImport(f));
+  const importFolder = () => pickFolder((f) => void doImport(f));
 
   const categories = useMemo<Category[]>(() => {
     const toPlaylist = (id: string) => {
@@ -165,6 +203,26 @@ export function Browser() {
         ] as MenuItem[] : []),
       ],
     });
+    const mySoundItem = (x: LibrarySampleInfo): Item => {
+      const base = sampleItem(x.id, x.name, '#9be15d', x.root !== undefined ? noteLabel(x.root) : x.bpm ? `${x.bpm} BPM` : `${x.duration.toFixed(1)}s`, true);
+      return {
+        ...base,
+        icon: DRUM_CATEGORIES.has(x.category) ? 'drums' : x.category === 'Loops' ? 'loop' : x.category === 'Vocals' ? 'mic' : 'wave',
+        tags: x.category,
+        onActivate: () => activateMySound(x),
+        menu: () => [
+          { label: '▶ Preview', onClick: () => previewSample(x.id) },
+          { label: DRUM_CATEGORIES.has(x.category) ? 'Add as drum pad' : 'Add as instrument (plays on all keys)', onClick: () => addAsChannel(x) },
+          { label: 'Add to playlist (at playhead)', onClick: () => toPlaylist(x.id) },
+          ...(ui().selectedChannelId ? [{ label: 'Load into the selected channel', onClick: () => loadIntoSelected(x) }] : []),
+          { separator: true },
+          { label: 'Category', submenu: SOUND_CATEGORIES.map((c) => ({ label: c, checked: c === x.category, onClick: () => void setSampleCategory(x.id, c as SoundCategory) })) },
+          { label: 'Edit (cut, effects, pitch)…', onClick: () => openWindow({ kind: 'sampleEditor', assetId: x.id }) },
+          { label: 'Rename…', onClick: () => { void askText('Sound name', x.name).then((n) => { if (n) void renameLibrarySample(x.id, n); }); } },
+          { label: 'Delete from My Sounds', danger: true, onClick: () => { if (confirm(`Delete “${x.name}” from My Sounds?`)) void deleteLibrarySample(x.id); } },
+        ],
+      };
+    };
     const libGroup = (cat: string) => LIBRARY.filter((s) => s.category === cat).map((s) => sampleItem(s.id, s.name, '#56ccf2', cat));
     const libCats = ['Drums', 'Percussion', 'Bass', 'Melodic', 'FX', 'Funny', 'Game', 'Loops'];
     const action = (key: string, label: string, icon: string, fn: () => void): Item => ({ key, label, icon, color: 'var(--accent)', payload: { type: 'instrument', kind: 'synth' }, onActivate: fn, onClick: fn, noDrag: true });
@@ -204,12 +262,16 @@ export function Browser() {
         groups: PRO_GROUPS.map((g) => ({ label: g, items: PRO_SOUNDS.filter((x) => x.group === g).map((x) => proItem(x.id)) })),
       },
       {
-        key: 'library', label: 'My Library', icon: 'star', color: '#9be15d',
+        key: 'library', label: 'My Sounds', icon: 'star', color: '#9be15d',
         items: [
-          action('lib-import', 'Import audio files…', 'import', importSamples),
+          action('lib-import', 'Add sound files…', 'upload', importSamples),
+          action('lib-folder', 'Add a whole folder (sample pack)…', 'folder', importFolder),
           action('lib-split', 'Song Splitter (vocals / beat)…', 'scissors', () => openWindow({ kind: 'stems' })),
-          ...userSamples.map((s) => sampleItem(s.id, s.name, '#9be15d', s.duration ? `${s.duration.toFixed(1)}s` : undefined, true)),
         ],
+        groups: SOUND_CATEGORIES.map((cat) => ({
+          label: cat,
+          items: userSamples.filter((x) => x.category === cat).sort((a, b) => a.name.localeCompare(b.name)).map(mySoundItem),
+        })).filter((g) => g.items.length),
       },
       {
         key: 'soundfx', label: 'Sound FX', icon: 'fx', color: '#ff6bb3', items: [],
@@ -328,12 +390,30 @@ export function Browser() {
   );
 
   return (
-    <div className="browser">
+    <div
+      className={`browser ${dropping ? 'dropping' : ''}`}
+      onDragOver={(e) => { if (e.dataTransfer.types.includes('Files')) { e.preventDefault(); setDropping(true); } }}
+      onDragLeave={(e) => { if (!e.currentTarget.contains(e.relatedTarget as Node)) setDropping(false); }}
+      onDrop={(e) => {
+        const files = Array.from(e.dataTransfer.files ?? []);
+        setDropping(false);
+        if (!files.length) return;
+        e.preventDefault();
+        void doImport(files);
+      }}
+    >
       <div className="panel-title">
         <Icon name="browser" size={13} /> Browser
         <span className="spacer" />
-        <button className="btn ghost icon small" title="Import audio files into My Samples" onClick={importSamples}><Icon name="import" size={12} /></button>
+        <button className="btn ghost icon small" title="Add your own sounds (files) to My Sounds" onClick={importSamples}><Icon name="upload" size={12} /></button>
+        <button className="btn ghost icon small" title="Add a whole folder (sample pack) to My Sounds" onClick={importFolder}><Icon name="folder" size={12} /></button>
       </div>
+      {userSamples.length === 0 && (
+        <button className="br-dropzone" onClick={importSamples} title="Click to choose files, or drag audio files / folders here">
+          <Icon name="upload" size={16} />
+          <span><b>Add your own sounds</b><br />Drag WAV / MP3 files or a sample-pack folder here – they are sorted into kicks, snares, 808s, loops … automatically.</span>
+        </button>
+      )}
       <div className="br-search">
         <Icon name="search" size={12} />
         <input placeholder="Search sounds, presets, effects…" value={query} onChange={(e) => setQuery(e.target.value)} onKeyDown={(e) => e.stopPropagation()} />
@@ -369,7 +449,8 @@ export function Browser() {
           );
         })}
       </div>
-      <div className="br-hint">Click a sample to preview · double-click to add · right-click for edit options · drag Sound FX onto a clip</div>
+      {dropping && <div className="br-drop-overlay"><Icon name="upload" size={22} /> Drop to add to My Sounds</div>}
+      <div className="br-hint">Click to preview · double-click to add · drag into the project · right-click for more · drop your own audio files here</div>
     </div>
   );
 }

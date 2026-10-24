@@ -22,6 +22,7 @@ import { userPresetItems } from '../presetMenu';
 import { normalizeSynth } from '../../state/normalize';
 import { ProEditor } from './ProEditor';
 import './instruments.css';
+import { Select } from '../components/Select';
 
 const WAVES: Waveform[] = ['sine', 'sawtooth', 'square', 'triangle'];
 const WAVE_LABEL: Record<Waveform, string> = { sine: 'Sine', sawtooth: 'Saw', square: 'Square', triangle: 'Tri' };
@@ -80,15 +81,15 @@ function ChannelStrip({ ch }: { ch: Channel }) {
       <Knob value={ch.pan} min={-1} max={1} defaultValue={0} size={30} label="Pan" bipolar format={formatPan} onChange={(v) => updateChannel(ch.id, { pan: v }, 'Pan')} />
       <label className="inst-field">
         <span className="knob-label">Mixer</span>
-        <select className="input small-select" value={ch.mixerTrackId} onChange={(e) => updateChannel(ch.id, { mixerTrackId: e.target.value }, 'Route channel')}>
+        <Select className="input small-select" value={ch.mixerTrackId} onChange={(e) => updateChannel(ch.id, { mixerTrackId: e.target.value }, 'Route channel')}>
           {mixer.map((m, i) => <option key={m.id} value={m.id}>{i === 0 ? 'Master' : `${i} · ${m.name}`}</option>)}
-        </select>
+        </Select>
       </label>
       <label className="inst-field">
         <span className="knob-label">Step note</span>
-        <select className="input small-select" value={ch.rootNote} onChange={(e) => updateChannel(ch.id, { rootNote: Number(e.target.value) }, 'Root note')}>
+        <Select className="input small-select" value={ch.rootNote} onChange={(e) => updateChannel(ch.id, { rootNote: Number(e.target.value) }, 'Root note')}>
           {Array.from({ length: 61 }, (_, i) => 24 + i).map((n) => <option key={n} value={n}>{noteName(n)}</option>)}
-        </select>
+        </Select>
       </label>
     </div>
   );
@@ -352,7 +353,7 @@ function SamplerEditor({ ch }: { ch: Channel }) {
     >
       <SampleWave assetId={s.assetId} color={ch.color} />
       <div className="syn-row center">
-        <select className="input" style={{ maxWidth: 260 }} value={s.assetId ?? ''} onChange={(e) => {
+        <Select className="input" style={{ maxWidth: 260 }} value={s.assetId ?? ''} onChange={(e) => {
           const id = e.target.value || null;
           const lib = LIBRARY.find((l) => l.id === id);
           updateSampler(ch.id, { assetId: id, rootNote: lib?.root ?? s.rootNote });
@@ -360,15 +361,15 @@ function SamplerEditor({ ch }: { ch: Channel }) {
         }}>
           <option value="">— no sample —</option>
           {options.map((o) => <option key={o.id} value={o.id}>{o.name}</option>)}
-        </select>
+        </Select>
         <span className="label">{buf ? `${buf.duration.toFixed(2)} s · ${buf.numberOfChannels} ch · ${buf.sampleRate} Hz` : ''}</span>
       </div>
       <div className="syn-row center">
         <label className="inst-field">
           <span className="knob-label">Root</span>
-          <select className="input small-select" value={s.rootNote} onChange={(e) => updateSampler(ch.id, { rootNote: Number(e.target.value) })}>
+          <Select className="input small-select" value={s.rootNote} onChange={(e) => updateSampler(ch.id, { rootNote: Number(e.target.value) })}>
             {Array.from({ length: 73 }, (_, i) => 24 + i).map((n) => <option key={n} value={n}>{noteName(n)}</option>)}
-          </select>
+          </Select>
         </label>
         <Knob value={s.tune} min={-24} max={24} defaultValue={0} size={36} label="Tune" bipolar onChange={(v) => updateSampler(ch.id, { tune: v })} format={(v) => `${v > 0 ? '+' : ''}${v.toFixed(2)} st`} />
         <Knob value={s.attack} min={0.001} max={2} log defaultValue={0.002} size={36} label="Attack" onChange={(v) => updateSampler(ch.id, { attack: v })} format={(v) => `${Math.round(v * 1000)} ms`} />

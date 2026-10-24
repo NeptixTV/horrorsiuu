@@ -47,3 +47,18 @@
 
 .tb-newbeat { gap: 5px; font-weight: 700; color: #111; border-color: transparent; background: linear-gradient(180deg, color-mix(in srgb, var(--accent) 80%, #fff), var(--accent)); box-shadow: 0 0 10px color-mix(in srgb, var(--accent) 35%, transparent); }
 .tb-newbeat:hover { filter: brightness(1.08); }
+
+/* desktop title bar (Windows): the system buttons sit on the right (titleBarOverlay) */
+.titlebar {
+  height: 30px; flex-shrink: 0; display: flex; align-items: center; gap: 8px; padding: 0 0 0 8px;
+  /* keep clear of the window buttons; without the CSS variables ~140 px are reserved */
+  padding-right: calc(100vw - env(titlebar-area-width, calc(100vw - 140px)) - env(titlebar-area-x, 0px));
+  background: var(--bg); color: var(--text); border-bottom: 1px solid var(--border);
+  -webkit-app-region: drag; app-region: drag;
+}
+.titlebar-logo { height: 18px; width: auto; -webkit-app-region: no-drag; }
+.titlebar-menus { display: flex; gap: 1px; -webkit-app-region: no-drag; app-region: no-drag; }
+.titlebar-menu { height: 22px; padding: 0 9px; border: none; border-radius: 3px; background: none; color: inherit; font-size: 12px; cursor: default; }
+.titlebar-menu:hover { background: rgba(255, 255, 255, .08); }
+.titlebar-title { flex: 1; min-width: 0; text-align: center; font-size: 11.5px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; color: #c2c9d0; }
+.titlebar-title span { color: var(--dim); }

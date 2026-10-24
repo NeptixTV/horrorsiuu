@@ -26,6 +26,7 @@ import { FX_CHAINS } from '../../audio/effects/fxPresets';
 import { fxApplyChain } from '../../state/actions';
 import './mixer.css';
 import { askText } from '../dialogs/askText';
+import { Select } from '../components/Select';
 
 function levelsOf(id: string) {
   return () => {
@@ -186,9 +187,9 @@ function InsertPanel({ track }: { track: MixerTrack }) {
         <span className="mx-panel-name">{isMaster ? 'Master' : `${mixer.indexOf(track)} · ${track.name}`}</span>
         <span className="spacer" />
         {!isMaster && (
-          <select className="input small-select" value={track.output ?? MASTER_ID} onChange={(e) => { if (!setOutput(track.id, e.target.value)) toast('That routing would create a feedback loop', 'error'); }} title="Output routing">
+          <Select className="input small-select" value={track.output ?? MASTER_ID} onChange={(e) => { if (!setOutput(track.id, e.target.value)) toast('That routing would create a feedback loop', 'error'); }} title="Output routing">
             {mixer.filter((m) => m.id !== track.id).map((m) => <option key={m.id} value={m.id}>Out → {m.id === MASTER_ID ? 'Master' : `${mixer.indexOf(m)} ${m.name}`}</option>)}
-          </select>
+          </Select>
         )}
       </div>
       <div className="label mx-section">Insert effects</div>
@@ -237,10 +238,10 @@ function InsertPanel({ track }: { track: MixerTrack }) {
               );
             })}
             {sendTargets.length > 0 && (
-              <select className="input small-select" value="" onChange={(e) => { if (e.target.value && !addSend(track.id, e.target.value)) toast('Feedback loop prevented', 'error'); }}>
+              <Select className="input small-select" value="" onChange={(e) => { if (e.target.value && !addSend(track.id, e.target.value)) toast('Feedback loop prevented', 'error'); }}>
                 <option value="">+ Add send…</option>
                 {sendTargets.map((m) => <option key={m.id} value={m.id}>{mixer.indexOf(m)} · {m.name}</option>)}
-              </select>
+              </Select>
             )}
           </div>
         </>

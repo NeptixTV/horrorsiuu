@@ -25,6 +25,9 @@ Desktop-App) erstellt.
 GitHub (bzw. der Webhost) sieht dabei wie bei jeder Webseite deine IP-Adresse. Es gelten die Datenschutzbedingungen
 von GitHub: <https://docs.github.com/site-policy/privacy-policies/github-general-privacy-statement>.
 
+Die **Pro Sounds** (Klavier, Drums, 808s …) liegen in der App selbst und werden nur von dort geladen – auch dafür gibt
+es keine Verbindung ins Internet.
+
 **Nicht vorhanden:** Analytics, Telemetrie, Crash-Reporter, Werbe- oder Tracking-SDKs, Schriftarten oder Skripte von
 fremden Servern (Inter und JetBrains Mono sind eingebaut), Cloud-Speicher.
 
@@ -35,7 +38,8 @@ einem Google-Server laden würde (im Test nachgewiesen und damit abgestellt). El
 
 | Daten | Ort |
 | --- | --- |
-| Projekte, Aufnahmen, importierte Samples, automatische Backups | IndexedDB des Browsers bzw. des App-Profils |
+| Projekte, Aufnahmen, importierte Samples und „My Sounds“ (mit Kategorie, Grundton, Tempo), automatische Backups | IndexedDB des Browsers bzw. des App-Profils |
+| Fenstergröße und -position (Desktop-App) | `window-state.json` im App-Datenordner |
 | Einstellungen, eigene Presets, gesehene Neuigkeiten, zuletzt geöffnetes Projekt | `localStorage` |
 | Admin-Token (nur Herausgeber, Desktop-App) | `admin-token.bin` im App-Datenordner, verschlüsselt mit dem Schlüssel des Betriebssystems (Windows: DPAPI). Ist keine Verschlüsselung verfügbar (manche Linux-Systeme ohne Schlüsselbund), liegt er dort nur mit Dateirechten geschützt. |
 | Admin-Token (nur Herausgeber, Web-Version) | `sessionStorage` – wird beim Schließen des Tabs vergessen |

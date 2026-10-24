@@ -11,6 +11,7 @@ import { theme } from '../../styles/themes';
 import { Knob } from '../components/Knob';
 import { Icon } from '../components/Icon';
 import { useCanvas } from '../visualizers/Visualizers';
+import { Select } from '../components/Select';
 
 function SoundWave({ ch }: { ch: Channel }) {
   const sound = ch.pro!.sound;
@@ -70,14 +71,14 @@ export function ProEditor({ ch }: { ch: Channel }) {
     <div className="drum-edit pro-edit">
       <div className="pro-head">
         <button className="btn icon" title="Previous sound in this group" onClick={() => step(-1)}><Icon name="chevronLeft" size={12} /></button>
-        <select className="input pro-select" value={p.sound} onChange={(e) => { setProSound(ch.id, e.target.value); void preloadSound(e.target.value, false).then(() => setTimeout(hit, 30)); }}>
+        <Select className="input pro-select" value={p.sound} onChange={(e) => { setProSound(ch.id, e.target.value); void preloadSound(e.target.value, false).then(() => setTimeout(hit, 30)); }}>
           {!def && <option value={p.sound}>{p.sound} (not available in this version)</option>}
           {PRO_GROUPS.map((g) => (
             <optgroup key={g} label={g}>
               {PRO_SOUNDS.filter((s) => s.group === g).map((s) => <option key={s.id} value={s.id}>{s.name}</option>)}
             </optgroup>
           ))}
-        </select>
+        </Select>
         <button className="btn icon" title="Next sound in this group" onClick={() => step(1)}><Icon name="chevronRight" size={12} /></button>
         <span className={`pro-badge ${def?.real ? 'real' : ''}`} title={def?.real ? 'Recorded from a real instrument (VSCO 2 Community Edition, CC0)' : 'Synthesized for Goofy Studio'}>
           {def?.real ? 'REAL' : 'SYNTH'}

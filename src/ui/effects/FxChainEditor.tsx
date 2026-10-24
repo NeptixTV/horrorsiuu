@@ -12,6 +12,7 @@ import { Icon } from '../components/Icon';
 import { showMenu } from '../components/ContextMenu';
 import { ParamControl } from './ParamKnob';
 import './fxchain.css';
+import { Select } from '../components/Select';
 
 /** Operations on an effect chain – backed by the project or by local state. */
 export interface ChainOps {
@@ -119,7 +120,7 @@ export function FxChainEditor({ target, ops: givenOps, effects, title = 'Effects
         <span className="label">{title}{effects.length ? ` (${effects.length})` : ''}</span>
         <span className="spacer" />
         {effects.length > 0 && <button className="btn ghost small" onClick={() => ops.clear()}>Clear all</button>}
-        <select
+        <Select
           className="input small-select"
           value=""
           onChange={(e) => { if (e.target.value) ops.add(e.target.value as EffectType); }}
@@ -127,7 +128,7 @@ export function FxChainEditor({ target, ops: givenOps, effects, title = 'Effects
         >
           <option value="">+ Add effect…</option>
           {EFFECT_TYPES.map((t) => <option key={t} value={t}>{EFFECTS[t].name}</option>)}
-        </select>
+        </Select>
       </div>
       {effects.length === 0 && <div className="fxchain-empty">No effects yet – pick a Sound FX above or add a single effect.</div>}
       {effects.map((fx, i) => <FxCard key={fx.id} ops={ops} fx={fx} index={i} count={effects.length} />)}

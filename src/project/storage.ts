@@ -1,6 +1,7 @@
 // IndexedDB persistence for projects, audio assets and automatic backups.
 // Everything stays on this computer (browser profile / app data folder).
 import type { Project } from '../state/types';
+import type { SoundInfo } from '../audio/soundAnalysis';
 
 const DB_NAME = 'goofy-studio';
 const DB_VERSION = 2;
@@ -21,6 +22,8 @@ export interface AssetRecord {
   library?: boolean;
   /** 1 for library samples (indexable copy of `library`) */
   lib?: number;
+  /** what the sound is (category, root note, tempo) – library samples */
+  info?: SoundInfo;
 }
 
 /** Small per-asset info so listings never have to load the audio itself. */
@@ -131,9 +134,9 @@ export const storage = {
   async deleteProject(id: string): Promise<void> {
     await one('projects', 'readwrite', (s) => s.delete(id));
   },
-  async saveAsset(id: string, name: string, buffer: AudioBuffer, library = false): Promise<void> {
+  async saveAsset(id: string, name: string, buffer: AudioBuffer, library = false, info?: SoundInfo): Promise<void> {
     const channels = Array.from({ length: buffer.numberOfChannels }, (_, c) => buffer.getChannelData(c).slice());
-    const rec: AssetRecord = { id, name, sampleRate: buffer.sampleRate, channels, library, ...(library ? { lib: 1 } : {}) };
+    const rec: AssetRecord = { id, name, sampleRate: buffer.sampleRate, channels, library, ...(library ? { lib: 1 } : {}), ...(info ? { info } : {}) };
     await tx(['assets', 'assetMeta'], 'readwrite', (t) => {
       t.objectStore('assetMeta').put(metaOf(rec));
       return t.objectStore('assets').put(rec);
@@ -151,6 +154,11 @@ export const storage = {
       t.objectStore('assetMeta').delete(id);
       return t.objectStore('assets').delete(id);
     });
+  },
+  async setAssetInfo(id: string, info: SoundInfo): Promise<void> {
+    const rec = await this.loadAsset(id);
+    if (!rec) return;
+    await one('assets', 'readwrite', (s) => s.put({ ...rec, info }));
   },
   async renameAsset(id: string, name: string): Promise<void> {
     const rec = await this.loadAsset(id);

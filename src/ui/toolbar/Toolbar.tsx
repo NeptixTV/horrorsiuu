@@ -31,6 +31,7 @@ import './toolbar.css';
 import { PRO_GROUPS, PRO_KITS, PRO_SOUNDS } from '../../audio/pro/catalog';
 import { addProChannel, loadKit } from '../proSounds';
 import { askText } from '../dialogs/askText';
+import { Select } from '../components/Select';
 
 function menuAt(e: React.MouseEvent, items: MenuItem[]) {
   const r = (e.currentTarget as HTMLElement).getBoundingClientRect();
@@ -138,7 +139,7 @@ function helpMenu(): MenuItem[] {
   ];
 }
 
-const MENUS: [string, () => MenuItem[]][] = [
+export const MENUS: [string, () => MenuItem[]][] = [
   ['File', fileMenu], ['Edit', editMenu], ['Add', addMenu], ['Patterns', patternMenu], ['View', viewMenu], ['Options', optionsMenu], ['Help', helpMenu],
 ];
 
@@ -229,16 +230,19 @@ export function Toolbar() {
     </button>
   );
 
+  const titleBar = useUI((s) => s.titleBar);
   return (
     <div className="toolbar">
-      <div className="tb-left">
-        <img src={logo} className="tb-logo" alt="" />
-        <div className="tb-menus">
-          {MENUS.map(([label, fn]) => (
-            <button key={label} className="tb-menu" onClick={(e) => menuAt(e, fn())}>{label}</button>
-          ))}
+      {!titleBar && (
+        <div className="tb-left">
+          <img src={logo} className="tb-logo" alt="" />
+          <div className="tb-menus">
+            {MENUS.map(([label, fn]) => (
+              <button key={label} className="tb-menu" onClick={(e) => menuAt(e, fn())}>{label}</button>
+            ))}
+          </div>
         </div>
-      </div>
+      )}
 
       <div className="tb-group">
         <div className="tb-mode" title="Pattern / Song mode (L)">
@@ -263,14 +267,14 @@ export function Toolbar() {
         </div>
         <TimeDisplay />
         <div className="tb-field">
-          <select
+          <Select
             className="input tb-sig"
             value={`${timeSig[0]}/${timeSig[1]}`}
             onChange={(e) => { const [n, d] = e.target.value.split('/').map(Number); setTimeSig(n, d); }}
             title="Time signature"
           >
             {['2/4', '3/4', '4/4', '5/4', '6/8', '7/8', '12/8'].map((s) => <option key={s}>{s}</option>)}
-          </select>
+          </Select>
           <span className="label">Sig</span>
         </div>
       </div>

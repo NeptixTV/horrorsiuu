@@ -9,6 +9,7 @@ import { Window } from '../components/Window';
 import { exportStems, exportWav } from '../commands';
 import { APP_VERSION } from '../../admin/feed';
 import './dialogs.css';
+import { Select } from '../components/Select';
 
 const SHORTCUTS: [string, string][] = [
   ['Space', 'Play / Pause'],
@@ -18,6 +19,9 @@ const SHORTCUTS: [string, string][] = [
   ['Ctrl/Cmd + Shift + S', 'Save as'],
   ['Ctrl/Cmd + O', 'Open project'],
   ['Ctrl/Cmd + N', 'New project'],
+  ['Ctrl/Cmd + B', 'New beat from a genre (Beat Starter)'],
+  ['Alt + click on a step', 'Hi-hat roll (2, 3, 4, 6, 8 hits per step)'],
+  ['Ctrl + plus / minus / 0', 'Interface size bigger / smaller / normal'],
   ['Ctrl/Cmd + Z', 'Undo'],
   ['Ctrl/Cmd + Shift + Z / Ctrl + Y', 'Redo'],
   ['Ctrl/Cmd + A', 'Select all (playlist or piano roll)'],
@@ -91,27 +95,27 @@ export function ExportWindow({ w }: { w: FloatingWindow }) {
           <h3>Audio format</h3>
           <div className="exp-grid">
             <label>Quality
-              <select className="input" value={s.exportBits} onChange={(e) => setUI({ exportBits: Number(e.target.value) as 16 | 24 | 32 })}>
+              <Select className="input" value={s.exportBits} onChange={(e) => setUI({ exportBits: Number(e.target.value) as 16 | 24 | 32 })}>
                 <option value={16}>WAV 16 bit (CD, dithered)</option>
                 <option value={24}>WAV 24 bit (studio)</option>
                 <option value={32}>WAV 32 bit float (no clipping)</option>
-              </select>
+              </Select>
             </label>
             <label>Sample rate
-              <select className="input" value={s.exportRate} onChange={(e) => setUI({ exportRate: Number(e.target.value) })}>
+              <Select className="input" value={s.exportRate} onChange={(e) => setUI({ exportRate: Number(e.target.value) })}>
                 {[44100, 48000, 96000].map((r) => <option key={r} value={r}>{r / 1000} kHz</option>)}
-              </select>
+              </Select>
             </label>
             <label>Range
-              <select className="input" value={range} onChange={(e) => setRange(e.target.value as typeof range)}>
+              <Select className="input" value={range} onChange={(e) => setRange(e.target.value as typeof range)}>
                 <option value="song">Whole song</option>
                 <option value="loop" disabled={!(loop.end > loop.start)}>Loop region only</option>
-              </select>
+              </Select>
             </label>
             <label>Tail (reverb / echo)
-              <select className="input" value={s.exportTail} onChange={(e) => setUI({ exportTail: Number(e.target.value) })}>
+              <Select className="input" value={s.exportTail} onChange={(e) => setUI({ exportTail: Number(e.target.value) })}>
                 {[0.5, 1, 2.5, 5, 10].map((t) => <option key={t} value={t}>{t} s</option>)}
-              </select>
+              </Select>
             </label>
           </div>
           <label className="dlg-check"><input type="checkbox" checked={s.exportNormalize} onChange={(e) => setUI({ exportNormalize: e.target.checked })} /> Normalise (loudest peak at −1 dBFS)</label>

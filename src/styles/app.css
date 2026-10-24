@@ -44,3 +44,7 @@
 .crash-msg { color: var(--dim); font-family: var(--mono); font-size: 11px; word-break: break-word; }
 .crash-actions { display: flex; gap: 6px; }
 .crash-hint { color: var(--dim); font-size: 10.5px; }
+
+.sb-loading { display: inline-flex; align-items: center; gap: 6px; color: var(--accent2); }
+.sb-spin { width: 9px; height: 9px; border-radius: 50%; border: 2px solid color-mix(in srgb, var(--accent2) 30%, transparent); border-top-color: var(--accent2); animation: sbspin .7s linear infinite; }
+@keyframes sbspin { to { transform: rotate(360deg); } }

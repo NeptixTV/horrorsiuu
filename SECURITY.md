@@ -1,4 +1,4 @@
-# Sicherheitsbericht – Goofy Studio 1.2.0
+# Sicherheitsbericht – Goofy Studio 1.2.0 (mit Nachtrag 1.3.0 am Ende)
 
 Prüfdatum: 20.10.2026 · Geprüft: Quellcode, komplette Git-Historie, Build-Ausgabe (`dist/`), gepacktes Windows-Programm
 (`win-unpacked`, `app.asar`), Abhängigkeiten, CI-Workflows. Diese Prüfung wurde sorgfältig gemacht, ist aber **kein
@@ -132,9 +132,51 @@ echter Update-Durchlauf mit veröffentlichtem Release, macOS.
 4. GitHub absichern: 2-Faktor-Anmeldung, Fine-grained Token nur für dieses Repo, Ablaufdatum setzen.
 5. Code-Signatur einrichten (empfohlen; ohne sie warnt Windows).
 6. Ab Ende Oktober die Build-Werkzeuge aktualisieren (`npm audit fix`), Build und Tests wiederholen.
-7. Ein Release erst über einen `v1.2.0`-Tag erstellen, wenn 1–4 erledigt sind – die App wurde **nicht** veröffentlicht,
+7. Ein Release erst über einen Versions-Tag (jetzt `v1.3.0`) erstellen, wenn 1–4 erledigt sind – die App wurde **nicht** veröffentlicht,
    und es wurden keine Tags oder Feed-Einträge erstellt.
 
 **Einschätzung:** Es sind keine bekannten kritischen oder hohen Probleme offen, und alle hier möglichen Prüfungen waren
 erfolgreich. Weil der Test auf einem echten Windows-PC (Schritt 1) noch fehlt, ist die App **noch nicht als
 veröffentlichungsbereit freigegeben** – nach den Schritten 1–4 ist sie es aus Sicht dieser Prüfung.
+
+
+---
+
+## Nachtrag 1.3.0 (24.10.2026)
+
+Geprüft wurden alle Änderungen dieser Version (Pro Sounds, eigene Sounds, Beat-Starter, neue Effekte, Titelleiste).
+Auch dieser Nachtrag ist **kein Beweis vollständiger Sicherheit**.
+
+**Neue Angriffsfläche und wie sie abgesichert ist**
+- **Neuer IPC-Kanal `window:titleBar`** (Farbe der Fenster-Knöpfe): läuft über denselben Absender-Check wie alle
+  anderen Kanäle (nur die eigene Seite `app://goofy` im Hauptfenster), nimmt nur zwei Farben im Format `#rrggbb` an
+  und wirkt nur unter Windows. Kein Dateizugriff, keine Befehle. Risiko: **Niedrig**.
+- **Fensterzustand** (`window-state.json` im App-Datenordner): enthält nur Position, Größe und „maximiert“. Beim
+  Laden werden die Werte geprüft (Zahlen, auf einem vorhandenen Bildschirm). Keine persönlichen Daten.
+- **Pro Sounds**: werden von der eigenen Herkunft geladen (`app://goofy/sounds/…` bzw. dieselbe Website), es gibt
+  **keine neuen Netzwerkverbindungen**; die Content-Security-Policy ist unverändert.
+- **Eigene Sounds / Ordner-Import / Drag & Drop**: Dateien kommen nur über den Dateidialog oder Drag & Drop, also
+  durch eine Handlung des Nutzers. Die App bekommt dabei keinen Zugriff auf andere Dateien des Ordners als die
+  gewählten. Dekodiert wird mit dem Audio-Decoder von Chromium; Grenzen: 80 MB pro Datei, 500 Dateien pro Import.
+  Gespeichert wird nur lokal (IndexedDB). Ein Datei-Drop außerhalb eines Ziels öffnet die Datei **nicht** im Fenster
+  (Navigation bleibt gesperrt). Risiko: **Niedrig** (Decoder-Fehler in Chromium betreffen alle Browser; Electron
+  aktuell halten, siehe Schritt 2 oben).
+- **Samples von Dritten**: VS Chamber Orchestra: Community Edition, Lizenz **CC0 1.0** (gemeinfrei). Es wurden nur
+  Audiodateien übernommen, kein Code. Quelle (mit Commit), Mitwirkende und der Lizenztext liegen in
+  `public/sounds/CREDITS.txt` und `LICENSE-VSCO-2-CE.txt` und stehen zusätzlich in `THIRD_PARTY_NOTICES.txt`. Alle
+  anderen Sounds sind mit eigenem Code erzeugt (`scripts/sounds/`). Das Build-Skript nutzt das lokale `ffmpeg`, das
+  nicht mit der App ausgeliefert wird.
+- **Keine neuen npm-Abhängigkeiten.** `package-lock.json` hat sich nur bei der Versionsnummer geändert.
+
+**Tatsächlich durchgeführt**: Typprüfung, 101 Unit-Tests (u. a. Katalog ↔ Dateien, Zonen, Hi-Hat-Rolls, Projekt-
+Doktor für Pro-Kanäle, Beat-Starter für alle Genres, Sound-Erkennung), Browser-Tests (Beat-Starter, Drum Machine,
+Roll-Pinsel, eigene Auswahllisten, Tooltips, Kontextmenü, Datei-Drop, Export aller Genres ohne NaN und ohne
+Übersteuern, CPU-Last), Electron-Start unter Linux (Pro Sounds über `app://`, dunkles System-Theme, Fensterzustand).
+
+**Nicht geprüft werden konnte**: die neue Titelleiste auf einem **echten Windows-PC** (die Windows-Knöpfe werden vom
+System über die App gelegt; falls dort Platz fehlt, ist rechts ein Rand von 140 px reserviert) und der Klang auf
+echten Lautsprechern/Kopfhörern – die Sounds wurden über Messwerte (Pegel, Spektrum, Loop-Übergänge) geprüft, nicht
+durch Anhören.
+
+**Einschätzung**: keine bekannten kritischen oder hohen Probleme. Die Freigabe für eine Veröffentlichung hängt
+weiterhin an Schritt 1–4 oben (vor allem dem Test auf einem echten Windows-PC).

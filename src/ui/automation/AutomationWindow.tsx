@@ -15,6 +15,7 @@ import { Window } from '../components/Window';
 import { Icon } from '../components/Icon';
 import { theme } from '../../styles/themes';
 import './automation.css';
+import { Select } from '../components/Select';
 
 const W = 760;
 const H = 230;
@@ -214,13 +215,13 @@ export function AutomationWindow({ w, clipId }: { w: FloatingWindow; clipId: str
           <button className="btn small" onClick={() => applyShape('saw')}>Saw</button>
           <button className="btn small" onClick={() => applyShape('square')}>Square</button>
           <button className="btn small" onClick={() => applyShape('random')}>Random</button>
-          <select className="input small-select" value={cycle} onChange={(e) => setCycle(Number(e.target.value))} title="Length of one cycle (sine / saw / square / random)">
+          <Select className="input small-select" value={cycle} onChange={(e) => setCycle(Number(e.target.value))} title="Length of one cycle (sine / saw / square / random)">
             <option value={PPQ}>1 beat</option>
             <option value={PPQ * 2}>2 beats</option>
             <option value={PPQ * 4}>1 bar</option>
             <option value={PPQ * 8}>2 bars</option>
             <option value={PPQ * 16}>4 bars</option>
-          </select>
+          </Select>
           <span className="spacer" />
           <button className={`btn small ${snap ? 'on' : ''}`} onClick={() => setSnap(!snap)} title="Snap points to 1/16">Snap</button>
           <button className="btn small" onClick={() => setPoints(clip.id, a.points.map((p) => ({ ...p, v: 1 - p.v })), 'Flip automation')}>Flip</button>

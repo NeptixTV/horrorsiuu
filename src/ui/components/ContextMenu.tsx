@@ -29,6 +29,11 @@ export function hideMenu() {
   useMenu.setState({ items: null });
 }
 
+/** True while a context / menu-bar menu is open. */
+export function menuOpen() {
+  return !!useMenu.getState().items;
+}
+
 // `leftEdge`: for submenus, the left edge of the parent item – a submenu that
 // does not fit on the right opens to the left instead of covering its parent.
 function MenuList({ items, x, y, leftEdge }: { items: MenuItem[]; x: number; y: number; leftEdge?: number }) {

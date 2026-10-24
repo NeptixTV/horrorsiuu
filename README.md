@@ -8,6 +8,46 @@ Step-Sequencer · Playlist · Piano Roll · Mixer · Effekte · Synthesizer · D
 
 ---
 
+## Neu in Version 1.3.0
+
+**Neuer Beat mit einem Klick** (Strg + B oder „New Beat“ oben): Genre wählen – Trap, Drill, Boom Bap, Lo-Fi, House,
+Phonk oder Afrobeats – und es entsteht ein fertig abgemischter Beat: Pro-Drum-Kit mit Groove, 808 auf der Kick
+(mit Slides), Akkorde und Melodie aus dem Ideen-Würfel, gemeinsamer Hall-Bus, Master-Kette und ein kleines
+Arrangement (Intro, Drop, Break, Drop). Alles bleibt frei bearbeitbar.
+
+**Pro Sounds** – 73 neue Sounds, die alten bleiben erhalten:
+- **Echte Aufnahmen** (VS Chamber Orchestra: Community Edition, CC0): Upright Piano mit 3 Anschlagstufen,
+  Kirchenorgel, Glockenspiel, Marimba, Harfe, Violinen und Celli (lang, staccato, pizzicato), Flöte, Trompete,
+  Hörner und echte Percussion (Congas, Claves, Cowbell, Tamburin, Triangel, Shaker, Woodblock …).
+- **Für Beats gebaut** (eigene Synthese, 4-fach überabgetastet): 9 Kicks, 6 Snares, Claps, Rims, Hi-Hats, Open Hats,
+  Becken, 808-Toms und -Cowbells, 4 808-Bässe und Sub, E-Piano, Music Box, Supersaw-Pluck, Pad, FX.
+- Neuer Kanaltyp **Pro Sound**: Velocity-Layer, Round Robin, nahtlose Sustain-Loops, Ton/Drive, **808 Mono + Glide**
+  (überlappende Noten gleiten), Choke (geschlossene Hi-Hat stoppt die offene). Sounds laden erst, wenn sie gebraucht
+  werden, und auch beim Export.
+
+**Beats einfacher**
+- 7 **Drum-Kits** mit Starter-Groove und 808-Linie – Doppelklick im Browser oder „Kits“ in der Drum Machine.
+- **Hi-Hat-Rolls** (×2, ×3, ×4, ×6, ×8 pro Step): Roll-Pinsel in der Drum Machine, Alt + Klick auf einen Step,
+  🎲 an der Hi-Hat-Zeile für zufällige Trap-Hats.
+- Drum Machine mit 16 Pads: Sound pro Pad mit ◀ ▶ durchschalten, Sounds/Dateien auf Pads ziehen, eigene Sounds wählen.
+- Neue Kanäle bekommen immer einen eigenen Mixer-Insert (es wird bei Bedarf einer angelegt).
+
+**Neue Effekte**: Clipper, Sidechain Pump (duckt bei jeder Kick – exakt, auch beim Export), Multiband „OTT“,
+Punch (Transient Shaper), Lo-Fi Crusher; Limiter mit „True Peak“-Modus (alte Projekte klingen unverändert).
+Fertige Ketten: Hard Trap Master, Drum Bus Punch, 808 Grit, Sidechain Pump, Lo-Fi Beat/Keys, Sad Piano, Dark Bells,
+Wide Pad, Phonk Cowbell, Telephone Melody.
+
+**Eigene Sounds ganz einfach**: WAV/MP3/OGG/FLAC/M4A/AIFF-Dateien oder einen ganzen Sample-Pack-Ordner irgendwo
+ins Programm ziehen (oder „Add sound files…“ / „Add a whole folder…“). Sie werden zugeschnitten, automatisch als
+Kicks, Snares, 808s, Hi-Hats, Loops, Vocals … einsortiert (Dateiname, Ordnername oder Klang), bekommen Grundton
+bzw. Tempo und stehen in **My Sounds** in jedem Projekt bereit. Doppelklick: Drums werden ein Pad, Melodisches ein
+spielbares Instrument, Loops kommen in die Playlist.
+
+**Wie ein richtiges Programm**: dunkle Titelleiste mit Menüleiste in der Windows-App (statt der weißen
+Systemleiste), Auswahllisten und Tooltips im Stil der App, kein Browser-Kontextmenü (Textfelder haben ein eigenes),
+kein versehentliches Seiten-Zoomen (Strg + / − / 0 ändern die Oberflächengröße), das Fenster merkt sich Größe und
+Position, dunkle System-Dialoge.
+
 ## Neu in Version 1.2.0
 
 **Audio-Stabilität (der große Fix)**
@@ -234,6 +274,9 @@ Projektdatei exportieren/importieren (`.goofy.json` inkl. Aufnahmen). Gespeicher
 | F6 / F7 / F9 / F10 / F11 / F12 | Channel Rack / Piano Roll / Mixer / Drum Machine / Aufnahme & Tune / Analyzer |
 | Strg + Mausrad · Alt + Ziehen · Shift + Ziehen | Zoom · Snap umgehen · Kopieren |
 | Alt + C / Alt + I / Alt + N | Capture / Ideen-Würfel / Song-Notizen |
+| Strg/Cmd + B | Neuer Beat aus einem Genre (Beat-Starter) |
+| Alt + Klick auf einen Step | Hi-Hat-Roll (2, 3, 4, 6, 8 Schläge pro Step) |
+| Strg + Plus / Minus / 0 | Oberfläche größer / kleiner / normal |
 | Strg + C / X / V (Playlist, Piano Roll) | Kopieren / Ausschneiden / Einfügen |
 | Pfeiltasten (Piano Roll) | Auswahl transponieren / verschieben |
 
@@ -243,6 +286,8 @@ Projektdatei exportieren/importieren (`.goofy.json` inkl. Aufnahmen). Gespeicher
 electron/             Desktop-Hülle: main.cjs (Fenster, app://-Protokoll, Mikrofon-Rechte), preload.cjs + ipc.cjs
                       (Admin-Token, GitHub-Upload, Update-Download/-Installation), afterPack.cjs (Icon in die .exe)
 build/                App-Icons (icon.ico / icon.png)
+public/sounds/        Pro-Sound-Dateien (Opus) + CREDITS.txt + Lizenz der Aufnahmen
+scripts/sounds/       baut die Pro Sounds: `npm run sounds -- --vsco <VSCO-2-CE> --sfz <SFZ-Ordner> --kits`
 src/
 ├── audio/            Audio-Engine (unabhängig von React)
 │   ├── engine.ts       AudioContext, Master-Analyser, Aufnahme-Steuerung
@@ -258,11 +303,14 @@ src/
 │   │                   Flanger, Tremolo, 8D, Limiter + Presets und Sound-FX-Ketten (fxPresets.ts)
 │   ├── stems/          Song-Trennung (Mitten-Extraktion + HPSS im Web Worker)
 │   ├── clipPlayback.ts Abspielen eines Audio-Clips (Fades, Speed, Reverse, Clip-Effekte)
-│   ├── instruments/    Synth, Drum-Voices, Sampler, DreamChord-Synth
-│   └── worklets/       AudioWorklet-Prozessoren (Recorder, Pitch Correction, Ausgangsschutz, Noise Gate)
+│   ├── instruments/    Synth, Drum-Voices, Sampler, DreamChord-Synth, Pro-Sound-Player (pro.ts)
+│   ├── pro/            Pro Sounds: Katalog, Kits, Zonen (manifest.json, erzeugt), Nachlade-Logik
+│   ├── soundAnalysis.ts  Einsortieren eigener Sounds (Name, Klang, Grundton, Tempo)
+│   └── worklets/       AudioWorklet-Prozessoren (Recorder, Pitch Correction, Ausgangsschutz, Noise Gate,
+│                       Transient Shaper, Lo-Fi)
 ├── state/            Datenmodell, Store mit Undo/Redo (zustand + immer), Aktionen, Routing-Logik
 ├── admin/            News-/Update-Feed (lesen für alle, schreiben per GitHub-API fürs Admin-Panel)
-├── project/          IndexedDB-Speicher, Projekt-Lebenszyklus, Import/Export
+├── project/          IndexedDB-Speicher, Projekt-Lebenszyklus, Import/Export, Beat-Starter (beatStarter.ts)
 ├── midi/             Musiktheorie, Akkorde, Noten-Werkzeuge, MIDI-Dateien, Capture, Live-Aufnahme, Ideen-Würfel
 ├── ui/               React-Komponenten: toolbar, browser, playlist, channelrack, pianoroll, mixer, effects,
 │                     instruments, drums, vocal, visualizers, dialogs, setup, splash, components
