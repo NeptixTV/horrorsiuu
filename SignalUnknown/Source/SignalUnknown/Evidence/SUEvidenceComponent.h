@@ -1,4 +1,4 @@
-// SIGNAL UNKNOWN – marks something in the world as photographable evidence.
+﻿// SIGNAL UNKNOWN – marks something in the world as photographable evidence.
 //
 // The component defines an oriented box (its location/rotation and BoxExtent). When a photo is
 // taken, USUEvidenceSubsystem projects this box into the frame and checks visibility, size,

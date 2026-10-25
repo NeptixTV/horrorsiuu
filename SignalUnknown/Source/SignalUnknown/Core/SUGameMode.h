@@ -1,4 +1,4 @@
-// SIGNAL UNKNOWN – game mode (server only): player spawning, session start, saving.
+﻿// SIGNAL UNKNOWN – game mode (server only): player spawning, session start, saving.
 #pragma once
 
 #include "CoreMinimal.h"

@@ -1,4 +1,4 @@
-// SIGNAL UNKNOWN – the Horror Director (server only).
+﻿// SIGNAL UNKNOWN – the Horror Director (server only).
 //
 // Every 18–38 s (DeveloperSettings) the director looks at one player (isolated players are picked
 // more often), builds a SULogic::DirectorContext from the real world state and lets

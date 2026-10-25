@@ -1,4 +1,4 @@
-// SIGNAL UNKNOWN – simple server-authoritative inventory (players and vehicle trunks).
+﻿// SIGNAL UNKNOWN – simple server-authoritative inventory (players and vehicle trunks).
 #pragma once
 
 #include "CoreMinimal.h"

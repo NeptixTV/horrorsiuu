@@ -1,4 +1,4 @@
-// SIGNAL UNKNOWN – mission data structures.
+﻿// SIGNAL UNKNOWN – mission data structures.
 #pragma once
 
 #include "CoreMinimal.h"

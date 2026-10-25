@@ -1,4 +1,4 @@
-// SIGNAL UNKNOWN – world event bus.
+﻿// SIGNAL UNKNOWN – world event bus.
 //
 // Gameplay systems report what happens ("Item.Picked Camera", "Area.Entered Forsthaus", ...)
 // and listeners such as the mission manager react, without the systems knowing each other.

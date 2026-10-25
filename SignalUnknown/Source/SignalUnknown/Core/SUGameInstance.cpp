@@ -1,4 +1,4 @@
-#include "Core/SUGameInstance.h"
+﻿#include "Core/SUGameInstance.h"
 #include "SignalUnknown.h"
 #include "Kismet/GameplayStatics.h"
 #include "GameFramework/PlayerController.h"
@@ -56,7 +56,7 @@ void USUGameInstance::JoinCoop(const FString& Address)
 	}
 }
 
-void USUGameInstance::ReturnToMainMenu()
+void USUGameInstance::ReturnToMenu()
 {
 	StartMode = ESUStartMode::Menu;
 	bLoadSaveOnStart = false;

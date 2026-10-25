@@ -1,4 +1,4 @@
-// SIGNAL UNKNOWN – trigger volume that reports Area.Entered / Area.Exited (server).
+﻿// SIGNAL UNKNOWN – trigger volume that reports Area.Entered / Area.Exited (server).
 // Exists locally on every machine (created by the sites); only the server posts events.
 #pragma once
 

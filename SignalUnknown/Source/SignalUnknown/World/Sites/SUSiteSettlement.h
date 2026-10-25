@@ -1,4 +1,4 @@
-// SIGNAL UNKNOWN – one house of the small settlement Pine Ridge (visible, not enterable yet).
+﻿// SIGNAL UNKNOWN – one house of the small settlement Pine Ridge (visible, not enterable yet).
 #pragma once
 
 #include "CoreMinimal.h"

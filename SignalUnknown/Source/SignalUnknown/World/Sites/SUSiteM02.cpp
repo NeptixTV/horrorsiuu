@@ -1,4 +1,4 @@
-#include "World/Sites/SUSiteM02.h"
+﻿#include "World/Sites/SUSiteM02.h"
 #include "Core/SUTypes.h"
 #include "Core/SUItemDatabase.h"
 #include "Interaction/SUDocument.h"

@@ -1,4 +1,4 @@
-// SIGNAL UNKNOWN – vehicle model helpers (engine independent, SI units: m, s, kg, N).
+﻿// SIGNAL UNKNOWN – vehicle model helpers (engine independent, SI units: m, s, kg, N).
 #pragma once
 
 #include "SUMathLite.h"

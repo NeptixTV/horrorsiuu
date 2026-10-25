@@ -1,4 +1,4 @@
-// SIGNAL UNKNOWN – the Forsthaus of mission 1: damaged rooms, traces, the ranger's notebook
+﻿// SIGNAL UNKNOWN – the Forsthaus of mission 1: damaged rooms, traces, the ranger's notebook
 // and the scripted window figure.
 #pragma once
 

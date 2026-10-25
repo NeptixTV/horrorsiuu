@@ -1,4 +1,4 @@
-// SIGNAL UNKNOWN – the creatures of the forest.
+﻿// SIGNAL UNKNOWN – the creatures of the forest.
 //
 //   Observer  tall, thin figure. Watches players from the tree line or the roadside, never attacks.
 //             Withdraws when it is looked at for too long, lit up or approached. Rare evidence.

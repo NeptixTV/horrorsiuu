@@ -1,4 +1,4 @@
-// SIGNAL UNKNOWN – world layout of the first playable region (engine independent).
+﻿// SIGNAL UNKNOWN – world layout of the first playable region (engine independent).
 //
 // Units: meters. Axis convention matches Unreal: +X = north, +Y = east, +Z = up.
 // Yaw (degrees) follows Unreal as well: 0 = north, 90 = east.

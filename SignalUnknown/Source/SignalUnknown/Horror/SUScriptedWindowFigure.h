@@ -1,4 +1,4 @@
-// SIGNAL UNKNOWN – the scripted window sequence of mission 1 ("Sieh dich im Haus weiter um …").
+﻿// SIGNAL UNKNOWN – the scripted window sequence of mission 1 ("Sieh dich im Haus weiter um …").
 //
 // Runs on the server with real triggers and the real creature AI:
 //   1. objective active + a player has been inside the house for a moment

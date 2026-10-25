@@ -1,4 +1,4 @@
-#include "Core/SUPlayerController.h"
+﻿#include "Core/SUPlayerController.h"
 #include "SignalUnknown.h"
 #include "Core/SUInputConfig.h"
 #include "Core/SUGameInstance.h"
@@ -463,7 +463,7 @@ void ASUPlayerController::LeaveToMainMenu()
 	SetPause(false);
 	if (USUGameInstance* GI = GetGameInstance<USUGameInstance>())
 	{
-		GI->ReturnToMainMenu();
+		GI->ReturnToMenu();
 	}
 }
 

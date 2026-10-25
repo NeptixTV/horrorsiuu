@@ -1,4 +1,4 @@
-// SIGNAL UNKNOWN – game instance: session flow (menu, solo, host, join) across level loads.
+﻿// SIGNAL UNKNOWN – game instance: session flow (menu, solo, host, join) across level loads.
 #pragma once
 
 #include "CoreMinimal.h"
@@ -46,7 +46,7 @@ public:
 	void JoinCoop(const FString& Address);
 
 	/** Back to the main menu (disconnects). */
-	void ReturnToMainMenu();
+	void ReturnToMenu();
 
 	const FString& GetSaveSlot() const { return SaveSlot; }
 	FString GetLastJoinAddress() const { return LastJoinAddress; }

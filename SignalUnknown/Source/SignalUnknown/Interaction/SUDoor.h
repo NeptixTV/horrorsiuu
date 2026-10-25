@@ -1,4 +1,4 @@
-// SIGNAL UNKNOWN – hinged door (also used for fridge and cabinet doors).
+﻿// SIGNAL UNKNOWN – hinged door (also used for fridge and cabinet doors).
 //
 // Actor origin = bottom centre of the opening, +X = outside normal, the hinge sits at -Y.
 #pragma once

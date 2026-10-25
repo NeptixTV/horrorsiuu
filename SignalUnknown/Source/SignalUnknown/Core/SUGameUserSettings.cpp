@@ -1,4 +1,4 @@
-#include "Core/SUGameUserSettings.h"
+﻿#include "Core/SUGameUserSettings.h"
 #include "Engine/Engine.h"
 
 USUGameUserSettings::USUGameUserSettings()

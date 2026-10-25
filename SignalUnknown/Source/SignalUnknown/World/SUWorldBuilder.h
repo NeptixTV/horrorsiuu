@@ -1,4 +1,4 @@
-// SIGNAL UNKNOWN – builds the first playable region at runtime.
+﻿// SIGNAL UNKNOWN – builds the first playable region at runtime.
 //
 // Runs on every machine (server and clients) from ASUGameState::BeginPlay. Static geometry is
 // generated locally from the deterministic SULogic::WorldLayout; interactive actors (doors,

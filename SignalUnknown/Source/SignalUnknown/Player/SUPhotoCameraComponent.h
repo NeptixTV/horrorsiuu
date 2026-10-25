@@ -1,4 +1,4 @@
-// SIGNAL UNKNOWN – the in-game photo camera.
+﻿// SIGNAL UNKNOWN – the in-game photo camera.
 //
 // Taking a photo:
 //  1. the evidence subsystem rates every registered evidence object for this exact view

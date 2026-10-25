@@ -1,4 +1,4 @@
-// SIGNAL UNKNOWN – lamps, light switches and the tower generator.
+﻿// SIGNAL UNKNOWN – lamps, light switches and the tower generator.
 #pragma once
 
 #include "CoreMinimal.h"

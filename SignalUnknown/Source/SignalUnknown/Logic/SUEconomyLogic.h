@@ -1,4 +1,4 @@
-// SIGNAL UNKNOWN – mission report payout (engine independent).
+﻿// SIGNAL UNKNOWN – mission report payout (engine independent).
 #pragma once
 
 #include "SUMathLite.h"

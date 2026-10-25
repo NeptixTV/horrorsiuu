@@ -1,4 +1,4 @@
-// SIGNAL UNKNOWN – Horror Director decision logic (engine independent).
+﻿// SIGNAL UNKNOWN – Horror Director decision logic (engine independent).
 //
 // The director is evaluated at irregular intervals. Each evaluation first decides IF anything
 // should happen at all (it often decides "nothing"), then picks one eligible event by weight.

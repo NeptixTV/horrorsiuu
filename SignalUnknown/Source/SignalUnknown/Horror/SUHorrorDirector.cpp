@@ -1,4 +1,4 @@
-#include "Horror/SUHorrorDirector.h"
+﻿#include "Horror/SUHorrorDirector.h"
 #include "SignalUnknown.h"
 #include "Horror/SUCreature.h"
 #include "Horror/SUScriptedWindowFigure.h"
@@ -17,6 +17,7 @@
 #include "Logic/SUWorldLayout.h"
 #include "Camera/CameraComponent.h"
 #include "EngineUtils.h"
+#include "Engine/World.h"
 #include "HAL/IConsoleManager.h"
 
 namespace

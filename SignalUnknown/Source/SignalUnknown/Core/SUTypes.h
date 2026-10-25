@@ -1,4 +1,4 @@
-// SIGNAL UNKNOWN – shared enums, structs and event names.
+﻿// SIGNAL UNKNOWN – shared enums, structs and event names.
 #pragma once
 
 #include "CoreMinimal.h"

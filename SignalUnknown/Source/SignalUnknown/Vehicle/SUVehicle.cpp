@@ -1,4 +1,4 @@
-#include "Vehicle/SUVehicle.h"
+﻿#include "Vehicle/SUVehicle.h"
 #include "SignalUnknown.h"
 #include "Core/SUGameState.h"
 #include "Core/SUPlayerController.h"
@@ -240,7 +240,6 @@ void ASUVehicle::BuildVisuals()
 	const int32 BodyMat = static_cast<int32>(ESUMat::CarBody);
 	const int32 Dark = static_cast<int32>(ESUMat::CarDark);
 	const int32 Chrome = static_cast<int32>(ESUMat::Chrome);
-	const int32 Glass = static_cast<int32>(ESUMat::Glass);
 	const int32 Seat = static_cast<int32>(ESUMat::Fabric);
 
 	// PLACEHOLDER body of an old off-road wagon (exterior)

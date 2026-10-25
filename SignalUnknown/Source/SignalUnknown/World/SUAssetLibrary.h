@@ -1,4 +1,4 @@
-// SIGNAL UNKNOWN – central access to meshes and materials.
+﻿// SIGNAL UNKNOWN – central access to meshes and materials.
 //
 // PLACEHOLDER ART: the prototype uses the engine's basic shapes with coloured materials.
 // Every lookup goes through this class, so real assets can be swapped in later

@@ -1,4 +1,4 @@
-#include "Core/SUItemDatabase.h"
+﻿#include "Core/SUItemDatabase.h"
 #include "Core/SUTypes.h"
 
 namespace

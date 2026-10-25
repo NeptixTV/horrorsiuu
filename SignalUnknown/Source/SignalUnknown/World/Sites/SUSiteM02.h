@@ -1,4 +1,4 @@
-// SIGNAL UNKNOWN – mission 2: abandoned car on the north road.
+﻿// SIGNAL UNKNOWN – mission 2: abandoned car on the north road.
 #pragma once
 
 #include "CoreMinimal.h"

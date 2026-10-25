@@ -1,4 +1,4 @@
-// SIGNAL UNKNOWN – replicated base class for interactive objects.
+﻿// SIGNAL UNKNOWN – replicated base class for interactive objects.
 //
 // Geometry is built locally on every machine in BuildGeometry() (called from BeginPlay), using
 // replicated configuration values. Interactions run on the server.

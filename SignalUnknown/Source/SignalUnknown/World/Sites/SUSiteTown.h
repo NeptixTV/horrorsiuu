@@ -1,4 +1,4 @@
-// SIGNAL UNKNOWN – the larger town in the eastern valley. Visible from the region, reachable
+﻿// SIGNAL UNKNOWN – the larger town in the eastern valley. Visible from the region, reachable
 // later (the road is closed at the edge of the playable area for now).
 #pragma once
 

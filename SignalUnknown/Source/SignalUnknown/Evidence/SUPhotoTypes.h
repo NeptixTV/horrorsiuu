@@ -1,4 +1,4 @@
-// SIGNAL UNKNOWN – photo and evidence data.
+﻿// SIGNAL UNKNOWN – photo and evidence data.
 #pragma once
 
 #include "CoreMinimal.h"

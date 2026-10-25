@@ -1,4 +1,4 @@
-#include "Mission/SUMissionDatabase.h"
+﻿#include "Mission/SUMissionDatabase.h"
 #include "SignalUnknown.h"
 #include "Core/SUDeveloperSettings.h"
 #include "Core/SUItemDatabase.h"

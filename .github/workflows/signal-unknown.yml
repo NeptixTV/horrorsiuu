@@ -1,0 +1,27 @@
+name: Signal Unknown
+
+# Checks that run without Unreal Engine: native logic tests and the syntax check against the
+# UE API mock. They do NOT replace a real Unreal build.
+on:
+  push:
+    branches: ['**', '!goofy-feed']
+    paths:
+      - 'SignalUnknown/**'
+      - '.github/workflows/signal-unknown.yml'
+  pull_request:
+    paths:
+      - 'SignalUnknown/**'
+      - '.github/workflows/signal-unknown.yml'
+
+permissions:
+  contents: read
+
+jobs:
+  checks:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Native logic tests
+        run: bash SignalUnknown/Tests/Native/run_tests.sh
+      - name: Syntax check against the UE API mock
+        run: bash SignalUnknown/Tools/SyntaxCheck/check.sh

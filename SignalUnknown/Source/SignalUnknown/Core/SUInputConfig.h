@@ -1,4 +1,4 @@
-// SIGNAL UNKNOWN – Enhanced Input actions and mapping contexts, created in code.
+﻿// SIGNAL UNKNOWN – Enhanced Input actions and mapping contexts, created in code.
 //
 // The project intentionally has no binary .uasset files yet, so the input actions are built at
 // runtime. Once input assets exist they can replace this object one by one.

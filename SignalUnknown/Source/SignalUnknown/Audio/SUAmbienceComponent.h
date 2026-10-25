@@ -1,4 +1,4 @@
-// SIGNAL UNKNOWN – local ambience and acoustic environment for the local player.
+﻿// SIGNAL UNKNOWN – local ambience and acoustic environment for the local player.
 //
 // Wind, birds (day), crickets (night), rain; indoor / vehicle detection with matching reverb.
 // Reverb is real engine reverb (UReverbEffect), so all spatial sounds – including voice chat

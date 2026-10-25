@@ -1,4 +1,4 @@
-#include "Core/SUGameState.h"
+﻿#include "Core/SUGameState.h"
 #include "SignalUnknown.h"
 #include "Core/SUDeveloperSettings.h"
 #include "World/SUWorldBuilder.h"

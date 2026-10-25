@@ -1,4 +1,4 @@
-// SIGNAL UNKNOWN – photo evidence rating (engine independent).
+﻿// SIGNAL UNKNOWN – photo evidence rating (engine independent).
 //
 // A photo only counts as evidence if the registered evidence object was really in the shot:
 // projected into the frame, large enough, not occluded, close enough, lit and not blurred.

@@ -1,4 +1,4 @@
-// SIGNAL UNKNOWN – "Pine Ridge Gas & Mart": pumps, shop, clerk.
+﻿// SIGNAL UNKNOWN – "Pine Ridge Gas & Mart": pumps, shop, clerk.
 #pragma once
 
 #include "CoreMinimal.h"

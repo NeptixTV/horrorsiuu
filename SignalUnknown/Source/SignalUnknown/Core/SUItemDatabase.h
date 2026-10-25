@@ -1,4 +1,4 @@
-// SIGNAL UNKNOWN – item definitions.
+﻿// SIGNAL UNKNOWN – item definitions.
 #pragma once
 
 #include "CoreMinimal.h"

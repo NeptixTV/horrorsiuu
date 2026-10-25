@@ -1,4 +1,4 @@
-#include "Interaction/SUPickupItem.h"
+﻿#include "Interaction/SUPickupItem.h"
 #include "Core/SUItemDatabase.h"
 #include "Core/SUEventSubsystem.h"
 #include "Player/SUCharacter.h"

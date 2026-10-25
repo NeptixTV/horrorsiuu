@@ -1,4 +1,4 @@
-// SIGNAL UNKNOWN – sun, moon, sky, fog, clouds, rain and lightning (local on every machine).
+﻿// SIGNAL UNKNOWN – sun, moon, sky, fog, clouds, rain and lightning (local on every machine).
 // Driven by the replicated day time and weather of ASUGameState.
 #pragma once
 

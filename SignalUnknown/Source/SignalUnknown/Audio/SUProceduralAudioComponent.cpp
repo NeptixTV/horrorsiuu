@@ -1,4 +1,4 @@
-#include "Audio/SUProceduralAudioComponent.h"
+﻿#include "Audio/SUProceduralAudioComponent.h"
 #include "Core/SUGameUserSettings.h"
 #include "Engine/World.h"
 #include "Misc/ScopeLock.h"

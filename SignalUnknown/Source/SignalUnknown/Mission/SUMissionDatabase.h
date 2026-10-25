@@ -1,4 +1,4 @@
-// SIGNAL UNKNOWN – mission definitions (built in, optionally replaced by a DataTable).
+﻿// SIGNAL UNKNOWN – mission definitions (built in, optionally replaced by a DataTable).
 #pragma once
 
 #include "CoreMinimal.h"

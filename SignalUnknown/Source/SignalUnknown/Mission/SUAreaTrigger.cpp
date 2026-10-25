@@ -1,4 +1,4 @@
-#include "Mission/SUAreaTrigger.h"
+﻿#include "Mission/SUAreaTrigger.h"
 #include "Core/SUTypes.h"
 #include "Core/SUEventSubsystem.h"
 #include "Player/SUCharacter.h"

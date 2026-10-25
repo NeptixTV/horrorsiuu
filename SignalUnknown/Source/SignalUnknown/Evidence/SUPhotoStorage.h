@@ -1,4 +1,4 @@
-// SIGNAL UNKNOWN – local photo files (PNG) and thumbnails.
+﻿// SIGNAL UNKNOWN – local photo files (PNG) and thumbnails.
 //
 // Photos are real in-game captures. They are written to
 //   <Project>/Saved/SignalUnknown/Photos/<SaveSlot>/<PhotoId>.png

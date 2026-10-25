@@ -1,4 +1,4 @@
-// SIGNAL UNKNOWN – base for actors whose geometry is assembled in code.
+﻿// SIGNAL UNKNOWN – base for actors whose geometry is assembled in code.
 //
 // Static geometry is batched into one instanced mesh component per (shape, material, collision)
 // so a whole building costs a handful of draw calls. Moving parts (doors, drawers) are separate

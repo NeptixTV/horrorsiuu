@@ -1,4 +1,4 @@
-// SIGNAL UNKNOWN – finds what the local player is looking at and triggers interactions.
+﻿// SIGNAL UNKNOWN – finds what the local player is looking at and triggers interactions.
 #pragma once
 
 #include "CoreMinimal.h"

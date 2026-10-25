@@ -1,4 +1,4 @@
-// SIGNAL UNKNOWN – mission objective progression (engine independent).
+﻿// SIGNAL UNKNOWN – mission objective progression (engine independent).
 //
 // Objectives are grouped into stages. All objectives of the lowest unfinished stage are active
 // at the same time (e.g. "take the camera" and "take the flashlight" in any order). Optional

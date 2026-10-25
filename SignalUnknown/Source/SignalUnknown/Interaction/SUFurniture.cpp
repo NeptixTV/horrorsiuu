@@ -1,4 +1,4 @@
-#include "Interaction/SUFurniture.h"
+﻿#include "Interaction/SUFurniture.h"
 #include "Player/SUCharacter.h"
 #include "Core/SUGameState.h"
 #include "Core/SUGameMode.h"

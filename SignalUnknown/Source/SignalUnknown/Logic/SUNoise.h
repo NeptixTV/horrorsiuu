@@ -1,4 +1,4 @@
-// SIGNAL UNKNOWN – deterministic gradient noise (engine independent).
+﻿// SIGNAL UNKNOWN – deterministic gradient noise (engine independent).
 // The procedural world must be identical on every machine in a co-op session, so all
 // randomness used for world generation goes through these seeded functions.
 #pragma once

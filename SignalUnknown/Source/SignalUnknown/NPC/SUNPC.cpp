@@ -1,4 +1,4 @@
-#include "NPC/SUNPC.h"
+﻿#include "NPC/SUNPC.h"
 #include "SignalUnknown.h"
 #include "Player/SUCharacter.h"
 #include "Core/SUGameState.h"

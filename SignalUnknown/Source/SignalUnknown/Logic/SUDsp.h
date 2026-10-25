@@ -1,4 +1,4 @@
-// SIGNAL UNKNOWN – procedural audio generators (engine independent, real-time safe).
+﻿// SIGNAL UNKNOWN – procedural audio generators (engine independent, real-time safe).
 //
 // The project ships without recorded audio. Every sound in the prototype – wind, birds, rain,
 // radio static, the (garbled) radio voice, engine, horn, music on the car radio, creature

@@ -1,4 +1,4 @@
-// SIGNAL UNKNOWN – an item lying in the world that can be picked up.
+﻿// SIGNAL UNKNOWN – an item lying in the world that can be picked up.
 #pragma once
 
 #include "CoreMinimal.h"

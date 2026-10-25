@@ -1,4 +1,4 @@
-#include "SignalUnknown.h"
+﻿#include "SignalUnknown.h"
 #include "Modules/ModuleManager.h"
 
 DEFINE_LOG_CATEGORY(LogSignalUnknown);

@@ -1,4 +1,4 @@
-// SIGNAL UNKNOWN – the register of the gas station shop.
+﻿// SIGNAL UNKNOWN – the register of the gas station shop.
 //
 // Opens the shop screen (ESUScreen::Shop). All purchases are validated and booked on the server:
 // items go into the buyer's inventory, fuel bills of the pumps are paid from the team account,

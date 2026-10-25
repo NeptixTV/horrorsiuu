@@ -1,4 +1,4 @@
-// SIGNAL UNKNOWN – first-person player character.
+﻿// SIGNAL UNKNOWN – first-person player character.
 #pragma once
 
 #include "CoreMinimal.h"

@@ -1,4 +1,4 @@
-// SIGNAL UNKNOWN – saving and loading (server/host only), with version migration and backup.
+﻿// SIGNAL UNKNOWN – saving and loading (server/host only), with version migration and backup.
 #pragma once
 
 #include "CoreMinimal.h"

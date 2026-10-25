@@ -1,4 +1,4 @@
-// SIGNAL UNKNOWN – synth component that runs one SULogic::Dsp generator.
+﻿// SIGNAL UNKNOWN – synth component that runs one SULogic::Dsp generator.
 //
 // PLACEHOLDER AUDIO: until recorded sounds/music exist, all audio is synthesised. The component
 // is spatialised (attenuation, occlusion, distance low-pass) unless the radius is 0.

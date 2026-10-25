@@ -1,4 +1,4 @@
-// SIGNAL UNKNOWN – versioned save game.
+﻿// SIGNAL UNKNOWN – versioned save game.
 //
 // Rules for future changes (avoid data loss):
 //  * never remove or rename existing UPROPERTYs – add new ones and bump CurrentVersion,

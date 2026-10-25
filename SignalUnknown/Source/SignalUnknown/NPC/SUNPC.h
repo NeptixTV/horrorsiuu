@@ -1,4 +1,4 @@
-// SIGNAL UNKNOWN – simple civilian NPCs (gas station clerk, residents).
+﻿// SIGNAL UNKNOWN – simple civilian NPCs (gas station clerk, residents).
 //
 // Server-driven: walks a route of points back and forth (direct steering, the procedural map has
 // no navmesh bounds), waits, turns towards players who talk to it. Residents with bDaytimeOnly

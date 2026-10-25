@@ -1,4 +1,4 @@
-// SIGNAL UNKNOWN – proximity voice chat settings.
+﻿// SIGNAL UNKNOWN – proximity voice chat settings.
 //
 // Uses the engine's built-in VoIP (OnlineSubsystem voice, see Config/DefaultEngine.ini [Voice]).
 // Every remote player's voice is played through a UVOIPTalker attached to their head with the

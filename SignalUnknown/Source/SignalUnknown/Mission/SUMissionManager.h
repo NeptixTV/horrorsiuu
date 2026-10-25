@@ -1,4 +1,4 @@
-// SIGNAL UNKNOWN – mission state machine, objectives, radio transmissions, reports and payment.
+﻿// SIGNAL UNKNOWN – mission state machine, objectives, radio transmissions, reports and payment.
 // Spawned by the game mode on the server, replicated to all clients.
 #pragma once
 

@@ -1,4 +1,4 @@
-// SIGNAL UNKNOWN – Canvas HUD with all screens.
+﻿// SIGNAL UNKNOWN – Canvas HUD with all screens.
 //
 // Immediate-mode UI: every frame the current screen draws its widgets and registers clickable
 // buttons. Mouse clicks and keyboard / gamepad navigation (focus index) act on the buttons of the

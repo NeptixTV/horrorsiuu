@@ -1,4 +1,4 @@
-// SIGNAL UNKNOWN – replicated world state: team money, time of day, weather, story progress.
+﻿// SIGNAL UNKNOWN – replicated world state: team money, time of day, weather, story progress.
 #pragma once
 
 #include "CoreMinimal.h"

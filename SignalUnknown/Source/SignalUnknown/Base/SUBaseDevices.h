@@ -1,4 +1,4 @@
-// SIGNAL UNKNOWN – devices of the lookout tower: dispatch radio, mission computer, wall map,
+﻿// SIGNAL UNKNOWN – devices of the lookout tower: dispatch radio, mission computer, wall map,
 // weather radio. All are real objects in the world; screens open only when used.
 #pragma once
 

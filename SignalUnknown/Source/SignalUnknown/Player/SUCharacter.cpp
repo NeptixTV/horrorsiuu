@@ -1,4 +1,4 @@
-#include "Player/SUCharacter.h"
+﻿#include "Player/SUCharacter.h"
 #include "SignalUnknown.h"
 #include "Player/SUInventoryComponent.h"
 #include "Player/SUInteractionComponent.h"
@@ -302,7 +302,7 @@ void ASUCharacter::OnLook(const FInputActionValue& Value)
 	const float Invert = (S && S->bInvertY) ? -1.f : 1.f;
 	FRotator R = PC->GetControlRotation();
 	R.Yaw += V.X * Sens;
-	R.Pitch = FMath::ClampAngle(FRotator::NormalizeAxis(R.Pitch) + V.Y * Sens * Invert, -85.f, 85.f);
+	R.Pitch = FMath::ClampAngle(static_cast<float>(FRotator::NormalizeAxis(R.Pitch) + V.Y * Sens * Invert), -85.f, 85.f);
 	R.Roll = 0.f;
 	PC->SetControlRotation(R);
 }
@@ -565,7 +565,7 @@ void ASUCharacter::Tick(float DeltaSeconds)
 		// angular look speed (camera shake rating for photos)
 		const FRotator Now = GetControlRotation();
 		const FRotator Delta = (Now - LastViewRotation).GetNormalized();
-		LookAngularSpeed = FMath::Lerp(LookAngularSpeed, FMath::Sqrt(Delta.Yaw * Delta.Yaw + Delta.Pitch * Delta.Pitch) / FMath::Max(DeltaSeconds, 1e-3f), 0.35f);
+		LookAngularSpeed = FMath::Lerp(LookAngularSpeed, static_cast<float>(FMath::Sqrt(Delta.Yaw * Delta.Yaw + Delta.Pitch * Delta.Pitch)) / FMath::Max(DeltaSeconds, 1e-3f), 0.35f);
 		LastViewRotation = Now;
 
 		if (IsDriver())
@@ -648,9 +648,9 @@ void ASUCharacter::UpdateSeatedLook(float DeltaSeconds)
 	LastVehicleYaw = VehicleYaw;
 	FRotator R = PC->GetControlRotation();
 	R.Yaw += Delta;
-	const float Rel = FMath::Clamp(FRotator::NormalizeAxis(R.Yaw - VehicleYaw), -140.f, 140.f);
+	const float Rel = FMath::Clamp(static_cast<float>(FRotator::NormalizeAxis(R.Yaw - VehicleYaw)), -140.f, 140.f);
 	R.Yaw = VehicleYaw + Rel;
-	R.Pitch = FMath::ClampAngle(FRotator::NormalizeAxis(R.Pitch), -60.f, 50.f);
+	R.Pitch = FMath::ClampAngle(static_cast<float>(FRotator::NormalizeAxis(R.Pitch)), -60.f, 50.f);
 	PC->SetControlRotation(R);
 }
 

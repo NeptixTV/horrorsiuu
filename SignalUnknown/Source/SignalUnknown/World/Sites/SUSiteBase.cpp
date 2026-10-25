@@ -1,4 +1,4 @@
-#include "World/Sites/SUSiteBase.h"
+﻿#include "World/Sites/SUSiteBase.h"
 #include "World/SUWorldBuilder.h"
 #include "Mission/SUAreaTrigger.h"
 #include "Interaction/SUPickupItem.h"

@@ -1,4 +1,4 @@
-// SIGNAL UNKNOWN – readable documents (notes, pinboard, notebooks, phones).
+﻿// SIGNAL UNKNOWN – readable documents (notes, pinboard, notebooks, phones).
 #pragma once
 
 #include "CoreMinimal.h"

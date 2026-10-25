@@ -1,4 +1,4 @@
-#include "World/Sites/SUSiteSettlement.h"
+﻿#include "World/Sites/SUSiteSettlement.h"
 #include "Core/SUTypes.h"
 #include "Interaction/SUDoor.h"
 #include "NPC/SUNPC.h"

@@ -1,4 +1,4 @@
-// SIGNAL UNKNOWN – base for procedurally built locations (tower, gas station, Forsthaus ...).
+﻿// SIGNAL UNKNOWN – base for procedurally built locations (tower, gas station, Forsthaus ...).
 //
 // A site builds its static geometry locally on every machine. Interactive objects are spawned
 // only when bServer is true (they replicate to the clients).

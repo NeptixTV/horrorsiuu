@@ -1,4 +1,4 @@
-// SIGNAL UNKNOWN – interactive furniture: drawers and the bed.
+﻿// SIGNAL UNKNOWN – interactive furniture: drawers and the bed.
 #pragma once
 
 #include "CoreMinimal.h"

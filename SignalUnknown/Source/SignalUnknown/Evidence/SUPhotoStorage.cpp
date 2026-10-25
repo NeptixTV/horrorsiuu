@@ -1,4 +1,4 @@
-#include "Evidence/SUPhotoStorage.h"
+﻿#include "Evidence/SUPhotoStorage.h"
 #include "SignalUnknown.h"
 #include "Core/SUGameInstance.h"
 #include "Engine/Texture2D.h"
@@ -97,11 +97,11 @@ void USUPhotoStorage::StorePhoto(const FGuid& PhotoId, TArray<FColor>&& Pixels, 
 	IFileManager::Get().MakeDirectory(*FPaths::GetPath(Path), true);
 	++PendingWrites;
 	TWeakObjectPtr<USUPhotoStorage> WeakThis(this);
-	Async(EAsyncExecution::ThreadPool, [Pixels = MoveTemp(Pixels), Width, Height, Path, &Module, WeakThis]()
+	Async(EAsyncExecution::ThreadPool, [Image = MoveTemp(Pixels), Width, Height, Path, &Module, WeakThis]()
 	{
 		TSharedPtr<IImageWrapper> Wrapper = Module.CreateImageWrapper(EImageFormat::PNG);
 		bool bOk = false;
-		if (Wrapper.IsValid() && Wrapper->SetRaw(Pixels.GetData(), Pixels.Num() * sizeof(FColor), Width, Height, ERGBFormat::BGRA, 8))
+		if (Wrapper.IsValid() && Wrapper->SetRaw(Image.GetData(), Image.Num() * sizeof(FColor), Width, Height, ERGBFormat::BGRA, 8))
 		{
 			const TArray64<uint8> Png = Wrapper->GetCompressed(100);
 			bOk = FFileHelper::SaveArrayToFile(Png, *Path);

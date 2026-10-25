@@ -1,4 +1,4 @@
-// SIGNAL UNKNOWN – engine-independent math helpers.
+﻿// SIGNAL UNKNOWN – engine-independent math helpers.
 // Everything in Source/SignalUnknown/Logic is plain C++ (no Unreal headers) so it can be
 // compiled and unit-tested without the engine (see Tests/Native).
 #pragma once

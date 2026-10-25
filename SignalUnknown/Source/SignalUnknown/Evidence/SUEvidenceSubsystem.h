@@ -1,4 +1,4 @@
-// SIGNAL UNKNOWN – registry of evidence objects and the photo evaluation.
+﻿// SIGNAL UNKNOWN – registry of evidence objects and the photo evaluation.
 #pragma once
 
 #include "CoreMinimal.h"

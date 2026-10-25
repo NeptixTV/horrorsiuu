@@ -1,4 +1,4 @@
-// SIGNAL UNKNOWN – the team's old off-road vehicle.
+﻿// SIGNAL UNKNOWN – the team's old off-road vehicle.
 //
 // Driving model: raycast suspension + friction-circle tyres on a Chaos rigid body
 // (SULogic::ComputeWheelForces). Chaos Vehicles needs a rigged skeletal mesh which the project

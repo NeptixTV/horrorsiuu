@@ -1,4 +1,4 @@
-// SIGNAL UNKNOWN – replicated one-shot sound at a location (spawned by the server, heard by all).
+﻿// SIGNAL UNKNOWN – replicated one-shot sound at a location (spawned by the server, heard by all).
 #pragma once
 
 #include "CoreMinimal.h"

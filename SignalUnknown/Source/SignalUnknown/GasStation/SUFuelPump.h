@@ -1,4 +1,4 @@
-// SIGNAL UNKNOWN – fuel pump with a real refuelling process.
+﻿// SIGNAL UNKNOWN – fuel pump with a real refuelling process.
 //
 //  1. take the nozzle from the pump                 (pump: E)
 //  2. open the fuel cap of the car                  (car fuel flap: E)

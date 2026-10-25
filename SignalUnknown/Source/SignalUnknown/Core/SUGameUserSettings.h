@@ -1,4 +1,4 @@
-// SIGNAL UNKNOWN – player settings (graphics via UGameUserSettings + own gameplay/audio options).
+﻿// SIGNAL UNKNOWN – player settings (graphics via UGameUserSettings + own gameplay/audio options).
 #pragma once
 
 #include "CoreMinimal.h"

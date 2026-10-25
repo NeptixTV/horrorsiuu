@@ -1,4 +1,4 @@
-// SIGNAL UNKNOWN – project settings (Project Settings -> Game -> Signal Unknown ...).
+﻿// SIGNAL UNKNOWN – project settings (Project Settings -> Game -> Signal Unknown ...).
 #pragma once
 
 #include "CoreMinimal.h"

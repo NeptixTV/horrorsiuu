@@ -1,4 +1,4 @@
-// SIGNAL UNKNOWN – evidence that appears at runtime (tracks left by a creature, ...).
+﻿// SIGNAL UNKNOWN – evidence that appears at runtime (tracks left by a creature, ...).
 // Replicated so every player sees (and can photograph) the same thing.
 #pragma once
 

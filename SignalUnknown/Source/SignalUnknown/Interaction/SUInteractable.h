@@ -1,4 +1,4 @@
-// SIGNAL UNKNOWN – interaction interface (E = primary, Q = secondary).
+﻿// SIGNAL UNKNOWN – interaction interface (E = primary, Q = secondary).
 #pragma once
 
 #include "CoreMinimal.h"

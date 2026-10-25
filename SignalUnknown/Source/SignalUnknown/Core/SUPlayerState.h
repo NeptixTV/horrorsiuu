@@ -1,4 +1,4 @@
-// SIGNAL UNKNOWN – per player state: photo metadata (owner only) and simple stats.
+﻿// SIGNAL UNKNOWN – per player state: photo metadata (owner only) and simple stats.
 #pragma once
 
 #include "CoreMinimal.h"

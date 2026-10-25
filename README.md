@@ -312,3 +312,10 @@ Vor dem Veröffentlichen das Impressum unten auf der Seite ausfüllen.
 - Die Windows-.exe ist **nicht code-signiert** (dafür braucht es ein kostenpflichtiges Zertifikat); Windows
   SmartScreen kann deshalb beim ersten Start warnen.
 - Projekte werden im Browser (IndexedDB) gespeichert. Zum Sichern oder Weitergeben: *File → Export project file*.
+
+---
+
+## Weiteres Projekt in diesem Repository
+
+**SIGNAL UNKNOWN** (`SignalUnknown/`) – Prototyp eines Koop-Horrorspiels für Unreal Engine 5 (C++).
+Stand, Einschränkungen und lokale Testschritte: [SignalUnknown/README.md](SignalUnknown/README.md).

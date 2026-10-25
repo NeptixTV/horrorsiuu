@@ -1,4 +1,4 @@
-// SIGNAL UNKNOWN – Lookout tower "Posten 07": the players' base.
+﻿// SIGNAL UNKNOWN – Lookout tower "Posten 07": the players' base.
 #pragma once
 
 #include "CoreMinimal.h"

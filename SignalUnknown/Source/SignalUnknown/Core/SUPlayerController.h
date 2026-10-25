@@ -1,4 +1,4 @@
-// SIGNAL UNKNOWN – player controller: input contexts, screens/menus, client notifications,
+﻿// SIGNAL UNKNOWN – player controller: input contexts, screens/menus, client notifications,
 // server requests coming from UI screens (report, shop, trunk, save).
 #pragma once
 

@@ -1,4 +1,4 @@
-#include "Horror/SUCreature.h"
+﻿#include "Horror/SUCreature.h"
 #include "SignalUnknown.h"
 #include "Player/SUCharacter.h"
 #include "Vehicle/SUVehicle.h"
@@ -13,6 +13,7 @@
 #include "Components/StaticMeshComponent.h"
 #include "GameFramework/CharacterMovementComponent.h"
 #include "EngineUtils.h"
+#include "Engine/World.h"
 #include "Net/UnrealNetwork.h"
 
 namespace

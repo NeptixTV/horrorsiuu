@@ -1,4 +1,4 @@
-#include "Horror/SUScriptedWindowFigure.h"
+﻿#include "Horror/SUScriptedWindowFigure.h"
 #include "SignalUnknown.h"
 #include "Horror/SUCreature.h"
 #include "Player/SUCharacter.h"
@@ -12,6 +12,7 @@
 #include "Core/SUEventSubsystem.h"
 #include "Camera/CameraComponent.h"
 #include "EngineUtils.h"
+#include "Engine/World.h"
 
 ASUScriptedWindowFigure::ASUScriptedWindowFigure()
 {
