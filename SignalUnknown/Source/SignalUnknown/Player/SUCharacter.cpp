@@ -612,7 +612,7 @@ void ASUCharacter::UpdateCameraEffects(float DeltaSeconds)
 	{
 		FirstPersonCamera->SetFieldOfView(FMath::FInterpTo(FirstPersonCamera->FieldOfView, S ? S->FieldOfView : 90.f, DeltaSeconds, 10.f));
 	}
-	const float BaseZ = IsSeated() ? -17.f : 68.f;
+	const float BaseZ = IsSeated() ? 62.f : 68.f;
 	FVector Offset(0.f, 0.f, BaseZ);
 	const float Speed = GetVelocity().Size2D();
 	if (S && S->bHeadBob && !IsSeated() && GetCharacterMovement()->IsMovingOnGround() && Speed > 30.f && !bAiming)

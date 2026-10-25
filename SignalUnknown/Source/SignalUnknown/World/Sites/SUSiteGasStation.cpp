@@ -232,7 +232,8 @@ void ASUSiteGasStation::SpawnInteractables()
 	{
 		N.Role = ESUNPCRole::Clerk;
 		N.DisplayName = SUText(TEXT("Ruth"));
-		N.WanderPoints = {ToWorld(FVector(-600.f, 380.f, 100.f)), ToWorld(FVector(-600.f, 250.f, 100.f)), ToWorld(FVector(-760.f, -380.f, 100.f)), ToWorld(FVector(-560.f, -210.f, 100.f))};
+		// route (walked back and forth): register -> end of counter -> front -> between the aisles (restocking)
+		N.WanderPoints = {ToWorld(FVector(-600.f, 380.f, 100.f)), ToWorld(FVector(-600.f, 120.f, 100.f)), ToWorld(FVector(-310.f, 40.f, 100.f)), ToWorld(FVector(-300.f, -210.f, 100.f)), ToWorld(FVector(-560.f, -210.f, 100.f))};
 	});
 	SpawnInteractable<ASUShopCounter>(FVector(-480.f, 300.f, 104.f), 0.f, [Pumps, Clerk](ASUShopCounter& C)
 	{
