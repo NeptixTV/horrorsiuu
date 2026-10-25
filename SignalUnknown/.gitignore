@@ -1,0 +1,18 @@
+# Unreal generated / local folders
+Binaries/
+Intermediate/
+Saved/
+DerivedDataCache/
+Build/
+.vs/
+.vscode/
+.idea/
+*.sln
+*.suo
+*.opensdf
+*.sdf
+*.VC.db
+*.VC.opendb
+*.xcworkspace
+Plugins/*/Binaries/
+Plugins/*/Intermediate/
