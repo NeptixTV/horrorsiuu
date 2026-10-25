@@ -30,6 +30,21 @@ Gleichzeitig entscheidet ein Horror-Director, ob etwas im Wald passiert – und 
 
 ## Schnellstart (lokal testen)
 
+### Am einfachsten: `START.bat`
+
+1. Ordner entpacken, am besten nach `C:\Spiele\SignalUnknown` (kurzer Pfad, keine Umlaute, nicht in OneDrive).
+2. **Doppelklick auf `START.bat`.** Das Skript findet die installierte Unreal Engine, prüft Visual Studio
+   (und bietet die Installation an), stellt das Projekt auf deine Engine-Version um, baut den Code und
+   startet das Spiel. Menü: *Spielen*, *Editor öffnen*, *Koop-Test (zwei Fenster)*, *Nur bauen*.
+3. Beim **allerersten** Start öffnet sich der Editor und kompiliert die Shader (10–40 Minuten, Fortschritt
+   unten rechts). Danach oben auf den grünen **Play**-Knopf klicken. Ab dann startet *Spielen* direkt.
+4. Schlägt der Build fehl, steht alles in **`BuildLog.txt`** im Projektordner – diese Datei schicken.
+
+Es müssen keine Texturen oder Modelle heruntergeladen werden: die Welt wird beim Start aus
+Engine-Grundformen erzeugt (Platzhaltergrafik).
+
+### Von Hand
+
 Voraussetzungen: Windows 10/11, **Unreal Engine 5** (eingetragen ist 5.8; mit älteren 5.x-Versionen
 über Rechtsklick auf `SignalUnknown.uproject` → *Switch Unreal Engine version* umstellen),
 **Visual Studio 2022** mit „Spieleentwicklung mit C++“ und dem passenden Windows-SDK.
