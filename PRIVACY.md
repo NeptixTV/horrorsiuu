@@ -45,6 +45,10 @@ einem Google-Server laden würde (im Test nachgewiesen und damit abgestellt). El
 | Admin-Token (nur Herausgeber, Web-Version) | `sessionStorage` – wird beim Schließen des Tabs vergessen |
 | Heruntergeladene Updates | Installer: eigener temporärer Ordner; portable Version: neben der laufenden .exe |
 
+Gelöschte Projekte bleiben **30 Tage im Papierkorb** (ebenfalls nur lokal) und werden danach zusammen mit ihren
+Backups automatisch entfernt; „Delete for good“ / „Empty trash“ entfernt sie sofort. Projekte, die vor Version 1.3.1
+gelöscht wurden, deren Backups aber noch existierten, erscheinen einmalig wieder im Papierkorb.
+
 Alles davon lässt sich löschen: Projekte und Backups unter *Einstellungen → Projekte & Backups*, Einstellungen über
 „Zurücksetzen“, alles zusammen durch Löschen der Website-Daten bzw. Deinstallation und Löschen des App-Datenordners.
 

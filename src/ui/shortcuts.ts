@@ -4,7 +4,7 @@ import { TYPING_KEYS } from '../midi/music';
 import { getProject, useProject } from '../state/store';
 import { openWindow, setUI, ui } from '../state/ui';
 import {
-  captureNow, deleteSelected, doRedo, doSave, doUndo, duplicateSelected, muteSelected, selectAll, setMode, showDock, soloSelected, togglePlay, toggleRecord,
+  captureNow, deleteSelected, doRedo, doSave, doUndo, duplicateSelected, muteSelected, selectAll, setMode, openProjectsWindow, showDock, soloSelected, togglePlay, toggleRecord,
 } from './commands';
 import { newProject, saveProjectAs } from '../project/manager';
 import { askText } from './dialogs/askText';
@@ -88,7 +88,7 @@ function onKeyDown(e: KeyboardEvent) {
     if (k === 'y') { e.preventDefault(); doRedo(); return; }
     if (k === 'a') { e.preventDefault(); selectAll(); return; }
     if (k === 'd') { e.preventDefault(); duplicateSelected(); return; }
-    if (k === 'o') { e.preventDefault(); openWindow({ kind: 'projects' }); return; }
+    if (k === 'o') { e.preventDefault(); openProjectsWindow(); return; }
     if (k === 'n') { e.preventDefault(); if (!useProject.getState().dirty || confirm('Discard unsaved changes?')) newProject(); return; }
     if (k === 'b') { e.preventDefault(); openWindow({ kind: 'beatStarter' }); return; }
     return;

@@ -10,6 +10,7 @@ import { secondsToTicks, uid } from '../state/utils';
 import { assets } from '../audio/assets';
 import { diagnostics } from '../audio/diagnostics';
 import { recordToBuffer, storage, type BackupRecord } from './storage';
+import { expiredTrash, lostProjects } from './trash';
 import { engine } from '../audio/engine';
 import { downloadBlob } from '../audio/render';
 import { isLibrarySample } from '../ui/library/libraryStore';
@@ -268,6 +269,65 @@ export async function restoreBackup(id: string): Promise<boolean> {
   return true;
 }
 
+// ---------- trash ----------
+
+/** Moves a saved project to the trash – it can be restored for 30 days. */
+export async function trashProject(id: string): Promise<boolean> {
+  try {
+    return await storage.trashProject(id);
+  } catch (err) {
+    diagnostics.log('error', 'trash', `Moving to the trash failed: ${err instanceof Error ? err.message : String(err)}`);
+    toast('The project could not be deleted', 'error');
+    return false;
+  }
+}
+
+/** Puts a deleted project back into the saved projects. */
+export async function restoreFromTrash(id: string): Promise<{ id: string; name: string } | null> {
+  try {
+    const r = await storage.restoreFromTrash(id, uid('prj'));
+    if (!r) toast('This project is not in the trash any more', 'error');
+    return r;
+  } catch (err) {
+    diagnostics.log('error', 'trash', `Restoring failed: ${err instanceof Error ? err.message : String(err)}`);
+    toast('The project could not be restored', 'error');
+    return null;
+  }
+}
+
+/** Deletes a project from the trash for good (with its backups). */
+export async function deleteForever(ids: string[]): Promise<void> {
+  try {
+    for (const id of ids) await storage.deleteFromTrash(id);
+  } catch (err) {
+    diagnostics.log('error', 'trash', `Deleting failed: ${err instanceof Error ? err.message : String(err)}`);
+    toast('Deleting failed', 'error');
+  }
+}
+
+/**
+ * Removes what has been in the trash for 30 days and puts projects that only
+ * live on in their backups (deleted before there was a trash) into the trash,
+ * so they can be restored.
+ */
+export async function trashHousekeeping(now = Date.now()): Promise<void> {
+  try {
+    const trash = await storage.listTrash();
+    const expired = expiredTrash(trash, now);
+    for (const id of expired) await storage.deleteFromTrash(id);
+    if (expired.length) diagnostics.log('info', 'trash', `${expired.length} project(s) older than 30 days removed from the trash`);
+    const known = new Set([...(await storage.listProjects()).map((p) => p.id), ...trash.map((t) => t.id), getProject().id]);
+    for (const lost of lostProjects(await storage.listBackups(), known)) {
+      const b = await storage.loadBackup(lost.id);
+      if (!b) continue;
+      await storage.addToTrash({ id: b.projectId, name: b.name, updatedAt: b.time, deletedAt: now, from: 'backup', data: { ...b.data, id: b.projectId } });
+      diagnostics.log('info', 'trash', `Deleted project “${b.name}” found in its backups – it is in the trash now`);
+    }
+  } catch (err) {
+    diagnostics.log('warn', 'trash', `Trash housekeeping failed: ${err instanceof Error ? err.message : String(err)}`);
+  }
+}
+
 // ---------- storage housekeeping ----------
 
 export interface StorageInfo {
@@ -280,6 +340,7 @@ export interface StorageInfo {
   orphanFiles: number;
   orphanBytes: number;
   backups: number;
+  trash: number;
 }
 
 async function referencedAssets(): Promise<Set<string>> {
@@ -287,6 +348,7 @@ async function referencedAssets(): Promise<Set<string>> {
   const add = (p: Project) => { for (const id of projectAssetIds(p)) used.add(id); };
   for (const p of await storage.allProjects().catch(() => [])) add(p);
   for (const p of await storage.allBackupProjects().catch(() => [])) add(p);
+  for (const p of await storage.allTrashProjects().catch(() => [])) add(p);
   add(getProject());
   return used;
 }
@@ -307,10 +369,11 @@ export async function storageInfo(): Promise<StorageInfo> {
     orphanFiles: orphans.length,
     orphanBytes: orphans.reduce((n, m) => n + m.bytes, 0),
     backups: (await storage.listBackups().catch(() => [])).length,
+    trash: (await storage.listTrash().catch(() => [])).length,
   };
 }
 
-/** Deletes stored audio that no project, backup or the library uses any more. */
+/** Deletes stored audio that no project, backup, deleted project in the trash or the library uses any more. */
 export async function cleanupStorage(): Promise<number> {
   const meta = await storage.listAssetMeta();
   const used = await referencedAssets();

@@ -3,7 +3,7 @@ import { engine } from '../audio/engine';
 import { downloadBlob, encodeWav, normalizeBuffer, renderProject, renderStems } from '../audio/render';
 import { makeZip, zipName } from '../project/zip';
 import { getProject, redo, undo } from '../state/store';
-import { setUI, toast, ui, openWindow } from '../state/ui';
+import { closeWindow, setUI, toast, ui, openWindow } from '../state/ui';
 import {
   addChannel, deleteClips, deleteNotes, duplicateClips, toggleChannelMute, toggleChannelSolo, toggleMixerMute, toggleMixerSolo,
 } from '../state/actions';
@@ -179,6 +179,13 @@ export function showDock(tab: ReturnType<typeof ui>['dockTab']) {
 }
 
 export const openSettings = () => openWindow({ kind: 'settings' });
+
+/** Opens the "Open project" window (on the trash when asked) – never twice. */
+export function openProjectsWindow(tab: 'projects' | 'trash' = 'projects') {
+  const open = ui().windows.find((x) => x.win.kind === 'projects');
+  if (open) closeWindow(open.id);
+  openWindow(tab === 'trash' ? { kind: 'projects', tab } : { kind: 'projects' });
+}
 
 /** Asks before deleting something that has content (Settings → General → Ask before deleting). */
 export function confirmDelete(what: string, hasContent: boolean): boolean {

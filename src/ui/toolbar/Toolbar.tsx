@@ -21,7 +21,7 @@ import { showMenu, type MenuItem } from '../components/ContextMenu';
 import { Oscilloscope } from '../visualizers/Visualizers';
 import {
   addDreamChord, captureNow, confirmDelete, patternHasContent,
-  deleteSelected, doRedo, doSave, doUndo, duplicateSelected, exportWav, selectAll, setMode, stop, toggleMetronome, togglePlay, toggleRecord, showDock,
+  deleteSelected, doRedo, doSave, doUndo, duplicateSelected, exportWav, selectAll, setMode, stop, toggleMetronome, togglePlay, toggleRecord, showDock, openProjectsWindow,
 } from '../commands';
 import { exportProjectFile, importProjectFile, newProject, saveProjectAs } from '../../project/manager';
 import { pickFile } from '../dialogs/filePick';
@@ -42,7 +42,8 @@ function fileMenu(): MenuItem[] {
   return [
     { label: 'New beat from a genre…', shortcut: 'Ctrl+B', onClick: () => openWindow({ kind: 'beatStarter' }) },
     { label: 'New project', shortcut: 'Ctrl+N', onClick: () => { if (!useProject.getState().dirty || confirm('Discard unsaved changes?')) newProject(); } },
-    { label: 'Open…', shortcut: 'Ctrl+O', onClick: () => openWindow({ kind: 'projects' }) },
+    { label: 'Open…', shortcut: 'Ctrl+O', onClick: () => openProjectsWindow() },
+    { label: 'Trash (deleted projects)…', onClick: () => openProjectsWindow('trash') },
     { separator: true },
     { label: 'Save', shortcut: 'Ctrl+S', onClick: () => void doSave() },
     { label: 'Save as…', shortcut: 'Ctrl+Shift+S', onClick: () => { void askText('Save project as', `${getProject().name} copy`).then((n) => { if (n) void saveProjectAs(n); }); } },
@@ -307,7 +308,7 @@ export function Toolbar() {
         <button className="btn icon" title="Undo (Ctrl+Z)" disabled={!canUndo} onClick={doUndo}><Icon name="undo" /></button>
         <button className="btn icon" title="Redo (Ctrl+Shift+Z)" disabled={!canRedo} onClick={doRedo}><Icon name="redo" /></button>
         <button className="btn icon" title="Save (Ctrl+S)" onClick={() => void doSave()}><Icon name="save" /></button>
-        <button className="btn icon" title="Open project (Ctrl+O)" onClick={() => openWindow({ kind: 'projects' })}><Icon name="folder" /></button>
+        <button className="btn icon" title="Open project (Ctrl+O)" onClick={() => openProjectsWindow()}><Icon name="folder" /></button>
       </div>
 
       <div className="tb-group">

@@ -9,6 +9,7 @@ import {
 } from '../../project/manager';
 import { storage } from '../../project/storage';
 import { Icon } from '../components/Icon';
+import { openProjectsWindow } from '../commands';
 import { askText } from '../dialogs/askText';
 import { Row, Section, Select, Stat, Toggle, fmtBytes } from './controls';
 
@@ -106,11 +107,15 @@ export function ProjectSection() {
             <Stat label="Saved projects" value={info.projects} />
             <Stat label="Audio files" value={`${info.audioFiles} (${fmtBytes(info.audioBytes)})`} />
             <Stat label="Backups" value={info.backups} />
+            <Stat label="Deleted projects in the trash" value={info.trash} />
             <Stat label="Unused audio" value={`${info.orphanFiles} (${fmtBytes(info.orphanBytes)})`} warn={info.orphanBytes > 100e6} />
             <Stat label="Protected from clean-up" value={info.persisted ? 'yes' : 'no'} />
           </div>
         ) : <div className="sc-log-empty">Loading…</div>}
-        <Row label="Clean up unused audio" desc="Deletes recordings and imports that no saved project, backup or your library uses any more.">
+        <Row label="Trash" desc="Deleted projects stay in the trash for 30 days – restore them from there or delete them for good.">
+          <button className="btn" onClick={() => openProjectsWindow('trash')}><Icon name="trash" size={11} /> Open trash</button>
+        </Row>
+        <Row label="Clean up unused audio" desc="Deletes recordings and imports that no saved project, backup, project in the trash or your library uses any more.">
           <button
             className="btn"
             disabled={busy || !info?.orphanFiles}

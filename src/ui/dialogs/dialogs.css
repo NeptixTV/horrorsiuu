@@ -56,3 +56,11 @@
 .wn-title { font-weight: 700; display: flex; align-items: center; gap: 6px; }
 .wn-tag { font-size: 9px; font-weight: 700; text-transform: uppercase; letter-spacing: .06em; color: #111; background: #9be15d; border-radius: 3px; padding: 1px 4px; }
 .wn-text { font-size: 11px; color: var(--dim); line-height: 1.45; margin-top: 2px; }
+.dlg-tabs { display: flex; gap: 2px; border-bottom: 1px solid var(--border); margin: -4px -2px 0; }
+.dlg-tabs button { display: inline-flex; align-items: center; gap: 6px; height: 28px; padding: 0 12px; border: none; border-bottom: 2px solid transparent; background: none; color: var(--dim); font: inherit; font-weight: 600; cursor: pointer; }
+.dlg-tabs button:hover { color: var(--text); }
+.dlg-tabs button.on { color: var(--text); border-bottom-color: var(--accent); }
+.dlg-trash-head { display: flex; align-items: center; justify-content: space-between; gap: 10px; font-size: 11px; color: var(--dim); }
+.dlg-warn { color: #f0a050; font-weight: 600; }
+.dlg-item.flash { animation: dlgFlash 1.6s ease; border-color: var(--accent); }
+@keyframes dlgFlash { 0%, 40% { background: color-mix(in srgb, var(--accent) 28%, var(--bg)); } 100% { background: var(--bg); } }

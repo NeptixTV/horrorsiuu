@@ -180,3 +180,20 @@ durch Anhören.
 
 **Einschätzung**: keine bekannten kritischen oder hohen Probleme. Die Freigabe für eine Veröffentlichung hängt
 weiterhin an Schritt 1–4 oben (vor allem dem Test auf einem echten Windows-PC).
+
+## Nachtrag 1.3.1 (30.10.2026)
+
+Neu ist nur der **Papierkorb für Projekte**. Auch dieser Nachtrag ist **kein Beweis vollständiger Sicherheit**.
+
+- Alles bleibt lokal in derselben IndexedDB (neuer Speicherbereich `trash`, Datenbank-Version 3). Keine neuen
+  Netzwerkverbindungen, keine neuen IPC-Kanäle, keine neuen npm-Abhängigkeiten.
+- **Datenaufbewahrung**: Gelöschte Projekte bleiben 30 Tage im Papierkorb und werden danach zusammen mit ihren
+  Backups entfernt. Das ist eine bewusste Änderung: Vorher war „Delete“ für das Projekt sofort endgültig (die Backups
+  blieben allerdings unbegrenzt liegen). Wer etwas sofort entfernen will, nutzt „Delete for good“ oder „Empty trash“.
+- Projekte, die vor 1.3.1 gelöscht wurden und noch Backups hatten, erscheinen beim ersten Start wieder im Papierkorb.
+- Ein beschädigtes Datum im Papierkorb löscht nie etwas (es wird dann einfach behalten).
+
+**Tatsächlich durchgeführt**: Typprüfung, 106 Unit-Tests (5 neue für die Papierkorb-Regeln), Browser-Test des
+Updates von der 1.3.0-Datenbank (gelöschtes Projekt aus Backups gefunden, wiederhergestellt und geöffnet; Projekt in
+den Papierkorb verschoben; Eintrag nach 31 Tagen samt Backups entfernt; nach Neustart kommt nichts zurück; keine
+Fehler in der Konsole). **Nicht geprüft**: das Update auf einem echten Windows-PC mit echten Daten.

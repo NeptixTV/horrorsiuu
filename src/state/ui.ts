@@ -32,7 +32,7 @@ export type WindowKind =
   | { kind: 'stems' }
   | { kind: 'admin' }
   | { kind: 'settings' }
-  | { kind: 'projects' }
+  | { kind: 'projects'; tab?: 'trash' }
   | { kind: 'export' }
   | { kind: 'shortcuts' }
   | { kind: 'about' }

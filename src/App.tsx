@@ -7,7 +7,7 @@ import { installSettingsSync } from './ui/settingsSync';
 import { installAutomationPlayback } from './ui/automationPlayback';
 import { installAudioStability } from './ui/audioStability';
 import { applyTheme, resolveTheme } from './styles/themes';
-import { installRecordingHandler, restoreLastProject, startAutosave } from './project/manager';
+import { installRecordingHandler, restoreLastProject, startAutosave, trashHousekeeping } from './project/manager';
 import { Splash } from './ui/splash/Splash';
 import { SetupWizard } from './ui/setup/SetupWizard';
 import { Toolbar, useAudioUnlockHint } from './ui/toolbar/Toolbar';
@@ -168,6 +168,8 @@ function boot(): Promise<void> {
       // Windows desktop app: our own dark title bar instead of the white system one
       void desktop?.info().then((i) => { if (i.titleBar === 'overlay') setUI({ titleBar: true }); }).catch(() => undefined);
       void loadLibrary();
+      // trash: remove what is older than 30 days, find projects deleted before the trash existed
+      setTimeout(() => void trashHousekeeping(), 4000);
       if (ui().outputDeviceId) void engine.setOutputDevice(ui().outputDeviceId);
       report('Building interface…', 0.95);
       // give the splash animation time to breathe (Settings → Design → Start-up animation)

@@ -8,6 +8,16 @@ Step-Sequencer · Playlist · Piano Roll · Mixer · Effekte · Synthesizer · D
 
 ---
 
+## Neu in Version 1.3.1
+
+**Papierkorb für Projekte:** Gelöschte Projekte landen nicht mehr sofort im Nichts, sondern im Papierkorb
+(„Open project“ → Tab „Trash“ oder *File → Trash (deleted projects)…*). Dort kann man sie **30 Tage lang
+wiederherstellen**; danach werden sie samt ihren Backups endgültig entfernt. „Delete for good“ bzw. „Empty trash“
+löscht sofort. Projekte, die vor diesem Update gelöscht wurden, holt die App aus ihren automatischen Backups zurück
+in den Papierkorb – das klappt nur, wenn für das Projekt mindestens ein Backup existiert (automatische Backups
+sind standardmäßig an). Das gerade geöffnete Projekt lässt sich nicht löschen, weil es sonst beim nächsten
+Autosave wieder auftauchen würde.
+
 ## Neu in Version 1.3.0
 
 **Neuer Beat mit einem Klick** (Strg + B oder „New Beat“ oben): Genre wählen – Trap, Drill, Boom Bap, Lo-Fi, House,

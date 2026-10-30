@@ -1,10 +1,10 @@
-// IndexedDB persistence for projects, audio assets and automatic backups.
-// Everything stays on this computer (browser profile / app data folder).
+// IndexedDB persistence for projects, audio assets, automatic backups and the
+// project trash. Everything stays on this computer (browser profile / app data folder).
 import type { Project } from '../state/types';
 import type { SoundInfo } from '../audio/soundAnalysis';
 
 const DB_NAME = 'goofy-studio';
-const DB_VERSION = 2;
+const DB_VERSION = 3;
 
 export interface ProjectRecord {
   id: string;
@@ -44,6 +44,17 @@ export interface BackupRecord {
   data: Project;
 }
 
+/** A deleted project (restorable for 30 days). */
+export interface TrashRecord {
+  id: string;
+  name: string;
+  updatedAt: number;
+  deletedAt: number;
+  /** 'backup': deleted before the trash existed, found again in its backups */
+  from: 'delete' | 'backup';
+  data: Project;
+}
+
 let dbPromise: Promise<IDBDatabase> | null = null;
 
 function openDb(): Promise<IDBDatabase> {
@@ -65,6 +76,7 @@ function openDb(): Promise<IDBDatabase> {
           const b = db.createObjectStore('backups', { keyPath: 'id' });
           b.createIndex('byProject', 'projectId');
         }
+        if (!db.objectStoreNames.contains('trash')) db.createObjectStore('trash', { keyPath: 'id' });
         // v1 → v2: index library samples and build the asset info table once
         if (ev.oldVersion < 2 && ev.oldVersion > 0) {
           const meta = t.objectStore('assetMeta');
@@ -117,7 +129,11 @@ const one = <T>(store: string, mode: IDBTransactionMode, fn: (s: IDBObjectStore)
 
 export const storage = {
   async saveProject(project: Project): Promise<void> {
-    await one('projects', 'readwrite', (s) => s.put({ id: project.id, name: project.name, updatedAt: project.updatedAt, data: project } satisfies ProjectRecord));
+    await tx(['projects', 'trash'], 'readwrite', (t) => {
+      // a project that is saved again is no longer deleted
+      t.objectStore('trash').delete(project.id);
+      return t.objectStore('projects').put({ id: project.id, name: project.name, updatedAt: project.updatedAt, data: project } satisfies ProjectRecord);
+    });
   },
   async loadProject(id: string): Promise<Project | null> {
     const rec = await one<ProjectRecord | undefined>('projects', 'readonly', (s) => s.get(id));
@@ -131,8 +147,71 @@ export const storage = {
     const all = await one<ProjectRecord[]>('projects', 'readonly', (s) => s.getAll());
     return all.map((r) => r.data);
   },
-  async deleteProject(id: string): Promise<void> {
-    await one('projects', 'readwrite', (s) => s.delete(id));
+  // ---------- trash ----------
+  /** Moves a saved project to the trash. False if there was no such project. */
+  async trashProject(id: string, now = Date.now()): Promise<boolean> {
+    const rec = await tx<ProjectRecord | undefined>(['projects', 'trash'], 'readwrite', (t) => {
+      const req = t.objectStore('projects').get(id);
+      req.addEventListener('success', () => {
+        const p = req.result as ProjectRecord | undefined;
+        if (!p) return;
+        t.objectStore('trash').put({ id, name: p.name, updatedAt: p.updatedAt, deletedAt: now, from: 'delete', data: p.data } satisfies TrashRecord);
+        t.objectStore('projects').delete(id);
+      });
+      return req;
+    });
+    return !!rec;
+  },
+  /** Newest deletion first, without the project data. */
+  async listTrash(): Promise<Omit<TrashRecord, 'data'>[]> {
+    const all = await one<TrashRecord[]>('trash', 'readonly', (s) => s.getAll());
+    return all.map(({ id, name, updatedAt, deletedAt, from }) => ({ id, name, updatedAt, deletedAt, from })).sort((a, b) => b.deletedAt - a.deletedAt);
+  },
+  async addToTrash(rec: TrashRecord): Promise<void> {
+    await one('trash', 'readwrite', (s) => s.put(rec));
+  },
+  /**
+   * Puts a project from the trash back into the saved projects. If a project
+   * with the same id exists meanwhile, it comes back as a copy under `copyId`.
+   */
+  async restoreFromTrash(id: string, copyId: string): Promise<{ id: string; name: string } | null> {
+    let out: { id: string; name: string } | null = null;
+    await tx(['projects', 'trash'], 'readwrite', (t) => {
+      const req = t.objectStore('trash').get(id);
+      req.addEventListener('success', () => {
+        const rec = req.result as TrashRecord | undefined;
+        if (!rec) return;
+        const projects = t.objectStore('projects');
+        const clash = projects.getKey(id);
+        clash.addEventListener('success', () => {
+          const pid = clash.result === undefined ? id : copyId;
+          const name = pid === id ? rec.name : `${rec.name} (restored)`;
+          projects.put({ id: pid, name, updatedAt: rec.updatedAt, data: { ...rec.data, id: pid, name } } satisfies ProjectRecord);
+          t.objectStore('trash').delete(id);
+          out = { id: pid, name };
+        });
+      });
+      return req;
+    });
+    return out;
+  },
+  /** Removes a project from the trash for good, together with its backups. */
+  async deleteFromTrash(id: string): Promise<void> {
+    await tx(['projects', 'trash', 'backups'], 'readwrite', (t) => {
+      t.objectStore('trash').delete(id);
+      const live = t.objectStore('projects').getKey(id);
+      live.addEventListener('success', () => {
+        // saved again meanwhile: its backups belong to the live project
+        if (live.result !== undefined) return;
+        const backups = t.objectStore('backups');
+        const keys = backups.index('byProject').getAllKeys(id);
+        keys.addEventListener('success', () => { for (const k of keys.result) backups.delete(k); });
+      });
+      return live;
+    });
+  },
+  async allTrashProjects(): Promise<Project[]> {
+    return (await one<TrashRecord[]>('trash', 'readonly', (s) => s.getAll())).map((r) => r.data);
   },
   async saveAsset(id: string, name: string, buffer: AudioBuffer, library = false, info?: SoundInfo): Promise<void> {
     const channels = Array.from({ length: buffer.numberOfChannels }, (_, c) => buffer.getChannelData(c).slice());

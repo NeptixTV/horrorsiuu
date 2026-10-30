@@ -4,7 +4,7 @@
 import { useEffect } from 'react';
 import { APP_VERSION } from '../../admin/feed';
 import { closeWindow, openWindow, setUI, type FloatingWindow } from '../../state/ui';
-import { showDock } from '../commands';
+import { openProjectsWindow, showDock } from '../commands';
 import { Window } from '../components/Window';
 import { Icon } from '../components/Icon';
 import './dialogs.css';
@@ -18,6 +18,7 @@ interface Item {
 }
 
 const ITEMS: Item[] = [
+  { icon: 'trash', title: 'Trash for projects', text: 'Deleted a song by mistake? Deleted projects now go to the trash and can be restored for 30 days. Projects you deleted before this update are back in there too, as long as their automatic backup still exists.', action: ['Open the trash', () => openProjectsWindow('trash')], mine: true },
   { icon: 'bolt', title: 'New Beat in one click', text: 'Pick a genre – Trap, Drill, Boom Bap, Lo-Fi, House, Phonk or Afrobeats – and get a finished, mixed beat: drums, 808, chords, melody, intro, drop and break. Ctrl+B.', action: ['Make a beat', () => openWindow({ kind: 'beatStarter' })], mine: true },
   { icon: 'crown', title: 'Pro Sounds', text: '73 new sounds: a real upright piano with three velocity layers, strings, flute, horns, organ, bells and percussion recorded from real instruments – plus hard 808s, kicks, snares and hats made for beats. The old sounds are still there.', action: ['Open the browser', () => setUI({ browserOpen: true })] },
   { icon: 'drums', title: 'Drum kits & hi-hat rolls', text: '7 ready kits with a starter groove. Hi-hat rolls (×2 … ×8 per step) with the roll brush, Alt+click on a step or the 🎲 on a hat row. Swap a pad\'s sound with ◀ ▶.', action: ['Drum Machine', () => showDock('drums')] },
