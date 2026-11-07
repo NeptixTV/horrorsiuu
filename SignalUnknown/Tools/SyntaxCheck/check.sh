@@ -58,4 +58,12 @@ echo "syntax check: $count files, $failed with errors"
 [ "$failed" -eq 0 ] || status=1
 
 python3 "$HERE/lint.py" "$SRC" || status=1
+
+# AST checks (MSVC shadowing C4458, unity-build collisions) need the libclang Python package
+PY="${SU_PYTHON:-python3}"
+if "$PY" -c "import clang.cindex" 2>/dev/null; then
+	"$PY" "$HERE/ast_check.py" "$SRC" "$OUT" "$HERE/mock" || status=1
+else
+	echo "ast check: skipped (pip install libclang, or set SU_PYTHON to a python that has it)"
+fi
 exit $status

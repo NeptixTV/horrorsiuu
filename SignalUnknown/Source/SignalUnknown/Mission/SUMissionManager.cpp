@@ -207,7 +207,7 @@ void ASUMissionManager::AutoCompleteObjectives()
 	}
 }
 
-void ASUMissionManager::HandleGameEvent(FName EventName, FName Param, AActor* Instigator)
+void ASUMissionManager::HandleGameEvent(FName EventName, FName Param, AActor* EventInstigator)
 {
 	AdvanceObjectives(EventName, Param);
 }

@@ -1,5 +1,6 @@
 ﻿// SIGNAL UNKNOWN – HUD screens: main menu, pause, settings, join, help, map.
 #include "UI/SUHUD.h"
+#include "UI/SUHUDStyle.h"
 #include "SignalUnknown.h"
 #include "Core/SUPlayerController.h"
 #include "Core/SUGameInstance.h"
@@ -20,10 +21,6 @@
 
 namespace
 {
-	const FLinearColor CText(0.92f, 0.90f, 0.85f);
-	const FLinearColor CDim(0.62f, 0.60f, 0.56f);
-	const FLinearColor CAccent(1.f, 0.72f, 0.32f);
-	const FLinearColor CGood(0.55f, 0.95f, 0.6f);
 
 	FString OnOff(bool b) { return b ? TEXT("An") : TEXT("Aus"); }
 	FString Percent(float V) { return FString::Printf(TEXT("%d %%"), FMath::RoundToInt(V * 100.f)); }
@@ -41,8 +38,8 @@ void ASUHUD::DrawMainMenu()
 	}
 	// darken the menu camera view on the left side
 	Rect(0.f, 0.f, S(560.f), H(), FLinearColor(0.f, 0.f, 0.f, 0.62f));
-	Text(TEXT("SIGNAL UNKNOWN"), S(70.f), S(120.f), 48.f, CText, 0, true);
-	Text(TEXT("Beobachtungsposten 07 – Nördliches Waldgebiet"), S(72.f), S(186.f), 16.f, CDim);
+	Text(TEXT("SIGNAL UNKNOWN"), S(70.f), S(120.f), 48.f, SUHUDStyle::Text, 0, true);
+	Text(TEXT("Beobachtungsposten 07 – Nördliches Waldgebiet"), S(72.f), S(186.f), 16.f, SUHUDStyle::Dim);
 
 	const USUSaveSubsystem* Save = PC->GetGameInstance() ? PC->GetGameInstance()->GetSubsystem<USUSaveSubsystem>() : nullptr;
 	const bool bHasSave = Save && Save->HasSave();
@@ -56,7 +53,7 @@ void ASUHUD::DrawMainMenu()
 	const float Gap = S(12.f);
 	if (bConfirmQuit)
 	{
-		Text(TEXT("Spiel wirklich beenden?"), X, Y, 20.f, CText);
+		Text(TEXT("Spiel wirklich beenden?"), X, Y, 20.f, SUHUDStyle::Text);
 		Y += S(44.f);
 		Button(TEXT("Ja, beenden"), X, Y, BW, BH, [PC]() { PC->MenuQuit(); });
 		Y += BH + Gap;
@@ -66,7 +63,7 @@ void ASUHUD::DrawMainMenu()
 	if (bHasSave)
 	{
 		Button(TEXT("Fortsetzen (allein)"), X, Y, BW, BH, [PC]() { PC->MenuStartSolo(true); }, bReady);
-		Text(Save->DescribeSave(), X + BW + S(16.f), Y + S(13.f), 14.f, CDim);
+		Text(Save->DescribeSave(), X + BW + S(16.f), Y + S(13.f), 14.f, SUHUDStyle::Dim);
 		Y += BH + Gap;
 	}
 	Button(TEXT("Neues Spiel (allein)"), X, Y, BW, BH, [PC]() { PC->MenuStartSolo(false); }, bReady);
@@ -88,10 +85,10 @@ void ASUHUD::DrawMainMenu()
 
 	if (!bReady)
 	{
-		Text(TEXT("Die Welt wird erzeugt …"), X, H() - S(80.f), 15.f, CAccent);
+		Text(TEXT("Die Welt wird erzeugt …"), X, H() - S(80.f), 15.f, SUHUDStyle::Accent);
 	}
-	Text(TEXT("Koop: 1–4 Spieler · Host: Port 7777 freigeben · Stimme über die Engine-VoIP (Push-to-Talk [T])"), X, H() - S(50.f), 12.f, CDim);
-	Text(TEXT("Prototyp – Platzhaltergrafik"), W() - S(30.f), H() - S(40.f), 12.f, CDim, 2);
+	Text(TEXT("Koop: 1–4 Spieler · Host: Port 7777 freigeben · Stimme über die Engine-VoIP (Push-to-Talk [T])"), X, H() - S(50.f), 12.f, SUHUDStyle::Dim);
+	Text(TEXT("Prototyp – Platzhaltergrafik"), W() - S(30.f), H() - S(40.f), 12.f, SUHUDStyle::Dim, 2);
 }
 
 // ====================================================================================== pause
@@ -113,7 +110,7 @@ void ASUHUD::DrawPause()
 	const float Gap = S(10.f);
 	if (bConfirmQuit)
 	{
-		Text(TEXT("Ungespeicherter Fortschritt geht verloren."), X, Y, 18.f, CText);
+		Text(TEXT("Ungespeicherter Fortschritt geht verloren."), X, Y, 18.f, SUHUDStyle::Text);
 		Y += S(40.f);
 		Button(TEXT("Zum Hauptmenü"), X, Y, BW, BH, [PC]() { PC->LeaveToMainMenu(); });
 		Y += BH + Gap;
@@ -137,10 +134,10 @@ void ASUHUD::DrawPause()
 	// session info
 	const float IX = X + BW + S(80.f);
 	float IY = S(130.f);
-	Text(TEXT("Sitzung"), IX, IY, 20.f, CAccent, 0, true);
+	Text(TEXT("Sitzung"), IX, IY, 20.f, SUHUDStyle::Accent, 0, true);
 	IY += S(34.f);
 	const FString Mode = PC->GetNetMode() == NM_Standalone ? TEXT("Einzelspieler") : (bHost ? TEXT("Koop – du bist Host") : TEXT("Koop – verbunden"));
-	Text(Mode, IX, IY, 15.f, CText);
+	Text(Mode, IX, IY, 15.f, SUHUDStyle::Text);
 	IY += S(26.f);
 	if (const AGameStateBase* GSB = GetWorld()->GetGameState())
 	{
@@ -148,14 +145,14 @@ void ASUHUD::DrawPause()
 		{
 			if (PS)
 			{
-				Text(FString::Printf(TEXT("• %s   %d ms"), *PS->GetPlayerName(), FMath::RoundToInt(PS->GetPingInMilliseconds())), IX, IY, 14.f, CDim);
+				Text(FString::Printf(TEXT("• %s   %d ms"), *PS->GetPlayerName(), FMath::RoundToInt(PS->GetPingInMilliseconds())), IX, IY, 14.f, SUHUDStyle::Dim);
 				IY += S(22.f);
 			}
 		}
 	}
 	if (!bHost)
 	{
-		Text(TEXT("Speichern und Laden kann nur der Host."), IX, IY + S(10.f), 13.f, CDim);
+		Text(TEXT("Speichern und Laden kann nur der Host."), IX, IY + S(10.f), 13.f, SUHUDStyle::Dim);
 	}
 }
 
@@ -176,10 +173,10 @@ void ASUHUD::DrawSettings()
 	float TX = S(60.f);
 	for (int32 I = 0; I < 4; ++I)
 	{
-		const FVector2D Sz = Text(Tabs[I], TX, S(96.f), 18.f, I == Tab ? CAccent : CDim, 0, I == Tab);
+		const FVector2D Sz = Text(Tabs[I], TX, S(96.f), 18.f, I == Tab ? SUHUDStyle::Accent : SUHUDStyle::Dim, 0, I == Tab);
 		if (I == Tab)
 		{
-			Rect(TX, S(122.f), Sz.X, 2.f, CAccent);
+			Rect(TX, S(122.f), Sz.X, 2.f, SUHUDStyle::Accent);
 		}
 		TX += Sz.X + S(36.f);
 	}
@@ -260,7 +257,7 @@ void ASUHUD::DrawSettings()
 		Row(TEXT("Y-Achse invertieren"), OnOff(Set->bInvertY), [Set](int32) { Set->bInvertY = !Set->bInvertY; });
 		Row(TEXT("Ducken umschalten (statt halten)"), OnOff(Set->bToggleCrouch), [Set](int32) { Set->bToggleCrouch = !Set->bToggleCrouch; });
 		Y += S(10.f);
-		Text(TEXT("Die Tastenbelegung steht unter „Steuerung“. Gamepad wird für Gehen, Fahren und Menüs unterstützt."), X, Y, 14.f, CDim);
+		Text(TEXT("Die Tastenbelegung steht unter „Steuerung“. Gamepad wird für Gehen, Fahren und Menüs unterstützt."), X, Y, 14.f, SUHUDStyle::Dim);
 		break;
 	case 2:
 		Row(TEXT("Gesamtlautstärke"), Percent(Set->MasterVolume), [Set](int32 D) { Set->MasterVolume = Step(Set->MasterVolume, D, 0.05f, 0.f, 1.f); });
@@ -272,7 +269,7 @@ void ASUHUD::DrawSettings()
 		Row(TEXT("Voice-Chat"), OnOff(Set->bVoiceChatEnabled), [Set](int32) { Set->bVoiceChatEnabled = !Set->bVoiceChatEnabled; });
 		Row(TEXT("Push-to-Talk [T]"), Set->bPushToTalk ? TEXT("An") : TEXT("Aus (offenes Mikrofon)"), [Set](int32) { Set->bPushToTalk = !Set->bPushToTalk; });
 		Y += S(10.f);
-		Text(TEXT("Voice-Chat nutzt die Engine-VoIP (OnlineSubsystem). Stimmen sind räumlich und nur in der Nähe hörbar."), X, Y, 14.f, CDim);
+		Text(TEXT("Voice-Chat nutzt die Engine-VoIP (OnlineSubsystem). Stimmen sind räumlich und nur in der Nähe hörbar."), X, Y, 14.f, SUHUDStyle::Dim);
 		break;
 	default:
 		Row(TEXT("Untertitel"), OnOff(Set->bSubtitles), [Set](int32) { Set->bSubtitles = !Set->bSubtitles; });
@@ -280,7 +277,7 @@ void ASUHUD::DrawSettings()
 		Row(TEXT("Kompass"), OnOff(Set->bShowCompass), [Set](int32) { Set->bShowCompass = !Set->bShowCompass; });
 		Row(TEXT("Horror-Intensität"), Set->HorrorIntensity <= 0.f ? FString(TEXT("Aus")) : Percent(Set->HorrorIntensity), [Set](int32 D) { Set->HorrorIntensity = Step(Set->HorrorIntensity, D, 0.25f, 0.f, 2.f); });
 		Y += S(10.f);
-		Text(TEXT("Die Horror-Intensität des Hosts gilt für die ganze Koop-Sitzung."), X, Y, 14.f, CDim);
+		Text(TEXT("Die Horror-Intensität des Hosts gilt für die ganze Koop-Sitzung."), X, Y, 14.f, SUHUDStyle::Dim);
 		break;
 	}
 
@@ -311,7 +308,7 @@ void ASUHUD::DrawJoin()
 	float Y = S(130.f);
 	Panel(X, Y, S(460.f), S(60.f));
 	const bool bCursor = FMath::Fmod(RealTime, 1.f) < 0.5f;
-	Text(JoinAddress + (bCursor ? TEXT("_") : TEXT(" ")), X + S(16.f), Y + S(14.f), 26.f, CText, 0, false, false, true);
+	Text(JoinAddress + (bCursor ? TEXT("_") : TEXT(" ")), X + S(16.f), Y + S(14.f), 26.f, SUHUDStyle::Text, 0, false, false, true);
 	Y += S(84.f);
 	static const TCHAR* Keys[] = {TEXT("1"), TEXT("2"), TEXT("3"), TEXT("4"), TEXT("5"), TEXT("6"), TEXT("7"), TEXT("8"), TEXT("9"), TEXT("."), TEXT("0"), TEXT(":")};
 	const float K = S(70.f);
@@ -337,8 +334,8 @@ void ASUHUD::DrawJoin()
 			PC->MenuJoin(JoinAddress);
 		}
 	}, !JoinAddress.IsEmpty());
-	Text(TEXT("Der Host wählt im Hauptmenü „Koop hosten“. Im selben Netzwerk die lokale IP des Hosts verwenden,"), X, Y + 4 * (K + S(10.f)) + S(20.f), 14.f, CDim);
-	Text(TEXT("über das Internet muss beim Host UDP-Port 7777 weitergeleitet sein."), X, Y + 4 * (K + S(10.f)) + S(42.f), 14.f, CDim);
+	Text(TEXT("Der Host wählt im Hauptmenü „Koop hosten“. Im selben Netzwerk die lokale IP des Hosts verwenden,"), X, Y + 4 * (K + S(10.f)) + S(20.f), 14.f, SUHUDStyle::Dim);
+	Text(TEXT("über das Internet muss beim Host UDP-Port 7777 weitergeleitet sein."), X, Y + 4 * (K + S(10.f)) + S(42.f), 14.f, SUHUDStyle::Dim);
 }
 
 // ====================================================================================== help
@@ -367,18 +364,18 @@ void ASUHUD::DrawHelp()
 	auto Column = [this](const TCHAR* Title, const FEntry* Entries, int32 Num, float X)
 	{
 		float Y = S(110.f);
-		Text(Title, X, Y, 20.f, CAccent, 0, true);
+		Text(Title, X, Y, 20.f, SUHUDStyle::Accent, 0, true);
 		Y += S(36.f);
 		for (int32 I = 0; I < Num; ++I)
 		{
-			Text(Entries[I].Key, X, Y, 15.f, CText, 0, true);
-			Text(Entries[I].What, X + S(190.f), Y, 15.f, CDim);
+			Text(Entries[I].Key, X, Y, 15.f, SUHUDStyle::Text, 0, true);
+			Text(Entries[I].What, X + S(190.f), Y, 15.f, SUHUDStyle::Dim);
 			Y += S(25.f);
 		}
 	};
 	Column(TEXT("Zu Fuß"), OnFoot, UE_ARRAY_COUNT(OnFoot), S(60.f));
 	Column(TEXT("Im Fahrzeug"), Driving, UE_ARRAY_COUNT(Driving), FMath::Max(S(760.f), W() * 0.5f));
-	Text(TEXT("Gamepad: linker Stick gehen, rechter Stick schauen, X benutzen, Y alternative Aktion, LT Sucher, RT Foto. Belegung: SUInputConfig.cpp."), S(60.f), H() - S(80.f), 13.f, CDim);
+	Text(TEXT("Gamepad: linker Stick gehen, rechter Stick schauen, X benutzen, Y alternative Aktion, LT Sucher, RT Foto. Belegung: SUInputConfig.cpp."), S(60.f), H() - S(80.f), 13.f, SUHUDStyle::Dim);
 }
 
 // ====================================================================================== map
@@ -449,7 +446,7 @@ void ASUHUD::DrawMap(bool bFullScreen)
 		if (ToScreen(Builder->WorldToMapUV(Builder->GetPointLocation(P.Point)), SP))
 		{
 			Rect(SP.X - S(4.f), SP.Y - S(4.f), S(8.f), S(8.f), FLinearColor(0.95f, 0.92f, 0.85f, 1.f));
-			Text(P.Label, SP.X + S(8.f), SP.Y - S(9.f), 13.f, CText);
+			Text(P.Label, SP.X + S(8.f), SP.Y - S(9.f), 13.f, SUHUDStyle::Text);
 		}
 	}
 	// mission marker
@@ -462,8 +459,8 @@ void ASUHUD::DrawMap(bool bFullScreen)
 		if (ToScreen(Builder->WorldToMapUV(Target), SP))
 		{
 			const float Pulse = S(10.f) + S(4.f) * FMath::Sin(RealTime * 4.f);
-			Frame(SP.X - Pulse, SP.Y - Pulse, Pulse * 2.f, Pulse * 2.f, CAccent, 2.f);
-			Text(Label.ToString(), SP.X, SP.Y + Pulse + S(4.f), 14.f, CAccent, 1, true);
+			Frame(SP.X - Pulse, SP.Y - Pulse, Pulse * 2.f, Pulse * 2.f, SUHUDStyle::Accent, 2.f);
+			Text(Label.ToString(), SP.X, SP.Y + Pulse + S(4.f), 14.f, SUHUDStyle::Accent, 1, true);
 		}
 	}
 	// vehicle and players
@@ -492,7 +489,7 @@ void ASUHUD::DrawMap(bool bFullScreen)
 		const FVector2D Dir(FMath::Sin(FMath::DegreesToRadians(Yaw)), -FMath::Cos(FMath::DegreesToRadians(Yaw)));
 		const FVector2D Perp(-Dir.Y, Dir.X);
 		const float L = S(bMe ? 12.f : 9.f);
-		const FLinearColor C = bMe ? FLinearColor(1.f, 0.3f, 0.25f) : CGood;
+		const FLinearColor C = bMe ? FLinearColor(1.f, 0.3f, 0.25f) : SUHUDStyle::Good;
 		const FVector2D Tip = SP + Dir * L;
 		const FVector2D BL = SP - Dir * L * 0.6f + Perp * L * 0.6f;
 		const FVector2D BR = SP - Dir * L * 0.6f - Perp * L * 0.6f;
@@ -501,21 +498,21 @@ void ASUHUD::DrawMap(bool bFullScreen)
 		DrawLine(BL.X, BL.Y, BR.X, BR.Y, C, 2.f);
 		if (!bMe && It->GetPlayerState())
 		{
-			Text(It->GetPlayerState()->GetPlayerName(), SP.X + S(10.f), SP.Y - S(8.f), 12.f, CGood);
+			Text(It->GetPlayerState()->GetPlayerName(), SP.X + S(10.f), SP.Y - S(8.f), 12.f, SUHUDStyle::Good);
 		}
 	}
 	// north arrow + scale
-	Text(TEXT("N ▲"), MX + Size - S(14.f), MY + S(10.f), 15.f, CText, 2, true);
+	Text(TEXT("N ▲"), MX + Size - S(14.f), MY + S(10.f), 15.f, SUHUDStyle::Text, 2, true);
 	const float MetersPerPixel = (Builder->GetMapHalfSize() * 2.f / 100.f) * (Half * 2.f) / Size;
 	const float BarMeters = MetersPerPixel * S(120.f) > 1000.f ? 1000.f : (MetersPerPixel * S(120.f) > 500.f ? 500.f : 200.f);
 	const float BarPx = BarMeters / MetersPerPixel;
-	Rect(MX + S(16.f), MY + Size - S(26.f), BarPx, S(3.f), CText);
-	Text(BarMeters >= 1000.f ? TEXT("1 km") : FString::Printf(TEXT("%d m"), FMath::RoundToInt(BarMeters)), MX + S(16.f), MY + Size - S(50.f), 12.f, CText);
+	Rect(MX + S(16.f), MY + Size - S(26.f), BarPx, S(3.f), SUHUDStyle::Text);
+	Text(BarMeters >= 1000.f ? TEXT("1 km") : FString::Printf(TEXT("%d m"), FMath::RoundToInt(BarMeters)), MX + S(16.f), MY + Size - S(50.f), 12.f, SUHUDStyle::Text);
 
 	// legend / objectives on the right
 	const float LX = MX + Size + S(40.f);
-	Text(TEXT("Legende"), LX, MY, 18.f, CAccent, 0, true);
-	Text(TEXT("▲ rot: du   ▲ grün: Team   ■ blau: Wagen   □ orange: Einsatzziel"), LX, MY + S(30.f), 13.f, CDim);
+	Text(TEXT("Legende"), LX, MY, 18.f, SUHUDStyle::Accent, 0, true);
+	Text(TEXT("▲ rot: du   ▲ grün: Team   ■ blau: Wagen   □ orange: Einsatzziel"), LX, MY + S(30.f), 13.f, SUHUDStyle::Dim);
 	Button(bMapFollowPlayer ? TEXT("Ansicht folgt dir") : TEXT("Auf mich zentrieren"), LX, MY + S(60.f), S(260.f), S(38.f), [this]() { bMapFollowPlayer = true; });
 	Button(TEXT("Ganze Karte"), LX, MY + S(106.f), S(260.f), S(38.f), [this]() { MapZoom = 1.f; MapCenter = FVector2D(0.5f, 0.5f); bMapFollowPlayer = false; });
 }

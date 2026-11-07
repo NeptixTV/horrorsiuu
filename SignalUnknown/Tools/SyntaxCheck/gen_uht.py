@@ -91,7 +91,7 @@ def strip_default(p):
 CLASS_RE = re.compile(r'\b(UCLASS|USTRUCT|UINTERFACE)\s*\(')
 DECL_RE = re.compile(r'\b(class|struct)\s+(?:[A-Z_]+_API\s+)?([A-Za-z_][A-Za-z0-9_]*)\s*(?:final\s*)?(?::\s*([^{]*))?\{')
 
-all_classes = {}  # name -> info (for cross checks)
+all_classes = {}  # name -> {'base', 'props', 'params', 'path'} (for the shadowing check)
 headers = []
 for root, _, files in os.walk(SRC):
     for f in files:
@@ -145,6 +145,8 @@ for path in sorted(headers):
         body = text[body_start:body_end]
 
         decls = []
+        info = {'base': first_base, 'props': [], 'params': [], 'path': path, 'uclass': macro == 'UCLASS'}
+        all_classes[name] = info
         if macro == 'USTRUCT' or (kind_kw == 'struct' and macro is None):
             decls.append('public: static UScriptStruct* StaticStruct();')
             if first_base:
@@ -178,6 +180,10 @@ for path in sorted(headers):
                     errors.append('%s: UFUNCTION %s::%s is overloaded (UHT does not allow this)' % (path, name, fname))
                 seen_funcs[fname] = True
                 plist = [strip_default(p) for p in split_params(params)]
+                for p in plist:
+                    pm_ = re.search(r'([A-Za-z_][A-Za-z0-9_]*)\s*$', p)
+                    if pm_ and p.strip() != 'void':
+                        info['params'].append((fname, pm_.group(1)))
                 is_rpc = re.search(r'\b(Server|Client|NetMulticast)\b', spec) is not None
                 native = re.search(r'\bBlueprintNativeEvent\b', spec) is not None
                 if is_rpc:
@@ -207,6 +213,7 @@ for path in sorted(headers):
                     errors.append('%s: cannot parse UPROPERTY: %s' % (path, decl_txt))
                     continue
                 ptype, pname = dm2.group(1).strip(), dm2.group(2)
+                info['props'].append(pname)
                 if re.search(r'(^|[<\s,])(int|unsigned|long|short)(\s|$|[>,*])', ptype):
                     errors.append('%s: UPROPERTY %s::%s uses a non-UE integer type "%s" (use int32/uint8/...)' % (path, name, pname, ptype))
                 for en, under in uenums.items():
@@ -232,6 +239,147 @@ for path in sorted(headers):
 
     with open(os.path.join(GEN, base + '.generated.h'), 'w') as fh:
         fh.write('\n'.join(lines) + '\n')
+
+
+# UHT forbids reflected members / UFUNCTION parameters that reuse the name of a reflected property of
+# the class or any base class ("shadowing is not allowed"). Engine base properties: best-effort list.
+ENGINE_BASES = {
+    'AInfo': 'AActor', 'APawn': 'AActor', 'ACharacter': 'APawn', 'AController': 'AActor',
+    'APlayerController': 'AController', 'AAIController': 'AController', 'APlayerState': 'AInfo',
+    'AGameStateBase': 'AInfo', 'AGameModeBase': 'AInfo', 'AHUD': 'AActor', 'AActor': 'UObject',
+    'USceneComponent': 'UActorComponent', 'UPrimitiveComponent': 'USceneComponent',
+    'USynthComponent': 'USceneComponent', 'UActorComponent': 'UObject',
+}
+ENGINE_PROPS = {
+    'AActor': """PrimaryActorTick bNetTemporary bNetStartup bOnlyRelevantToOwner bAlwaysRelevant bReplicateMovement
+        bCallPreReplication bCallPreReplicationForReplay bHidden bTearOff bForceNetAddressable bExchangedRoles bNetLoadOnClient
+        bNetUseOwnerRelevancy bRelevantForNetworkReplays bRelevantForLevelBounds bReplayRewindable bAllowTickBeforeBeginPlay
+        bAutoDestroyWhenFinished bCanBeDamaged bBlockInput bCollideWhenPlacing bFindCameraComponentWhenViewTarget
+        bGenerateOverlapEventsDuringLevelStreaming bIgnoresOriginShifting bEnableAutoLODGeneration bIsEditorOnlyActor
+        bActorSeamlessTraveled bReplicates bCanBeInCluster bAllowReceiveTickEventOnDedicatedServer bActorEnableCollision
+        bReplicateUsingRegisteredSubObjectList bAsyncPhysicsTickEnabled bIsSpatiallyLoaded bIsMainWorldOnly RemoteRole Role
+        AttachmentReplication ReplicatedMovement InitialLifeSpan CustomTimeDilation RayTracingGroupId NetDormancy
+        SpawnCollisionHandlingMethod AutoReceiveInput InputPriority InputComponent NetCullDistanceSquared NetTag
+        NetUpdateFrequency MinNetUpdateFrequency NetPriority Owner NetDriverName Instigator Children RootComponent Layers
+        ParentComponent Tags OnTakeAnyDamage OnTakePointDamage OnTakeRadialDamage OnActorBeginOverlap OnActorEndOverlap
+        OnBeginCursorOver OnEndCursorOver OnClicked OnReleased OnInputTouchBegin OnInputTouchEnd OnInputTouchEnter
+        OnInputTouchLeave OnActorHit OnDestroyed OnEndPlay InstanceComponents BlueprintCreatedComponents ActorGuid HLODLayer
+        RuntimeGrid DataLayerAssets DataLayers ContentBundleGuid PhysicsReplicationMode""",
+    'APawn': """bUseControllerRotationPitch bUseControllerRotationYaw bUseControllerRotationRoll bCanAffectNavigationGeneration
+        bIsLocalViewTarget BaseEyeHeight AutoPossessPlayer AutoPossessAI RemoteViewPitch AIControllerClass PlayerState
+        BlendedReplayViewPitch LastHitBy Controller PreviousController ReceiveControllerChangedDelegate
+        ReceiveRestartedDelegate ControlInputVector LastControlInputVector""",
+    'ACharacter': """Mesh CharacterMovement CapsuleComponent ArrowComponent BasedMovement ReplicatedBasedMovement
+        AnimRootMotionTranslationScale BaseTranslationOffset BaseRotationOffset ReplicatedServerLastTransformUpdateTimeStamp
+        ReplayLastTransformUpdateTimeStamp ReplicatedMovementMode bInBaseReplication CrouchedEyeHeight bIsCrouched
+        bProxyIsJumpForceApplied bPressedJump bClientUpdating bClientWasFalling bClientResimulateRootMotion
+        bClientResimulateRootMotionSources bSimGravityDisabled bClientCheckEncroachmentOnNetUpdate bServerMoveIgnoreRootMotion
+        bWasJumping JumpKeyHoldTime JumpForceTimeRemaining ProxyJumpForceStartedTime JumpMaxHoldTime JumpMaxCount
+        JumpCurrentCount JumpCurrentCountPreJump OnReachedJumpApex MovementModeChangedDelegate OnCharacterMovementUpdated
+        LandedDelegate RepRootMotion SavedRootMotion ClientRootMotionParams RootMotionRepMoves""",
+    'AController': """PlayerState Pawn Character StateName ControlRotation bAttachToPawn bIsPlayerController
+        bCanPossessWithoutAuthority StartSpot TransformComponent OnInstigatedAnyDamage OnPossessedPawnChanged""",
+    'APlayerController': """Player AcknowledgedPawn MyHUD PlayerCameraManager PlayerCameraManagerClass
+        bAutoManageActiveCameraTarget TargetViewRotation SmoothTargetViewRotationSpeed HiddenActors HiddenPrimitiveComponents
+        LastSpectatorStateSynchTime LastSpectatorSyncLocation LastSpectatorSyncRotation ClientCap CheatManager CheatClass
+        PlayerInput ActiveForceFeedbackEffects bPlayerIsWaiting NetPlayerIndex PendingSwapConnection NetConnection
+        InputYawScale InputPitchScale InputRollScale bShowMouseCursor bEnableClickEvents bEnableTouchEvents
+        bEnableMouseOverEvents bEnableTouchOverEvents bForceFeedbackEnabled ForceFeedbackScale ClickEventKeys
+        DefaultMouseCursor CurrentMouseCursor DefaultClickTraceChannel CurrentClickTraceChannel HitResultTraceDistance
+        SeamlessTravelCount LastCompletedSeamlessTravelCount InactiveStateInputComponent bShouldPerformFullTickWhenPaused
+        CurrentTouchInterface SpectatorPawn bIsLocalPlayerController SpawnLocation""",
+    'AAIController': """bStartAILogicOnPossess bStopAILogicOnUnposses bLOSflag bSkipExtraLOSChecks bAllowStrafe bWantsPlayerState
+        bSetControlRotationFromPawnOrientation PathFollowingComponent BrainComponent PerceptionComponent Blackboard
+        CachedGameplayTasksComponent DefaultNavigationFilterClass ReceiveMoveCompleted""",
+    'AHUD': """PlayerOwner bLostFocusPaused bShowHUD bShowDebugInfo bShowHitBoxDebugInfo bShowOverlays bEnableDebugTextShadow
+        PostRenderedActors DebugDisplay ToggledDebugCategories Canvas DebugCanvas DebugTextList ShowDebugTargetDesiredClass
+        ShowDebugTargetActor""",
+    'AGameStateBase': """GameModeClass AuthorityGameMode SpectatorClass PlayerArray bReplicatedHasBegunPlay
+        ReplicatedWorldTimeSeconds ReplicatedWorldTimeSecondsDouble ServerWorldTimeSecondsDelta
+        ServerWorldTimeSecondsUpdateFrequency""",
+    'APlayerState': """Score PlayerId CompressedPing bShouldUpdateReplicatedPing bIsSpectator bOnlySpectator bIsABot bIsInactive
+        bFromPreviousLevel StartTime EngineMessageClass SavedNetworkAddress UniqueId OnPawnSet PawnPrivate PlayerNamePrivate
+        OldNamePrivate bUseCustomPlayerNames""",
+    'AGameModeBase': """OptionsString GameSessionClass GameStateClass PlayerControllerClass PlayerStateClass HUDClass
+        DefaultPawnClass SpectatorClass ReplaySpectatorPlayerControllerClass ServerStatReplicatorClass GameSession GameState
+        ServerStatReplicator DefaultPlayerName bUseSeamlessTravel bStartPlayersAsSpectators bPauseable""",
+    'UActorComponent': """PrimaryComponentTick ComponentTags AssetUserData bReplicateUsingRegisteredSubObjectList bReplicates
+        bNetAddressable bAutoActivate bIsActive bEditableWhenInherited bNavigationRelevant bCanEverAffectNavigation
+        bIsEditorOnly bIsVisualizationComponent CreationMethod OnComponentActivated OnComponentDeactivated
+        UCSModifiedProperties bWantsInitializeComponent bAsyncPhysicsTickEnabled""",
+    'USceneComponent': """PhysicsVolume AttachParent AttachSocketName AttachChildren ClientAttachedChildren NetOldAttachSocketName
+        NetOldAttachParent bShouldUpdatePhysicsVolume bHiddenInGame bBoundsChangeTriggersStreamingDataRebuild
+        bUseAttachParentBound bAbsoluteLocation bAbsoluteRotation bAbsoluteScale bVisible bShouldBeAttached
+        bShouldSnapLocationWhenAttached bShouldSnapRotationWhenAttached bShouldSnapScaleWhenAttached Mobility DetailMode
+        PhysicsVolumeChangedDelegate RelativeLocation RelativeRotation RelativeScale3D ComponentVelocity bVisualizeComponent""",
+    'UPrimitiveComponent': """MinDrawDistance LDMaxDrawDistance CachedMaxDrawDistance DepthPriorityGroup ViewOwnerDepthPriorityGroup
+        bNeverDistanceCull bAllowCullDistanceVolume bVisibleInReflectionCaptures bVisibleInRealTimeSkyCaptures
+        bVisibleInRayTracing bRenderInMainPass bRenderInDepthPass bReceivesDecals bOwnerNoSee bOnlyOwnerSee
+        bTreatAsBackgroundForOcclusion bUseAsOccluder bForceMipStreaming CastShadow bEmissiveLightSource
+        bAffectDynamicIndirectLighting bAffectIndirectLightingWhileHidden bAffectDistanceFieldLighting bCastDynamicShadow
+        bCastStaticShadow bCastVolumetricTranslucentShadow bCastContactShadow bSelfShadowOnly bCastFarShadow bCastInsetShadow
+        bCastCinematicShadow bCastHiddenShadow bCastShadowAsTwoSided bLightAttachmentsAsGroup bExcludeFromLightAttachmentGroup
+        bReceiveMobileCSMShadows bSingleSampleShadowFromStationaryLights bIgnoreRadialImpulse bIgnoreRadialForce
+        bApplyImpulseOnDamage bReplicatePhysicsToAutonomousProxy bFillCollisionUnderneathForNavmesh bRenderCustomDepth
+        bVisibleInSceneCaptureOnly bHiddenInSceneCapture CustomDepthStencilWriteMask CustomDepthStencilValue
+        CustomPrimitiveData TranslucencySortPriority TranslucencySortDistanceOffset RuntimeVirtualTextures
+        VirtualTextureLodBias VirtualTextureCullMips VirtualTextureMainPassMaxDrawDistance VirtualTextureRenderPassType
+        LightmapType HLODBatchingPolicy bIsActorTextureStreamingBuiltData bIsValidTextureStreamingBuiltData
+        bNeverNeedsCookedCollisionData CanCharacterStepUpOn LightingChannels RayTracingGroupId VisibilityId BoundsScale
+        bGenerateOverlapEvents BodyInstance OnComponentHit OnComponentBeginOverlap OnComponentEndOverlap OnComponentWake
+        OnComponentSleep OnComponentPhysicsStateChanged MoveIgnoreActors MoveIgnoreComponents LODParentPrimitive
+        bMultiBodyOverlap bTraceComplexOnMove bReturnMaterialOnMove bUseViewOwnerDepthPriorityGroup bAlwaysCreatePhysicsState
+        bHasPerInstanceHitProxies""",
+    'USynthComponent': """bAutoDestroy bStopWhenOwnerDestroyed bAllowSpatialization bOverrideAttenuation bOutputToBusOnly
+        AttenuationSettings AttenuationOverrides ConcurrencySet ConcurrencySettings SoundClass SourceEffectChain SoundSubmix
+        SoundSubmixSends BusSends PreEffectBusSends bIsUISound bIsPreviewSound EnvelopeFollowerAttackTime
+        EnvelopeFollowerReleaseTime OnAudioEnvelopeValue Synth AudioComponent bEnableBusSends bEnableBaseSubmix
+        bEnableSubmixSends""",
+    'UGameInstance': """LocalPlayers OnlineSession ReferencedObjects OnPawnControllerChangedDelegates
+        OnInputDeviceConnectionChange OnUserInputDevicePairingChange""",
+    'UGameUserSettings': """bUseVSync bUseDynamicResolution ResolutionSizeX ResolutionSizeY LastUserConfirmedResolutionSizeX
+        LastUserConfirmedResolutionSizeY WindowPosX WindowPosY FullscreenMode LastConfirmedFullscreenMode
+        PreferredFullscreenMode Version AudioQualityLevel LastConfirmedAudioQualityLevel FrameRateLimit DesiredScreenWidth
+        bUseDesiredScreenHeight DesiredScreenHeight LastUserConfirmedDesiredScreenWidth LastUserConfirmedDesiredScreenHeight
+        LastRecommendedScreenWidth LastRecommendedScreenHeight LastCPUBenchmarkResult LastGPUBenchmarkResult
+        LastCPUBenchmarkSteps LastGPUBenchmarkSteps LastGPUBenchmarkMultiplier bUseHDRDisplayOutput HDRDisplayOutputNits
+        OnGameUserSettingsUINeedsUpdate""",
+    'UDeveloperSettings': 'CategoryName SectionName',
+}
+ENGINE_PROPS = {k: set(v.split()) for k, v in ENGINE_PROPS.items()}
+
+
+def scope_props(cls, seen=None):
+    """name -> class where it is declared, for all base classes of cls (not cls itself)"""
+    out = {}
+    base = all_classes[cls]['base'] if cls in all_classes else ENGINE_BASES.get(cls)
+    guard = 0
+    while base and guard < 32:
+        guard += 1
+        if base in all_classes:
+            for p in all_classes[base]['props']:
+                out.setdefault(p, base)
+            base = all_classes[base]['base']
+        else:
+            for p in ENGINE_PROPS.get(base, ()):
+                out.setdefault(p, base)
+            base = ENGINE_BASES.get(base)
+    return out
+
+
+for cls, info in all_classes.items():
+    if not info.get('uclass'):
+        continue
+    inherited = scope_props(cls)
+    for p in info['props']:
+        if p in inherited:
+            errors.append("%s: UPROPERTY '%s' in %s shadows '%s' of %s (UHT: shadowing is not allowed)" % (info['path'], p, cls, p, inherited[p]))
+    own = set(info['props'])
+    for fname, pname in info['params']:
+        if pname in inherited:
+            errors.append("%s: parameter '%s' of %s::%s shadows '%s' of %s (UHT: shadowing is not allowed)" % (info['path'], pname, cls, fname, pname, inherited[pname]))
+        elif pname in own:
+            errors.append("%s: parameter '%s' of %s::%s shadows a property of %s (UHT: shadowing is not allowed)" % (info['path'], pname, cls, fname, cls))
 
 # AddDynamic handlers must be UFUNCTIONs
 for root, _, files in os.walk(SRC):

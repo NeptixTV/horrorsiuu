@@ -29,10 +29,9 @@ namespace TowerLayout
 	constexpr int32 Steps = 15;
 }
 
-using namespace TowerLayout;
-
 void ASUSiteTower::BuildSite(ASUWorldBuilder* InBuilder, bool bInServer)
 {
+	using namespace TowerLayout;
 	Super::BuildSite(InBuilder, bInServer);
 	SetSurface(SUSurfaceTag::Wood);
 	BuildStructure();
@@ -68,6 +67,7 @@ void ASUSiteTower::BuildSite(ASUWorldBuilder* InBuilder, bool bInServer)
 
 void ASUSiteTower::BuildStructure()
 {
+	using namespace TowerLayout;
 	// legs
 	for (int32 I = 0; I < 4; ++I)
 	{
@@ -115,6 +115,7 @@ void ASUSiteTower::BuildStructure()
 
 void ASUSiteTower::BuildStairs()
 {
+	using namespace TowerLayout;
 	// switchback stair column on the +X side of the tower: lanes run along local Y
 	const float XMin = TX + Catwalk;          // -570
 	const float XMax = XMin + 2.f * LaneW + 10.f;
@@ -165,6 +166,7 @@ void ASUSiteTower::BuildStairs()
 
 void ASUSiteTower::BuildCabin()
 {
+	using namespace TowerLayout;
 	const float Z = Deck;
 	const float H = CabinHalf;
 	const float T = 12.f;
@@ -202,6 +204,7 @@ void ASUSiteTower::BuildCabin()
 
 void ASUSiteTower::BuildInterior()
 {
+	using namespace TowerLayout;
 	const float CX = TX;
 	const float CY = TY;
 	const float Z = Deck;
@@ -276,6 +279,7 @@ void ASUSiteTower::BuildInterior()
 
 void ASUSiteTower::BuildGrounds()
 {
+	using namespace TowerLayout;
 	// gravel parking area and path to the stairs
 	AddBox(FVector(1350.f, 0.f, -8.f), FVector(1100.f, 1500.f, 20.f), ESUMat::Gravel);
 	AddBox(FVector(200.f, -150.f, -9.f), FVector(1500.f, 260.f, 20.f), ESUMat::Gravel);
@@ -322,6 +326,7 @@ void ASUSiteTower::BuildGrounds()
 
 void ASUSiteTower::SpawnInteractables()
 {
+	using namespace TowerLayout;
 	if (!bServer)
 	{
 		return;

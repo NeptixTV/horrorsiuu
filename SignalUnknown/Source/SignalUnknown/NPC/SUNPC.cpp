@@ -36,7 +36,7 @@ ASUNPC::ASUNPC()
 void ASUNPC::GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& OutLifetimeProps) const
 {
 	Super::GetLifetimeReplicatedProps(OutLifetimeProps);
-	DOREPLIFETIME(ASUNPC, Role);
+	DOREPLIFETIME(ASUNPC, NPCRole);
 	DOREPLIFETIME(ASUNPC, DisplayName);
 	DOREPLIFETIME(ASUNPC, bDaytimeOnly);
 	DOREPLIFETIME(ASUNPC, bAway);
@@ -55,7 +55,7 @@ void ASUNPC::BeginPlay()
 		VoiceAudio->ConfigureSound(ESUSoundKind::RadioVoice, SUAudioCategory::Voice, 0.7f, 1500.f);
 		VoiceAudio->RegisterComponent();
 		VoiceAudio->StartSound();
-		VoiceAudio->SetSoundParam(SULogic::Dsp::Param::B, Role == ESUNPCRole::Clerk ? 1.2f : 0.9f);
+		VoiceAudio->SetSoundParam(SULogic::Dsp::Param::B, NPCRole == ESUNPCRole::Clerk ? 1.2f : 0.9f);
 		VoiceAudio->SetSoundParam(SULogic::Dsp::Param::C, 1.f);
 		VoiceAudio->SetSoundParam(SULogic::Dsp::Param::D, 0.f);
 
@@ -93,15 +93,15 @@ void ASUNPC::BuildBody()
 		return C;
 	};
 	// PLACEHOLDER figure (to be replaced by a skeletal mesh with animations)
-	const ESUMat Shirt = Role == ESUNPCRole::Clerk ? ESUMat::GasRed : ESUMat::FabricBlue;
-	const ESUMat Trousers = Role == ESUNPCRole::Clerk ? ESUMat::CarDark : ESUMat::Cloth;
+	const ESUMat Shirt = NPCRole == ESUNPCRole::Clerk ? ESUMat::GasRed : ESUMat::FabricBlue;
+	const ESUMat Trousers = NPCRole == ESUNPCRole::Clerk ? ESUMat::CarDark : ESUMat::Cloth;
 	Part(ESUShape::Cube, FVector(0.f, 0.f, 22.f), FVector(26.f, 40.f, 62.f), Shirt);                 // torso
 	Part(ESUShape::Cube, FVector(0.f, 0.f, -10.f), FVector(24.f, 38.f, 16.f), Trousers);            // hips
 	Part(ESUShape::Sphere, FVector(0.f, 0.f, 70.f), FVector(22.f, 20.f, 26.f), ESUMat::Skin);       // head
-	Part(ESUShape::Sphere, FVector(-2.f, 0.f, 79.f), FVector(23.f, 21.f, 14.f), Role == ESUNPCRole::Clerk ? ESUMat::WoodDark : ESUMat::MetalDark); // hair
+	Part(ESUShape::Sphere, FVector(-2.f, 0.f, 79.f), FVector(23.f, 21.f, 14.f), NPCRole == ESUNPCRole::Clerk ? ESUMat::WoodDark : ESUMat::MetalDark); // hair
 	Part(ESUShape::Cube, FVector(10.f, -5.f, 72.f), FVector(2.f, 3.f, 3.f), ESUMat::Black);         // eyes
 	Part(ESUShape::Cube, FVector(10.f, 5.f, 72.f), FVector(2.f, 3.f, 3.f), ESUMat::Black);
-	if (Role == ESUNPCRole::Clerk)
+	if (NPCRole == ESUNPCRole::Clerk)
 	{
 		Part(ESUShape::Cube, FVector(13.5f, -10.f, 36.f), FVector(1.f, 10.f, 4.f), ESUMat::White);  // name badge
 	}
@@ -121,7 +121,7 @@ bool ASUNPC::GetInteractionPrompt(const ASUCharacter* User, const UPrimitiveComp
 	}
 	OutPrompt.Primary = FText::FromString(FString::Printf(TEXT("Mit %s sprechen"), *DisplayName.ToString()));
 	OutPrompt.bPrimary = true;
-	if (Role == ESUNPCRole::Clerk)
+	if (NPCRole == ESUNPCRole::Clerk)
 	{
 		OutPrompt.Info = SUText(TEXT("Kassiererin – zum Bezahlen an die Kasse"));
 	}
@@ -159,7 +159,7 @@ FString ASUNPC::PickLine(const ASUCharacter* Listener)
 	const int32 Story = GS ? GS->GetStoryStage() : 0;
 	++TalkCounter;
 
-	if (Role == ESUNPCRole::Clerk)
+	if (NPCRole == ESUNPCRole::Clerk)
 	{
 		// open fuel bill first
 		for (TActorIterator<ASUShopCounter> It(GetWorld()); It; ++It)
@@ -412,7 +412,7 @@ void ASUNPC::AnimateBody(float DeltaSeconds)
 		if (StepTimer <= 0.f)
 		{
 			StepTimer = 0.55f;
-			FootstepAudio->TriggerSound(Role == ESUNPCRole::Clerk ? 3 : 0, 0.6f);
+			FootstepAudio->TriggerSound(NPCRole == ESUNPCRole::Clerk ? 3 : 0, 0.6f);
 		}
 	}
 	if (VoiceAudio)

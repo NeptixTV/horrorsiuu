@@ -38,7 +38,7 @@ public:
 	virtual void Interact(ASUCharacter* User, UPrimitiveComponent* Component, ESUInteractOption Option) override;
 	virtual float GetInteractionRange() const override { return 280.f; }
 
-	UPROPERTY(Replicated) ESUNPCRole Role = ESUNPCRole::Resident;
+	UPROPERTY(Replicated) ESUNPCRole NPCRole = ESUNPCRole::Resident;
 	UPROPERTY(Replicated) FText DisplayName;
 	UPROPERTY(Replicated) bool bDaytimeOnly = false;
 	/** Server: route, first point is "home" (register / front door). */

@@ -19,10 +19,9 @@ namespace GasLayout
 	constexpr float CanopyX = 1500.f;
 }
 
-using namespace GasLayout;
-
 void ASUSiteGasStation::BuildSite(ASUWorldBuilder* InBuilder, bool bInServer)
 {
+	using namespace GasLayout;
 	Super::BuildSite(InBuilder, bInServer);
 	SetSurface(SUSurfaceTag::Asphalt);
 	BuildForecourt();
@@ -38,6 +37,7 @@ void ASUSiteGasStation::BuildSite(ASUWorldBuilder* InBuilder, bool bInServer)
 
 void ASUSiteGasStation::BuildForecourt()
 {
+	using namespace GasLayout;
 	// asphalt apron connecting to the road
 	AddBox(FVector(1350.f, 0.f, -6.f), FVector(3300.f, 2800.f, 20.f), ESUMat::Asphalt);
 	// parking lines in front of the shop
@@ -83,6 +83,7 @@ void ASUSiteGasStation::BuildForecourt()
 
 void ASUSiteGasStation::BuildShop()
 {
+	using namespace GasLayout;
 	const FVector2D A(ShopX1, -ShopY);
 	const FVector2D B(ShopX1, ShopY);
 	const float T = 20.f;
@@ -163,6 +164,7 @@ void ASUSiteGasStation::BuildShop()
 
 void ASUSiteGasStation::SpawnInteractables()
 {
+	using namespace GasLayout;
 	if (!bServer)
 	{
 		return;
@@ -230,7 +232,7 @@ void ASUSiteGasStation::SpawnInteractables()
 	// clerk and register
 	ASUNPC* Clerk = SpawnInteractable<ASUNPC>(FVector(-600.f, 380.f, 100.f), 0.f, [this](ASUNPC& N)
 	{
-		N.Role = ESUNPCRole::Clerk;
+		N.NPCRole = ESUNPCRole::Clerk;
 		N.DisplayName = SUText(TEXT("Ruth"));
 		// route (walked back and forth): register -> end of counter -> front -> between the aisles (restocking)
 		N.WanderPoints = {ToWorld(FVector(-600.f, 380.f, 100.f)), ToWorld(FVector(-600.f, 120.f, 100.f)), ToWorld(FVector(-310.f, 40.f, 100.f)), ToWorld(FVector(-300.f, -210.f, 100.f)), ToWorld(FVector(-560.f, -210.f, 100.f))};
@@ -249,6 +251,7 @@ void ASUSiteGasStation::SpawnInteractables()
 
 void ASUSiteRoadBlock::BuildSite(ASUWorldBuilder* InBuilder, bool bInServer)
 {
+	using namespace GasLayout;
 	Super::BuildSite(InBuilder, bInServer);
 	AddRoadBlock(FVector::ZeroVector, RoadWidth + 200.f, TEXT("STRASSE GESPERRT"));
 }

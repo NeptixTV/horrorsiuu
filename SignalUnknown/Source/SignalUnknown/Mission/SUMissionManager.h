@@ -102,7 +102,7 @@ private:
 	void OnRep_State();
 
 	UFUNCTION()
-	void HandleGameEvent(FName EventName, FName Param, AActor* Instigator);
+	void HandleGameEvent(FName EventName, FName Param, AActor* EventInstigator);
 
 	FName QueuedMissionId;
 	double QueueTime = 0.0;

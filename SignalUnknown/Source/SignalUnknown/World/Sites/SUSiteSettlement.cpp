@@ -65,7 +65,7 @@ void ASUSiteSettlement::BuildSite(ASUWorldBuilder* InBuilder, bool bInServer)
 		{
 			SpawnInteractable<ASUNPC>(FVector(600.f, -300.f, 100.f), 0.f, [this](ASUNPC& N)
 			{
-				N.Role = ESUNPCRole::Resident;
+				N.NPCRole = ESUNPCRole::Resident;
 				N.DisplayName = SiteId == FName(TEXT("House2")) ? SUText(TEXT("Herr Lindqvist")) : SUText(TEXT("Frau Okafor"));
 				N.WanderPoints = {ToWorld(FVector(600.f, -300.f, 100.f)), ToWorld(FVector(400.f, 400.f, 100.f)), ToWorld(FVector(800.f, 100.f, 100.f))};
 				N.bDaytimeOnly = true;

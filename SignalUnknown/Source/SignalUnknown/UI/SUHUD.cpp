@@ -1,4 +1,5 @@
 ﻿#include "UI/SUHUD.h"
+#include "UI/SUHUDStyle.h"
 #include "SignalUnknown.h"
 #include "Core/SUPlayerController.h"
 #include "Core/SUGameState.h"
@@ -25,18 +26,6 @@
 #include "Framework/Application/SlateApplication.h"
 #include "Fonts/FontMeasure.h"
 #include "Rendering/SlateRenderer.h"
-
-namespace SUColors
-{
-	const FLinearColor Text(0.92f, 0.90f, 0.85f);
-	const FLinearColor Dim(0.62f, 0.60f, 0.56f);
-	const FLinearColor Accent(1.f, 0.72f, 0.32f);
-	const FLinearColor Good(0.55f, 0.95f, 0.6f);
-	const FLinearColor Bad(1.f, 0.42f, 0.36f);
-	const FLinearColor PanelBg(0.03f, 0.035f, 0.04f);
-	const FLinearColor ButtonBg(0.12f, 0.12f, 0.12f, 0.9f);
-	const FLinearColor ButtonFocus(0.32f, 0.22f, 0.1f, 0.95f);
-}
 
 ASUHUD::ASUHUD()
 {
@@ -176,7 +165,7 @@ void ASUHUD::Frame(float X, float Y, float InW, float InH, const FLinearColor& C
 
 void ASUHUD::Panel(float X, float Y, float InW, float InH, float Alpha)
 {
-	FLinearColor C = SUColors::PanelBg;
+	FLinearColor C = SUHUDStyle::PanelBg;
 	C.A = Alpha;
 	Rect(X, Y, InW, InH, C);
 	Frame(X, Y, InW, InH, FLinearColor(0.4f, 0.36f, 0.3f, 0.6f));
@@ -206,9 +195,9 @@ bool ASUHUD::Button(const FString& Label, float X, float Y, float InW, float InH
 	B.bEnabled = bEnabled;
 	const bool bHover = B.Rect.IsInside(LastMouse) && bMouseMovedSinceNav;
 	const bool bFocus = IsFocused(Index) || bHover;
-	Rect(X, Y, InW, InH, bFocus && bEnabled ? SUColors::ButtonFocus : SUColors::ButtonBg);
-	Frame(X, Y, InW, InH, bFocus && bEnabled ? SUColors::Accent : FLinearColor(0.35f, 0.33f, 0.3f, 0.8f));
-	Text(Label, X + InW * 0.5f, Y + InH * 0.5f - S(FontSize) * 0.68f, FontSize, bEnabled ? SUColors::Text : SUColors::Dim, 1);
+	Rect(X, Y, InW, InH, bFocus && bEnabled ? SUHUDStyle::ButtonFocus : SUHUDStyle::ButtonBg);
+	Frame(X, Y, InW, InH, bFocus && bEnabled ? SUHUDStyle::Accent : FLinearColor(0.35f, 0.33f, 0.3f, 0.8f));
+	Text(Label, X + InW * 0.5f, Y + InH * 0.5f - S(FontSize) * 0.68f, FontSize, bEnabled ? SUHUDStyle::Text : SUHUDStyle::Dim, 1);
 	return bFocus;
 }
 
@@ -227,16 +216,16 @@ void ASUHUD::SettingRow(const FString& Label, const FString& Value, float X, flo
 	{
 		Rect(X, Y, InW, RowH, FLinearColor(0.25f, 0.17f, 0.08f, 0.6f));
 	}
-	Text(Label, X + S(12.f), Y + S(7.f), 16.f, SUColors::Text);
-	Text(FString::Printf(TEXT("‹  %s  ›"), *Value), X + InW - S(12.f), Y + S(7.f), 16.f, bFocus ? SUColors::Accent : SUColors::Text, 2);
+	Text(Label, X + S(12.f), Y + S(7.f), 16.f, SUHUDStyle::Text);
+	Text(FString::Printf(TEXT("‹  %s  ›"), *Value), X + InW - S(12.f), Y + S(7.f), 16.f, bFocus ? SUHUDStyle::Accent : SUHUDStyle::Text, 2);
 }
 
 void ASUHUD::DrawScreenTitle(const FString& Title, const FString& Hint)
 {
-	Text(Title, S(60.f), S(40.f), 30.f, SUColors::Accent, 0, true);
+	Text(Title, S(60.f), S(40.f), 30.f, SUHUDStyle::Accent, 0, true);
 	if (!Hint.IsEmpty())
 	{
-		Text(Hint, W() - S(60.f), H() - S(44.f), 14.f, SUColors::Dim, 2);
+		Text(Hint, W() - S(60.f), H() - S(44.f), 14.f, SUHUDStyle::Dim, 2);
 	}
 }
 
@@ -557,8 +546,8 @@ void ASUHUD::DrawGameHUD(float DeltaSeconds)
 	if (Char && Char->IsDead())
 	{
 		Rect(0.f, 0.f, W(), H(), FLinearColor(0.08f, 0.f, 0.f, 0.55f));
-		Text(TEXT("Du bist bewusstlos …"), W() * 0.5f, H() * 0.45f, 30.f, SUColors::Bad, 1, true);
-		Text(TEXT("Du wachst gleich im Turm wieder auf."), W() * 0.5f, H() * 0.45f + S(48.f), 17.f, SUColors::Dim, 1);
+		Text(TEXT("Du bist bewusstlos …"), W() * 0.5f, H() * 0.45f, 30.f, SUHUDStyle::Bad, 1, true);
+		Text(TEXT("Du wachst gleich im Turm wieder auf."), W() * 0.5f, H() * 0.45f + S(48.f), 17.f, SUHUDStyle::Dim, 1);
 	}
 }
 
@@ -599,17 +588,17 @@ void ASUHUD::DrawPrompt(const ASUCharacter* Char)
 	float Y = CY + S(26.f);
 	if (P.bPrimary)
 	{
-		Text(FString::Printf(TEXT("[E]  %s"), *P.Primary.ToString()), CX, Y, 18.f, SUColors::Text, 1, true);
+		Text(FString::Printf(TEXT("[E]  %s"), *P.Primary.ToString()), CX, Y, 18.f, SUHUDStyle::Text, 1, true);
 		Y += S(26.f);
 	}
 	if (P.bSecondary)
 	{
-		Text(FString::Printf(TEXT("[Q]  %s"), *P.Secondary.ToString()), CX, Y, 16.f, SUColors::Text, 1);
+		Text(FString::Printf(TEXT("[Q]  %s"), *P.Secondary.ToString()), CX, Y, 16.f, SUHUDStyle::Text, 1);
 		Y += S(24.f);
 	}
 	if (!P.Info.IsEmpty())
 	{
-		Text(P.Info.ToString(), CX, Y, 14.f, SUColors::Dim, 1);
+		Text(P.Info.ToString(), CX, Y, 14.f, SUHUDStyle::Dim, 1);
 	}
 }
 
@@ -694,12 +683,12 @@ void ASUHUD::DrawObjectives(const ASUMissionManager* MM, bool bCompact)
 	const float Alpha = bPinned || bCompact ? 1.f : FMath::Clamp(ObjectiveFlash, 0.f, 1.f);
 	const float X = S(36.f);
 	float Y = S(30.f);
-	Text(Title, X, Y, 19.f, FLinearColor(SUColors::Accent.R, SUColors::Accent.G, SUColors::Accent.B, Alpha), 0, true);
+	Text(Title, X, Y, 19.f, FLinearColor(SUHUDStyle::Accent.R, SUHUDStyle::Accent.G, SUHUDStyle::Accent.B, Alpha), 0, true);
 	Y += S(30.f);
 	for (const auto& L : Lines)
 	{
 		const FString Prefix = L.Value == 1 ? TEXT("✓ ") : (L.Value == 3 ? TEXT("") : TEXT("○ "));
-		FLinearColor C = L.Value == 1 ? SUColors::Dim : (L.Value == 2 ? FLinearColor(0.75f, 0.8f, 0.9f) : SUColors::Text);
+		FLinearColor C = L.Value == 1 ? SUHUDStyle::Dim : (L.Value == 2 ? FLinearColor(0.75f, 0.8f, 0.9f) : SUHUDStyle::Text);
 		C.A = Alpha;
 		Text(Prefix + L.Key, X, Y, 15.f, C);
 		Y += S(23.f);
@@ -755,10 +744,10 @@ void ASUHUD::DrawCompass(const ASUCharacter* Char, const ASUMissionManager* MM)
 		const float Deg = To.Rotation().Yaw;
 		const float D = FRotator::NormalizeAxis(Deg - Yaw);
 		const float X = CX + FMath::Clamp(D / (Range * 0.5f), -1.f, 1.f) * Width * 0.5f;
-		Text(TEXT("▼"), X, Y + S(24.f), 14.f, SUColors::Accent, 1);
+		Text(TEXT("▼"), X, Y + S(24.f), 14.f, SUHUDStyle::Accent, 1);
 		const float Dist = To.Size2D() / 100.f;
 		const FString DistText = Dist > 1000.f ? FString::Printf(TEXT("%.1f km"), Dist / 1000.f) : FString::Printf(TEXT("%d m"), FMath::RoundToInt(Dist));
-		Text(FString::Printf(TEXT("%s  %s"), *Label.ToString(), *DistText), X, Y + S(42.f), 12.f, SUColors::Accent, 1);
+		Text(FString::Printf(TEXT("%s  %s"), *Label.ToString(), *DistText), X, Y + S(42.f), 12.f, SUHUDStyle::Accent, 1);
 	}
 }
 
@@ -838,7 +827,7 @@ void ASUHUD::DrawSubtitles(const ASUCharacter* Char, const ASUMissionManager* MM
 	Rect(W() * 0.5f - BoxW * 0.5f, Y - S(8.f), BoxW, Lines.Num() * LineH + S(14.f), FLinearColor(0.f, 0.f, 0.f, 0.45f));
 	for (int32 I = 0; I < Lines.Num(); ++I)
 	{
-		Text(Lines[I], W() * 0.5f, Y, Size, bRadio ? FLinearColor(0.75f, 0.92f, 1.f) : SUColors::Text, 1);
+		Text(Lines[I], W() * 0.5f, Y, Size, bRadio ? FLinearColor(0.75f, 0.92f, 1.f) : SUHUDStyle::Text, 1);
 		Y += LineH;
 	}
 }
@@ -879,34 +868,34 @@ void ASUHUD::DrawVitals(const ASUCharacter* Char, const ASUGameState* GS)
 	const float BarW = S(180.f);
 	Rect(X, Y, BarW, S(6.f), FLinearColor(0.f, 0.f, 0.f, 0.5f));
 	const float Hp = FMath::Clamp(Char->GetHealth() / 100.f, 0.f, 1.f);
-	Rect(X, Y, BarW * Hp, S(6.f), Hp < 0.35f ? SUColors::Bad : FLinearColor(0.85f, 0.85f, 0.8f, 0.8f));
+	Rect(X, Y, BarW * Hp, S(6.f), Hp < 0.35f ? SUHUDStyle::Bad : FLinearColor(0.85f, 0.85f, 0.8f, 0.8f));
 	Y += S(14.f);
 	if (const USUInventoryComponent* Inv = Char->GetInventory())
 	{
 		if (Inv->HasItem(SUItem::Flashlight))
 		{
 			const float Charge = Char->GetFlashlightCharge();
-			Text(FString::Printf(TEXT("Lampe %d %%%s"), FMath::RoundToInt(Charge * 100.f), Char->IsFlashlightOn() ? TEXT("  ●") : TEXT("")), X, Y, 13.f, Charge < 0.15f ? SUColors::Bad : SUColors::Dim);
+			Text(FString::Printf(TEXT("Lampe %d %%%s"), FMath::RoundToInt(Charge * 100.f), Char->IsFlashlightOn() ? TEXT("  ●") : TEXT("")), X, Y, 13.f, Charge < 0.15f ? SUHUDStyle::Bad : SUHUDStyle::Dim);
 			Y += S(18.f);
 		}
 		if (Inv->HasItem(SUItem::Camera) && Char->GetPhotoCamera())
 		{
 			const USUPhotoCameraComponent* Cam = Char->GetPhotoCamera();
 			Text(FString::Printf(TEXT("Kamera %d %%  ·  %d/%d Fotos%s"), FMath::RoundToInt(Cam->GetBattery() * 100.f), Cam->GetPhotoCount(), Cam->GetCapacity(),
-				Char->GetHeldItem() == ESUHeldItem::Camera ? TEXT("  [RMT] Sucher") : TEXT("  [C]")), X, Y, 13.f, SUColors::Dim);
+				Char->GetHeldItem() == ESUHeldItem::Camera ? TEXT("  [RMT] Sucher") : TEXT("  [C]")), X, Y, 13.f, SUHUDStyle::Dim);
 			Y += S(18.f);
 		}
 	}
 	if (GS)
 	{
-		Text(FString::Printf(TEXT("Tag %d  %s   ·   Konto %s"), GS->GetDay(), *SUFormatTime(GS->GetTimeOfDay()), *SUFormatMoney(GS->GetMoneyCents())), X, Y, 13.f, SUColors::Dim);
+		Text(FString::Printf(TEXT("Tag %d  %s   ·   Konto %s"), GS->GetDay(), *SUFormatTime(GS->GetTimeOfDay()), *SUFormatMoney(GS->GetMoneyCents())), X, Y, 13.f, SUHUDStyle::Dim);
 	}
 	if (const ASUPlayerController* PC = GetPC())
 	{
 		const USUGameUserSettings* Settings = USUGameUserSettings::Get();
 		if (PC->GetNetMode() != NM_Standalone && Settings && Settings->bVoiceChatEnabled)
 		{
-			Text(Settings->bPushToTalk ? TEXT("Sprechfunk: [T] halten") : TEXT("Sprechfunk: offen"), W() - S(36.f), H() - S(40.f), 12.f, SUColors::Dim, 2);
+			Text(Settings->bPushToTalk ? TEXT("Sprechfunk: [T] halten") : TEXT("Sprechfunk: offen"), W() - S(36.f), H() - S(40.f), 12.f, SUHUDStyle::Dim, 2);
 		}
 	}
 }
@@ -933,15 +922,15 @@ void ASUHUD::DrawVehicleHUD(const ASUCharacter* Char)
 	const float X = W() - S(300.f);
 	const float Y = H() - S(170.f);
 	Panel(X, Y, S(264.f), S(132.f), 0.55f);
-	Text(FString::Printf(TEXT("%d"), FMath::RoundToInt(V->GetSpeedKmh())), X + S(20.f), Y + S(8.f), 40.f, SUColors::Text, 0, true);
-	Text(TEXT("km/h"), X + S(110.f), Y + S(30.f), 14.f, SUColors::Dim);
-	Text(V->GetGearText(), X + S(240.f), Y + S(14.f), 26.f, SUColors::Accent, 2, true);
+	Text(FString::Printf(TEXT("%d"), FMath::RoundToInt(V->GetSpeedKmh())), X + S(20.f), Y + S(8.f), 40.f, SUHUDStyle::Text, 0, true);
+	Text(TEXT("km/h"), X + S(110.f), Y + S(30.f), 14.f, SUHUDStyle::Dim);
+	Text(V->GetGearText(), X + S(240.f), Y + S(14.f), 26.f, SUHUDStyle::Accent, 2, true);
 	// fuel gauge
 	const float Fuel = FMath::Clamp(V->GetFuelLiters() / FMath::Max(1.f, V->GetFuelCapacity()), 0.f, 1.f);
 	Rect(X + S(20.f), Y + S(70.f), S(224.f), S(6.f), FLinearColor(0.f, 0.f, 0.f, 0.6f));
-	Rect(X + S(20.f), Y + S(70.f), S(224.f) * Fuel, S(6.f), Fuel < 0.12f ? SUColors::Bad : FLinearColor(0.9f, 0.8f, 0.5f));
-	Text(FString::Printf(TEXT("Tank %.0f l"), V->GetFuelLiters()), X + S(20.f), Y + S(80.f), 13.f, SUColors::Dim);
-	Text(FString::Printf(TEXT("Motor %d %%"), FMath::RoundToInt(V->GetEngineHealth())), X + S(244.f), Y + S(80.f), 13.f, V->GetEngineHealth() < 40.f ? SUColors::Bad : SUColors::Dim, 2);
+	Rect(X + S(20.f), Y + S(70.f), S(224.f) * Fuel, S(6.f), Fuel < 0.12f ? SUHUDStyle::Bad : FLinearColor(0.9f, 0.8f, 0.5f));
+	Text(FString::Printf(TEXT("Tank %.0f l"), V->GetFuelLiters()), X + S(20.f), Y + S(80.f), 13.f, SUHUDStyle::Dim);
+	Text(FString::Printf(TEXT("Motor %d %%"), FMath::RoundToInt(V->GetEngineHealth())), X + S(244.f), Y + S(80.f), 13.f, V->GetEngineHealth() < 40.f ? SUHUDStyle::Bad : SUHUDStyle::Dim, 2);
 	// indicators
 	FString Ind;
 	if (V->GetLightsMode() == 1) { Ind += TEXT("Abblendlicht  "); }
@@ -949,16 +938,16 @@ void ASUHUD::DrawVehicleHUD(const ASUCharacter* Char)
 	if (V->AreWipersOn()) { Ind += TEXT("Wischer  "); }
 	const int32 Blink = V->GetBlinkerMode();
 	const bool bBlinkPhase = FMath::Fmod(RealTime, 0.72f) < 0.36f;
-	if (Blink == 1 || Blink == 3) { Text(TEXT("◄"), X + S(20.f), Y + S(100.f), 14.f, bBlinkPhase ? SUColors::Good : SUColors::Dim); }
-	if (Blink == 2 || Blink == 3) { Text(TEXT("►"), X + S(244.f), Y + S(100.f), 14.f, bBlinkPhase ? SUColors::Good : SUColors::Dim, 2); }
-	Text(Ind, X + S(132.f), Y + S(102.f), 12.f, SUColors::Dim, 1);
+	if (Blink == 1 || Blink == 3) { Text(TEXT("◄"), X + S(20.f), Y + S(100.f), 14.f, bBlinkPhase ? SUHUDStyle::Good : SUHUDStyle::Dim); }
+	if (Blink == 2 || Blink == 3) { Text(TEXT("►"), X + S(244.f), Y + S(100.f), 14.f, bBlinkPhase ? SUHUDStyle::Good : SUHUDStyle::Dim, 2); }
+	Text(Ind, X + S(132.f), Y + S(102.f), 12.f, SUHUDStyle::Dim, 1);
 	if (V->IsRadioOn())
 	{
-		Text(FString::Printf(TEXT("♪ %s  %d %%"), *V->GetRadioStationName().ToString(), FMath::RoundToInt(V->GetRadioVolume() * 100.f)), X + S(244.f), Y - S(24.f), 13.f, SUColors::Dim, 2);
+		Text(FString::Printf(TEXT("♪ %s  %d %%"), *V->GetRadioStationName().ToString(), FMath::RoundToInt(V->GetRadioVolume() * 100.f)), X + S(244.f), Y - S(24.f), 13.f, SUHUDStyle::Dim, 2);
 	}
 	if (!V->IsEngineRunning() && Char->IsDriver())
 	{
-		Text(TEXT("[F] Motor starten   [E] Aussteigen"), W() * 0.5f, H() - S(90.f), 15.f, SUColors::Text, 1);
+		Text(TEXT("[F] Motor starten   [E] Aussteigen"), W() * 0.5f, H() - S(90.f), 15.f, SUHUDStyle::Text, 1);
 	}
 }
 
@@ -980,7 +969,7 @@ void ASUHUD::DrawViewfinder(const ASUCharacter* Char)
 	// focus frame in the centre: green when sharp
 	const float F = S(46.f);
 	const bool bSharp = Cam->GetFocusError() < 0.25f;
-	const FLinearColor FC = bSharp ? SUColors::Good : FLinearColor(1.f, 1.f, 1.f, 0.6f);
+	const FLinearColor FC = bSharp ? SUHUDStyle::Good : FLinearColor(1.f, 1.f, 1.f, 0.6f);
 	Frame(W() * 0.5f - F, H() * 0.5f - F * 0.7f, F * 2.f, F * 1.4f, FC, 1.5f);
 	// rule of thirds
 	for (int32 I = 1; I <= 2; ++I)
@@ -992,17 +981,17 @@ void ASUHUD::DrawViewfinder(const ASUCharacter* Char)
 	const bool bRec = FMath::Fmod(RealTime, 1.2f) < 0.8f;
 	if (bRec)
 	{
-		Text(TEXT("●"), M + S(10.f), M + S(10.f), 16.f, SUColors::Bad);
+		Text(TEXT("●"), M + S(10.f), M + S(10.f), 16.f, SUHUDStyle::Bad);
 	}
 	Text(FString::Printf(TEXT("%.1fx"), Cam->GetZoom()), M + S(36.f), M + S(10.f), 16.f, C);
 	Text(Cam->GetExposureText(), W() * 0.5f, H() - M - S(30.f), 15.f, C, 1, false, true, true);
 	Text(FString::Printf(TEXT("%d/%d"), Cam->GetPhotoCount(), Cam->GetCapacity()), W() - M - S(10.f), M + S(10.f), 16.f, C, 2);
-	Text(FString::Printf(TEXT("Akku %d %%"), FMath::RoundToInt(Cam->GetBattery() * 100.f)), W() - M - S(10.f), M + S(34.f), 13.f, Cam->GetBattery() < 0.15f ? SUColors::Bad : C, 2);
+	Text(FString::Printf(TEXT("Akku %d %%"), FMath::RoundToInt(Cam->GetBattery() * 100.f)), W() - M - S(10.f), M + S(34.f), 13.f, Cam->GetBattery() < 0.15f ? SUHUDStyle::Bad : C, 2);
 	Text(Cam->IsFlashEnabled() ? TEXT("Blitz AN [G]") : TEXT("Blitz AUS [G]"), M + S(10.f), H() - M - S(30.f), 13.f, C);
 	Text(FString::Printf(TEXT("Fokus %.1f m"), Cam->GetFocusDistance() / 100.f), W() - M - S(10.f), H() - M - S(30.f), 13.f, FC, 2);
 	if (Cam->IsShaky())
 	{
-		Text(TEXT("VERWACKELT – ruhig halten"), W() * 0.5f, H() * 0.5f + F + S(10.f), 14.f, SUColors::Accent, 1);
+		Text(TEXT("VERWACKELT – ruhig halten"), W() * 0.5f, H() * 0.5f + F + S(10.f), 14.f, SUHUDStyle::Accent, 1);
 	}
 	const UWorld* World = GetWorld();
 	if (World && World->GetTimeSeconds() - Cam->GetLastShotTime() < 0.12)

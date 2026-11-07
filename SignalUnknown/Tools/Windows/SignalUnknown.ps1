@@ -86,7 +86,9 @@ function Find-Engines
 	# 3. Standardordner
 	foreach ($root in @("$env:ProgramFiles\Epic Games", 'C:\Epic Games', 'D:\Epic Games', 'E:\Epic Games'))
 	{
-		Get-ChildItem $root -Directory -Filter 'UE_*' -ErrorAction SilentlyContinue | ForEach-Object { & $add $_.Name $_.FullName }
+		# (-Directory only exists for paths that really exist, otherwise PowerShell throws a parameter error)
+		if (-not (Test-Path -LiteralPath $root -PathType Container)) { continue }
+		Get-ChildItem -LiteralPath $root -ErrorAction SilentlyContinue | Where-Object { $_.PSIsContainer -and $_.Name -like 'UE_*' } | ForEach-Object { & $add $_.Name $_.FullName }
 	}
 	return $found.Values | Sort-Object Version -Descending
 }
@@ -198,6 +200,17 @@ if ($code -ne 0)
 	Say ''
 	Say 'Der Build ist fehlgeschlagen. Die wichtigsten Zeilen:' 'Red'
 	$output | Where-Object { $_ -match 'error|Fehler' } | Select-Object -First 25 | ForEach-Object { Say "  $_" 'Red' }
+	# errors inside the engine's own files + a compiler newer than the engine expects -> toolchain problem
+	$engineErrors = $output | Where-Object { $_ -match 'error' -and $_ -match '\\Engine\\(Source|Plugins)\\' }
+	$newCompiler = $output | Where-Object { $_ -match 'is not a preferred version' } | Select-Object -First 1
+	if ($engineErrors -and $newCompiler)
+	{
+		Say ''
+		Say 'Die Fehler liegen in der Engine selbst – vermutlich ist dein Visual-Studio-Compiler zu neu für diese Unreal-Version.' 'Yellow'
+		Say "  $newCompiler" 'Yellow'
+		Say 'Abhilfe: Visual Studio Installer öffnen -> "Ändern" -> "Einzelne Komponenten" -> die genannte' 'Yellow'
+		Say 'MSVC-Version (z. B. "MSVC v143 ... v14.38") zusätzlich installieren. Unreal wählt sie dann automatisch.' 'Yellow'
+	}
 	Say ''
 	Say "Das vollständige Protokoll steht in: $BuildLog" 'Yellow'
 	Say 'Schick mir diese Datei BuildLog.txt – dann behebe ich die Fehler.' 'Yellow'

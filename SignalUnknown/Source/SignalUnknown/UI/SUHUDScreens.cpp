@@ -1,5 +1,6 @@
 ﻿// SIGNAL UNKNOWN – HUD screens: inventory, terminal, shop, document, gallery, trunk.
 #include "UI/SUHUD.h"
+#include "UI/SUHUDStyle.h"
 #include "SignalUnknown.h"
 #include "Core/SUPlayerController.h"
 #include "Core/SUPlayerState.h"
@@ -20,13 +21,6 @@
 
 namespace
 {
-	const FLinearColor CText(0.92f, 0.90f, 0.85f);
-	const FLinearColor CDim(0.62f, 0.60f, 0.56f);
-	const FLinearColor CAccent(1.f, 0.72f, 0.32f);
-	const FLinearColor CGood(0.55f, 0.95f, 0.6f);
-	const FLinearColor CBad(1.f, 0.42f, 0.36f);
-	const FLinearColor CTerm(0.55f, 1.f, 0.65f);
-	const FLinearColor CTermDim(0.3f, 0.6f, 0.38f);
 
 	FString QualityText(float Q)
 	{
@@ -69,20 +63,20 @@ void ASUHUD::DrawInventory()
 			Button(TEXT(""), CX, CY, Cell, Cell, [this, Index]() { SelectedIndex = Index; });
 			if (bSel)
 			{
-				Frame(CX - 2.f, CY - 2.f, Cell + 4.f, Cell + 4.f, CAccent, 2.f);
+				Frame(CX - 2.f, CY - 2.f, Cell + 4.f, Cell + 4.f, SUHUDStyle::Accent, 2.f);
 			}
 			if (Def)
 			{
 				Rect(CX + Cell * 0.5f - S(18.f), CY + S(18.f), S(36.f), S(36.f), Def->Color);
-				TextBlock(Def->Name.ToString(), CX + S(8.f), CY + S(62.f), Cell - S(16.f), 13.f, CText, false, 2);
+				TextBlock(Def->Name.ToString(), CX + S(8.f), CY + S(62.f), Cell - S(16.f), 13.f, SUHUDStyle::Text, false, 2);
 			}
 			if (Slot.Count > 1)
 			{
-				Text(FString::Printf(TEXT("×%d"), Slot.Count), CX + Cell - S(8.f), CY + S(6.f), 14.f, CText, 2, true);
+				Text(FString::Printf(TEXT("×%d"), Slot.Count), CX + Cell - S(8.f), CY + S(6.f), 14.f, SUHUDStyle::Text, 2, true);
 			}
 			if (Def && Def->bHasBattery)
 			{
-				Text(FString::Printf(TEXT("%d %%"), FMath::RoundToInt(Slot.Charge * 100.f)), CX + S(8.f), CY + S(6.f), 12.f, Slot.Charge < 0.15f ? CBad : CDim);
+				Text(FString::Printf(TEXT("%d %%"), FMath::RoundToInt(Slot.Charge * 100.f)), CX + S(8.f), CY + S(6.f), 12.f, Slot.Charge < 0.15f ? SUHUDStyle::Bad : SUHUDStyle::Dim);
 			}
 		}
 		else
@@ -101,12 +95,12 @@ void ASUHUD::DrawInventory()
 		if (Def)
 		{
 			Panel(DX, Y0, DW, S(360.f));
-			Text(Def->Name.ToString(), DX + S(20.f), Y0 + S(18.f), 22.f, CAccent, 0, true);
+			Text(Def->Name.ToString(), DX + S(20.f), Y0 + S(18.f), 22.f, SUHUDStyle::Accent, 0, true);
 			float DY = Y0 + S(58.f);
-			DY += TextBlock(Def->Description.ToString(), DX + S(20.f), DY, DW - S(40.f), 15.f, CText) + S(16.f);
+			DY += TextBlock(Def->Description.ToString(), DX + S(20.f), DY, DW - S(40.f), 15.f, SUHUDStyle::Text) + S(16.f);
 			if (Def->bQuestItem)
 			{
-				Text(TEXT("Beweisstück – kann nicht abgelegt werden"), DX + S(20.f), DY, 14.f, CDim);
+				Text(TEXT("Beweisstück – kann nicht abgelegt werden"), DX + S(20.f), DY, 14.f, SUHUDStyle::Dim);
 				DY += S(30.f);
 			}
 			const FName Id = Slot.ItemId;
@@ -117,7 +111,7 @@ void ASUHUD::DrawInventory()
 			}
 			if (Id == SUItem::Camera)
 			{
-				Text(TEXT("[C] ausrüsten, [RMT] Sucher"), DX + S(20.f), DY + S(10.f), 14.f, CDim);
+				Text(TEXT("[C] ausrüsten, [RMT] Sucher"), DX + S(20.f), DY + S(10.f), 14.f, SUHUDStyle::Dim);
 			}
 			if (!Def->bQuestItem)
 			{
@@ -127,7 +121,7 @@ void ASUHUD::DrawInventory()
 	}
 	else
 	{
-		Text(TEXT("Gegenstand auswählen"), DX, Y0 + S(10.f), 16.f, CDim);
+		Text(TEXT("Gegenstand auswählen"), DX, Y0 + S(10.f), 16.f, SUHUDStyle::Dim);
 	}
 }
 
@@ -147,10 +141,10 @@ void ASUHUD::DrawTerminal()
 		Rect(0.f, SY, W(), 1.f, FLinearColor(0.f, 0.f, 0.f, 0.18f));
 	}
 	const ASUGameState* GS = ASUGameState::Get(this);
-	Text(TEXT("FORSTDIENST NORDWALD · EINSATZRECHNER POSTEN 07"), S(60.f), S(36.f), 20.f, CTerm, 0, true, false, true);
+	Text(TEXT("FORSTDIENST NORDWALD · EINSATZRECHNER POSTEN 07"), S(60.f), S(36.f), 20.f, SUHUDStyle::Terminal, 0, true, false, true);
 	if (GS)
 	{
-		Text(FString::Printf(TEXT("TAG %d  %s   KONTO %s"), GS->GetDay(), *SUFormatTime(GS->GetTimeOfDay()), *SUFormatMoney(GS->GetMoneyCents())), W() - S(60.f), S(36.f), 16.f, CTerm, 2, false, false, true);
+		Text(FString::Printf(TEXT("TAG %d  %s   KONTO %s"), GS->GetDay(), *SUFormatTime(GS->GetTimeOfDay()), *SUFormatMoney(GS->GetMoneyCents())), W() - S(60.f), S(36.f), 16.f, SUHUDStyle::Terminal, 2, false, false, true);
 	}
 	if (PC->HasReportToShow())
 	{
@@ -174,11 +168,11 @@ void ASUHUD::DrawTerminal()
 		Button(Tabs[I], TX, S(76.f), Sz.X + S(30.f), S(34.f), [this, TabIndex]() { Tab = TabIndex; Scroll = 0.f; FocusIndex = 0; }, true, 15.f);
 		if (I == Tab)
 		{
-			Rect(TX, S(110.f), Sz.X + S(30.f), 2.f, CTerm);
+			Rect(TX, S(110.f), Sz.X + S(30.f), 2.f, SUHUDStyle::Terminal);
 		}
 		TX += Sz.X + S(44.f);
 	}
-	Text(TEXT("[Q]/[E] Reiter · [Esc] abmelden"), W() - S(60.f), H() - S(44.f), 13.f, CTermDim, 2, false, false, true);
+	Text(TEXT("[Q]/[E] Reiter · [Esc] abmelden"), W() - S(60.f), H() - S(44.f), 13.f, SUHUDStyle::TerminalDim, 2, false, false, true);
 	switch (Tab)
 	{
 	case 0: DrawTerminalMission(X, Y, Width, Height); break;
@@ -194,20 +188,20 @@ void ASUHUD::DrawTerminalMission(float X, float Y, float Width, float Height)
 	const FSUMissionDef* Def = MM ? MM->GetActiveDef() : nullptr;
 	if (!MM || !Def || MM->GetPhase() == ESUMissionPhase::None || MM->GetPhase() == ESUMissionPhase::Completed)
 	{
-		Text(TEXT("> KEIN AKTIVER EINSATZ."), X, Y, 18.f, CTerm, 0, false, false, true);
-		Text(TEXT("> Neue Aufträge kommen über das Funkgerät der Zentrale."), X, Y + S(30.f), 16.f, CTermDim, 0, false, false, true);
+		Text(TEXT("> KEIN AKTIVER EINSATZ."), X, Y, 18.f, SUHUDStyle::Terminal, 0, false, false, true);
+		Text(TEXT("> Neue Aufträge kommen über das Funkgerät der Zentrale."), X, Y + S(30.f), 16.f, SUHUDStyle::TerminalDim, 0, false, false, true);
 		return;
 	}
 	float CY = Y;
-	Text(FString::Printf(TEXT("> EINSATZ: %s"), *Def->Title.ToString().ToUpper()), X, CY, 20.f, CTerm, 0, true, false, true);
+	Text(FString::Printf(TEXT("> EINSATZ: %s"), *Def->Title.ToString().ToUpper()), X, CY, 20.f, SUHUDStyle::Terminal, 0, true, false, true);
 	CY += S(36.f);
-	CY += TextBlock(Def->Summary.ToString(), X, CY, Width * 0.6f, 16.f, CTerm, true) + S(20.f);
+	CY += TextBlock(Def->Summary.ToString(), X, CY, Width * 0.6f, 16.f, SUHUDStyle::Terminal, true) + S(20.f);
 	if (MM->GetPhase() == ESUMissionPhase::Incoming || MM->GetPhase() == ESUMissionPhase::Briefing || MM->GetPhase() == ESUMissionPhase::Offered)
 	{
-		Text(TEXT("> Auftrag noch nicht bestätigt – am Funkgerät annehmen."), X, CY, 16.f, CAccent, 0, false, false, true);
+		Text(TEXT("> Auftrag noch nicht bestätigt – am Funkgerät annehmen."), X, CY, 16.f, SUHUDStyle::Accent, 0, false, false, true);
 		CY += S(32.f);
 	}
-	Text(TEXT("> AUFGABEN"), X, CY, 17.f, CTerm, 0, true, false, true);
+	Text(TEXT("> AUFGABEN"), X, CY, 17.f, SUHUDStyle::Terminal, 0, true, false, true);
 	CY += S(28.f);
 	const TArray<FSUObjectiveState>& States = MM->GetObjectiveStates();
 	const int32 Stage = MM->GetCurrentStage();
@@ -219,13 +213,13 @@ void ASUHUD::DrawTerminalMission(float X, float Y, float Width, float Height)
 			continue;
 		}
 		const bool bDone = States.IsValidIndex(I) && States[I].bDone;
-		Text(FString::Printf(TEXT("%s %s%s"), bDone ? TEXT("[x]") : TEXT("[ ]"), *O.Text.ToString(), O.bOptional ? TEXT(" (optional)") : TEXT("")), X + S(10.f), CY, 15.f, bDone ? CTermDim : CTerm, 0, false, false, true);
+		Text(FString::Printf(TEXT("%s %s%s"), bDone ? TEXT("[x]") : TEXT("[ ]"), *O.Text.ToString(), O.bOptional ? TEXT(" (optional)") : TEXT("")), X + S(10.f), CY, 15.f, bDone ? SUHUDStyle::TerminalDim : SUHUDStyle::Terminal, 0, false, false, true);
 		CY += S(24.f);
 	}
 	// evidence wanted by the Zentrale
 	const float EX = X + Width * 0.64f;
 	float EY = Y;
-	Text(TEXT("> GEFORDERTE NACHWEISE"), EX, EY, 17.f, CTerm, 0, true, false, true);
+	Text(TEXT("> GEFORDERTE NACHWEISE"), EX, EY, 17.f, SUHUDStyle::Terminal, 0, true, false, true);
 	EY += S(30.f);
 	for (const FSUEvidenceRequirement& R : Def->Evidence)
 	{
@@ -234,11 +228,11 @@ void ASUHUD::DrawTerminalMission(float X, float Y, float Width, float Height)
 			continue; // rare evidence is a surprise
 		}
 		const bool bDoc = MM->IsEvidenceDocumented(R.EvidenceId);
-		Text(FString::Printf(TEXT("%s %s%s"), bDoc ? TEXT("[x]") : TEXT("[ ]"), *R.DisplayName.ToString(), R.bRequired ? TEXT(" *") : TEXT("")), EX, EY, 14.f, bDoc ? CTermDim : CTerm, 0, false, false, true);
+		Text(FString::Printf(TEXT("%s %s%s"), bDoc ? TEXT("[x]") : TEXT("[ ]"), *R.DisplayName.ToString(), R.bRequired ? TEXT(" *") : TEXT("")), EX, EY, 14.f, bDoc ? SUHUDStyle::TerminalDim : SUHUDStyle::Terminal, 0, false, false, true);
 		EY += S(22.f);
 	}
-	Text(TEXT("* Pflicht. Grundvergütung:"), EX, EY + S(10.f), 13.f, CTermDim, 0, false, false, true);
-	Text(SUFormatMoney(Def->BasePayCents), EX + S(270.f), EY + S(10.f), 13.f, CTerm, 0, false, false, true);
+	Text(TEXT("* Pflicht. Grundvergütung:"), EX, EY + S(10.f), 13.f, SUHUDStyle::TerminalDim, 0, false, false, true);
+	Text(SUFormatMoney(Def->BasePayCents), EX + S(270.f), EY + S(10.f), 13.f, SUHUDStyle::Terminal, 0, false, false, true);
 }
 
 void ASUHUD::DrawTerminalReport(float X, float Y, float Width, float Height)
@@ -264,10 +258,10 @@ void ASUHUD::DrawTerminalReport(float X, float Y, float Width, float Height)
 	const float RowH = S(92.f);
 	const int32 Visible = FMath::Max(1, FMath::FloorToInt((Height - S(60.f)) / RowH));
 	const int32 First = FMath::Clamp(FMath::FloorToInt(Scroll / RowH), 0, FMath::Max(0, Photos.Num() - Visible));
-	Text(FString::Printf(TEXT("> %d NEUE FOTOS AUF DER KAMERA – für den Bericht auswählen"), Photos.Num()), X, Y, 16.f, CTerm, 0, true, false, true);
+	Text(FString::Printf(TEXT("> %d NEUE FOTOS AUF DER KAMERA – für den Bericht auswählen"), Photos.Num()), X, Y, 16.f, SUHUDStyle::Terminal, 0, true, false, true);
 	if (Photos.Num() == 0)
 	{
-		Text(TEXT("> Keine neuen Fotos. Mit [C] die Kamera ausrüsten, [RMT] Sucher, [LMT] auslösen."), X, Y + S(36.f), 15.f, CTermDim, 0, false, false, true);
+		Text(TEXT("> Keine neuen Fotos. Mit [C] die Kamera ausrüsten, [RMT] Sucher, [LMT] auslösen."), X, Y + S(36.f), 15.f, SUHUDStyle::TerminalDim, 0, false, false, true);
 	}
 	float CY = Y + S(36.f);
 	for (int32 I = First; I < Photos.Num() && I < First + Visible; ++I)
@@ -290,10 +284,10 @@ void ASUHUD::DrawTerminalReport(float X, float Y, float Width, float Height)
 		Image(Tex, X + S(6.f), CY + S(6.f), S(128.f), S(72.f));
 		if (!Tex)
 		{
-			Text(TEXT("Bild bei Teammitglied"), X + S(70.f), CY + S(34.f), 10.f, CDim, 1);
+			Text(TEXT("Bild bei Teammitglied"), X + S(70.f), CY + S(34.f), 10.f, SUHUDStyle::Dim, 1);
 		}
-		Text(bSel ? TEXT("[x]") : TEXT("[ ]"), X + S(146.f), CY + S(8.f), 16.f, bSel ? CAccent : CTerm, 0, true, false, true);
-		Text(PhotoTitle(M), X + S(190.f), CY + S(8.f), 14.f, CTerm, 0, false, false, true);
+		Text(bSel ? TEXT("[x]") : TEXT("[ ]"), X + S(146.f), CY + S(8.f), 16.f, bSel ? SUHUDStyle::Accent : SUHUDStyle::Terminal, 0, true, false, true);
+		Text(PhotoTitle(M), X + S(190.f), CY + S(8.f), 14.f, SUHUDStyle::Terminal, 0, false, false, true);
 		FString Hits;
 		for (const FSUEvidenceHit& Hit : M.Hits)
 		{
@@ -306,18 +300,18 @@ void ASUHUD::DrawTerminalReport(float X, float Y, float Width, float Height)
 		{
 			Hits = M.bBlurred ? TEXT("verwackelt – nichts erkennbar") : TEXT("kein Beweis erkennbar");
 		}
-		TextBlock(Hits, X + S(190.f), CY + S(32.f), ListW - S(200.f), 12.f, M.Hits.Num() > 0 ? CTerm : CTermDim, true, 2);
+		TextBlock(Hits, X + S(190.f), CY + S(32.f), ListW - S(200.f), 12.f, M.Hits.Num() > 0 ? SUHUDStyle::Terminal : SUHUDStyle::TerminalDim, true, 2);
 		CY += RowH;
 	}
 	if (Photos.Num() > Visible)
 	{
-		Text(FString::Printf(TEXT("Mausrad: blättern (%d–%d von %d)"), First + 1, FMath::Min(Photos.Num(), First + Visible), Photos.Num()), X, Y + Height - S(20.f), 12.f, CTermDim, 0, false, false, true);
+		Text(FString::Printf(TEXT("Mausrad: blättern (%d–%d von %d)"), First + 1, FMath::Min(Photos.Num(), First + Visible), Photos.Num()), X, Y + Height - S(20.f), 12.f, SUHUDStyle::TerminalDim, 0, false, false, true);
 	}
 
 	// report preview (right)
 	const float RX = X + ListW + S(40.f);
 	const float RW = Width - ListW - S(40.f);
-	Text(TEXT("> BERICHT – VORSCHAU"), RX, Y, 16.f, CTerm, 0, true, false, true);
+	Text(TEXT("> BERICHT – VORSCHAU"), RX, Y, 16.f, SUHUDStyle::Terminal, 0, true, false, true);
 	TArray<FSUPhotoMeta> Selected;
 	for (const FSUPhotoMeta* M : Photos)
 	{
@@ -330,36 +324,36 @@ void ASUHUD::DrawTerminalReport(float X, float Y, float Width, float Height)
 	float PY = Y + S(36.f);
 	if (!MM->IsWaitingForReport())
 	{
-		PY += TextBlock(TEXT("Der aktuelle Einsatz ist noch nicht bereit für den Bericht. Fotos können trotzdem schon gesichtet werden."), RX, PY, RW, 14.f, CAccent, true) + S(10.f);
+		PY += TextBlock(TEXT("Der aktuelle Einsatz ist noch nicht bereit für den Bericht. Fotos können trotzdem schon gesichtet werden."), RX, PY, RW, 14.f, SUHUDStyle::Accent, true) + S(10.f);
 	}
 	for (const FSUReportLine& L : Preview.Lines)
 	{
-		Text(L.Label.ToString(), RX, PY, 14.f, CTerm, 0, false, false, true);
-		Text(SUFormatMoney(L.AmountCents), RX + RW, PY, 14.f, CTerm, 2, false, false, true);
+		Text(L.Label.ToString(), RX, PY, 14.f, SUHUDStyle::Terminal, 0, false, false, true);
+		Text(SUFormatMoney(L.AmountCents), RX + RW, PY, 14.f, SUHUDStyle::Terminal, 2, false, false, true);
 		PY += S(22.f);
 	}
-	Rect(RX, PY + S(4.f), RW, 1.f, CTermDim);
+	Rect(RX, PY + S(4.f), RW, 1.f, SUHUDStyle::TerminalDim);
 	PY += S(12.f);
-	Text(TEXT("VORAUSSICHTLICH"), RX, PY, 16.f, CTerm, 0, true, false, true);
-	Text(SUFormatMoney(Preview.TotalCents), RX + RW, PY, 16.f, CAccent, 2, true, false, true);
+	Text(TEXT("VORAUSSICHTLICH"), RX, PY, 16.f, SUHUDStyle::Terminal, 0, true, false, true);
+	Text(SUFormatMoney(Preview.TotalCents), RX + RW, PY, 16.f, SUHUDStyle::Accent, 2, true, false, true);
 	PY += S(30.f);
 	if (!Preview.Rating.IsEmpty())
 	{
-		Text(FString::Printf(TEXT("Bewertung: %s"), *Preview.Rating.ToString()), RX, PY, 14.f, CTerm, 0, false, false, true);
+		Text(FString::Printf(TEXT("Bewertung: %s"), *Preview.Rating.ToString()), RX, PY, 14.f, SUHUDStyle::Terminal, 0, false, false, true);
 		PY += S(26.f);
 	}
 	if (Preview.Missing.Num() > 0)
 	{
-		Text(TEXT("Es fehlen noch:"), RX, PY, 14.f, CAccent, 0, false, false, true);
+		Text(TEXT("Es fehlen noch:"), RX, PY, 14.f, SUHUDStyle::Accent, 0, false, false, true);
 		PY += S(22.f);
 		for (const FText& Missing : Preview.Missing)
 		{
-			Text(FString::Printf(TEXT("- %s"), *Missing.ToString()), RX + S(10.f), PY, 13.f, CAccent, 0, false, false, true);
+			Text(FString::Printf(TEXT("- %s"), *Missing.ToString()), RX + S(10.f), PY, 13.f, SUHUDStyle::Accent, 0, false, false, true);
 			PY += S(20.f);
 		}
 	}
 	PY += S(10.f);
-	TextBlock(TEXT("Fotos der Teammitglieder werden automatisch mitgeschickt. Doppelte Aufnahmen desselben Beweises zählen einmal (beste Qualität)."), RX, PY, RW, 12.f, CTermDim, true, 3);
+	TextBlock(TEXT("Fotos der Teammitglieder werden automatisch mitgeschickt. Doppelte Aufnahmen desselben Beweises zählen einmal (beste Qualität)."), RX, PY, RW, 12.f, SUHUDStyle::TerminalDim, true, 3);
 	const TArray<FGuid> Ids = ReportSelection.Array();
 	Button(FString::Printf(TEXT("BERICHT ABSCHICKEN (%d Fotos)"), Ids.Num()), RX, Y + Height - S(60.f), RW, S(48.f), [PC, Ids]()
 	{
@@ -375,32 +369,32 @@ void ASUHUD::DrawReportResult(float X, float Y, float Width, float Height)
 		return;
 	}
 	const FSUReportResult& R = PC->GetLastReport();
-	Text(R.bAccepted ? TEXT("> BERICHT ANGENOMMEN") : TEXT("> BERICHT ABGELEHNT"), X, Y, 22.f, R.bAccepted ? CTerm : CBad, 0, true, false, true);
+	Text(R.bAccepted ? TEXT("> BERICHT ANGENOMMEN") : TEXT("> BERICHT ABGELEHNT"), X, Y, 22.f, R.bAccepted ? SUHUDStyle::Terminal : SUHUDStyle::Bad, 0, true, false, true);
 	float CY = Y + S(40.f);
 	if (!R.Message.IsEmpty())
 	{
-		CY += TextBlock(R.Message.ToString(), X, CY, Width * 0.6f, 15.f, CTerm, true) + S(10.f);
+		CY += TextBlock(R.Message.ToString(), X, CY, Width * 0.6f, 15.f, SUHUDStyle::Terminal, true) + S(10.f);
 	}
 	const float LW = FMath::Min(Width * 0.6f, S(760.f));
 	for (const FSUReportLine& L : R.Lines)
 	{
-		Text(L.Label.ToString(), X, CY, 15.f, CTerm, 0, false, false, true);
-		Text(SUFormatMoney(L.AmountCents), X + LW, CY, 15.f, CTerm, 2, false, false, true);
+		Text(L.Label.ToString(), X, CY, 15.f, SUHUDStyle::Terminal, 0, false, false, true);
+		Text(SUFormatMoney(L.AmountCents), X + LW, CY, 15.f, SUHUDStyle::Terminal, 2, false, false, true);
 		CY += S(24.f);
 	}
-	Rect(X, CY + S(4.f), LW, 1.f, CTermDim);
+	Rect(X, CY + S(4.f), LW, 1.f, SUHUDStyle::TerminalDim);
 	CY += S(14.f);
-	Text(TEXT("AUSGEZAHLT"), X, CY, 18.f, CTerm, 0, true, false, true);
-	Text(SUFormatMoney(R.TotalCents), X + LW, CY, 18.f, CAccent, 2, true, false, true);
+	Text(TEXT("AUSGEZAHLT"), X, CY, 18.f, SUHUDStyle::Terminal, 0, true, false, true);
+	Text(SUFormatMoney(R.TotalCents), X + LW, CY, 18.f, SUHUDStyle::Accent, 2, true, false, true);
 	CY += S(34.f);
 	if (!R.Rating.IsEmpty())
 	{
-		Text(FString::Printf(TEXT("Bewertung der Zentrale: %s"), *R.Rating.ToString()), X, CY, 16.f, CTerm, 0, false, false, true);
+		Text(FString::Printf(TEXT("Bewertung der Zentrale: %s"), *R.Rating.ToString()), X, CY, 16.f, SUHUDStyle::Terminal, 0, false, false, true);
 		CY += S(28.f);
 	}
 	for (const FText& Missing : R.Missing)
 	{
-		Text(FString::Printf(TEXT("Nicht dokumentiert: %s"), *Missing.ToString()), X, CY, 14.f, CAccent, 0, false, false, true);
+		Text(FString::Printf(TEXT("Nicht dokumentiert: %s"), *Missing.ToString()), X, CY, 14.f, SUHUDStyle::Accent, 0, false, false, true);
 		CY += S(22.f);
 	}
 	Button(TEXT("OK"), X, Y + Height - S(60.f), S(200.f), S(46.f), [this, PC]()
@@ -418,21 +412,21 @@ void ASUHUD::DrawTerminalAccount(float X, float Y, float Width, float Height)
 	{
 		return;
 	}
-	Text(FString::Printf(TEXT("> TEAMKONTO: %s"), *SUFormatMoney(GS->GetMoneyCents())), X, Y, 20.f, CTerm, 0, true, false, true);
-	Text(TEXT("> LETZTE BUCHUNGEN"), X, Y + S(44.f), 16.f, CTerm, 0, true, false, true);
+	Text(FString::Printf(TEXT("> TEAMKONTO: %s"), *SUFormatMoney(GS->GetMoneyCents())), X, Y, 20.f, SUHUDStyle::Terminal, 0, true, false, true);
+	Text(TEXT("> LETZTE BUCHUNGEN"), X, Y + S(44.f), 16.f, SUHUDStyle::Terminal, 0, true, false, true);
 	const TArray<FSUTransaction>& T = GS->GetTransactions();
 	float CY = Y + S(76.f);
 	const float LW = FMath::Min(Width, S(820.f));
 	for (int32 I = T.Num() - 1; I >= 0 && CY < Y + Height - S(30.f); --I)
 	{
-		Text(SUFormatTime(T[I].DayTimeHours), X, CY, 14.f, CTermDim, 0, false, false, true);
-		Text(T[I].Label.ToString(), X + S(90.f), CY, 14.f, CTerm, 0, false, false, true);
-		Text(SUFormatMoney(T[I].AmountCents), X + LW, CY, 14.f, T[I].AmountCents < 0 ? CAccent : CTerm, 2, false, false, true);
+		Text(SUFormatTime(T[I].DayTimeHours), X, CY, 14.f, SUHUDStyle::TerminalDim, 0, false, false, true);
+		Text(T[I].Label.ToString(), X + S(90.f), CY, 14.f, SUHUDStyle::Terminal, 0, false, false, true);
+		Text(SUFormatMoney(T[I].AmountCents), X + LW, CY, 14.f, T[I].AmountCents < 0 ? SUHUDStyle::Accent : SUHUDStyle::Terminal, 2, false, false, true);
 		CY += S(22.f);
 	}
 	if (T.Num() == 0)
 	{
-		Text(TEXT("> Keine Buchungen."), X, CY, 14.f, CTermDim, 0, false, false, true);
+		Text(TEXT("> Keine Buchungen."), X, CY, 14.f, SUHUDStyle::TerminalDim, 0, false, false, true);
 	}
 }
 
@@ -440,29 +434,29 @@ void ASUHUD::DrawTerminalArchive(float X, float Y, float Width, float Height)
 {
 	const ASUMissionManager* MM = ASUMissionManager::Get(this);
 	const ASUGameState* GS = ASUGameState::Get(this);
-	Text(TEXT("> ABGESCHLOSSENE EINSÄTZE"), X, Y, 16.f, CTerm, 0, true, false, true);
+	Text(TEXT("> ABGESCHLOSSENE EINSÄTZE"), X, Y, 16.f, SUHUDStyle::Terminal, 0, true, false, true);
 	float CY = Y + S(32.f);
 	if (MM)
 	{
 		for (const FName& Id : MM->GetCompletedMissions())
 		{
 			const FSUMissionDef* Def = FSUMissionDatabase::Find(Id);
-			Text(FString::Printf(TEXT("[x] %s"), Def ? *Def->Title.ToString() : *Id.ToString()), X + S(10.f), CY, 15.f, CTerm, 0, false, false, true);
+			Text(FString::Printf(TEXT("[x] %s"), Def ? *Def->Title.ToString() : *Id.ToString()), X + S(10.f), CY, 15.f, SUHUDStyle::Terminal, 0, false, false, true);
 			CY += S(24.f);
 		}
 		if (MM->GetCompletedMissions().Num() == 0)
 		{
-			Text(TEXT("> Noch keine."), X + S(10.f), CY, 15.f, CTermDim, 0, false, false, true);
+			Text(TEXT("> Noch keine."), X + S(10.f), CY, 15.f, SUHUDStyle::TerminalDim, 0, false, false, true);
 			CY += S(24.f);
 		}
 	}
 	CY += S(20.f);
 	if (GS && GS->GetUnpaidFuelIncidents() > 0)
 	{
-		Text(FString::Printf(TEXT("> VERMERK: %d x Tankstelle ohne Bezahlung verlassen."), GS->GetUnpaidFuelIncidents()), X, CY, 15.f, CAccent, 0, false, false, true);
+		Text(FString::Printf(TEXT("> VERMERK: %d x Tankstelle ohne Bezahlung verlassen."), GS->GetUnpaidFuelIncidents()), X, CY, 15.f, SUHUDStyle::Accent, 0, false, false, true);
 		CY += S(26.f);
 	}
-	Text(TEXT("> Interne Notiz: Meldungen über verschwundene Personen im Nordwald häufen sich."), X, CY, 14.f, CTermDim, 0, false, false, true);
+	Text(TEXT("> Interne Notiz: Meldungen über verschwundene Personen im Nordwald häufen sich."), X, CY, 14.f, SUHUDStyle::TerminalDim, 0, false, false, true);
 }
 
 // ====================================================================================== shop
@@ -478,11 +472,11 @@ void ASUHUD::DrawShop()
 	}
 	Rect(0.f, 0.f, W(), H(), FLinearColor(0.f, 0.f, 0.f, 0.65f));
 	DrawScreenTitle(TEXT("Pine Ridge Gas & Mart – Kasse"), TEXT("[Esc] schließen"));
-	Text(FString::Printf(TEXT("Teamkonto: %s"), *SUFormatMoney(GS->GetMoneyCents())), W() - S(60.f), S(48.f), 18.f, CText, 2, true);
+	Text(FString::Printf(TEXT("Teamkonto: %s"), *SUFormatMoney(GS->GetMoneyCents())), W() - S(60.f), S(48.f), 18.f, SUHUDStyle::Text, 2, true);
 	const float X = S(60.f);
 	float Y = S(110.f);
 	const float RowW = FMath::Min(S(720.f), W() * 0.5f);
-	Text(TEXT("Waren"), X, Y, 18.f, CAccent, 0, true);
+	Text(TEXT("Waren"), X, Y, 18.f, SUHUDStyle::Accent, 0, true);
 	Y += S(34.f);
 	for (const FName& Id : ASUShopCounter::GetShopItems())
 	{
@@ -492,40 +486,40 @@ void ASUHUD::DrawShop()
 			continue;
 		}
 		const bool bAfford = GS->GetMoneyCents() >= Def->PriceCents;
-		Text(Def->Name.ToString(), X, Y + S(8.f), 16.f, CText);
-		Text(SUFormatMoney(Def->PriceCents), X + RowW - S(170.f), Y + S(8.f), 16.f, bAfford ? CText : CBad, 2);
+		Text(Def->Name.ToString(), X, Y + S(8.f), 16.f, SUHUDStyle::Text);
+		Text(SUFormatMoney(Def->PriceCents), X + RowW - S(170.f), Y + S(8.f), 16.f, bAfford ? SUHUDStyle::Text : SUHUDStyle::Bad, 2);
 		Button(TEXT("Kaufen"), X + RowW - S(150.f), Y, S(150.f), S(38.f), [PC, Counter, Id]() { PC->ServerShopBuy(Counter, Id); }, bAfford, 15.f);
 		Y += S(46.f);
 	}
 	// fuel and repair
 	const float FX = X + RowW + S(60.f);
 	float FY = S(110.f);
-	Text(TEXT("Tankrechnung"), FX, FY, 18.f, CAccent, 0, true);
+	Text(TEXT("Tankrechnung"), FX, FY, 18.f, SUHUDStyle::Accent, 0, true);
 	FY += S(34.f);
 	const int32 Due = Counter->GetOpenFuelCents();
 	if (Due > 0)
 	{
-		Text(FString::Printf(TEXT("%.1f l Super – %s"), Counter->GetOpenFuelLiters(), *SUFormatMoney(Due)), FX, FY, 16.f, CText);
+		Text(FString::Printf(TEXT("%.1f l Super – %s"), Counter->GetOpenFuelLiters(), *SUFormatMoney(Due)), FX, FY, 16.f, SUHUDStyle::Text);
 		FY += S(30.f);
 		Button(TEXT("Benzin bezahlen"), FX, FY, S(260.f), S(42.f), [PC, Counter]() { PC->ServerShopPayFuel(Counter); }, GS->GetMoneyCents() >= Due);
 		FY += S(56.f);
 	}
 	else
 	{
-		Text(TEXT("Keine offene Rechnung."), FX, FY, 15.f, CDim);
+		Text(TEXT("Keine offene Rechnung."), FX, FY, 15.f, SUHUDStyle::Dim);
 		FY += S(40.f);
 	}
-	Text(TEXT("Werkstatt"), FX, FY, 18.f, CAccent, 0, true);
+	Text(TEXT("Werkstatt"), FX, FY, 18.f, SUHUDStyle::Accent, 0, true);
 	FY += S(34.f);
 	const ASUVehicle* V = Counter->GetRepairableVehicle();
 	if (!V)
 	{
-		TextBlock(TEXT("Den Wagen auf den Hof der Tankstelle fahren, um ihn reparieren zu lassen."), FX, FY, S(420.f), 15.f, CDim);
+		TextBlock(TEXT("Den Wagen auf den Hof der Tankstelle fahren, um ihn reparieren zu lassen."), FX, FY, S(420.f), 15.f, SUHUDStyle::Dim);
 	}
 	else
 	{
 		const int32 Cost = Counter->GetRepairCostCents(V);
-		Text(FString::Printf(TEXT("Motorzustand: %d %%"), FMath::RoundToInt(V->GetEngineHealth())), FX, FY, 16.f, CText);
+		Text(FString::Printf(TEXT("Motorzustand: %d %%"), FMath::RoundToInt(V->GetEngineHealth())), FX, FY, 16.f, SUHUDStyle::Text);
 		FY += S(30.f);
 		if (Cost > 0)
 		{
@@ -533,7 +527,7 @@ void ASUHUD::DrawShop()
 		}
 		else
 		{
-			Text(TEXT("Der Wagen ist in Ordnung."), FX, FY, 15.f, CDim);
+			Text(TEXT("Der Wagen ist in Ordnung."), FX, FY, 15.f, SUHUDStyle::Dim);
 		}
 	}
 }
@@ -586,7 +580,7 @@ void ASUHUD::DrawDocument()
 	{
 		Hint += TEXT("   ·   [Q] am Gegenstand: mitnehmen");
 	}
-	Text(Hint, W() * 0.5f, PY + PH + S(18.f), 14.f, CDim, 1);
+	Text(Hint, W() * 0.5f, PY + PH + S(18.f), 14.f, SUHUDStyle::Dim, 1);
 }
 
 // ====================================================================================== gallery
@@ -600,25 +594,25 @@ void ASUHUD::DrawPhotoDetails(const FSUPhotoMeta& Meta, float X, float Y, float 
 	Image(Tex, X, Y, ImgW, ImgH);
 	if (!Tex)
 	{
-		Text(TEXT("Bilddatei nicht auf diesem Rechner"), X + ImgW * 0.5f, Y + ImgH * 0.5f, 16.f, CDim, 1);
+		Text(TEXT("Bilddatei nicht auf diesem Rechner"), X + ImgW * 0.5f, Y + ImgH * 0.5f, 16.f, SUHUDStyle::Dim, 1);
 	}
 	float CY = Y + ImgH + S(16.f);
-	Text(PhotoTitle(Meta), X, CY, 16.f, CText, 0, true);
+	Text(PhotoTitle(Meta), X, CY, 16.f, SUHUDStyle::Text, 0, true);
 	FString Flags;
 	if (Meta.bFlash) { Flags += TEXT("Blitz  "); }
 	if (Meta.bBlurred) { Flags += TEXT("verwackelt  "); }
 	if (Meta.bSubmitted) { Flags += TEXT("bereits gemeldet"); }
-	Text(FString::Printf(TEXT("Zoom %.1fx   %s"), Meta.ZoomFactor, *Flags), X + Width, CY, 14.f, CDim, 2);
+	Text(FString::Printf(TEXT("Zoom %.1fx   %s"), Meta.ZoomFactor, *Flags), X + Width, CY, 14.f, SUHUDStyle::Dim, 2);
 	CY += S(30.f);
 	if (Meta.Hits.Num() == 0)
 	{
-		Text(TEXT("Keine Beweise auf diesem Foto erkannt."), X, CY, 15.f, CDim);
+		Text(TEXT("Keine Beweise auf diesem Foto erkannt."), X, CY, 15.f, SUHUDStyle::Dim);
 	}
 	for (const FSUEvidenceHit& Hit : Meta.Hits)
 	{
 		const bool bUsable = Hit.Quality >= SULogic::MinEvidenceQuality;
-		Text(FString::Printf(TEXT("%s – %s"), *Hit.DisplayName.ToString(), *QualityText(Hit.Quality)), X, CY, 15.f, bUsable ? CGood : CDim);
-		Text(FString::Printf(TEXT("%.0f m · sichtbar %d %%"), Hit.Distance / 100.f, FMath::RoundToInt(Hit.Visibility * 100.f)), X + Width, CY, 13.f, CDim, 2);
+		Text(FString::Printf(TEXT("%s – %s"), *Hit.DisplayName.ToString(), *QualityText(Hit.Quality)), X, CY, 15.f, bUsable ? SUHUDStyle::Good : SUHUDStyle::Dim);
+		Text(FString::Printf(TEXT("%.0f m · sichtbar %d %%"), Hit.Distance / 100.f, FMath::RoundToInt(Hit.Visibility * 100.f)), X + Width, CY, 13.f, SUHUDStyle::Dim, 2);
 		CY += S(24.f);
 	}
 	if (bAllowDelete && !Meta.bSubmitted)
@@ -662,7 +656,7 @@ void ASUHUD::DrawGallery()
 	}
 	if (Photos.Num() == 0)
 	{
-		Text(TEXT("Noch keine Fotos. Kamera mit [C] ausrüsten, [RMT] Sucher, [LMT] auslösen."), S(60.f), S(110.f), 16.f, CDim);
+		Text(TEXT("Noch keine Fotos. Kamera mit [C] ausrüsten, [RMT] Sucher, [LMT] auslösen."), S(60.f), S(110.f), 16.f, SUHUDStyle::Dim);
 		return;
 	}
 	USUPhotoStorage* Storage = USUPhotoStorage::Get(this);
@@ -683,11 +677,11 @@ void ASUHUD::DrawGallery()
 		const FSUPhotoMeta& M = Photos[I];
 		Image(Storage ? Storage->GetTexture(M.PhotoId) : nullptr, X, Y, TW, TH);
 		const float Best = M.BestQuality();
-		Text(PhotoTitle(M), X, Y + TH + S(6.f), 12.f, CText);
-		Text(Best >= SULogic::MinEvidenceQuality ? QualityText(Best) : FString(TEXT("–")), X + TW, Y + TH + S(6.f), 12.f, Best >= SULogic::MinEvidenceQuality ? CGood : CDim, 2);
+		Text(PhotoTitle(M), X, Y + TH + S(6.f), 12.f, SUHUDStyle::Text);
+		Text(Best >= SULogic::MinEvidenceQuality ? QualityText(Best) : FString(TEXT("–")), X + TW, Y + TH + S(6.f), 12.f, Best >= SULogic::MinEvidenceQuality ? SUHUDStyle::Good : SUHUDStyle::Dim, 2);
 		if (M.bSubmitted)
 		{
-			Text(TEXT("gemeldet"), X + S(6.f), Y + S(6.f), 11.f, CAccent);
+			Text(TEXT("gemeldet"), X + S(6.f), Y + S(6.f), 11.f, SUHUDStyle::Accent);
 		}
 	}
 }
@@ -713,7 +707,7 @@ void ASUHUD::DrawTrunk()
 	auto Column = [&](const FString& Title, const USUInventoryComponent* Inv, float X, bool bToTrunk)
 	{
 		float Y = S(110.f);
-		Text(FString::Printf(TEXT("%s  (%d/%d)"), *Title, Inv->GetSlots().Num(), Inv->MaxSlots), X, Y, 18.f, CAccent, 0, true);
+		Text(FString::Printf(TEXT("%s  (%d/%d)"), *Title, Inv->GetSlots().Num(), Inv->MaxSlots), X, Y, 18.f, SUHUDStyle::Accent, 0, true);
 		Y += S(36.f);
 		for (const FSUInventorySlot& Slot : Inv->GetSlots())
 		{

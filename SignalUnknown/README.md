@@ -194,10 +194,14 @@ Die Syntaxprüfung besteht aus drei Stufen:
 
 1. `gen_uht.py` – Mini-„UHT“: erzeugt die `.generated.h`-Dateien und prüft UHT-/Replikationsregeln
    (RPCs, `ReplicatedUsing`, alle replizierten Variablen in `DOREPLIFETIME`, `AddDynamic` nur mit
-   `UFUNCTION`, keine `int`-Typen in `UPROPERTY` …).
+   `UFUNCTION`, keine `int`-Typen in `UPROPERTY`, keine Namen, die Variablen der Basisklassen
+   verdecken – z. B. `Role` oder `Instigator` aus `AActor` …).
 2. `clang++ -fsyntax-only -Wall -Wshadow-all -Werror` gegen `Tools/SyntaxCheck/mock/*.h`
    (inkl. Prüfung der `FString::Printf`/`UE_LOG`-Argumente).
 3. `lint.py` – UTF-8-BOM (MSVC!), Sonderzeichen nur in `TEXT()`, Formatstrings, fehlende Engine-Includes.
+4. `ast_check.py` (braucht `pip install libclang`) – Fehler, die nur der echte Unreal/MSVC-Build meldet:
+   lokale Variablen/Parameter mit dem Namen eines Klassenmitglieds (C4458, z. B. `Controller` in einem Pawn)
+   und Namenskollisionen in Unity-Builds (Unreal fasst mehrere `.cpp` zu einer Datei zusammen).
 
 **Grenzen:** Die Nachbildung enthält nur die Teile der Engine-API, die das Projekt verwendet, so wie
 sie aus UE 5.x bekannt sind. Stimmt eine dort angenommene Signatur nicht mit der echten Engine

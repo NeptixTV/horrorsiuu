@@ -23,5 +23,7 @@ jobs:
       - uses: actions/checkout@v4
       - name: Native logic tests
         run: bash SignalUnknown/Tests/Native/run_tests.sh
+      - name: libclang for the AST checks
+        run: python3 -m venv "$RUNNER_TEMP/venv" && "$RUNNER_TEMP/venv/bin/pip" install libclang
       - name: Syntax check against the UE API mock
-        run: bash SignalUnknown/Tools/SyntaxCheck/check.sh
+        run: SU_PYTHON="$RUNNER_TEMP/venv/bin/python" bash SignalUnknown/Tools/SyntaxCheck/check.sh

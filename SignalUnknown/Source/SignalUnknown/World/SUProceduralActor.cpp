@@ -186,14 +186,14 @@ void ASUProceduralActor::AddGableRoof(const FVector& Center, float Length, float
 	}
 
 	// gable ends: stepped triangles
-	const int32 Layers = 8;
+	const int32 RoofLayers = 8;
 	for (int32 End = -1; End <= 1; End += 2)
 	{
-		for (int32 L = 0; L < Layers; ++L)
+		for (int32 L = 0; L < RoofLayers; ++L)
 		{
-			const float T0 = static_cast<float>(L) / Layers;
-			const float LayerH = Rise / Layers;
-			const float W = Width * (1.f - (T0 + 0.5f / Layers));
+			const float T0 = static_cast<float>(L) / RoofLayers;
+			const float LayerH = Rise / RoofLayers;
+			const float W = Width * (1.f - (T0 + 0.5f / RoofLayers));
 			const FVector P = Center + RidgeAxis * (Length * 0.5f * End - End * 6.f) + FVector(0.f, 0.f, LayerH * (L + 0.5f));
 			AddBox(P, FVector(10.f, W, LayerH), Mat == ESUMat::Roof ? ESUMat::WoodGrey : ESUMat::WoodDark, YawR, true);
 		}

@@ -21,10 +21,9 @@ namespace HouseLayout
 	constexpr float Int = 10.f;
 }
 
-using namespace HouseLayout;
-
 void ASUSiteForsthaus::BuildSite(ASUWorldBuilder* InBuilder, bool bInServer)
 {
+	using namespace HouseLayout;
 	Super::BuildSite(InBuilder, bInServer);
 	SetSurface(SUSurfaceTag::Wood);
 	BuildHouse();
@@ -43,6 +42,7 @@ void ASUSiteForsthaus::BuildSite(ASUWorldBuilder* InBuilder, bool bInServer)
 
 void ASUSiteForsthaus::BuildHouse()
 {
+	using namespace HouseLayout;
 	// foundation and floor
 	AddBox(FVector((X0 + X1) * 0.5f, 0.f, Floor * 0.5f - 20.f), FVector(X1 - X0 + 20.f, Y1 - Y0 + 20.f, Floor + 40.f), ESUMat::Concrete);
 	AddBox(FVector((X0 + X1) * 0.5f, 0.f, Floor - 2.f), FVector(X1 - X0, Y1 - Y0, 4.f), ESUMat::WoodDark);
@@ -98,6 +98,7 @@ void ASUSiteForsthaus::BuildHouse()
 
 void ASUSiteForsthaus::BuildLivingRoom()
 {
+	using namespace HouseLayout;
 	const float Z = Floor;
 	// overturned dining table, standing on its edge
 	AddBox(FVector(-470.f, 330.f, Z + 45.f), FVector(160.f, 5.f, 90.f), ESUMat::WoodLight, FRotator(0.f, 12.f, 0.f));
@@ -156,6 +157,7 @@ void ASUSiteForsthaus::BuildLivingRoom()
 
 void ASUSiteForsthaus::AddBloodTrail(const FVector& From, const FVector& To, int32 Count, int32 Seed)
 {
+	using namespace HouseLayout;
 	FRandomStream Rng(Seed);
 	for (int32 I = 0; I < Count; ++I)
 	{
@@ -168,6 +170,7 @@ void ASUSiteForsthaus::AddBloodTrail(const FVector& From, const FVector& To, int
 
 void ASUSiteForsthaus::AddClawPrint(const FVector& At, float Yaw)
 {
+	using namespace HouseLayout;
 	const FRotator R(0.f, Yaw, 0.f);
 	AddShape(ESUShape::Cylinder, At, FVector(14.f, 11.f, 0.6f), ESUMat::Mud, R, false);
 	for (int32 T = -1; T <= 1; ++T)
@@ -179,6 +182,7 @@ void ASUSiteForsthaus::AddClawPrint(const FVector& At, float Yaw)
 
 void ASUSiteForsthaus::BuildHallKitchen()
 {
+	using namespace HouseLayout;
 	const float Z = Floor;
 	// blood trail down the hallway towards the back door
 	AddBloodTrail(FVector(-250.f, 0.f, Z + 0.3f), FVector(-1060.f, 30.f, Z + 0.3f), 34, 77);
@@ -202,6 +206,7 @@ void ASUSiteForsthaus::BuildHallKitchen()
 
 void ASUSiteForsthaus::BuildOfficeBedroom()
 {
+	using namespace HouseLayout;
 	const float Z = Floor;
 	// office: desk with broken radio, knocked over chair, maps
 	AddBox(FVector(-330.f, -540.f, Z + 75.f), FVector(150.f, 65.f, 4.f), ESUMat::WoodDark);
@@ -229,6 +234,7 @@ void ASUSiteForsthaus::BuildOfficeBedroom()
 
 void ASUSiteForsthaus::BuildOutside()
 {
+	using namespace HouseLayout;
 	// footprints leading from the back door into the forest
 	for (int32 I = 0; I < 14; ++I)
 	{
@@ -272,6 +278,7 @@ void ASUSiteForsthaus::BuildOutside()
 
 void ASUSiteForsthaus::SpawnInteractables(ASUAreaTrigger* Interior)
 {
+	using namespace HouseLayout;
 	if (!bServer)
 	{
 		return;

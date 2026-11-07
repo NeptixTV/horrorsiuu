@@ -24,28 +24,26 @@
 #include "TimerManager.h"
 #include "Kismet/KismetRenderingLibrary.h"
 
-using namespace SULogic;
-
 namespace
 {
 	constexpr float M = 100.f; // meters -> centimeters
 
-	ESUMat RoadMaterial(RoadSurface Surface)
+	ESUMat RoadMaterial(SULogic::RoadSurface Surface)
 	{
 		switch (Surface)
 		{
-		case RoadSurface::Asphalt: return ESUMat::Asphalt;
-		case RoadSurface::Gravel: return ESUMat::Gravel;
+		case SULogic::RoadSurface::Asphalt: return ESUMat::Asphalt;
+		case SULogic::RoadSurface::Gravel: return ESUMat::Gravel;
 		default: return ESUMat::Dirt;
 		}
 	}
 
-	FName RoadTag(RoadSurface Surface)
+	FName RoadTag(SULogic::RoadSurface Surface)
 	{
 		switch (Surface)
 		{
-		case RoadSurface::Asphalt: return SUSurfaceTag::Asphalt;
-		case RoadSurface::Gravel: return SUSurfaceTag::Gravel;
+		case SULogic::RoadSurface::Asphalt: return SUSurfaceTag::Asphalt;
+		case SULogic::RoadSurface::Gravel: return SUSurfaceTag::Gravel;
 		default: return SUSurfaceTag::Dirt;
 		}
 	}
@@ -53,6 +51,7 @@ namespace
 
 ASUWorldBuilder::ASUWorldBuilder()
 {
+	using namespace SULogic;
 	PrimaryActorTick.bCanEverTick = false;
 	bReplicates = false;
 	SceneRoot = CreateDefaultSubobject<USceneComponent>(TEXT("SceneRoot"));
@@ -62,6 +61,7 @@ ASUWorldBuilder::ASUWorldBuilder()
 
 ASUWorldBuilder* ASUWorldBuilder::Get(const UObject* WorldContext)
 {
+	using namespace SULogic;
 	if (const ASUGameState* GS = ASUGameState::Get(WorldContext))
 	{
 		if (GS->GetWorldBuilder())
@@ -82,6 +82,7 @@ ASUWorldBuilder* ASUWorldBuilder::Get(const UObject* WorldContext)
 
 void ASUWorldBuilder::BuildWorld(int32 Seed)
 {
+	using namespace SULogic;
 	if (bBuilt)
 	{
 		return;
@@ -122,16 +123,19 @@ void ASUWorldBuilder::BuildWorld(int32 Seed)
 
 float ASUWorldBuilder::GetGroundHeight(float X, float Y) const
 {
+	using namespace SULogic;
 	return Layout ? static_cast<float>(Layout->Height(X / M, Y / M) * M) : 0.f;
 }
 
 FVector ASUWorldBuilder::GroundPoint(float X, float Y, float ZOffset) const
 {
+	using namespace SULogic;
 	return FVector(X, Y, GetGroundHeight(X, Y) + ZOffset);
 }
 
 float ASUWorldBuilder::DistanceToRoad(const FVector& Location) const
 {
+	using namespace SULogic;
 	if (!Layout)
 	{
 		return 1e9f;
@@ -142,6 +146,7 @@ float ASUWorldBuilder::DistanceToRoad(const FVector& Location) const
 
 bool ASUWorldBuilder::FindRoadPointAhead(const FVector& Location, const FVector& Direction, float AheadDistance, FVector& OutPoint, FVector& OutRoadDir) const
 {
+	using namespace SULogic;
 	if (!Layout)
 	{
 		return false;
@@ -170,16 +175,19 @@ bool ASUWorldBuilder::FindRoadPointAhead(const FVector& Location, const FVector&
 
 bool ASUWorldBuilder::IsInsidePlayableArea(const FVector& Location) const
 {
+	using namespace SULogic;
 	return Layout && Layout->IsInsideCore(Location.X / M, Location.Y / M, 30.0);
 }
 
 void ASUWorldBuilder::RegisterPoint(FName Name, const FTransform& Transform)
 {
+	using namespace SULogic;
 	Points.Add(Name, Transform);
 }
 
 bool ASUWorldBuilder::GetPoint(FName Name, FTransform& OutTransform) const
 {
+	using namespace SULogic;
 	if (const FTransform* Found = Points.Find(Name))
 	{
 		OutTransform = *Found;
@@ -198,12 +206,14 @@ bool ASUWorldBuilder::GetPoint(FName Name, FTransform& OutTransform) const
 
 FVector ASUWorldBuilder::GetPointLocation(FName Name) const
 {
+	using namespace SULogic;
 	FTransform T;
 	return GetPoint(Name, T) ? T.GetLocation() : FVector::ZeroVector;
 }
 
 FTransform ASUWorldBuilder::GetPlayerSpawnTransform(int32 Index) const
 {
+	using namespace SULogic;
 	const FName Key(*FString::Printf(TEXT("Spawn%d"), FMath::Abs(Index) % 4));
 	FTransform T;
 	if (GetPoint(Key, T))
@@ -215,6 +225,7 @@ FTransform ASUWorldBuilder::GetPlayerSpawnTransform(int32 Index) const
 
 FTransform ASUWorldBuilder::GetMenuCameraTransform() const
 {
+	using namespace SULogic;
 	FTransform T;
 	if (GetPoint(TEXT("MenuCamera"), T))
 	{
@@ -227,6 +238,7 @@ FTransform ASUWorldBuilder::GetMenuCameraTransform() const
 
 void ASUWorldBuilder::BuildTerrain()
 {
+	using namespace SULogic;
 	// playable core: 10 m grid
 	const float CoreHalf = static_cast<float>((WorldLayout::CoreHalfSize + 100.0) * M);
 	const int32 CoreChunks = 12;
@@ -256,6 +268,7 @@ void ASUWorldBuilder::BuildTerrain()
 
 void ASUWorldBuilder::BuildTerrainChunk(int32 ChunkX, int32 ChunkY, float Origin, float Spacing, int32 Cells, bool bCore)
 {
+	using namespace SULogic;
 	USUAssetLibrary* Lib = USUAssetLibrary::Get(this);
 	const int32 N = Cells + 1;
 	const float X0 = Origin + ChunkX * Cells * Spacing;
@@ -403,6 +416,7 @@ void ASUWorldBuilder::BuildTerrainChunk(int32 ChunkX, int32 ChunkY, float Origin
 
 void ASUWorldBuilder::BuildWater()
 {
+	using namespace SULogic;
 	USUAssetLibrary* Lib = USUAssetLibrary::Get(this);
 	if (!Lib)
 	{
@@ -427,6 +441,7 @@ void ASUWorldBuilder::BuildWater()
 
 void ASUWorldBuilder::BuildRoads()
 {
+	using namespace SULogic;
 	USUAssetLibrary* Lib = USUAssetLibrary::Get(this);
 	const TArray<FLinearColor> NoColors;
 	const TArray<FProcMeshTangent> NoTangents;
@@ -548,6 +563,7 @@ void ASUWorldBuilder::BuildRoads()
 
 UHierarchicalInstancedStaticMeshComponent* ASUWorldBuilder::MakeFoliageComponent(const TCHAR* Name, UStaticMesh* Mesh, UMaterialInterface* Material, bool bCollision, int32 CullDistance)
 {
+	using namespace SULogic;
 	UHierarchicalInstancedStaticMeshComponent* H = NewObject<UHierarchicalInstancedStaticMeshComponent>(this, FName(Name));
 	H->SetupAttachment(SceneRoot);
 	H->SetMobility(EComponentMobility::Static);
@@ -575,6 +591,7 @@ UHierarchicalInstancedStaticMeshComponent* ASUWorldBuilder::MakeFoliageComponent
 
 void ASUWorldBuilder::BuildForest()
 {
+	using namespace SULogic;
 	USUAssetLibrary* Lib = USUAssetLibrary::Get(this);
 	if (!Lib)
 	{
@@ -737,6 +754,7 @@ void ASUWorldBuilder::BuildForest()
 
 void ASUWorldBuilder::BuildBoundaries()
 {
+	using namespace SULogic;
 	// Invisible walls at the edge of the playable core (mountains beyond are scenery for now).
 	const float Half = static_cast<float>(WorldLayout::CoreHalfSize * M) - 3000.f;
 	const float Height = 100000.f;
@@ -762,6 +780,7 @@ void ASUWorldBuilder::BuildBoundaries()
 template <typename T>
 T* ASUWorldBuilder::SpawnSite(FName PadId, float ExtraYaw)
 {
+	using namespace SULogic;
 	const SitePad* Pad = Layout->FindPad(TCHAR_TO_ANSI(*PadId.ToString()));
 	if (!Pad)
 	{
@@ -785,6 +804,7 @@ T* ASUWorldBuilder::SpawnSite(FName PadId, float ExtraYaw)
 
 void ASUWorldBuilder::BuildSites()
 {
+	using namespace SULogic;
 	SpawnSite<ASUSiteTower>(TEXT("Tower"));
 	SpawnSite<ASUSiteGasStation>(TEXT("GasStation"));
 	SpawnSite<ASUSiteForsthaus>(TEXT("Forsthaus"));
@@ -830,11 +850,13 @@ void ASUWorldBuilder::BuildSites()
 
 FVector2D ASUWorldBuilder::WorldToMapUV(const FVector& Location) const
 {
+	using namespace SULogic;
 	return FVector2D((Location.Y + MapHalfSize) / (2.f * MapHalfSize), (MapHalfSize - Location.X) / (2.f * MapHalfSize));
 }
 
 FVector ASUWorldBuilder::MapUVToWorld(const FVector2D& UV) const
 {
+	using namespace SULogic;
 	const float X = MapHalfSize - UV.Y * 2.f * MapHalfSize;
 	const float Y = UV.X * 2.f * MapHalfSize - MapHalfSize;
 	return GroundPoint(X, Y);
@@ -842,6 +864,7 @@ FVector ASUWorldBuilder::MapUVToWorld(const FVector2D& UV) const
 
 void ASUWorldBuilder::SetupMapCapture()
 {
+	using namespace SULogic;
 	MapTexture = UKismetRenderingLibrary::CreateRenderTarget2D(this, 2048, 2048, RTF_RGBA8, FLinearColor::Black);
 	MapCapture = NewObject<USceneCaptureComponent2D>(this, TEXT("MapCapture"));
 	MapCapture->SetupAttachment(SceneRoot);
@@ -863,6 +886,7 @@ void ASUWorldBuilder::SetupMapCapture()
 
 void ASUWorldBuilder::CaptureMap()
 {
+	using namespace SULogic;
 	if (MapCapture && MapTexture)
 	{
 		MapCapture->CaptureScene();
