@@ -19,13 +19,13 @@ import { colorMenu } from '../components/ColorPicker';
 import { readDragPayload } from '../browser/Browser';
 import { decodeAudioFile, placeAudioClip, protectedAssets, registerAsset } from '../../project/manager';
 import { addChannel } from '../../state/actions';
-import { drawClips, drawGrid, drawLoop, drawRuler, markerAt, RULER_H, type View } from './draw';
+import { drawClips, drawGrid, drawLoop, drawRuler, fadeGeometry, FADE_R, hasFadeHandles, markerAt, RULER_H, type View } from './draw';
 import { addMarker, duplicateTrack, insertTrack, moveTrack, removeMarker, updateMarker } from '../../state/actions';
 import { registerKeyOverride } from '../shortcuts';
 import { exportPatternMidi, importMidiFile } from '../../midi/midiProject';
 import { openClipSettings, openTrackSettings } from '../settings/SettingsWindows';
 import { FX_CATEGORIES, FX_CHAINS } from '../../audio/effects/fxPresets';
-import { ensureTrackInsert, fxApplyChain, toggleTrackSolo } from '../../state/actions';
+import { ensureTrackInsert, fxApplyChain, toggleTrackSolo, updateClip } from '../../state/actions';
 import { saveClipToLibrary } from '../library/libraryStore';
 import { toast } from '../../state/ui';
 import { rgba } from '../../state/utils';
@@ -37,6 +37,7 @@ type Drag =
   | { kind: 'move'; startTick: number; startTrack: number; anchorId: string; orig: Map<string, { start: number; track: number }>; moved: boolean }
   | { kind: 'resize'; id: string; origStart: number; origLen: number; maxLen: number; pressTick: number; moved: boolean }
   | { kind: 'trim'; id: string; origStart: number; origLen: number; origOffset: number; audio: boolean; speed: number; pressTick: number; moved: boolean }
+  | { kind: 'fade'; id: string; side: 'in' | 'out'; moved: boolean }
   | { kind: 'marquee'; x0: number; y0: number; x1: number; y1: number; add: boolean }
   | { kind: 'seek' }
   | { kind: 'loop'; anchor: number };
@@ -62,6 +63,8 @@ export function Playlist() {
   const overlayRef = useRef<HTMLCanvasElement>(null);
   const rulerRef = useRef<HTMLCanvasElement>(null);
   const headersRef = useRef<HTMLDivElement>(null);
+  const playheadRef = useRef<HTMLDivElement>(null);
+  const rulerHeadRef = useRef<HTMLDivElement>(null);
   const view = useRef<View>({ w: 0, h: 0, scrollX: 0, scrollY: 0, pxPerTick: 22 / PPQ, trackH: 44 });
   const dirty = useRef(true);
   const drag = useRef<Drag | null>(null);
@@ -130,8 +133,16 @@ export function Playlist() {
   }, []);
 
   // render loop
+  // Only what changed is drawn: the grid and the ruler when the project or the
+  // view changes, the overlay for recording / slicing / selecting, and the
+  // playhead is an element that only moves (no repaint while the song plays).
   useEffect(() => {
     let lastTheme = -1;
+    let rulerKey = '';
+    let rulerProject: unknown = null;
+    let overlayKey = '';
+    let headX = NaN;
+    let headCol = '';
     return onFrame(() => {
       const v = view.current;
       const project = getProject();
@@ -140,6 +151,7 @@ export function Playlist() {
       if (themeVersion() !== lastTheme) {
         lastTheme = themeVersion();
         dirty.current = true;
+        rulerKey = '';
       }
       if (dirty.current && gridRef.current && rulerRef.current) {
         dirty.current = false;
@@ -153,13 +165,59 @@ export function Playlist() {
       const o = overlayRef.current?.getContext('2d');
       const r = rulerRef.current?.getContext('2d');
       if (!o || !r) return;
-      r.setTransform(dpr, 0, 0, dpr, 0, 0);
-      drawRuler(r, v.w, RULER_H, v.scrollX, v.pxPerTick, project, t);
+      const rk = `${v.scrollX}|${v.w}|${v.pxPerTick}|${dpr}`;
+      if (rk !== rulerKey || project !== rulerProject) {
+        rulerKey = rk;
+        rulerProject = project;
+        r.setTransform(dpr, 0, 0, dpr, 0, 0);
+        drawRuler(r, v.w, RULER_H, v.scrollX, v.pxPerTick, project, t);
+      }
+
+      // playhead
+      const tr = engine.transport;
+      let x = NaN;
+      if (tr && (tr.mode === 'song' || !tr.playing)) {
+        const tick = tr.getTick();
+        x = tick * v.pxPerTick - v.scrollX;
+        if (tr.playing && ui().followPlayhead && tr.mode === 'song' && vpRef.current) {
+          if (x > v.w * 0.92 || x < 0) {
+            vpRef.current.scrollLeft = Math.max(0, tick * v.pxPerTick - v.w * 0.08);
+            x = tick * v.pxPerTick - vpRef.current.scrollLeft;
+          }
+        }
+        if (x < -6 || x > v.w + 6) x = NaN;
+      }
+      const hx = Math.round(x * 2) / 2;
+      if (hx !== headX && !(Number.isNaN(hx) && Number.isNaN(headX))) {
+        headX = hx;
+        for (const el of [playheadRef.current, rulerHeadRef.current]) {
+          if (!el) continue;
+          if (Number.isNaN(hx)) el.style.display = 'none';
+          else {
+            el.style.display = '';
+            el.style.transform = `translate3d(${hx}px,0,0)`;
+          }
+        }
+      }
+      const col = engine.recording ? t.rec : t.accent2;
+      if (col !== headCol) {
+        headCol = col;
+        playheadRef.current?.style.setProperty('--ph', col);
+        rulerHeadRef.current?.style.setProperty('--ph', col);
+      }
+
+      const rec = engine.recording;
+      const cap = engine.input?.capture;
+      const hv = hover.current;
+      const d = drag.current;
+      const ok = rec && cap
+        ? `rec${cap.samples}|${v.scrollX}|${v.scrollY}`
+        : `${v.scrollX}|${v.scrollY}|${v.w}|${v.h}|${v.pxPerTick}|${v.trackH}|${hv && ui().playlistTool === 'slice' ? `${hv.clipId}@${hv.tick}` : ''}|${d?.kind === 'marquee' ? `${d.x0},${d.y0},${d.x1},${d.y1}` : ''}`;
+      if (ok === overlayKey) return;
+      overlayKey = ok;
       o.setTransform(dpr, 0, 0, dpr, 0, 0);
       o.clearRect(0, 0, v.w, v.h);
       // recording clip
-      const rec = engine.recording;
-      const cap = engine.input?.capture;
       if (rec && cap) {
         const ti = trackIndexOf(project, rec.trackId);
         const x = rec.startTick * v.pxPerTick - v.scrollX;
@@ -187,7 +245,6 @@ export function Playlist() {
         }
       }
       // slice preview: exactly where the cut will happen
-      const hv = hover.current;
       if (hv && ui().playlistTool === 'slice') {
         const hc = project.clips.find((c) => c.id === hv.clipId);
         if (hc) {
@@ -210,7 +267,6 @@ export function Playlist() {
         }
       }
       // marquee
-      const d = drag.current;
       if (d?.kind === 'marquee') {
         o.strokeStyle = t.accent;
         o.fillStyle = rgba(t.accent, 0.12);
@@ -218,30 +274,6 @@ export function Playlist() {
         const y = Math.min(d.y0, d.y1) - v.scrollY;
         o.fillRect(x, y, Math.abs(d.x1 - d.x0), Math.abs(d.y1 - d.y0));
         o.strokeRect(x + 0.5, y + 0.5, Math.abs(d.x1 - d.x0), Math.abs(d.y1 - d.y0));
-      }
-      // playhead
-      if (engine.transport && (engine.transport.mode === 'song' || !engine.transport.playing)) {
-        const tick = engine.transport.getTick();
-        const x = tick * v.pxPerTick - v.scrollX;
-        if (x >= -6 && x <= v.w + 6) {
-          const col = engine.recording ? t.rec : t.accent2;
-          o.fillStyle = col;
-          o.shadowColor = col;
-          o.shadowBlur = 6;
-          o.fillRect(Math.round(x), 0, 1.5, v.h);
-          o.shadowBlur = 0;
-          // ruler marker
-          r.fillStyle = col;
-          r.beginPath();
-          r.moveTo(x - 6, RULER_H - 11);
-          r.lineTo(x + 6, RULER_H - 11);
-          r.lineTo(x, RULER_H - 1);
-          r.closePath();
-          r.fill();
-        }
-        if (engine.transport.playing && ui().followPlayhead && engine.transport.mode === 'song' && vpRef.current) {
-          if (x > v.w * 0.92 || x < 0) vpRef.current.scrollLeft = Math.max(0, tick * v.pxPerTick - v.w * 0.08);
-        }
       }
     });
   }, []);
@@ -262,7 +294,7 @@ export function Playlist() {
     return { x, y, tick: x / v.pxPerTick, track: Math.floor(y / v.trackH) };
   };
 
-  const hitClip = (x: number, y: number): { clip: Clip; edge: 'left' | 'right' | null } | null => {
+  const hitClip = (x: number, y: number): { clip: Clip; edge: 'left' | 'right' | 'fadeIn' | 'fadeOut' | null } | null => {
     const project = getProject();
     const v = view.current;
     for (let i = project.clips.length - 1; i >= 0; i--) {
@@ -272,6 +304,13 @@ export function Playlist() {
       const cw = c.length * v.pxPerTick;
       const cy = ti * v.trackH;
       if (x >= cx && x < cx + cw && y >= cy && y < cy + v.trackH) {
+        // the fade dots at the top corners come first (a bit bigger than drawn, easy to grab)
+        if (hasFadeHandles(c, cw, v.trackH)) {
+          const fg = fadeGeometry(c, cx, cy + 1, cw, v.trackH, v.pxPerTick, project.bpm);
+          const near = (hx: number) => Math.hypot(x - hx, y - fg.dotY) <= FADE_R + 3;
+          if (near(fg.inX)) return { clip: c, edge: 'fadeIn' };
+          if (near(fg.outX)) return { clip: c, edge: 'fadeOut' };
+        }
         const edgeW = Math.min(8, cw / 4);
         return { clip: c, edge: x > cx + cw - edgeW ? 'right' : x < cx + edgeW ? 'left' : null };
       }
@@ -310,6 +349,11 @@ export function Playlist() {
       if (e.ctrlKey || e.metaKey) selected = s.selectedClipIds.includes(clip.id) ? s.selectedClipIds.filter((i) => i !== clip.id) : [...s.selectedClipIds, clip.id];
       if (clip.kind === 'pattern' && clip.patternId) setUI({ selectedPatternId: clip.patternId });
       beginGesture();
+      if (edge === 'fadeIn' || edge === 'fadeOut') {
+        drag.current = { kind: 'fade', id: clip.id, side: edge === 'fadeIn' ? 'in' : 'out', moved: false };
+        setUI({ selectedClipIds: [clip.id] });
+        return;
+      }
       if (edge === 'right') {
         const buf = clip.kind === 'audio' && clip.assetId ? assets.get(clip.assetId) : undefined;
         const maxLen = buf ? secondsToTicks((buf.duration - clip.offset) / (clip.speed ?? 1), project.bpm) : Infinity;
@@ -364,7 +408,7 @@ export function Playlist() {
     if (!d) {
       const hit = hitClip(x, y);
       hover.current = hit && ui().playlistTool === 'slice' ? { clipId: hit.clip.id, tick: place(tick, e) } : null;
-      const cur = ui().playlistTool === 'slice' && hit ? 'crosshair' : hit?.edge ? 'ew-resize' : hit ? 'grab' : ui().playlistTool === 'draw' ? 'copy' : 'default';
+      const cur = ui().playlistTool === 'slice' && hit ? 'crosshair' : hit?.edge === 'fadeIn' || hit?.edge === 'fadeOut' ? 'col-resize' : hit?.edge ? 'ew-resize' : hit ? 'grab' : ui().playlistTool === 'draw' ? 'copy' : 'default';
       if (cur !== hoverCursor.current) {
         hoverCursor.current = cur;
         (e.currentTarget as HTMLElement).style.cursor = cur;
@@ -419,6 +463,25 @@ export function Playlist() {
         c.length = end - start;
         c.offset = d.audio ? Math.max(0, d.origOffset + (delta / PPQ) * (60 / project.bpm) * d.speed) : d.origOffset + delta;
       });
+    } else if (d.kind === 'fade') {
+      const c = project.clips.find((k) => k.id === d.id);
+      if (!c) return;
+      const v = view.current;
+      const cx = c.start * v.pxPerTick;
+      const cw = c.length * v.pxPerTick;
+      const fg = fadeGeometry(c, cx, 0, cw, v.trackH, v.pxPerTick, project.bpm);
+      // the two fades together never get longer than the clip
+      const other = d.side === 'in' ? fg.outPx : fg.inPx;
+      let px = clamp(d.side === 'in' ? x - cx : cx + cw - x, 0, Math.max(0, cw - other));
+      if (px < 3) px = 0;
+      const secs = Math.round((px / fg.pxPerSec) * 1000) / 1000;
+      const key = d.side === 'in' ? 'fadeIn' : 'fadeOut';
+      if (!d.moved && Math.abs(secs - (c[key] ?? 0)) < 1e-6) return;
+      d.moved = true;
+      update(d.side === 'in' ? 'Fade in' : 'Fade out', (dr) => {
+        const k = dr.clips.find((q) => q.id === d.id);
+        if (k) k[key] = secs;
+      });
     } else if (d.kind === 'marquee') {
       d.x1 = x;
       d.y1 = y;
@@ -445,6 +508,11 @@ export function Playlist() {
   const onDoubleClick = (e: React.MouseEvent) => {
     const { x, y } = toContent(e);
     const hit = hitClip(x, y);
+    // double-click on a fade dot removes that fade
+    if (hit?.edge === 'fadeIn' || hit?.edge === 'fadeOut') {
+      updateClip(hit.clip.id, hit.edge === 'fadeIn' ? { fadeIn: 0 } : { fadeOut: 0 }, hit.edge === 'fadeIn' ? 'Remove fade in' : 'Remove fade out');
+      return;
+    }
     if (hit?.clip.kind === 'audio') {
       openClipSettings(hit.clip.id);
       return;
@@ -801,6 +869,7 @@ export function Playlist() {
             <div className="pl-corner">
               <span className="label">Tracks</span>
             </div>
+            <div className="pl-ruler-box">
             <canvas
               ref={rulerRef}
               className="pl-ruler"
@@ -812,6 +881,8 @@ export function Playlist() {
               onDoubleClick={() => setLoop({ enabled: !getProject().loop.enabled })}
               title="Click to set the play position · Shift/right-drag to set a loop region · double-click toggles the loop"
             />
+            <div ref={rulerHeadRef} className="pl-ruler-head" style={{ display: 'none' }} />
+            </div>
           </div>
           <div className="pl-area">
             <div className="pl-headers">
@@ -855,6 +926,7 @@ export function Playlist() {
                 onContextMenu={onContextMenu}
                 onWheel={onWheel}
               />
+              <div ref={playheadRef} className="pl-playhead" style={{ display: 'none' }} />
             </div>
           </div>
         </div>

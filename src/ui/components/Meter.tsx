@@ -1,6 +1,6 @@
 import { memo, useEffect, useRef } from 'react';
 import { onFrame } from './frameLoop';
-import { theme } from '../../styles/themes';
+import { theme, themeVersion } from '../../styles/themes';
 
 export interface MeterSource {
   (): { l: number; r: number } | null;
@@ -25,6 +25,7 @@ export const Meter = memo(function Meter({ source, width = 14, height = 140, ste
     cv.height = height * dpr;
     const ctx = cv.getContext('2d')!;
     const state = { l: 0, r: 0, hl: 0, hr: 0, ht: 0, clip: 0 };
+    let drawn = '';
     return onFrame((dt) => {
       const v = srcRef.current();
       const l = v ? toPos(v.l) : 0;
@@ -42,6 +43,10 @@ export const Meter = memo(function Meter({ source, width = 14, height = 140, ste
       state.hr = Math.max(state.hr, r);
       if (v && (v.l >= 1 || v.r >= 1)) state.clip = 1.5;
       state.clip -= dt;
+      // nothing visible changed (e.g. silence): leave the canvas alone
+      const sig = `${Math.round(state.l * 300)}|${Math.round(state.r * 300)}|${Math.round(state.hl * 300)}|${Math.round(state.hr * 300)}|${state.clip > 0 ? 1 : 0}|${themeVersion()}`;
+      if (sig === drawn) return;
+      drawn = sig;
       const t = theme();
       ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
       ctx.fillStyle = '#07080a';

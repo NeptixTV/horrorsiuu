@@ -136,6 +136,7 @@ export function PianoRoll() {
   // drawing
   useEffect(() => {
     let lastTheme = -1;
+    let overlayKey = '';
     return onFrame(() => {
       const s = size.current;
       const t = theme();
@@ -286,21 +287,27 @@ export function PianoRoll() {
           v.fill();
         }
       }
-      // overlay: playhead + marquee
+      // overlay: playhead + marquee (redrawn only when one of them moved)
+      const pt = currentPatternTick(pat.id);
+      if (pt >= 0 && st.followPlayhead && vpRef.current) {
+        const x = pt * pxt - s.scrollX;
+        if (x > s.w * 0.95 || x < 0) vpRef.current.scrollLeft = Math.max(0, pt * pxt - 40);
+      }
+      const d = drag.current;
+      const px = pt >= 0 ? Math.round(pt * pxt - s.scrollX) : NaN;
+      const key = `${px}|${s.w}|${s.h}|${dpr}|${lastTheme}|${d?.kind === 'marquee' ? `${d.x0},${d.y0},${d.x1},${d.y1},${s.scrollX},${s.scrollY}` : ''}`;
+      if (key === overlayKey) return;
+      overlayKey = key;
       const o = overlayRef.current!.getContext('2d')!;
       o.setTransform(dpr, 0, 0, dpr, 0, 0);
       o.clearRect(0, 0, s.w, s.h);
-      const pt = currentPatternTick(pat.id);
-      if (pt >= 0) {
-        const x = pt * pxt - s.scrollX;
+      if (!Number.isNaN(px)) {
+        // glow without canvas shadow blur (that is slow)
+        o.fillStyle = rgba(t.accent2, 0.25);
+        o.fillRect(px - 2, 0, 5.5, s.h);
         o.fillStyle = t.accent2;
-        o.shadowColor = t.accent2;
-        o.shadowBlur = 6;
-        o.fillRect(Math.round(x), 0, 1.5, s.h);
-        o.shadowBlur = 0;
-        if (st.followPlayhead && vpRef.current && (x > s.w * 0.95 || x < 0)) vpRef.current.scrollLeft = Math.max(0, pt * pxt - 40);
+        o.fillRect(px, 0, 1.5, s.h);
       }
-      const d = drag.current;
       if (d?.kind === 'marquee') {
         const x = Math.min(d.x0, d.x1) - s.scrollX;
         const y = Math.min(d.y0, d.y1) - s.scrollY;

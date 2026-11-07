@@ -216,7 +216,10 @@ export interface Clip {
   speed?: number;
   /** audio clips: play the source reversed */
   reverse?: boolean;
-  /** audio clips: fades in seconds */
+  /**
+   * Fades in seconds (drag the dots at the clip's top corners). Audio clips
+   * fade their volume; pattern clips play their notes softer towards the edge.
+   */
   fadeIn?: number;
   fadeOut?: number;
   /** audio clips: effect chain applied to this clip only */

@@ -7,7 +7,7 @@
 .br-cat-head:hover { background: var(--panel2); }
 .br-cat-head.open { color: #fff; }
 .br-count { margin-left: auto; color: var(--dim); font-size: 10px; font-weight: 400; }
-.br-cat-body { padding-bottom: 4px; animation: fadeIn .2s ease both; }
+.br-cat-body { padding-bottom: 4px; animation: fadeIn .2s ease backwards; }
 .br-group-head { padding: 4px 8px 2px 30px; font-size: 9.5px; text-transform: uppercase; letter-spacing: .07em; color: var(--dim); }
 .br-item { display: flex; align-items: center; gap: 7px; height: 21px; padding: 0 8px 0 30px; cursor: grab; color: var(--text); white-space: nowrap; }
 .br-item:hover { background: color-mix(in srgb, var(--accent) 18%, transparent); }

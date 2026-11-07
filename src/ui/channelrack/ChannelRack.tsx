@@ -127,10 +127,22 @@ const ChannelRow = memo(function ChannelRow({
 }) {
   const [drop, setDrop] = useState(false);
   const levelRef = useRef<HTMLDivElement>(null);
-  useEffect(() => onFrame(() => {
-    const h = engine.initialized ? engine.graph.channels.get(channel.id) : undefined;
-    if (levelRef.current) levelRef.current.style.opacity = h ? String(Math.min(1, h.level() * 3)) : '0';
-  }), [channel.id]);
+  useEffect(() => {
+    let shown = -1;
+    let acc = 1;
+    return onFrame((dt) => {
+      // ~15 updates a second in 6 brightness steps: every change repaints the
+      // channel rack, so a few are plenty for a blinking activity light
+      acc += dt;
+      if (acc < 0.066) return;
+      acc = 0;
+      const h = engine.initialized ? engine.graph.channels.get(channel.id) : undefined;
+      const o = h ? Math.round(Math.min(1, h.level() * 3) * 5) / 5 : 0;
+      if (o === shown || !levelRef.current) return;
+      shown = o;
+      levelRef.current.style.opacity = String(o);
+    });
+  }, [channel.id]);
 
   const openEditor = () => openChannelEditor(channel.id);
   const menu = (e: React.MouseEvent) => {

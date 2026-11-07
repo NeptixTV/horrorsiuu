@@ -8,6 +8,21 @@ Step-Sequencer · Playlist · Piano Roll · Mixer · Effekte · Synthesizer · D
 
 ---
 
+## Neu in Version 1.3.2
+
+**Fade-Punkte an Clips:** Jeder Sound- und Beat-Clip in der Playlist hat oben links und oben rechts einen Punkt.
+Daran ziehen = einblenden bzw. ausblenden; Doppelklick auf den Punkt entfernt den Fade. Beide Fades zusammen sind nie
+länger als der Clip. Audio-Clips blenden ihre Lautstärke, Beat-(Pattern-)Clips spielen ihre Noten zum Rand hin
+leiser (lang gehaltene Töne werden dabei nicht mitten im Ton leiser). Die Fades stehen auch in den Clip-Einstellungen
+und gelten beim Export genauso.
+
+**Flüssiger bei langen Beats:** Beim Abspielen wurde bisher in jedem Bild das ganze Fenster neu gezeichnet (die
+Zeitanzeige ersetzte 60-mal pro Sekunde ihren Text, die Playlist-Abspielmarke und das Lineal wurden ständig neu
+gemalt, Einblend-Animationen hielten große Bereiche in Dauer-Neuzeichnung). Jetzt bewegt sich nur noch die
+Abspielmarke; Anzeigen zeichnen nur, wenn sich wirklich etwas ändert. Gemessen mit einem 192-Takte-Beat und 4-fach
+gebremster CPU: Hauptthread beim Abspielen ca. 20 % statt 83 % ausgelastet, Neuzeichnen ~30 statt ~960 ms pro
+5 Sekunden.
+
 ## Neu in Version 1.3.1
 
 **Papierkorb für Projekte:** Gelöschte Projekte landen nicht mehr sofort im Nichts, sondern im Papierkorb

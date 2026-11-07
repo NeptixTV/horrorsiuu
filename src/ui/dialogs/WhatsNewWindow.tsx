@@ -18,6 +18,8 @@ interface Item {
 }
 
 const ITEMS: Item[] = [
+  { icon: 'wave', title: 'Fade dots on clips', text: 'Every sound and beat clip in the playlist has a dot at its top left and top right corner: drag it to fade in or out. Double-click a dot to remove the fade. Beat (pattern) clips fade by playing their notes softer.', mine: true },
+  { icon: 'bolt', title: 'Smoother with long beats', text: 'While a song plays the studio no longer redraws the whole window 60 times a second – the playhead just slides. Much less work for your computer, especially on big screens and long songs.' },
   { icon: 'trash', title: 'Trash for projects', text: 'Deleted a song by mistake? Deleted projects now go to the trash and can be restored for 30 days. Projects you deleted before this update are back in there too, as long as their automatic backup still exists.', action: ['Open the trash', () => openProjectsWindow('trash')], mine: true },
   { icon: 'bolt', title: 'New Beat in one click', text: 'Pick a genre – Trap, Drill, Boom Bap, Lo-Fi, House, Phonk or Afrobeats – and get a finished, mixed beat: drums, 808, chords, melody, intro, drop and break. Ctrl+B.', action: ['Make a beat', () => openWindow({ kind: 'beatStarter' })], mine: true },
   { icon: 'crown', title: 'Pro Sounds', text: '73 new sounds: a real upright piano with three velocity layers, strings, flute, horns, organ, bells and percussion recorded from real instruments – plus hard 808s, kicks, snares and hats made for beats. The old sounds are still there.', action: ['Open the browser', () => setUI({ browserOpen: true })] },

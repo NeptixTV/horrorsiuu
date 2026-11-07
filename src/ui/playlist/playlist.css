@@ -14,7 +14,12 @@
 .pl-main { flex: 1; display: flex; flex-direction: column; min-width: 0; }
 .pl-ruler-row { display: flex; flex-shrink: 0; height: 26px; }
 .pl-corner { width: 150px; flex-shrink: 0; background: var(--panel2); border-right: 1px solid var(--border); border-bottom: 1px solid var(--border); display: flex; align-items: center; padding: 0 8px; }
-.pl-ruler { flex: 1; display: block; cursor: pointer; min-width: 0; }
+.pl-ruler-box { flex: 1; position: relative; min-width: 0; overflow: hidden; }
+.pl-ruler { display: block; cursor: pointer; }
+/* the playhead only moves (transform) – the browser does not have to repaint the playlist for it */
+.pl-playhead, .pl-ruler-head { position: absolute; left: 0; top: 0; pointer-events: none; will-change: transform; }
+.pl-playhead { bottom: 0; width: 1.5px; margin-left: -0.75px; background: var(--ph, var(--accent2)); box-shadow: 0 0 6px var(--ph, var(--accent2)); z-index: 2; }
+.pl-ruler-head { top: 15px; width: 0; height: 0; margin-left: -6px; border-left: 6px solid transparent; border-right: 6px solid transparent; border-top: 10px solid var(--ph, var(--accent2)); }
 .pl-area { flex: 1; display: flex; min-height: 0; }
 .pl-headers { width: 150px; flex-shrink: 0; overflow: hidden; background: var(--panel2); border-right: 1px solid var(--border); position: relative; }
 .pl-headers-inner { position: absolute; left: 0; right: 0; top: 0; will-change: transform; }

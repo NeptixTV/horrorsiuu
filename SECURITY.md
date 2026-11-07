@@ -197,3 +197,13 @@ Neu ist nur der **Papierkorb für Projekte**. Auch dieser Nachtrag ist **kein Be
 Updates von der 1.3.0-Datenbank (gelöschtes Projekt aus Backups gefunden, wiederhergestellt und geöffnet; Projekt in
 den Papierkorb verschoben; Eintrag nach 31 Tagen samt Backups entfernt; nach Neustart kommt nichts zurück; keine
 Fehler in der Konsole). **Nicht geprüft**: das Update auf einem echten Windows-PC mit echten Daten.
+
+## Nachtrag 1.3.2 (07.11.2026)
+
+Neu: Fade-Punkte an Clips und Leistungsverbesserungen der Oberfläche. Keine neuen Netzwerkverbindungen, keine neuen
+IPC-Kanäle, keine neuen Abhängigkeiten, kein neuer Speicher. Fades werden beim Laden weiterhin geprüft (0–600 s).
+Auch dieser Nachtrag ist **kein Beweis vollständiger Sicherheit**.
+
+**Tatsächlich durchgeführt**: Typprüfung, Unit-Tests (neu: Fades von Pattern-Clips), Browser-Tests (Fade-Punkte
+ziehen, Rückgängig/Wiederholen, Doppelklick, Begrenzung auf die Clip-Länge, Export mit Fades für Audio- und
+Pattern-Clips), Leistungsmessung beim Abspielen. **Nicht geprüft**: auf einem echten Windows-PC.

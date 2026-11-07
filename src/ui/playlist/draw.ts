@@ -19,6 +19,32 @@ export interface View {
 export const HEADER_W = 150;
 export const RULER_H = 26;
 export const CLIP_HEADER = 13;
+/** radius of the fade dots at a clip's top corners */
+export const FADE_R = 4;
+
+/** Audio and pattern clips get fade dots once they are wide and tall enough to grab them. */
+export function hasFadeHandles(clip: Clip, w: number, trackH: number) {
+  return clip.kind !== 'automation' && w >= 28 && trackH >= 24;
+}
+
+/**
+ * Where a clip's fades and fade dots are, for drawing and for the mouse
+ * (x / y: the clip's top-left corner, in the same coordinates as the result).
+ */
+export function fadeGeometry(clip: Clip, x: number, y: number, w: number, trackH: number, pxPerTick: number, bpm: number) {
+  const h = trackH - 3;
+  const headH = Math.min(CLIP_HEADER, h * 0.4);
+  const pxPerSec = (bpm / 60) * PPQ * pxPerTick;
+  const inPx = Math.min(w, Math.max(0, (clip.fadeIn ?? 0) * pxPerSec));
+  const outPx = Math.min(w, Math.max(0, (clip.fadeOut ?? 0) * pxPerSec));
+  const top = y + headH;
+  return {
+    inPx, outPx, top, bottom: y + h, pxPerSec,
+    inX: x + Math.max(FADE_R + 2, inPx),
+    outX: x + w - Math.max(FADE_R + 2, outPx),
+    dotY: top + FADE_R + 1,
+  };
+}
 
 export function drawGrid(ctx: CanvasRenderingContext2D, v: View, project: Project, t: ThemeVars) {
   ctx.fillStyle = t.grid;
@@ -78,12 +104,25 @@ export function drawLoop(ctx: CanvasRenderingContext2D, v: View, project: Projec
   ctx.fillRect(x1, 0, 1, v.h);
 }
 
-function patternPreview(ctx: CanvasRenderingContext2D, pattern: Pattern, project: Project, x: number, y: number, _w: number, h: number, clip: Clip, pxPerTick: number, color: string) {
-  const len = patternLength(pattern, project.timeSig);
-  // collect notes and step hits
+interface PreviewItems {
+  items: { tick: number; len: number; pitch: number | null; row: number }[];
+  minP: number;
+  maxP: number;
+  rows: number;
+  len: number;
+}
+
+// Patterns and channel lists are immutable (a change makes a new object), so
+// the preview of a pattern is worked out once and reused for every clip and
+// every redraw until the pattern or the channels change.
+const previewCache = new WeakMap<Pattern, { channels: Project['channels']; timeSig: Project['timeSig']; data: PreviewItems }>();
+
+function previewItems(pattern: Pattern, project: Project): PreviewItems {
+  const hit = previewCache.get(pattern);
+  if (hit && hit.channels === project.channels && hit.timeSig === project.timeSig) return hit.data;
   let minP = 127;
   let maxP = 0;
-  const items: { tick: number; len: number; pitch: number | null; row: number }[] = [];
+  const items: PreviewItems['items'] = [];
   const channelRows = project.channels.filter((c) => (pattern.steps[c.id] ?? []).some((v) => v > 0));
   channelRows.forEach((c, row) => {
     const steps = pattern.steps[c.id];
@@ -96,17 +135,28 @@ function patternPreview(ctx: CanvasRenderingContext2D, pattern: Pattern, project
       maxP = Math.max(maxP, n.pitch);
     }
   }
+  const data = { items, minP, maxP, rows: channelRows.length, len: patternLength(pattern, project.timeSig) };
+  previewCache.set(pattern, { channels: project.channels, timeSig: project.timeSig, data });
+  return data;
+}
+
+function patternPreview(ctx: CanvasRenderingContext2D, pattern: Pattern, project: Project, x: number, y: number, _w: number, h: number, clip: Clip, pxPerTick: number, color: string, viewW: number) {
+  const { items, minP, maxP, rows, len } = previewItems(pattern, project);
   if (!items.length) return;
   const range = Math.max(6, maxP - minP + 1);
   const hasNotes = maxP >= minP;
-  const stepRows = Math.max(1, channelRows.length);
+  const stepRows = Math.max(1, rows);
   ctx.fillStyle = shade(color, 0.55);
   const origin = clip.start - clip.offset;
-  for (let rep = Math.floor((clip.start - origin) / len); origin + rep * len < clip.start + clip.length; rep++) {
+  // only the repeats that are on screen
+  const visFrom = Math.max(clip.start, clip.start + (-x) / pxPerTick);
+  const visTo = Math.min(clip.start + clip.length, clip.start + (viewW - x) / pxPerTick);
+  for (let rep = Math.floor((visFrom - origin) / len); origin + rep * len < visTo; rep++) {
     for (const it of items) {
       const abs = origin + rep * len + it.tick;
       if (abs < clip.start || abs >= clip.start + clip.length) continue;
       const ix = x + (abs - clip.start) * pxPerTick;
+      if (ix > viewW || ix + it.len * pxPerTick < 0) continue;
       const iw = Math.max(1.5, Math.min(it.len, clip.start + clip.length - abs) * pxPerTick - 1);
       let iy: number;
       let ih: number;
@@ -180,10 +230,10 @@ function automationPreview(ctx: CanvasRenderingContext2D, clip: Clip, x: number,
   }
 }
 
-export function clipColor(clip: Clip, project: Project): string {
+export function clipColor(clip: Clip, project: Project, patterns?: Map<string, Pattern>): string {
   if (clip.kind === 'audio') return '#3fa7a0';
   if (clip.kind === 'automation') return '#8f6bff';
-  return project.patterns.find((p) => p.id === clip.patternId)?.color ?? '#888';
+  return (patterns ? patterns.get(clip.patternId ?? '') : project.patterns.find((p) => p.id === clip.patternId))?.color ?? '#888';
 }
 
 export function clipLabel(clip: Clip, project: Project): string {
@@ -206,7 +256,7 @@ export function drawClips(ctx: CanvasRenderingContext2D, v: View, project: Proje
     const y = ti * v.trackH - v.scrollY + 1;
     const h = v.trackH - 3;
     if (x > v.w || x + w < 0 || y > v.h || y + h < 0) continue;
-    const color = clipColor(clip, project);
+    const color = clipColor(clip, project, patterns);
     const sel = selected.has(clip.id);
     const muted = project.tracks[ti]?.mute;
     ctx.globalAlpha = muted ? 0.45 : 1;
@@ -228,22 +278,41 @@ export function drawClips(ctx: CanvasRenderingContext2D, v: View, project: Proje
     const body = { x, y: y + headH, w, h: h - headH };
     if (clip.kind === 'pattern') {
       const pat = patterns.get(clip.patternId ?? '');
-      if (pat) patternPreview(ctx, pat, project, body.x, body.y, body.w, body.h, clip, v.pxPerTick, color);
+      if (pat) patternPreview(ctx, pat, project, body.x, body.y, body.w, body.h, clip, v.pxPerTick, color, v.w);
     } else if (clip.kind === 'automation') {
       automationPreview(ctx, clip, body.x, body.y, body.w, body.h, v.pxPerTick);
     } else {
       audioPreview(ctx, clip, body.x, body.y, body.w, body.h, project.bpm, v.pxPerTick, color, v.w);
     }
     ctx.restore();
-    // fades
-    if (clip.kind === 'audio' && (clip.fadeIn || clip.fadeOut)) {
-      const spt = 60 / project.bpm / PPQ;
-      ctx.strokeStyle = 'rgba(255,255,255,0.7)';
-      ctx.lineWidth = 1;
-      ctx.beginPath();
-      if (clip.fadeIn) { ctx.moveTo(x, y + h); ctx.lineTo(x + (clip.fadeIn / spt) * v.pxPerTick, y + headH); }
-      if (clip.fadeOut) { ctx.moveTo(x + w - (clip.fadeOut / spt) * v.pxPerTick, y + headH); ctx.lineTo(x + w, y + h); }
-      ctx.stroke();
+    // fades: the faded corner is darkened, a line shows the ramp, a dot to drag it
+    if (clip.kind !== 'automation') {
+      const fg = fadeGeometry(clip, x, y, w, v.trackH, v.pxPerTick, project.bpm);
+      if (fg.inPx > 0.5 || fg.outPx > 0.5) {
+        ctx.fillStyle = 'rgba(0,0,0,0.34)';
+        ctx.beginPath();
+        if (fg.inPx > 0.5) { ctx.moveTo(x, fg.top); ctx.lineTo(x + fg.inPx, fg.top); ctx.lineTo(x, fg.bottom); ctx.closePath(); }
+        if (fg.outPx > 0.5) { ctx.moveTo(x + w, fg.top); ctx.lineTo(x + w - fg.outPx, fg.top); ctx.lineTo(x + w, fg.bottom); ctx.closePath(); }
+        ctx.fill();
+        ctx.strokeStyle = 'rgba(255,255,255,0.8)';
+        ctx.lineWidth = 1;
+        ctx.beginPath();
+        if (fg.inPx > 0.5) { ctx.moveTo(x, fg.bottom); ctx.lineTo(x + fg.inPx, fg.top); }
+        if (fg.outPx > 0.5) { ctx.moveTo(x + w - fg.outPx, fg.top); ctx.lineTo(x + w, fg.bottom); }
+        ctx.stroke();
+      }
+      if (hasFadeHandles(clip, w, v.trackH)) {
+        for (const [dx, on] of [[fg.inX, fg.inPx > 0.5], [fg.outX, fg.outPx > 0.5]] as const) {
+          if (dx < -FADE_R || dx > v.w + FADE_R) continue;
+          ctx.beginPath();
+          ctx.arc(dx, fg.dotY, FADE_R, 0, Math.PI * 2);
+          ctx.fillStyle = on ? '#ffffff' : 'rgba(255,255,255,0.55)';
+          ctx.fill();
+          ctx.strokeStyle = 'rgba(0,0,0,0.75)';
+          ctx.lineWidth = 1;
+          ctx.stroke();
+        }
+      }
     }
     // badges: effects / reverse / speed / transpose
     const badges: string[] = [];

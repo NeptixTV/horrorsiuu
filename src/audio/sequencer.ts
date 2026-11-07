@@ -102,6 +102,23 @@ export function collectPatternEvents(
   }
 }
 
+/**
+ * Volume factor (0..1) of a clip's fades at an absolute tick: a straight ramp
+ * over `fadeIn` seconds from the clip start and `fadeOut` seconds to its end.
+ */
+export function clipFadeGain(clip: Clip, tick: number, bpm: number): number {
+  const fi = clip.fadeIn ?? 0;
+  const fo = clip.fadeOut ?? 0;
+  if (!(fi > 0) && !(fo > 0)) return 1;
+  const spt = 60 / (Math.max(10, bpm || 120) * PPQ);
+  const pos = (tick - clip.start) * spt;
+  const left = (clip.start + clip.length - tick) * spt;
+  let g = 1;
+  if (fi > 0 && pos < fi) g *= Math.max(0, pos / fi);
+  if (fo > 0 && left < fo) g *= Math.max(0, left / fo);
+  return g;
+}
+
 /** Note events for absolute range [from, to) in the given mode. */
 export function collectNoteEvents(project: Project, mode: PlayMode, patternId: string | null, from: number, to: number): NoteEvent[] {
   const out: NoteEvent[] = [];
@@ -135,12 +152,23 @@ export function collectNoteEvents(project: Project, mode: PlayMode, patternId: s
     const a = Math.max(from, clip.start);
     const b = Math.min(to, clipEnd);
     let loopStart = origin + Math.floor((a - origin) / len) * len;
+    const first = out.length;
     while (loopStart < b) {
       const la = Math.max(a, loopStart) - loopStart;
       const lb = Math.min(b, loopStart + len) - loopStart;
       const limit = Math.min(len, clipEnd - loopStart);
       collectPatternEvents(project, pattern, la, lb, loopStart, out, active, limit, clip.transpose ?? 0, clip.gain ?? 1);
       loopStart += len;
+    }
+    // clip fades: notes get softer towards the faded edges (silent ones are dropped)
+    if ((clip.fadeIn ?? 0) > 0 || (clip.fadeOut ?? 0) > 0) {
+      let k = first;
+      for (let i = first; i < out.length; i++) {
+        const ev = out[i];
+        ev.velocity *= clipFadeGain(clip, ev.tick, project.bpm);
+        if (ev.velocity >= 0.01) out[k++] = ev;
+      }
+      out.length = k;
     }
   }
   out.sort((x, y) => x.tick - y.tick);

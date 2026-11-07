@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest';
-import { collectAudioSpanning, collectAudioStarts, collectNoteEvents, patternLength, songLength } from '../audio/sequencer';
+import { clipFadeGain, collectAudioSpanning, collectAudioStarts, collectNoteEvents, patternLength, songLength } from '../audio/sequencer';
 import { createDemoProject, createEmptyProject } from '../state/defaults';
 import { PPQ, TICKS_PER_STEP, type Project } from '../state/types';
 
@@ -124,5 +124,38 @@ describe('clip & row settings', () => {
     p.clips = [{ id: 'a', trackId: p.tracks[0].id, kind: 'audio', start: 0, length: PPQ * 8, offset: 0, assetId: 'x', speed: 2 }];
     const span = collectAudioSpanning(p, PPQ * 2, 120);
     expect(span[0].sourceOffset).toBeCloseTo(2); // 1 s of timeline at 2× speed = 2 s of source
+  });
+});
+
+describe('clip fades', () => {
+  // one 4-bar clip of a pattern with a kick on every beat, 120 BPM (one beat = 0.5 s)
+  function fadedProject(fadeIn: number, fadeOut: number): Project {
+    const p = simpleProject();
+    p.bpm = 120;
+    p.clips = [{ id: 'c1', trackId: p.tracks[0].id, kind: 'pattern', start: 0, length: PPQ * 16, offset: 0, patternId: p.patterns[0].id, fadeIn, fadeOut }];
+    return p;
+  }
+
+  it('plays the notes softer towards the faded edges', () => {
+    const ev = collectNoteEvents(fadedProject(2, 2), 'song', null, 0, PPQ * 16);
+    // fade in over 2 s = 4 beats: the first kick is silent and dropped, then 0.25, 0.5, 0.75, 1 …
+    expect(ev[0].tick).toBe(PPQ);
+    expect(ev.slice(0, 4).map((e) => Math.round(e.velocity * 100) / 100)).toEqual([0.25, 0.5, 0.75, 1]);
+    // fade out over the last 2 s: 1, 0.75, 0.5, 0.25 for the last four kicks
+    expect(ev.slice(-4).map((e) => Math.round(e.velocity * 100) / 100)).toEqual([1, 0.75, 0.5, 0.25]);
+  });
+
+  it('leaves clips without fades untouched', () => {
+    const ev = collectNoteEvents(fadedProject(0, 0), 'song', null, 0, PPQ * 16);
+    expect(ev).toHaveLength(16);
+    expect(ev.every((e) => e.velocity === 1)).toBe(true);
+  });
+
+  it('computes the fade factor at any point of a clip', () => {
+    const c = fadedProject(1, 1).clips[0];
+    expect(clipFadeGain(c, 0, 120)).toBe(0);
+    expect(clipFadeGain(c, PPQ, 120)).toBeCloseTo(0.5);
+    expect(clipFadeGain(c, PPQ * 8, 120)).toBe(1);
+    expect(clipFadeGain(c, PPQ * 15, 120)).toBeCloseTo(0.5);
   });
 });

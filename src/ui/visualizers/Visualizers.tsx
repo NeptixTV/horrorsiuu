@@ -1,11 +1,14 @@
 import { memo, useEffect, useRef } from 'react';
 import { onFrame } from '../components/frameLoop';
-import { theme } from '../../styles/themes';
+import { theme, themeVersion } from '../../styles/themes';
 import { engine } from '../../audio/engine';
 import { rgba } from '../../state/utils';
 
-/** Keeps a canvas sized to its CSS box (with devicePixelRatio). */
-export function useCanvas(draw: (ctx: CanvasRenderingContext2D, w: number, h: number, dt: number) => void, deps: unknown[] = []) {
+/**
+ * Keeps a canvas sized to its CSS box (with devicePixelRatio). `fresh` is true
+ * on the first frame after the canvas was (re)sized and therefore cleared.
+ */
+export function useCanvas(draw: (ctx: CanvasRenderingContext2D, w: number, h: number, dt: number, fresh: boolean) => void, deps: unknown[] = []) {
   const ref = useRef<HTMLCanvasElement>(null);
   const drawRef = useRef(draw);
   drawRef.current = draw;
@@ -15,7 +18,9 @@ export function useCanvas(draw: (ctx: CanvasRenderingContext2D, w: number, h: nu
     const ctx = cv.getContext('2d')!;
     let w = 0;
     let h = 0;
+    let fresh = true;
     const resize = () => {
+      fresh = true;
       const r = cv.getBoundingClientRect();
       const dpr = window.devicePixelRatio || 1;
       w = Math.max(1, r.width);
@@ -28,7 +33,10 @@ export function useCanvas(draw: (ctx: CanvasRenderingContext2D, w: number, h: nu
     const ro = new ResizeObserver(resize);
     ro.observe(cv);
     const off = onFrame((dt) => {
-      if (w > 1) drawRef.current(ctx, w, h, dt);
+      if (w > 1) {
+        drawRef.current(ctx, w, h, dt, fresh);
+        fresh = false;
+      }
     });
     return () => {
       ro.disconnect();
@@ -43,8 +51,18 @@ const timeBuf = new Float32Array(2048);
 const timeBufR = new Float32Array(2048);
 
 export const Oscilloscope = memo(function Oscilloscope({ className, lineWidth = 1.5 }: { className?: string; lineWidth?: number }) {
-  const ref = useCanvas((ctx, w, h) => {
+  const quiet = useRef(-1);
+  const ref = useCanvas((ctx, w, h, _dt, fresh) => {
     const t = theme();
+    let peak = 0;
+    if (engine.initialized) {
+      engine.scope.getFloatTimeDomainData(timeBuf);
+      for (let i = 0; i < 2048; i++) { const a = Math.abs(timeBuf[i]); if (a > peak) peak = a; }
+    }
+    // silence: draw the flat line once, then leave the canvas alone
+    const silent = peak < 1e-4;
+    if (silent && !fresh && quiet.current === themeVersion()) return;
+    quiet.current = silent ? themeVersion() : -1;
     ctx.clearRect(0, 0, w, h);
     ctx.fillStyle = 'rgba(0,0,0,0.35)';
     ctx.fillRect(0, 0, w, h);
@@ -53,27 +71,29 @@ export const Oscilloscope = memo(function Oscilloscope({ className, lineWidth = 
     ctx.moveTo(0, h / 2);
     ctx.lineTo(w, h / 2);
     ctx.stroke();
-    if (!engine.initialized) return;
-    engine.scope.getFloatTimeDomainData(timeBuf);
+    if (silent) return;
     // trigger on rising zero crossing for a stable picture
     let start = 0;
     for (let i = 1; i < 1024; i++) {
       if (timeBuf[i - 1] < 0 && timeBuf[i] >= 0) { start = i; break; }
     }
-    const n = 1024;
-    ctx.strokeStyle = t.accent;
-    ctx.shadowColor = t.accent;
-    ctx.shadowBlur = 6;
-    ctx.lineWidth = lineWidth;
+    // one point per pixel is enough
+    const n = Math.max(32, Math.min(1024, Math.round(w)));
+    const step = 1024 / n;
     ctx.beginPath();
     for (let i = 0; i < n; i++) {
       const x = (i / (n - 1)) * w;
-      const y = h / 2 - timeBuf[start + i] * h * 0.45;
+      const y = h / 2 - timeBuf[start + Math.floor(i * step)] * h * 0.45;
       if (i === 0) ctx.moveTo(x, y);
       else ctx.lineTo(x, y);
     }
+    // soft glow from a wide transparent line (canvas shadow blur is very slow)
+    ctx.strokeStyle = rgba(t.accent, 0.22);
+    ctx.lineWidth = lineWidth + 3;
     ctx.stroke();
-    ctx.shadowBlur = 0;
+    ctx.strokeStyle = t.accent;
+    ctx.lineWidth = lineWidth;
+    ctx.stroke();
   });
   return <canvas ref={ref} className={className} />;
 });

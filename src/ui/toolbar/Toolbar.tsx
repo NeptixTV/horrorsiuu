@@ -162,15 +162,32 @@ function CreativeButtons() {
   );
 }
 
+/** Changes an element's text only when it differs (no repaint for the same text). */
+function setText(el: HTMLElement, text: string) {
+  if (el.textContent === text) return;
+  if (el.firstChild?.nodeType === Node.TEXT_NODE && !el.firstChild.nextSibling) el.firstChild.nodeValue = text;
+  else el.textContent = text;
+}
+
 function TimeDisplay() {
   const ref = useRef<HTMLDivElement>(null);
   const [showTime, setShowTime] = useState(false);
-  useEffect(() => onFrame(() => {
-    if (!ref.current || !engine.transport) return;
-    const p = getProject();
-    const tick = engine.transport.getTick();
-    ref.current.textContent = showTime ? formatTime(ticksToSeconds(tick, p.bpm)) : formatBBS(tick, p.timeSig);
-  }), [showTime]);
+  useEffect(() => {
+    let shown = '';
+    return onFrame(() => {
+      const el = ref.current;
+      if (!el || !engine.transport) return;
+      const p = getProject();
+      const tick = engine.transport.getTick();
+      const text = showTime ? formatTime(ticksToSeconds(tick, p.bpm)) : formatBBS(tick, p.timeSig);
+      // only touch the page when the text really changes (a new text node every
+      // frame made the browser repaint the whole window 60 times a second)
+      if (text === shown) return;
+      shown = text;
+      if (el.firstChild?.nodeType === Node.TEXT_NODE && !el.firstChild.nextSibling) el.firstChild.nodeValue = text;
+      else el.textContent = text;
+    });
+  }, [showTime]);
   return (
     <div className="lcd tb-time" title="Click to toggle bars / time" onClick={() => setShowTime(!showTime)}>
       <div ref={ref} className="tb-time-value">1:01:01</div>
@@ -190,10 +207,10 @@ function PerfDisplay() {
       if (acc < 0.25) return;
       acc = 0;
       const load = Math.min(1, uiLoad());
-      if (cpu.current) cpu.current.style.transform = `scaleX(${Math.max(0.03, load)})`;
-      if (voices.current && engine.initialized) voices.current.textContent = String(engine.graph.voiceCount());
+      if (cpu.current) cpu.current.style.transform = `scaleX(${Math.max(0.03, Math.round(load * 50) / 50)})`;
+      if (voices.current && engine.initialized) setText(voices.current, String(engine.graph.voiceCount()));
       const pm = (performance as Performance & { memory?: { usedJSHeapSize: number } }).memory;
-      if (mem.current) mem.current.textContent = pm ? `${Math.round(pm.usedJSHeapSize / 1048576)} MB` : '—';
+      if (mem.current) setText(mem.current, pm ? `${Math.round(pm.usedJSHeapSize / 1048576)} MB` : '—');
     });
   }, []);
   return (

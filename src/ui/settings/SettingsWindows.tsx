@@ -114,8 +114,7 @@ export function ClipSettingsWindow({ w, clipId }: { w: FloatingWindow; clipId: s
                 format={(v) => `${v.toFixed(2)}× (${12 * Math.log2(v) >= 0 ? '+' : ''}${(12 * Math.log2(v)).toFixed(1)} st)`}
                 onChange={(v) => set({ speed: Math.abs(v - 1) < 0.005 ? 1 : v }, 'Clip speed')}
               />
-              <Knob value={(clip.fadeIn ?? 0) * 1000} min={0} max={Math.max(10, Math.min(8000, lenSec * 500))} defaultValue={0} size={40} label="Fade In" format={(v) => `${Math.round(v)} ms`} onChange={(v) => set({ fadeIn: v / 1000 }, 'Fade in')} />
-              <Knob value={(clip.fadeOut ?? 0) * 1000} min={0} max={Math.max(10, Math.min(8000, lenSec * 500))} defaultValue={0} size={40} label="Fade Out" format={(v) => `${Math.round(v)} ms`} onChange={(v) => set({ fadeOut: v / 1000 }, 'Fade out')} />
+              <FadeKnobs clip={clip} lenSec={lenSec} set={set} />
             </div>
             <div className="set-row wrap">
               <button className={`btn small ${clip.reverse ? 'on' : ''}`} onClick={() => {
@@ -139,13 +138,28 @@ export function ClipSettingsWindow({ w, clipId }: { w: FloatingWindow; clipId: s
             <div className="set-controls">
               <Knob value={clip.gain ?? 1} min={0} max={2} defaultValue={1} size={40} label="Velocity" format={(v) => `${Math.round(v * 100)}%`} onChange={(v) => set({ gain: v }, 'Clip velocity')} />
               <Knob value={clip.transpose ?? 0} min={-24} max={24} step={1} defaultValue={0} size={40} bipolar label="Transpose" format={(v) => `${v > 0 ? '+' : ''}${Math.round(v)} st`} onChange={(v) => set({ transpose: Math.round(v) }, 'Clip transpose')} />
+              <FadeKnobs clip={clip} lenSec={lenSec} set={set} />
             </div>
-            <p className="set-hint">Transpose shifts every note of this clip (drums change their tuning). Effects for instruments live on their mixer channels – open the row settings to edit them.</p>
+            <p className="set-hint">Transpose shifts every note of this clip (drums change their tuning). Fades play the notes softer towards the start / end – or drag the dots at the clip's top corners in the playlist. Effects for instruments live on their mixer channels – open the row settings to edit them.</p>
             {track && <button className="btn" onClick={() => openTrackSettings(track.id)}><Icon name="settings" size={11} /> Row settings “{track.name}”</button>}
           </>
         )}
       </div>
     </Window>
+  );
+}
+
+/** Fade in / out knobs (the same fades as the dots at the clip's top corners in the playlist). */
+function FadeKnobs({ clip, lenSec, set }: { clip: Clip; lenSec: number; set: (patch: Partial<Clip>, label?: string) => void }) {
+  const max = Math.max(10, lenSec * 1000);
+  const fmt = (v: number) => (v >= 1000 ? `${(v / 1000).toFixed(2)} s` : `${Math.round(v)} ms`);
+  // both fades together never get longer than the clip
+  const fit = (v: number, other: number) => Math.max(0, Math.min(v, max - other * 1000)) / 1000;
+  return (
+    <>
+      <Knob value={(clip.fadeIn ?? 0) * 1000} min={0} max={max} defaultValue={0} size={40} label="Fade In" format={fmt} title="Fade in – or drag the dot at the clip's top left corner" onChange={(v) => set({ fadeIn: fit(v, clip.fadeOut ?? 0) }, 'Fade in')} />
+      <Knob value={(clip.fadeOut ?? 0) * 1000} min={0} max={max} defaultValue={0} size={40} label="Fade Out" format={fmt} title="Fade out – or drag the dot at the clip's top right corner" onChange={(v) => set({ fadeOut: fit(v, clip.fadeIn ?? 0) }, 'Fade out')} />
+    </>
   );
 }
 
