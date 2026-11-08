@@ -6,6 +6,7 @@ import { defaultPro, proSound, proZones, type ProSound, type ProZone } from '../
 import { loadZone, midiVel, preloadSound, releaseUnused, zoneBuffer, zonesFor } from '../pro/loader';
 import { clampFinite } from '../safety';
 import { holdAt, type Instrument } from './types';
+import { setParam } from '../effects/base';
 
 interface PVoice {
   pitch: number;
@@ -124,11 +125,10 @@ export class ProInstrument implements Instrument {
       void preloadSound(next.sound);
     }
     this.p = next;
-    const now = this.ctx.currentTime;
     // tone 1 = open; lower values close a gentle low-pass down to 200 Hz
     const t = clampFinite(next.tone, 0, 1, 1);
     const f = t >= 0.999 ? 22000 : 200 * Math.pow(100, t);
-    this.tone.frequency.setTargetAtTime(Math.min(f, this.ctx.sampleRate * 0.45), now, 0.02);
+    setParam(this.tone.frequency, Math.min(f, this.ctx.sampleRate * 0.45), this.ctx, 0.02);
     const d = clampFinite(next.drive, 0, 1, 0);
     if (d !== this.driveAmt) {
       this.driveAmt = d;
@@ -144,7 +144,7 @@ export class ProInstrument implements Instrument {
         this.tone.connect(on ? this.shaper : this.output);
       }
     }
-    this.output.gain.setTargetAtTime(clampFinite(next.level, 0, 1.5, 0.9), now, 0.01);
+    setParam(this.output.gain, clampFinite(next.level, 0, 1.5, 0.9), this.ctx, 0.01);
   }
 
   activeVoices() {

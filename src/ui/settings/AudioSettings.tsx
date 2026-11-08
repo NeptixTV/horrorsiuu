@@ -117,8 +117,8 @@ export function AudioSection() {
 
 const LATENCY: { value: string; label: string }[] = [
   { value: 'interactive', label: 'Lowest latency (can crackle)' },
-  { value: 'balanced', label: 'Balanced (recommended)' },
-  { value: 'playback', label: 'Most stable (playback)' },
+  { value: 'balanced', label: 'Balanced (more direct live playing)' },
+  { value: 'playback', label: 'Most stable (recommended)' },
   { value: 'custom', label: 'Custom buffer…' },
 ];
 

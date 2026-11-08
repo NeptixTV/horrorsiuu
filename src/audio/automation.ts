@@ -8,6 +8,7 @@ import { EFFECTS, type NumberParamDef } from './effects/descriptors';
 import { silentTracks } from './sequencer';
 import { uid } from '../state/utils';
 import type { MixGraph } from './mixgraph';
+import { pinParam } from './effects/base';
 
 export interface TargetInfo {
   label: string;
@@ -178,6 +179,7 @@ export function restoreAutomated(project: Project, graph: MixGraph, touched: Map
       try {
         p.cancelScheduledValues(now);
         p.setTargetAtTime(x, now, 0.02);
+        pinParam(p, x, now, 0.02);
       } catch { /* ignore */ }
     } else if (t.kind === 'effect') {
       const slot = graph.strips.get(t.trackId)?.slot(t.effectId);

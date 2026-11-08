@@ -123,12 +123,12 @@ export function SetupWizard({ onDone }: { onDone: () => void }) {
               <label className="setup-field">
                 <span>Latency mode (applies after restart)</span>
                 <Select className="input" value={latencyHint} onChange={(e) => setUI({ latencyHint: e.target.value as typeof latencyHint })}>
-                  <option value="interactive">Interactive – lowest latency (recommended)</option>
-                  <option value="balanced">Balanced</option>
-                  <option value="playback">Playback – largest buffer, most stable</option>
+                  <option value="interactive">Interactive – lowest latency (can crackle)</option>
+                  <option value="balanced">Balanced – more direct when playing live</option>
+                  <option value="playback">Most stable – no stutter (recommended)</option>
                 </Select>
               </label>
-              <p className="dim">The browser chooses the hardware buffer size. If you hear crackles, pick "Balanced" or "Playback".</p>
+              <p className="dim">"Most stable" gives your computer the most time for the sound, so beats never stutter. If you play a keyboard live and it feels late, try "Balanced".</p>
             </div>
           )}
           {step === 3 && (

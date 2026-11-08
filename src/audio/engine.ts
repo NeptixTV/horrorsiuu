@@ -17,6 +17,7 @@ import { DEFAULT_LOOKAHEAD, Transport } from './transport';
 import { AudioInput } from './input';
 import { buildLibrary } from './library';
 import { diagnostics } from './diagnostics';
+import { setParam } from './effects/base';
 
 export type LatencyHint = 'interactive' | 'balanced' | 'playback';
 
@@ -83,7 +84,7 @@ class Engine {
   initialized = false;
   recording: RecordingInfo | null = null;
   latencyCompensation: number | null = null; // seconds; null = automatic
-  config: EngineConfig = { latencyHint: 'balanced', latencyMs: 0, sampleRate: 0 };
+  config: EngineConfig = { latencyHint: 'playback', latencyMs: 0, sampleRate: 0 };
   output: OutputSettings = { limiter: true, ceilingDb: -0.3, protect: true, volume: 1 };
   /** transport settings kept across engine restarts */
   lookahead = DEFAULT_LOOKAHEAD;
@@ -212,7 +213,7 @@ class Engine {
     const o = this.output;
     if (!this.ctx) return;
     this.guardWorklet?.port.postMessage({ type: 'config', enabled: o.limiter, ceiling: Math.pow(10, Math.min(0, o.ceilingDb) / 20), protect: o.protect });
-    if (this.outGain) this.outGain.gain.setTargetAtTime(Math.min(1, Math.max(0, o.volume)), this.ctx.currentTime, 0.02);
+    if (this.outGain) setParam(this.outGain.gain, Math.min(1, Math.max(0, o.volume)), this.ctx, 0.02);
   }
 
   private onGuardMessage(m: { type: string; nan?: number; minGain?: number; peak?: number; muted?: boolean }) {

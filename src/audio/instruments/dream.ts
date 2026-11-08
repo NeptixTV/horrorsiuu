@@ -14,6 +14,7 @@ import { midiToFreq } from '../../midi/music';
 import { makeImpulse } from '../effects/reverb';
 import { clampFinite } from '../safety';
 import { blockRate, holdAt, noiseBuffer, type Instrument } from './types';
+import { pinParam, setParam } from '../effects/base';
 
 const MAX_VOICES = 12;
 
@@ -247,12 +248,12 @@ export class DreamSynth implements Instrument {
   /** Joystick: pitch bend in semitones. */
   setBend(semis: number, glide = 0.04) {
     const v = clampFinite(semis, -12, 12, 0) * 100;
-    this.pitchMod.offset.setTargetAtTime(v, this.ctx.currentTime, glide);
+    setParam(this.pitchMod.offset, v, this.ctx, glide);
   }
 
   /** Joystick: filter offset in octaves (−3..3). */
   setFilterMod(octaves: number) {
-    this.cutMod.offset.setTargetAtTime(clampFinite(octaves, -4, 4, 0) * 1200, this.ctx.currentTime, 0.03);
+    setParam(this.cutMod.offset, clampFinite(octaves, -4, 4, 0) * 1200, this.ctx, 0.03);
   }
 
   /** Joystick: extra vibrato 0..1 on top of the preset. */
@@ -263,13 +264,13 @@ export class DreamSynth implements Instrument {
 
   private applyVibrato() {
     const depth = Math.min(1, this.p.vibrato + this.extraVib) * 28; // cents
-    this.vibGain.gain.setTargetAtTime(depth, this.ctx.currentTime, 0.08);
+    setParam(this.vibGain.gain, depth, this.ctx, 0.08);
   }
 
   private applyDelayTime() {
     const t = Math.min(2.9, (60 / this.bpm) * DELAY_BEATS[this.p.delayTime]);
-    this.dl.delayTime.setTargetAtTime(t, this.ctx.currentTime, 0.05);
-    this.dr.delayTime.setTargetAtTime(t, this.ctx.currentTime, 0.05);
+    setParam(this.dl.delayTime, t, this.ctx, 0.05);
+    setParam(this.dr.delayTime, t, this.ctx, 0.05);
   }
 
   private apply() {
@@ -277,7 +278,10 @@ export class DreamSynth implements Instrument {
     const now = this.ctx.currentTime;
     const set = (a: AudioParam, v: number, tc = 0.03) => {
       if (this.ctx instanceof OfflineAudioContext && now === 0) a.value = v;
-      else a.setTargetAtTime(v, now, tc);
+      else {
+        a.setTargetAtTime(v, now, tc);
+        pinParam(a, v, now, tc);
+      }
     };
     set(this.output.gain, p.volume);
     this.applyVibrato();
@@ -320,7 +324,9 @@ export class DreamSynth implements Instrument {
   private updateHiss(at: number) {
     const active = this.voices.some((v) => v.end > at);
     const target = active ? this.p.tape * this.p.tape * 0.014 : 0;
-    this.hissGain.gain.setTargetAtTime(target, Math.max(at, this.ctx.currentTime), active ? 0.05 : 0.6);
+    const start = Math.max(at, this.ctx.currentTime);
+    this.hissGain.gain.setTargetAtTime(target, start, active ? 0.05 : 0.6);
+    pinParam(this.hissGain.gain, target, start, active ? 0.05 : 0.6);
   }
 
   noteOn(pitch: number, velocity: number, time: number, duration?: number) {

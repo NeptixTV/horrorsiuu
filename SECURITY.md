@@ -207,3 +207,19 @@ Auch dieser Nachtrag ist **kein Beweis vollständiger Sicherheit**.
 **Tatsächlich durchgeführt**: Typprüfung, Unit-Tests (neu: Fades von Pattern-Clips), Browser-Tests (Fade-Punkte
 ziehen, Rückgängig/Wiederholen, Doppelklick, Begrenzung auf die Clip-Länge, Export mit Fades für Audio- und
 Pattern-Clips), Leistungsmessung beim Abspielen. **Nicht geprüft**: auf einem echten Windows-PC.
+
+## Nachtrag 1.3.3 (08.11.2026)
+
+Änderungen gegen Stottern. Auch dieser Nachtrag ist **kein Beweis vollständiger Sicherheit**.
+- **Neue Chromium-Schalter** in der Desktop-App: `disable-renderer-backgrounding`,
+  `disable-background-timer-throttling`, `disable-backgrounding-occluded-windows`,
+  `disable-features=CalculateNativeWinOcclusion,IntensiveWakeUpThrottling`. Sie betreffen nur Zeitsteuerung und
+  Priorität, keine Sicherheitsfunktionen (Sandbox, Kontext-Isolation, CSP bleiben unverändert).
+- **Prozess-Priorität (nur Windows):** Die Seite mit der Audio-Engine und Chromiums Audio-Dienst bekommen
+  „höher als normal“ (`PRIORITY_ABOVE_NORMAL`, keine Echtzeit-Priorität, keine Adminrechte). Schlägt das fehl,
+  bleibt die normale Priorität. Andere Programme werden dadurch nicht ausgebremst, nur bevorzugt behandelt.
+- Keine neuen IPC-Kanäle, keine neuen Netzwerkverbindungen, keine neuen Abhängigkeiten.
+
+**Tatsächlich durchgeführt**: Typprüfung, Unit-Tests, 10-Minuten-Dauertest, Test mit gebremster CPU, Migrationstest
+der Puffer-Einstellung, Start der Desktop-App unter Linux (Schalter aktiv, Abspielen ohne Fehler). **Nicht geprüft**:
+Windows (Priorität und Verhalten mit verdecktem Fenster).

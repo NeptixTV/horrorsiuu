@@ -18,6 +18,7 @@ interface Item {
 }
 
 const ITEMS: Item[] = [
+  { icon: 'bolt', title: 'No more stutter', text: 'The sound now gets more time by default ("Most stable"), the studio steps in after the first stutters by itself, knob and fader changes no longer keep the sound engine busy, and the desktop app keeps full speed when another window is in front.' },
   { icon: 'wave', title: 'Fade dots on clips', text: 'Every sound and beat clip in the playlist has a dot at its top left and top right corner: drag it to fade in or out. Double-click a dot to remove the fade. Beat (pattern) clips fade by playing their notes softer.', mine: true },
   { icon: 'bolt', title: 'Smoother with long beats', text: 'While a song plays the studio no longer redraws the whole window 60 times a second – the playhead just slides. Much less work for your computer, especially on big screens and long songs.' },
   { icon: 'trash', title: 'Trash for projects', text: 'Deleted a song by mistake? Deleted projects now go to the trash and can be restored for 30 days. Projects you deleted before this update are back in there too, as long as their automatic backup still exists.', action: ['Open the trash', () => openProjectsWindow('trash')], mine: true },

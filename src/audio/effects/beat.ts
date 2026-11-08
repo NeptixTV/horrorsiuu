@@ -2,7 +2,7 @@
 // "OTT" style compressor, transient shaper and lo-fi crusher.
 import type { Channel, ParamValue } from '../../state/types';
 import { num, str } from './descriptors';
-import { Effect, mixGains, setParam } from './base';
+import { Effect, mixGains, pinParam, setParam } from './base';
 import { workletsReady } from '../worklets';
 import { clampFinite } from '../safety';
 import { holdAt, noiseBuffer } from '../instruments/types';
@@ -145,6 +145,7 @@ export class PumpEffect extends Effect {
     holdAt(g, t, g.value);
     g.setTargetAtTime(floor, t, this.attack / 3);
     g.setTargetAtTime(1, t + this.attack + this.hold, this.release / 4);
+    pinParam(g, 1, t + this.attack + this.hold, this.release / 4);
   }
 
   dispose() {

@@ -1,6 +1,7 @@
 // Electron main process: wraps the Goofy Studio web build as a native desktop app.
 const { app, BrowserWindow, Menu, nativeTheme, net, protocol, screen, session, shell } = require('electron');
 const fs = require('node:fs');
+const os = require('node:os');
 const path = require('node:path');
 const { pathToFileURL } = require('node:url');
 const ipc = require('./ipc.cjs');
@@ -17,6 +18,31 @@ protocol.registerSchemesAsPrivileged([
 
 // Audio may start without a click inside the desktop app.
 app.commandLine.appendSwitch('autoplay-policy', 'no-user-gesture-required');
+// A music program must never be slowed down because its window is in the
+// background or covered by another program (browser, Discord …): Chromium
+// would lower the priority of the page and throttle its timers, and the beat
+// started to stutter as soon as another window was in front.
+app.commandLine.appendSwitch('disable-renderer-backgrounding');
+app.commandLine.appendSwitch('disable-background-timer-throttling');
+app.commandLine.appendSwitch('disable-backgrounding-occluded-windows');
+app.commandLine.appendSwitch('disable-features', 'CalculateNativeWinOcclusion,IntensiveWakeUpThrottling');
+
+// Windows: the processes that make the sound (the page with the audio engine
+// and Chromium's audio service) get "above normal" priority, like real
+// audio programs – other programs can then not take their CPU time away so
+// easily. Checked again every few seconds (Chromium may restart a process).
+function raiseAudioPriority() {
+  if (process.platform !== 'win32') return;
+  const { priority } = os.constants;
+  for (const m of app.getAppMetrics()) {
+    const audio = m.type === 'Utility' && /audio/i.test(`${m.serviceName ?? ''} ${m.name ?? ''}`);
+    if (m.type !== 'Tab' && !audio) continue;
+    try {
+      // lower numbers are higher priorities; never lower one that is already higher
+      if (os.getPriority(m.pid) > priority.PRIORITY_ABOVE_NORMAL) os.setPriority(m.pid, priority.PRIORITY_ABOVE_NORMAL);
+    } catch { /* not allowed – keep the normal priority */ }
+  }
+}
 
 // One window only. A freshly downloaded update ("--after-update") waits until
 // the old version has closed before it takes over.
@@ -86,6 +112,7 @@ function createWindow() {
   if (!st || st.maximized) mainWindow.maximize();
   // shown when the first frame is painted – no white flash on start
   mainWindow.once('ready-to-show', () => mainWindow?.show());
+  mainWindow.webContents.on('did-finish-load', raiseAudioPriority);
   mainWindow.loadURL(`${APP_ORIGIN}/index.html`);
   // no pinch-zoom of the whole page (the app has its own zoom)
   mainWindow.webContents.on('did-finish-load', () => { void mainWindow?.webContents.setVisualZoomLevelLimits(1, 1); });
@@ -167,6 +194,7 @@ app.whenReady().then(async () => {
   nativeTheme.themeSource = 'dark';
   ipc.register(() => mainWindow);
   createWindow();
+  if (process.platform === 'win32') setInterval(raiseAudioPriority, 10000).unref();
 });
 
 app.on('second-instance', () => {

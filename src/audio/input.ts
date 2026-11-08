@@ -2,6 +2,7 @@
 // through a mixer insert and sample-accurate capture via the recorder worklet.
 import { releaseWorklet, workletsReady } from './worklets';
 import { diagnostics } from './diagnostics';
+import { setParam } from './effects/base';
 
 /** Labels Windows / macOS use for Bluetooth headsets in low-quality call mode. */
 const HFP = /hands[- ]?free|freisprech|headset|hfp|\bag audio\b/i;
@@ -150,7 +151,7 @@ export class AudioInput {
   setGain(v: number) {
     if (!Number.isFinite(v)) return;
     this.gainValue = v;
-    this.gain.gain.setTargetAtTime(v, this.ctx.currentTime, 0.01);
+    setParam(this.gain.gain, v, this.ctx, 0.01);
   }
 
   setMonitorDestination(node: AudioNode) {
@@ -165,7 +166,7 @@ export class AudioInput {
   setMonitoring(on: boolean) {
     this.monitoring = on;
     if (on) this.pinned = true;
-    this.monitor.gain.setTargetAtTime(on ? 1 : 0, this.ctx.currentTime, 0.01);
+    setParam(this.monitor.gain, on ? 1 : 0, this.ctx, 0.01);
   }
 
   level(): number {

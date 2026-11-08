@@ -55,6 +55,19 @@ export function setParam(param: AudioParam, value: number, ctx: BaseAudioContext
   }
   param.cancelScheduledValues(now);
   param.setTargetAtTime(value, now, time);
+  pinParam(param, value, now, time);
+}
+
+/**
+ * A smooth change (setTargetAtTime) never ends by itself: as long as it runs,
+ * the browser computes the parameter for every single sample and every node
+ * behind it leaves its fast path – measured: twice the audio work for gain and
+ * pan stages. Once the value has arrived (7 time constants ≈ 0.1 % left) it
+ * is pinned, so the audio thread is relaxed again.
+ */
+export function pinParam(param: AudioParam, value: number, start: number, timeConstant: number) {
+  if (!Number.isFinite(value) || !Number.isFinite(start)) return;
+  try { param.setValueAtTime(value, start + Math.max(0.001, timeConstant) * 7); } catch { /* out of range */ }
 }
 
 /** Equal power dry/wet gains for a 0..1 mix value. */

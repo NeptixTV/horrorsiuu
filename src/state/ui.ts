@@ -169,7 +169,7 @@ const PERSISTED: (keyof UIState)[] = [
 
 /** Defaults of every persisted setting (Settings → "Reset to defaults" uses these). */
 export const SETTING_DEFAULTS = {
-  latencyHint: 'balanced' as UIState['latencyHint'],
+  latencyHint: 'playback' as UIState['latencyHint'],
   latencyMs: 0,
   sampleRate: 0,
   limiter: true,
@@ -178,7 +178,7 @@ export const SETTING_DEFAULTS = {
   outputVolume: 1,
   lookahead: 0.2,
   autoStabilize: true,
-  audioProfile: 2,
+  audioProfile: 3,
   metronomeVolume: 0.7,
   countInBars: 0,
   autoFallbackOutput: true,
@@ -232,11 +232,17 @@ function loadPersisted(): Partial<UIState> {
     if (out.snapMode !== 'grid') out.snapMode = 'off'; // the old "magnet" mode was removed in 1.1.1
     // 1.2: more robust audio defaults – the old defaults (smallest buffer,
     // 120 ms scheduling) crackled on many Windows laptops
-    if (p.audioProfile !== 2) {
+    if (typeof p.audioProfile !== 'number' || p.audioProfile < 2) {
       if (out.latencyHint === 'interactive' && !out.latencyMs) out.latencyHint = 'balanced';
       if (out.lookahead === 0.12) out.lookahead = 0.2;
-      out.audioProfile = 2;
     }
+    // 1.3.3: "most stable" output buffer as the default – beats still
+    // stuttered now and then with "balanced" on some Windows PCs. Only the old
+    // default is changed; a buffer someone picked themselves stays.
+    if (typeof p.audioProfile !== 'number' || p.audioProfile < 3) {
+      if ((out.latencyHint === 'balanced' || out.latencyHint === undefined) && !out.latencyMs) out.latencyHint = 'playback';
+    }
+    out.audioProfile = 3;
     return out as Partial<UIState>;
   } catch {
     return {};

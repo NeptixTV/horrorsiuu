@@ -8,6 +8,25 @@ Step-Sequencer · Playlist · Piano Roll · Mixer · Effekte · Synthesizer · D
 
 ---
 
+## Neu in Version 1.3.3
+
+**Gegen Stottern** (gemessen und behoben, nicht nur vermutet):
+- **Regler-Glättung hielt die Audio-Engine dauerhaft beschäftigt:** Jede Lautstärke-/Pan-/Effekt-Änderung lief als
+  „nie endende“ Annäherung (setTargetAtTime). Solange die läuft, rechnet Chromium den Wert für jedes einzelne Sample
+  und alle Bausteine dahinter verlassen ihren schnellen Weg – im Test doppelte Arbeit für diese Stufen. Jetzt wird
+  der Wert nach dem Übergang festgesetzt.
+- **Stabilster Puffer als Standard:** „Most stable“ statt „Balanced“. Wer den alten Standard hatte, wird einmalig
+  umgestellt; selbst gewählte Puffer bleiben. Wer live auf einem Keyboard spielt, kann in Einstellungen →
+  Performance wieder „Balanced“ wählen.
+- **Automatische Stabilisierung reagiert auch auf vereinzeltes Stottern:** vorher erst bei 3 Aussetzern in 20 s,
+  jetzt auch bei 2 Aussetzern in 5 Minuten (bzw. 3 verspäteten Momenten in 3 Minuten beim Scheduler).
+- **Desktop-App (Windows):** Chromium drosselt die App nicht mehr, wenn ein anderes Fenster davor ist (keine
+  Hintergrund-Drosselung, keine Verdeckungs-Erkennung), und die Prozesse, die den Ton machen (Seite mit der
+  Audio-Engine und Chromiums Audio-Dienst), laufen mit „höher als normal“-Priorität.
+
+Getestet: 10 Minuten Dauer-Abspielen mit Bearbeiten (kein Anstieg von Speicher oder Audio-Bausteinen), langsamer PC
+simuliert (6-fach gebremst: kein verspäteter Ton), Desktop-App unter Linux. Nicht getestet: echter Windows-PC.
+
 ## Neu in Version 1.3.2
 
 **Fade-Punkte an Clips:** Jeder Sound- und Beat-Clip in der Playlist hat oben links und oben rechts einen Punkt.
