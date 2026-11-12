@@ -7,3 +7,6 @@ dist-single
 coverage
 release
 *.tsbuildinfo
+
+# Models under a licence that forbids redistribution (they are only shipped in the private ZIP)
+SignalUnknown/Content/SUModels/Restricted/

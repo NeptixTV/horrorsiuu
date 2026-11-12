@@ -7,8 +7,12 @@
 #include "../../Source/SignalUnknown/Logic/SUDirectorLogic.h"
 #include "../../Source/SignalUnknown/Logic/SUObjectiveLogic.h"
 #include "../../Source/SignalUnknown/Logic/SUDsp.h"
+#include "../../Source/SignalUnknown/Logic/SUModelData.h"
+#include "../../Source/SignalUnknown/Logic/SUManorData.h"
 
 #include <cstdio>
+#include <fstream>
+#include <iterator>
 #include <vector>
 #include <string>
 
@@ -34,7 +38,7 @@ static void TestWorldLayout()
 			EXPECT(L1.TreeDensity(X, Y) == L2.TreeDensity(X, Y));
 		}
 	}
-	EXPECT(L1.Roads.size() == 4);
+	EXPECT(L1.Roads.size() == 5);
 	for (const Road& R : L1.Roads)
 	{
 		EXPECT(R.Samples.size() > 10);
@@ -478,8 +482,274 @@ static void TestDsp()
 	EXPECT(std::isfinite(Buf[10]));
 }
 
-int main()
+
+// ------------------------------------------------------------------------------------ models
+static std::string GModelDir;
+
+static bool LoadFile(const std::string& Path, std::vector<uint8_t>& Out)
 {
+	std::ifstream In(Path, std::ios::binary);
+	if (!In)
+	{
+		return false;
+	}
+	Out.assign(std::istreambuf_iterator<char>(In), std::istreambuf_iterator<char>());
+	return true;
+}
+
+static void TestModelFile(const char* FileName, int ExpectedClips, bool bOptional)
+{
+	std::vector<uint8_t> Bytes;
+	const bool bFound = LoadFile(GModelDir + FileName, Bytes);
+	if (!bFound && bOptional)
+	{
+		std::printf("  %s not present (optional) - skipped\n", FileName);
+		return;
+	}
+	EXPECT(bFound);
+	if (!bFound)
+	{
+		return;
+	}
+	SUModel::File F;
+	std::string Error;
+	const bool bOk = SUModel::Parse(Bytes.data(), Bytes.size(), F, Error);
+	if (!bOk)
+	{
+		std::printf("  %s: %s\n", FileName, Error.c_str());
+	}
+	EXPECT(bOk);
+	EXPECT(!F.Meshes.empty());
+	EXPECT(static_cast<int>(F.Clips.size()) == ExpectedClips);
+	size_t Tris = 0;
+	for (const SUModel::Mesh& M : F.Meshes)
+	{
+		EXPECT(!M.Sections.empty());
+		for (const SUModel::Section& S : M.Sections)
+		{
+			EXPECT(S.NumVertices > 0 && S.Indices.size() % 3 == 0);
+			Tris += S.Indices.size() / 3;
+			// normals are unit length
+			for (size_t V = 0; V < S.NumVertices; V += 97)
+			{
+				const float* N = &S.Normals[V * 3];
+				EXPECT_NEAR(std::sqrt(N[0] * N[0] + N[1] * N[1] + N[2] * N[2]), 1.0f, 0.02f);
+			}
+		}
+	}
+	for (const SUModel::Texture& T : F.Textures)
+	{
+		EXPECT(T.Size > 100 && T.Width > 0 && T.Height > 0);
+		// PNG / JPEG signatures
+		EXPECT(T.Encoding == 0 ? (T.Data[0] == 0x89 && T.Data[1] == 'P') : (T.Data[0] == 0xFF && T.Data[1] == 0xD8));
+	}
+	std::printf("  %-20s %3zu meshes %7zu tris %2zu textures %2zu joints %zu clips\n", FileName, F.Meshes.size(), Tris, F.Textures.size(), F.Joints.size(), F.Clips.size());
+
+	if (!F.Clips.empty())
+	{
+		// the pipeline stored skinned reference positions: sampling + skinning must reproduce them
+		EXPECT(!F.Checks.empty());
+		SUModel::Pose Pose;
+		std::vector<float> World, Skin;
+		for (const SUModel::Check& C : F.Checks)
+		{
+			SUModel::SampleClip(F, static_cast<int>(C.ClipIndex), C.Time, Pose);
+			SUModel::ComputeMatrices(F, Pose, World, Skin);
+			float P[3];
+			SUModel::SkinPosition(F.Meshes[0].Sections[0], C.Vertex, Skin, P);
+			EXPECT_NEAR(P[0], C.Position[0], 0.05f);
+			EXPECT_NEAR(P[1], C.Position[1], 0.05f);
+			EXPECT_NEAR(P[2], C.Position[2], 0.05f);
+		}
+		// rest pose leaves the mesh untouched
+		SUModel::RestPose(F, Pose);
+		SUModel::ComputeMatrices(F, Pose, World, Skin);
+		const SUModel::Section& S = F.Meshes[0].Sections[0];
+		for (size_t V = 0; V < S.NumVertices; V += 211)
+		{
+			float P[3];
+			SUModel::SkinPosition(S, V, Skin, P);
+			EXPECT_NEAR(P[0], S.Positions[V * 3], 0.05f);
+			EXPECT_NEAR(P[2], S.Positions[V * 3 + 2], 0.05f);
+		}
+		// every clip keeps the creature near its origin and above the ground, at every time
+		std::vector<float> Pos, Nrm, Tan;
+		for (size_t CI = 0; CI < F.Clips.size(); ++CI)
+		{
+			const SUModel::Clip& C = F.Clips[CI];
+			EXPECT(C.Duration > 0.2f && C.NumFrames >= 2);
+			for (int Step = 0; Step <= 4; ++Step)
+			{
+				SUModel::SampleClip(F, static_cast<int>(CI), C.Duration * static_cast<float>(Step) / 4.0f, Pose);
+				SUModel::ComputeMatrices(F, Pose, World, Skin);
+				SUModel::SkinSection(S, Skin, Pos, Nrm, Tan);
+				float MinZ = 1e9f, MaxZ = -1e9f, MaxR = 0.0f;
+				for (size_t V = 0; V < S.NumVertices; ++V)
+				{
+					MinZ = std::min(MinZ, Pos[V * 3 + 2]);
+					MaxZ = std::max(MaxZ, Pos[V * 3 + 2]);
+					MaxR = std::max(MaxR, std::fabs(Pos[V * 3]) + std::fabs(Pos[V * 3 + 1]));
+					EXPECT(std::isfinite(Pos[V * 3]));
+				}
+				EXPECT(MinZ > -45.0f);
+				EXPECT(MaxZ > 100.0f && MaxZ < 460.0f);
+				EXPECT(MaxR < 520.0f);
+			}
+		}
+		// the front marker is one metre ahead of the root: models face +X
+		const int Front = F.FindJoint("SU_Front");
+		EXPECT(Front >= 0);
+		if (Front >= 0)
+		{
+			EXPECT_NEAR(F.Joints[static_cast<size_t>(Front)].RestT[0], 100.0f, 0.5f);
+		}
+		EXPECT(F.FindClip("Idle") >= 0 && F.FindClip("Walk") >= 0 && F.FindClip("Run") >= 0 && F.FindClip("Attack") >= 0 && F.FindClip("Scream") >= 0);
+		EXPECT(F.GetMeta("RunSpeed", 0.0f) > 300.0f);
+		// blending two poses stays normalised
+		SUModel::Pose A, B;
+		SUModel::SampleClip(F, 0, 0.3f, A);
+		SUModel::SampleClip(F, 1, 0.2f, B);
+		SUModel::BlendPose(A, B, 0.5f);
+		for (size_t J = 0; J < F.Joints.size(); ++J)
+		{
+			const float* Q = &A.Q[J * 4];
+			EXPECT_NEAR(Q[0] * Q[0] + Q[1] * Q[1] + Q[2] * Q[2] + Q[3] * Q[3], 1.0f, 1e-3f);
+		}
+	}
+}
+
+static void TestModels()
+{
+	std::printf("[models]\n");
+	TestModelFile("Vegetation.sumodel", 0, false);
+	TestModelFile("Wendigo.sumodel", 5, false);
+	TestModelFile("Cyclops.sumodel", 5, false);
+	TestModelFile("Manor.sumodel", 0, false);
+	TestModelFile("Restricted/Tomb.sumodel", 0, true);
+
+	// damaged files are rejected instead of crashing
+	std::vector<uint8_t> Bytes;
+	if (LoadFile(GModelDir + "Wendigo.sumodel", Bytes))
+	{
+		SUModel::File F;
+		std::string Error;
+		EXPECT(!SUModel::Parse(Bytes.data(), Bytes.size() / 2, F, Error));
+		SUModel::File F2;
+		Bytes[0] = 'X';
+		EXPECT(!SUModel::Parse(Bytes.data(), Bytes.size(), F2, Error));
+	}
+	// every mesh the manor site asks for exists in the file
+	if (LoadFile(GModelDir + "Manor.sumodel", Bytes))
+	{
+		SUModel::File F;
+		std::string Error;
+		EXPECT(SUModel::Parse(Bytes.data(), Bytes.size(), F, Error));
+		for (const char* Name : SUManor::ManorMeshes) { EXPECT(F.FindMesh(Name) >= 0); }
+		for (const char* Name : SUManor::UndergroundMeshes) { EXPECT(F.FindMesh(Name) >= 0); }
+		EXPECT(F.FindMesh("SM_Manor_DoorL") >= 0 && F.FindMesh("SM_Manor_DoorR") >= 0);
+	}
+}
+
+static void TestManorSite()
+{
+	std::printf("[manor site]\n");
+	const WorldLayout L(7071u);
+	const SitePad* Pad = L.FindPad("Manor");
+	EXPECT(Pad != nullptr);
+	if (!Pad)
+	{
+		return;
+	}
+	// the site must stay axis aligned (terrain hole) and inside the playable area
+	EXPECT(std::fmod(Pad->FacingYawDeg, 90.0) == 0.0);
+	EXPECT(L.IsInsideCore(Pad->Center.X, Pad->Center.Y, 150.0));
+	EXPECT((Pad->Center - L.TheLake.Center).Length() > L.TheLake.Radius + 200.0);
+	EXPECT(Pad->Z > L.TheLake.WaterZ + 2.0);
+	EXPECT(Pad->Radius * 100.0 >= SUManor::PadRadius);
+	// the plateau is exactly level, so nothing below it can poke through the ground
+	for (double A = 0.0; A < 6.28; A += 0.2)
+	{
+		for (double R = 0.0; R <= Pad->Radius - 1.0; R += 8.0)
+		{
+			const double PX = Pad->Center.X + std::cos(A) * R, PY = Pad->Center.Y + std::sin(A) * R;
+			if (L.NearestRoad(PX, PY, 14.0).RoadIndex >= 0)
+			{
+				continue;   // the drive in front of the house shapes its own bed
+			}
+			EXPECT_NEAR(L.Height(PX, PY), Pad->Z, 0.02);
+		}
+	}
+	// the slope around the plateau stays walkable
+	for (double A = 0.0; A < 6.28; A += 0.3)
+	{
+		const double R0 = Pad->Radius, R1 = Pad->Radius + Pad->Blend;
+		const double H0 = L.Height(Pad->Center.X + std::cos(A) * R0, Pad->Center.Y + std::sin(A) * R0);
+		const double H1 = L.Height(Pad->Center.X + std::cos(A) * R1, Pad->Center.Y + std::sin(A) * R1);
+		EXPECT(std::fabs(H1 - H0) / Pad->Blend < 0.75);
+	}
+	// everything underground lies inside the plateau and below the surface
+	auto InsidePad = [](const SUManor::Vec& P) {
+		const float DX = P.X - SUManor::PadCentre.X, DY = P.Y - SUManor::PadCentre.Y;
+		return std::sqrt(DX * DX + DY * DY) < SUManor::PadRadius - 300.0f;
+	};
+	for (const SUManor::Vec& N : SUManor::NavNodes)
+	{
+		EXPECT(InsidePad(N));
+		EXPECT(N.Z < -250.0f);
+		// ... and never under the drive, whose bed is cut into the plateau
+		const double WX = Pad->Center.X - (N.Y - SUManor::PadCentre.Y) / 100.0, WY = Pad->Center.Y + (N.X - SUManor::PadCentre.X) / 100.0;
+		EXPECT(L.NearestRoad(WX, WY, 14.0).RoadIndex < 0);
+	}
+	for (const SUManor::Zone& Z : SUManor::Zones)
+	{
+		const float CX = (Z.Lo.X + Z.Hi.X) * 0.5f - SUManor::PadCentre.X, CY = (Z.Lo.Y + Z.Hi.Y) * 0.5f - SUManor::PadCentre.Y;
+		const float HX = (Z.Hi.X - Z.Lo.X) * 0.5f, HY = (Z.Hi.Y - Z.Lo.Y) * 0.5f;
+		EXPECT(std::sqrt((std::fabs(CX) + HX) * (std::fabs(CX) + HX) + (std::fabs(CY) + HY) * (std::fabs(CY) + HY)) < SUManor::PadRadius + 100.0f);
+		EXPECT(Z.Lo.X < Z.Hi.X && Z.Lo.Y < Z.Hi.Y && Z.Lo.Z < Z.Hi.Z);
+	}
+	for (const SUManor::Hide& H : SUManor::Hides) { EXPECT(InsidePad(H.Inside)); }
+	EXPECT(SUManor::ShaftMaxX - SUManor::ShaftMinX > 100.0f && SUManor::ShaftMaxY - SUManor::ShaftMinY > 500.0f);
+
+	// waypoint graph: connected, no long jumps, and the creature finds its way from the lair to the cellar breach
+	SUModel::NavGraph G;
+	const int Count = static_cast<int>(std::size(SUManor::NavNodes));
+	G.SetNodeCount(Count);
+	for (int I = 0; I < Count; ++I)
+	{
+		G.Nodes[static_cast<size_t>(I)] = {SUManor::NavNodes[I].X, SUManor::NavNodes[I].Y, SUManor::NavNodes[I].Z};
+	}
+	for (const SUManor::Edge& E : SUManor::NavEdges)
+	{
+		EXPECT(E.A >= 0 && E.B >= 0 && E.A < Count && E.B < Count);
+		G.AddEdge(E.A, E.B);
+		EXPECT(G.Distance(E.A, E.B) < 1500.0f);
+		// no edge is steeper than a creature can walk
+		const float DZ = std::fabs(G.Nodes[static_cast<size_t>(E.A)].Z - G.Nodes[static_cast<size_t>(E.B)].Z);
+		EXPECT(DZ < 0.75f * G.Distance(E.A, E.B) + 1.0f || E.A >= SUManor::NavFirstTombNode || E.B >= SUManor::NavFirstTombNode);
+	}
+	const int Lair = G.Nearest(SUManor::CyclopsSpawn.X, SUManor::CyclopsSpawn.Y, SUManor::CyclopsSpawn.Z);
+	std::vector<int> Path;
+	for (int I = 0; I < Count; ++I)
+	{
+		EXPECT(G.FindPath(Lair, I, Path));
+		EXPECT(!Path.empty() && Path.front() == Lair && Path.back() == I);
+	}
+	EXPECT(G.FindPath(Lair, 0, Path) && Path.size() > 12);
+	EXPECT(!G.FindPath(Lair, Count + 5, Path));
+	// anchors used by the mission exist
+	auto HasAnchor = [](const char* Name) {
+		for (const SUManor::Anchor& A : SUManor::Anchors) { if (std::string(A.Name) == Name) { return true; } }
+		return false;
+	};
+	for (const char* Name : {"FrontDoor", "StudyDesk", "CellarStairsTop", "FuseBox", "Breach", "StoreTable", "CavernCentre", "Lair", "DigChamber", "TombDoor", "Sarcophagus"})
+	{
+		EXPECT(HasAnchor(Name));
+	}
+}
+
+int main(int Argc, char** Argv)
+{
+	GModelDir = Argc > 1 ? std::string(Argv[1]) + "/" : std::string("Content/SUModels/");
 	TestWorldLayout();
 	TestEvidence();
 	TestEconomy();
@@ -487,6 +757,8 @@ int main()
 	TestDirector();
 	TestObjectives();
 	TestDsp();
+	TestModels();
+	TestManorSite();
 	std::printf("\n%d checks, %d failures\n", GChecks, GFailures);
 	return GFailures == 0 ? 0 : 1;
 }

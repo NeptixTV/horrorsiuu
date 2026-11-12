@@ -8,7 +8,7 @@ CXX="${CXX:-g++}"
 FLAGS=(-std=c++20 -O2 -Wall -Wextra -Wshadow -Werror -fno-exceptions -fno-rtti)
 
 "$CXX" "${FLAGS[@]}" "$HERE/LogicTests.cpp" -o "$OUT/LogicTests"
-"$OUT/LogicTests"
+"$OUT/LogicTests" "$HERE/../../Content/SUModels"
 
 if [[ "${1:-}" == "--preview" ]]; then
   "$CXX" "${FLAGS[@]}" "$HERE/MapPreview.cpp" -o "$OUT/MapPreview"

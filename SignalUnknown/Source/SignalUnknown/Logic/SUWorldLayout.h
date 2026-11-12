@@ -699,6 +699,18 @@ namespace SULogic
 				Town.Z = HeightWithLake(-470.0, 3360.0);
 				Town.FacingYawDeg = 270.0;
 				Pads.push_back(Town);
+
+				// The abandoned manor. The whole underground (cellar, mine, caves, tomb) lies below this
+				// plateau, so it is large and exactly level. Its yaw must stay a multiple of 90 degrees:
+				// the terrain gets an axis aligned hole for the cellar stairs.
+				SitePad Manor;
+				Manor.Id = "Manor";
+				Manor.Center = Vec2(640.0, -1250.0);
+				Manor.Radius = 66.0;
+				Manor.Blend = 34.0;
+				Manor.Z = HeightWithLake(640.0, -1250.0);
+				Manor.FacingYawDeg = 90.0; // the front door looks up the drive
+				Pads.push_back(Manor);
 			}
 
 			// ---- roads (order matters: later roads pin their ends onto earlier ones)
@@ -716,6 +728,8 @@ namespace SULogic
 				Vec2(1800, -860), Vec2(2090, -915)});
 			AddRoad("ForsthausDrive", RoadSurface::Dirt, 4.0, {
 				Vec2(1351, -700), Vec2(1384, -640), Vec2(1418, -580), Vec2(1440, -545)});
+			AddRoad("ManorDrive", RoadSurface::Dirt, 3.8, {
+				Vec2(621, -880), Vec2(655, -960), Vec2(688, -1060), Vec2(668, -1150), Vec2(645, -1206)});
 
 			for (size_t I = 0; I < Roads.size(); ++I)
 			{

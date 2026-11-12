@@ -48,7 +48,7 @@ JOINTS = [
     ('Foot_R', 'Shin_R', (-18, 4, -3)),
     ('LoinFront', 'Pelvis', (0, 98, 6)),
     ('LoinBack', 'Pelvis', (0, 98, -12)),
-    ('SU_Front', 'Root', (0, GROUND, 100)),     # marker 1 m in front: lets the game detect the facing direction
+    ('SU_Front', 'Root', (0, GROUND, 1.0 / (2.55 / (184.0 - GROUND)))),     # marker 1 m in front: lets the game detect the facing direction
 ]
 
 # bone segments used for the automatic weights: joint -> tail position
