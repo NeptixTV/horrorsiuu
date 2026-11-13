@@ -507,8 +507,8 @@ void ASUCharacter::OnBrake(const FInputActionValue& Value) { InBrakeValue = FMat
 void ASUCharacter::OnBrakeStop(const FInputActionValue& Value) { InBrakeValue = 0.f; PushVehicleInput(true); }
 void ASUCharacter::OnSteer(const FInputActionValue& Value) { InSteerValue = FMath::Clamp(Value.Get<float>(), -1.f, 1.f); PushVehicleInput(false); }
 void ASUCharacter::OnSteerStop(const FInputActionValue& Value) { InSteerValue = 0.f; PushVehicleInput(true); }
-void ASUCharacter::OnHandbrakeStart(const FInputActionValue& Value) { bInHandbrake = true; PushVehicleInput(true); }
-void ASUCharacter::OnHandbrakeStop(const FInputActionValue& Value) { bInHandbrake = false; PushVehicleInput(true); }
+void ASUCharacter::OnHandbrakeStart(const FInputActionValue& Value) { bHandbrakeHeld = true; PushVehicleInput(true); }
+void ASUCharacter::OnHandbrakeStop(const FInputActionValue& Value) { bHandbrakeHeld = false; PushVehicleInput(true); }
 void ASUCharacter::OnEngine(const FInputActionValue& Value) { ServerVehicleCommand(ESUVehicleCommand::ToggleEngine, 0.f); }
 void ASUCharacter::OnLights(const FInputActionValue& Value) { ServerVehicleCommand(ESUVehicleCommand::ToggleLights, 0.f); }
 void ASUCharacter::OnHighBeam(const FInputActionValue& Value) { ServerVehicleCommand(ESUVehicleCommand::ToggleHighBeam, 0.f); }
@@ -538,7 +538,7 @@ void ASUCharacter::PushVehicleInput(bool bForce)
 		return;
 	}
 	// apply immediately on this machine (prediction), the server receives it below
-	Vehicle->SetDriverInput(InThrottleValue, InBrakeValue, InSteerValue, bInHandbrake);
+	Vehicle->SetDriverInput(InThrottleValue, InBrakeValue, InSteerValue, bHandbrakeHeld);
 	bVehicleInputDirty = true;
 	if (bForce)
 	{
@@ -580,7 +580,7 @@ void ASUCharacter::Tick(float DeltaSeconds)
 				bVehicleInputDirty = false;
 				if (!HasAuthority())
 				{
-					ServerVehicleInput(InThrottleValue, InBrakeValue, InSteerValue, bInHandbrake);
+					ServerVehicleInput(InThrottleValue, InBrakeValue, InSteerValue, bHandbrakeHeld);
 				}
 			}
 		}
@@ -861,7 +861,7 @@ void ASUCharacter::ApplySeatedState()
 			}
 		}
 		InThrottleValue = InBrakeValue = InSteerValue = 0.f;
-		bInHandbrake = false;
+		bHandbrakeHeld = false;
 	}
 	bAppliedSeated = bSeated;
 }

@@ -2,6 +2,8 @@
 """AST checks for errors that only the real Unreal/MSVC build reports (needs `pip install libclang`).
 
 1. MSVC C4458: "declaration of 'X' hides class member".
+   Also for the parameters of UFUNCTION declarations: UnrealHeaderTool generates functions with the same
+   parameter names inside the class (first seen in the real build: SUCharacter.gen.cpp, 'bInHandbrake').
 
 Unreal builds treat shadowing warnings as errors. clang does not warn when a local variable or a
 parameter of a member function has the same name as a data member of the class or of a base class,
@@ -53,26 +55,99 @@ ARGS += system_includes()
 ENGINE_MEMBERS = {
     'AActor': 'Owner Instigator Role RemoteRole Children RootComponent InputComponent Tags Layers PrimaryActorTick '
               'NetDormancy ParentComponent ReplicatedMovement AttachmentReplication InitialLifeSpan CustomTimeDilation '
-              'NetCullDistanceSquared NetUpdateFrequency NetPriority NetTag OwnedComponents ActorHasBegunPlay',
+              'NetCullDistanceSquared NetUpdateFrequency MinNetUpdateFrequency NetPriority NetTag OwnedComponents ActorHasBegunPlay '
+              'bNetTemporary bNetStartup bOnlyRelevantToOwner bAlwaysRelevant bReplicateMovement bCallPreReplication bHidden bTearOff '
+              'bForceNetAddressable bExchangedRoles bNetLoadOnClient bNetUseOwnerRelevancy bRelevantForNetworkReplays '
+              'bRelevantForLevelBounds bReplayRewindable bAllowTickBeforeBeginPlay bAutoDestroyWhenFinished bCanBeDamaged bBlockInput '
+              'bCollideWhenPlacing bFindCameraComponentWhenViewTarget bGenerateOverlapEventsDuringLevelStreaming bIgnoresOriginShifting '
+              'bEnableAutoLODGeneration bIsEditorOnlyActor bActorSeamlessTraveled bReplicates bCanBeInCluster bActorInitialized '
+              'bActorEnableCollision bActorIsBeingDestroyed bHasFinishedSpawning bActorIsBeingConstructed bAsyncPhysicsTickEnabled '
+              'NetDriverName SpawnCollisionHandlingMethod AutoReceiveInput InputPriority LastRenderTime RayTracingGroupId '
+              'OnTakeAnyDamage OnTakePointDamage OnTakeRadialDamage OnActorBeginOverlap OnActorEndOverlap OnBeginCursorOver '
+              'OnEndCursorOver OnClicked OnReleased OnActorHit OnDestroyed OnEndPlay ReplicatedComponents InstanceComponents '
+              'BlueprintCreatedComponents ActorLabel FolderPath bEditable bHiddenEd PivotOffset SpriteScale ActorGuid HLODLayer',
     'APawn': 'Controller PlayerState PreviousController LastHitBy ControlInputVector LastControlInputVector BaseEyeHeight '
-             'AIControllerClass AutoPossessAI AutoPossessPlayer RemoteViewPitch',
-    'ACharacter': 'Mesh CharacterMovement CapsuleComponent ArrowComponent JumpMaxCount JumpCurrentCount JumpMaxHoldTime '
-                  'CrouchedEyeHeight BasedMovement',
-    'AController': 'Pawn Character PlayerState ControlRotation StartSpot TransformComponent StateName',
-    'APlayerController': 'Player MyHUD PlayerInput PlayerCameraManager NetConnection SpectatorPawn HiddenActors '
-                         'AcknowledgedPawn CheatManager InactiveStateInputComponent',
-    'AAIController': 'PathFollowingComponent BrainComponent PerceptionComponent Blackboard',
-    'AHUD': 'Canvas DebugCanvas PlayerOwner PostRenderedActors DebugDisplay',
-    'AGameModeBase': 'GameSession GameState OptionsString DefaultPlayerName',
-    'AGameStateBase': 'PlayerArray AuthorityGameMode GameModeClass SpectatorClass',
-    'APlayerState': 'Score PlayerId StartTime UniqueId CompressedPing',
-    'UActorComponent': 'PrimaryComponentTick ComponentTags OwnerPrivate WorldPrivate AssetUserData',
-    'USceneComponent': 'Bounds AttachParent AttachChildren AttachSocketName Mobility PhysicsVolume ComponentToWorld '
-                       'RelativeLocation RelativeRotation RelativeScale3D ComponentVelocity',
-    'UPrimitiveComponent': 'BodyInstance LightingChannels MoveIgnoreActors MoveIgnoreComponents CustomPrimitiveData',
-    'USynthComponent': 'Synth AudioComponent NumChannels PreferredBufferLength SoundClass AttenuationSettings',
-    'UGameInstance': 'LocalPlayers WorldContext OnlineSession TimerManager LatentActionManager',
-    'UGameUserSettings': 'Version FullscreenMode FrameRateLimit ResolutionSizeX ResolutionSizeY',
+             'AIControllerClass AutoPossessAI AutoPossessPlayer RemoteViewPitch bUseControllerRotationPitch bUseControllerRotationYaw '
+             'bUseControllerRotationRoll bCanAffectNavigationGeneration bInputEnabled bProcessingOutsideWorldBounds '
+             'OverrideInputComponentClass ReceiveControllerChangedDelegate',
+    'ACharacter': 'Mesh CharacterMovement CapsuleComponent ArrowComponent JumpMaxCount JumpCurrentCount JumpCurrentCountPreJump '
+                  'JumpMaxHoldTime JumpKeyHoldTime JumpForceTimeRemaining CrouchedEyeHeight BasedMovement ReplicatedBasedMovement '
+                  'AnimRootMotionTranslationScale BaseTranslationOffset BaseRotationOffset ReplicatedMovementMode bInBaseReplication '
+                  'bIsCrouched bProxyIsJumpForceApplied bPressedJump bClientUpdating bClientWasFalling bSimGravityDisabled bWasJumping '
+                  'NumActorOverlapEventsCounter OnReachedJumpApex LandedDelegate MovementModeChangedDelegate OnCharacterMovementUpdated '
+                  'SavedRootMotion ClientRootMotionParams RootMotionRepMoves RepRootMotion',
+    'AController': 'Pawn Character PlayerState ControlRotation StartSpot TransformComponent StateName OnInstigatedAnyDamage '
+                   'OnPossessedPawnChanged bAttachToPawn bIsPlayerController IgnoreMoveInput IgnoreLookInput',
+    'APlayerController': 'Player MyHUD PlayerInput PlayerCameraManager PlayerCameraManagerClass NetConnection SpectatorPawn HiddenActors '
+                         'HiddenPrimitiveComponents AcknowledgedPawn CheatManager CheatClass InactiveStateInputComponent '
+                         'bAutoManageActiveCameraTarget TargetViewRotation SmoothTargetViewRotationSpeed bPlayerIsWaiting NetPlayerIndex '
+                         'PendingSwapConnection RotationInput bShowMouseCursor bEnableClickEvents bEnableTouchEvents bEnableMouseOverEvents '
+                         'bEnableTouchOverEvents bForceFeedbackEnabled bEnableMotionControls ForceFeedbackScale ClickEventKeys '
+                         'DefaultMouseCursor CurrentMouseCursor DefaultClickTraceChannel CurrentClickTraceChannel HitResultTraceDistance '
+                         'SeamlessTravelCount bShouldPerformFullTickWhenPaused CurrentTouchInterface bIsLocalPlayerController SpawnLocation '
+                         'ClientCap ActiveForceFeedbackEffects',
+    'AAIController': 'PathFollowingComponent BrainComponent PerceptionComponent Blackboard ActionsComp bStartAILogicOnPossess '
+                     'bStopAILogicOnUnposses bLOSflag bSkipExtraLOSChecks bAllowStrafe bWantsPlayerState bSetControlRotationFromPawnOrientation',
+    'AHUD': 'Canvas DebugCanvas PlayerOwner PostRenderedActors DebugDisplay bLostFocusPaused bShowHUD bShowDebugInfo CurrentTargetIndex '
+            'bShowHitBoxDebugInfo bShowOverlays bEnableDebugTextShadow LastHUDRenderTime RenderDelta ToggledDebugCategories DebugTextList '
+            'ShowDebugTargetDesiredClass ShowDebugTargetActor HitBoxMap HitBoxesOver HitBoxHits',
+    'AGameModeBase': 'GameSession GameState OptionsString DefaultPlayerName GameSessionClass GameStateClass PlayerControllerClass '
+                     'PlayerStateClass HUDClass DefaultPawnClass SpectatorClass ReplaySpectatorPlayerControllerClass ServerStatReplicatorClass '
+                     'ServerStatReplicator bUseSeamlessTravel bStartPlayersAsSpectators bPauseable Pausers',
+    'AGameStateBase': 'PlayerArray AuthorityGameMode GameModeClass SpectatorClass bReplicatedHasBegunPlay ReplicatedWorldTimeSeconds '
+                      'ServerWorldTimeSecondsDelta ServerWorldTimeSecondsUpdateFrequency',
+    'APlayerState': 'Score PlayerId StartTime UniqueId CompressedPing bShouldUpdateReplicatedPing bIsSpectator bOnlySpectator bIsABot '
+                    'bHasBeenWelcomed bIsInactive bFromPreviousLevel bUseCustomPlayerNames EngineMessageClass ExactPing SavedNetworkAddress '
+                    'OnPawnSet PawnPrivate PlayerNamePrivate OldNamePrivate SessionName',
+    'UActorComponent': 'PrimaryComponentTick ComponentTags OwnerPrivate WorldPrivate AssetUserData UCSSerializationIndex bRegistered '
+                       'bRenderStateCreated bPhysicsStateCreated bNetAddressable bReplicates bRenderStateDirty bRenderTransformDirty '
+                       'bRenderDynamicDataDirty bAutoRegister bAllowReregistration bTickInEditor bNeverNeedsRenderUpdate bAllowConcurrentTick '
+                       'bAllowAnyoneToDestroyMe bAutoActivate bIsActive bEditableWhenInherited bNavigationRelevant bCanEverAffectNavigation '
+                       'bWantsInitializeComponent bIsEditorOnly bHasBeenCreated bHasBeenInitialized bIsReadyForReplication bHasBegunPlay '
+                       'bIsBeingDestroyed bTickFunctionsRegistered bIsNetStartupComponent CreationMethod OnComponentActivated '
+                       'OnComponentDeactivated',
+    'USceneComponent': 'Bounds AttachParent AttachChildren ClientAttachedChildren AttachSocketName Mobility DetailMode PhysicsVolume '
+                       'ComponentToWorld RelativeLocation RelativeRotation RelativeScale3D ComponentVelocity bComponentToWorldUpdated '
+                       'bSkipUpdateOverlaps bAbsoluteLocation bAbsoluteRotation bAbsoluteScale bVisible bShouldBeAttached '
+                       'bShouldSnapLocationWhenAttached bShouldSnapRotationWhenAttached bShouldSnapScaleWhenAttached '
+                       'bShouldUpdatePhysicsVolume bHiddenInGame bBoundsChangeTriggersStreamingDataRebuild bUseAttachParentBound '
+                       'bComputeFastLocalBounds bComputeBoundsOnceForGame bIsNotRenderAttachmentRoot bWantsOnUpdateTransform '
+                       'bNetUpdateTransform bNetUpdateAttachment bVisualizeComponent PhysicsVolumeChangedDelegate TransformUpdated '
+                       'WorldRotationCache RelativeRotationCache ScopedMovementStack',
+    'UPrimitiveComponent': 'BodyInstance LightingChannels MoveIgnoreActors MoveIgnoreComponents CustomPrimitiveData MinDrawDistance '
+                           'LDMaxDrawDistance CachedMaxDrawDistance DepthPriorityGroup ViewOwnerDepthPriorityGroup '
+                           'IndirectLightingCacheQuality LightmapType bUseMaxLODAsImposter bNeverDistanceCull bAlwaysCreatePhysicsState '
+                           'bGenerateOverlapEvents bMultiBodyOverlap bTraceComplexOnMove bReturnMaterialOnMove bAllowCullDistanceVolume '
+                           'bVisibleInReflectionCaptures bVisibleInRealTimeSkyCaptures bVisibleInRayTracing bRenderInMainPass '
+                           'bRenderInDepthPass bReceivesDecals bOwnerNoSee bOnlyOwnerSee bTreatAsBackgroundForOcclusion bUseAsOccluder '
+                           'bSelectable bForceMipStreaming CastShadow bEmissiveLightSource bAffectDynamicIndirectLighting '
+                           'bAffectDistanceFieldLighting bCastDynamicShadow bCastStaticShadow bCastVolumetricTranslucentShadow '
+                           'bCastContactShadow bSelfShadowOnly bCastFarShadow bCastInsetShadow bCastCinematicShadow bCastHiddenShadow '
+                           'bCastShadowAsTwoSided bLightAttachmentsAsGroup bIgnoreRadialImpulse bIgnoreRadialForce bApplyImpulseOnDamage '
+                           'bReplicatePhysicsToAutonomousProxy AlwaysLoadOnClient AlwaysLoadOnServer bRenderCustomDepth '
+                           'bVisibleInSceneCaptureOnly bHiddenInSceneCapture bHasCustomNavigableGeometry CanCharacterStepUpOn '
+                           'RayTracingGroupId VisibilityId CustomDepthStencilValue CustomDepthStencilWriteMask TranslucencySortPriority '
+                           'TranslucencySortDistanceOffset RuntimeVirtualTextures BoundsScale OnComponentHit OnComponentBeginOverlap '
+                           'OnComponentEndOverlap OnComponentWake OnComponentSleep OnBeginCursorOver OnEndCursorOver OnClicked OnReleased '
+                           'LODParentPrimitive SceneProxy OverlappingComponents',
+    'UMeshComponent': 'OverrideMaterials OverlayMaterial OverlayMaterialMaxDrawDistance',
+    'UProceduralMeshComponent': 'bUseComplexAsSimpleCollision bUseAsyncCooking ProcMeshBodySetup ProcMeshSections CollisionConvexElems '
+                                'LocalBounds AsyncBodySetupQueue',
+    'UStaticMeshComponent': 'ForcedLodModel MinLOD StaticMesh WireframeColorOverride bOverrideMinLOD bUseDefaultCollision '
+                            'bReverseCulling OverriddenLightMapRes StreamingDistanceMultiplier LODData LightmassSettings',
+    'USynthComponent': 'Synth AudioComponent NumChannels PreferredBufferLength SoundClass AttenuationSettings bAutoDestroy '
+                       'bStopWhenOwnerDestroyed bAllowSpatialization bOverrideAttenuation bEnableBusSends bEnableBaseSubmix '
+                       'bEnableSubmixSends AttenuationOverrides ConcurrencySettings ConcurrencySet SoundSubmix SoundSubmixSends '
+                       'SourceEffectChain BusSends PreEffectBusSends bIsUISound bIsPreviewSound EnvelopeFollowerAttackTime '
+                       'EnvelopeFollowerReleaseTime OnAudioEnvelopeValue OnAudioEnvelopeValueNative bIsSynthPlaying bIsInitialized',
+    'UGameInstance': 'LocalPlayers WorldContext OnlineSession ReferencedObjects TimerManager LatentActionManager PIEMapName PIEStartTime '
+                     'SubsystemCollection',
+    'UGameUserSettings': 'Version FullscreenMode LastConfirmedFullscreenMode PreferredFullscreenMode FrameRateLimit ResolutionSizeX '
+                         'ResolutionSizeY LastUserConfirmedResolutionSizeX LastUserConfirmedResolutionSizeY WindowPosX WindowPosY '
+                         'bUseVSync bUseDynamicResolution AudioQualityLevel DesiredScreenWidth DesiredScreenHeight bUseDesiredScreenHeight '
+                         'ScalabilityQuality bUseHDRDisplayOutput HDRDisplayOutputNits LastCPUBenchmarkResult LastGPUBenchmarkResult',
+    'UDeveloperSettings': 'CategoryName SectionName',
+    'UObject': 'ObjectFlags InternalIndex ClassPrivate NamePrivate OuterPrivate',
 }
 ENGINE_MEMBERS = {k: set(v.split()) for k, v in ENGINE_MEMBERS.items()}
 
@@ -104,6 +179,28 @@ def class_members(record):
                 for n, owner in class_members(defn).items():
                     out.setdefault(n, owner)
     return out
+
+
+line_cache = {}
+
+
+def is_ufunction(cursor):
+    """True if the declaration is preceded by a UFUNCTION(...) line (the macro is empty in the mock, so look at the source)"""
+    f = cursor.location.file
+    if f is None:
+        return False
+    lines = line_cache.get(f.name)
+    if lines is None:
+        with open(f.name, encoding='utf-8-sig', errors='replace') as fh:
+            lines = fh.read().splitlines()
+        line_cache[f.name] = lines
+    i = cursor.extent.start.line - 1
+    if 'UFUNCTION' in lines[i]:
+        return True
+    i -= 1
+    while i >= 0 and (not lines[i].strip() or lines[i].strip().startswith('//')):
+        i -= 1
+    return i >= 0 and lines[i].strip().startswith('UFUNCTION')
 
 
 def walk_decls(cursor, found):
@@ -139,7 +236,18 @@ for path in files:
         elif top.kind == ci.CursorKind.USING_DIRECTIVE:
             problems.add('%s:%d: file-level "using namespace" leaks into other files in unity builds' % (os.path.relpath(path, SRC), top.location.line))
     for cur in tu.cursor.walk_preorder():
-        if cur.kind not in FUNC_KINDS or not cur.is_definition() or not in_src(cur):
+        if cur.kind not in FUNC_KINDS or not in_src(cur):
+            continue
+        if not cur.is_definition():
+            # declaration only: for UFUNCTIONs (RPCs, events) UnrealHeaderTool generates functions with the same parameter
+            # names inside the class, so a parameter named like a member fails there (C4458 in the .gen.cpp file)
+            rec = cur.semantic_parent
+            if rec is not None and rec.kind in (ci.CursorKind.CLASS_DECL, ci.CursorKind.STRUCT_DECL) and is_ufunction(cur):
+                mem = class_members(rec.get_definition() or rec)
+                for prm in cur.get_children():
+                    if prm.kind == ci.CursorKind.PARM_DECL and prm.spelling in mem and in_src(prm):
+                        problems.add("%s:%d: parameter '%s' of the declaration %s::%s is named like member '%s' of %s (UFUNCTION: C4458 in the generated .gen.cpp, error in Unreal builds)" % (
+                            os.path.relpath(prm.location.file.name, SRC), prm.location.line, prm.spelling, rec.spelling, cur.spelling, prm.spelling, mem[prm.spelling]))
             continue
         record = cur.semantic_parent
         if record is None or record.kind not in (ci.CursorKind.CLASS_DECL, ci.CursorKind.STRUCT_DECL):

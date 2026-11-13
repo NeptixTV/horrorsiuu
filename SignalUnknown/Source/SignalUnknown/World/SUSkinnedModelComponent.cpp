@@ -108,8 +108,8 @@ void USUSkinnedModelComponent::TickComponent(float DeltaTime, ELevelTick TickTyp
 	}
 	// deform at 30 Hz and only while the creature is on screen (or was a moment ago)
 	SkinAccumulator += DeltaTime;
-	const bool bVisible = GetWorld() && (GetWorld()->GetTimeSeconds() - GetLastRenderTime() < 0.5f || GetWorld()->GetTimeSeconds() < 2.f);
-	if (SkinAccumulator >= (bVisible ? 1.f / 30.f : 0.5f))
+	const bool bOnScreen = GetWorld() && (GetWorld()->GetTimeSeconds() - GetLastRenderTime() < 0.5f || GetWorld()->GetTimeSeconds() < 2.f);
+	if (SkinAccumulator >= (bOnScreen ? 1.f / 30.f : 0.5f))
 	{
 		SkinAccumulator = 0.f;
 		UpdateSkin();

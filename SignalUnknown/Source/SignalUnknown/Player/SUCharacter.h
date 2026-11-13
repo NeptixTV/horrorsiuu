@@ -230,7 +230,7 @@ private:
 	float InThrottleValue = 0.f;
 	float InBrakeValue = 0.f;
 	float InSteerValue = 0.f;
-	bool bInHandbrake = false;
+	bool bHandbrakeHeld = false;
 	float VehicleInputSendTimer = 0.f;
 	float VehicleInputResendTimer = 0.f;
 	bool bVehicleInputDirty = false;

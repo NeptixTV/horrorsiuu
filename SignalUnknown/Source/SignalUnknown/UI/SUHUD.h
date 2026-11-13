@@ -39,7 +39,7 @@ public:
 	void OnScreenChanged(ESUScreen OldScreen, ESUScreen NewScreen);
 	void FlashDamage(float Strength);
 	void StartFade(float From, float To, float Seconds);
-	void SetHiddenForScreenshot(bool bHidden) { bHiddenForScreenshot = bHidden; }
+	void SetHiddenForScreenshot(bool bInHidden) { bHiddenForScreenshot = bInHidden; }
 
 	// ---------------------------------------------------------------- UI input (from the controller)
 	void UINavigate(FIntPoint Direction);
