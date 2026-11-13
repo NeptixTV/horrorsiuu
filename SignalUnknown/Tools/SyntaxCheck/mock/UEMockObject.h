@@ -110,8 +110,30 @@ class UInterface : public UObject
 public:
 	static UClass* StaticClass();
 };
-class UPackage : public UObject {};
+struct FSavePackageArgs
+{
+	EObjectFlags TopLevelFlags = RF_NoFlags;
+	uint32 SaveFlags = 0;
+};
+class UPackage : public UObject
+{
+public:
+	bool MarkPackageDirty();
+	static bool SavePackage(UPackage* InOuter, UObject* InAsset, const TCHAR* Filename, const FSavePackageArgs& SaveArgs);
+};
 UPackage* GetTransientPackage();
+UPackage* CreatePackage(const TCHAR* PackageName);
+extern bool GIsEditor;
+struct FPackageName
+{
+	static bool DoesPackageExist(const FString& LongPackageName, FString* OutFilename = nullptr);
+	static FString LongPackageNameToFilename(const FString& InLongPackageName, const FString& InExtension = FString());
+	static const FString& GetAssetPackageExtension();
+};
+struct FAssetRegistryModule
+{
+	static void AssetCreated(UObject* NewAsset);
+};
 
 // ------------------------------------------------------------------ object pointers
 template <typename T>

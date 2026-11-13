@@ -1283,3 +1283,7 @@ public:
 #define DECLARE_EVENT(Owner, N) using N = TMulticastDelegate<>;
 using FSimpleDelegate = TDelegate<void()>;
 using FSimpleMulticastDelegate = TMulticastDelegate<>;
+struct FCoreDelegates
+{
+	static FSimpleMulticastDelegate OnPostEngineInit;
+};

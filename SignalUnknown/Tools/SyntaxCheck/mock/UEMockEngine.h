@@ -1509,6 +1509,8 @@ public:
 	TEnumAsByte<EBlendMode> BlendMode;
 	float OpacityMaskClipValue = 0.3333f;
 	uint8 TwoSided : 1;
+	uint8 bUsedWithInstancedStaticMeshes : 1;
+	uint8 bUsedWithSkeletalMesh : 1;
 	UMaterialEditorOnlyData* GetEditorOnlyData();
 	FMaterialExpressionCollection& GetExpressionCollection();
 };

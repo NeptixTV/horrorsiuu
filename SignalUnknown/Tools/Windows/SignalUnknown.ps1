@@ -7,7 +7,7 @@
 #   * baut den C++-Code und schreibt dabei BuildLog.txt
 #   * startet Spiel, Editor oder einen Koop-Test mit zwei Fenstern
 #
-# Optionen:  -Mode Spielen|Editor|Koop|Bauen    -EngineDir "D:\UE_5.6"
+# Optionen:  -Mode Spielen|Editor|Koop|Bauen|Paket    -EngineDir "D:\UE_5.6"
 param(
 	[ValidateSet('', 'Spielen', 'Editor', 'Koop', 'Bauen')]
 	[string]$Mode = '',
@@ -176,6 +176,7 @@ if (-not $Mode)
 	Say '  [2] Editor öffnen'
 	Say '  [3] Koop-Test (zwei Spielfenster auf diesem PC)'
 	Say '  [4] Nur bauen'
+	Say '  [5] Fertige Version zum Weitergeben erstellen (exe, dauert lange)'
 	Say '  [Q] Beenden'
 	switch -Regex (Read-Host 'Auswahl')
 	{
@@ -183,6 +184,7 @@ if (-not $Mode)
 		'^2' { $Mode = 'Editor' }
 		'^3' { $Mode = 'Koop' }
 		'^4' { $Mode = 'Bauen' }
+		'^5' { $Mode = 'Paket' }
 		default { exit 0 }
 	}
 }
@@ -230,6 +232,35 @@ function Mark-FirstStart
 switch ($Mode)
 {
 	'Bauen' { Say 'Fertig.'; Start-Sleep -Seconds 2; exit 0 }
+	'Paket'
+	{
+		# Standalone game (no Unreal Engine needed to play). Development configuration: Steam works with the
+		# test app id and the game writes a log, which helps while testing with friends.
+		$RunUat = Join-Path $Engine.Dir 'Engine\Build\BatchFiles\RunUAT.bat'
+		$PackDir = Join-Path $ProjectDir 'Paket'
+		$PackLog = Join-Path $ProjectDir 'PaketLog.txt'
+		Say ''
+		Say 'Erstelle die fertige Version. Das dauert beim ersten Mal 20–60 Minuten (alle Shader werden vorbereitet).' 'Yellow'
+		$packOut = & $RunUat BuildCookRun "-project=$Uproject" -noP4 -platform=Win64 -clientconfig=Development -build -cook -stage -pak -archive "-archivedirectory=$PackDir" -utf8output 2>&1 | ForEach-Object { $line = "$_"; Write-Host $line; $line }
+		$packCode = $LASTEXITCODE
+		[IO.File]::WriteAllLines($PackLog, [string[]]$packOut, (New-Object System.Text.UTF8Encoding($false)))
+		if ($packCode -ne 0)
+		{
+			Say ''
+			Say 'Das Erstellen ist fehlgeschlagen. Die wichtigsten Zeilen:' 'Red'
+			$packOut | Where-Object { $_ -match 'error|Error:' } | Select-Object -First 25 | ForEach-Object { Say "  $_" 'Red' }
+			Say "Das vollständige Protokoll steht in: $PackLog" 'Yellow'
+			Say 'Schick mir diese Datei PaketLog.txt – dann behebe ich die Fehler.' 'Yellow'
+			Start-Process explorer.exe "/select,`"$PackLog`""
+			Fail 'Abgebrochen.'
+		}
+		Say ''
+		Say "Fertig. Das Spiel liegt in: $PackDir\Windows" 'Green'
+		Say 'Zum Weitergeben den ganzen Ordner "Windows" als ZIP packen (z. B. für itch.io). Gestartet wird SignalUnknown.exe.' 'Green'
+		Start-Process explorer.exe "`"$PackDir`""
+		Start-Sleep -Seconds 3
+		exit 0
+	}
 	'Editor'
 	{
 		Say 'Der Editor startet. Zum Spielen oben in der Mitte auf den grünen Play-Knopf klicken.' 'Green'

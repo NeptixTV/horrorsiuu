@@ -5,9 +5,10 @@
 // or runtime static meshes (trees and other instanced things). Textures and materials are
 // created on the fly.
 //
-// LIMITATION: textured materials are generated with editor functionality, so they exist when the
-// game runs from the editor build (START.bat, "Spielen"). A packaged build would show the models
-// with plain colours until real material assets are added.
+// Materials: the four parent materials (opaque / masked, one / two sided) are generated in code.
+// The editor saves them once as assets under /Game/SUGenerated (EnsureMaterialAssets), so a packaged
+// game can load them. LIMITATION of packaged builds: textures have no mip maps and normal maps are
+// not used there (both need the editor's texture build).
 #pragma once
 
 #include "CoreMinimal.h"
@@ -49,6 +50,10 @@ class SIGNALUNKNOWN_API USUModelLibrary : public UGameInstanceSubsystem
 
 public:
 	static USUModelLibrary* Get(const UObject* WorldContext);
+
+	/** Editor / cook only: writes the generated parent materials to Content/SUGenerated if they are missing. */
+	static void EnsureMaterialAssets();
+	static FString GetMaterialAssetName(int32 Key);
 
 	/** True if a mesh with this name exists in any model file. */
 	bool HasMesh(FName MeshName);

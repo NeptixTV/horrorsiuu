@@ -18,6 +18,12 @@
 #include "Misc/FileHelper.h"
 #include "Misc/Paths.h"
 #include "HAL/FileManager.h"
+#include "Misc/PackageName.h"
+#include "UObject/Package.h"
+#if WITH_EDITOR
+#include "UObject/SavePackage.h"
+#include "AssetRegistry/AssetRegistryModule.h"
+#endif
 
 USUModelLibrary* USUModelLibrary::Get(const UObject* WorldContext)
 {
@@ -137,6 +143,10 @@ UTexture2D* USUModelLibrary::CreateTexture(const SUModel::Texture& Source)
 	Texture->UpdateResource();
 	return Texture;
 #else
+	if (bNormal)
+	{
+		return nullptr;   // needs the editor's normal map compression
+	}
 	UTexture2D* Texture = UTexture2D::CreateTransient(Width, Height, PF_B8G8R8A8);
 	if (!Texture || !Texture->GetPlatformData() || Texture->GetPlatformData()->Mips.Num() == 0)
 	{
@@ -171,65 +181,133 @@ UTexture2D* USUModelLibrary::GetTexture(int32 FileIndex, int32 TextureIndex)
 	return Textures[Slot];
 }
 
-UMaterial* USUModelLibrary::GetBaseMaterial(bool bMasked, bool bTwoSided, float Cutoff)
+FString USUModelLibrary::GetMaterialAssetName(int32 Key)
+{
+	return FString::Printf(TEXT("M_SU_Model_%d"), Key);
+}
+
+#if WITH_EDITOR
+namespace
+{
+	/** Builds one parent material: colour texture, normal map, roughness and metallic as parameters. */
+	UMaterial* BuildModelMaterial(UObject* Outer, FName Name, EObjectFlags Flags, bool bMasked, bool bTwoSided, float Cutoff)
+	{
+		UTexture* DefaultColor = LoadObject<UTexture>(nullptr, TEXT("/Engine/EngineResources/DefaultTexture.DefaultTexture"));
+		UTexture* DefaultNormal = LoadObject<UTexture>(nullptr, TEXT("/Engine/EngineMaterials/DefaultNormal.DefaultNormal"));
+		if (!DefaultColor || !DefaultNormal)
+		{
+			return nullptr;
+		}
+		UMaterial* Material = NewObject<UMaterial>(Outer, Name, Flags);
+		UMaterialEditorOnlyData* Inputs = Material->GetEditorOnlyData();
+		if (!Inputs)
+		{
+			return nullptr;
+		}
+		UMaterialExpressionTextureSampleParameter2D* Base = NewObject<UMaterialExpressionTextureSampleParameter2D>(Material);
+		Base->ParameterName = TEXT("BaseColor");
+		Base->Texture = DefaultColor;
+		Base->SamplerType = SAMPLERTYPE_Color;
+		Material->GetExpressionCollection().AddExpression(Base);
+		Inputs->BaseColor.Connect(0, Base);
+
+		UMaterialExpressionTextureSampleParameter2D* Normal = NewObject<UMaterialExpressionTextureSampleParameter2D>(Material);
+		Normal->ParameterName = TEXT("Normal");
+		Normal->Texture = DefaultNormal;
+		Normal->SamplerType = SAMPLERTYPE_Normal;
+		Material->GetExpressionCollection().AddExpression(Normal);
+		Inputs->Normal.Connect(0, Normal);
+
+		UMaterialExpressionScalarParameter* Roughness = NewObject<UMaterialExpressionScalarParameter>(Material);
+		Roughness->ParameterName = TEXT("Roughness");
+		Roughness->DefaultValue = 0.9f;
+		Material->GetExpressionCollection().AddExpression(Roughness);
+		Inputs->Roughness.Connect(0, Roughness);
+
+		UMaterialExpressionScalarParameter* Metallic = NewObject<UMaterialExpressionScalarParameter>(Material);
+		Metallic->ParameterName = TEXT("Metallic");
+		Metallic->DefaultValue = 0.f;
+		Material->GetExpressionCollection().AddExpression(Metallic);
+		Inputs->Metallic.Connect(0, Metallic);
+
+		if (bMasked)
+		{
+			Material->BlendMode = BLEND_Masked;
+			Material->OpacityMaskClipValue = Cutoff;
+			Inputs->OpacityMask.Connect(4, Base);   // alpha channel of the colour texture
+		}
+		Material->TwoSided = bTwoSided;
+		// trees are instanced; a cooked game cannot compile this permutation later
+		Material->bUsedWithInstancedStaticMeshes = true;
+		Material->PostEditChange();
+		return Material;
+	}
+}
+#endif
+
+void USUModelLibrary::EnsureMaterialAssets()
 {
 #if WITH_EDITOR
+	// only in the editor and in its commandlets (cooking); the game itself never writes assets
+	if (!GIsEditor)
+	{
+		return;
+	}
+	for (int32 Key = 0; Key < 4; ++Key)
+	{
+		const FString AssetName = GetMaterialAssetName(Key);
+		const FString PackageName = FString(TEXT("/Game/SUGenerated/")) + AssetName;
+		if (FPackageName::DoesPackageExist(PackageName))
+		{
+			continue;
+		}
+		UPackage* Package = CreatePackage(*PackageName);
+		if (!Package)
+		{
+			continue;
+		}
+		UMaterial* Material = BuildModelMaterial(Package, FName(*AssetName), RF_Public | RF_Standalone, (Key & 1) != 0, (Key & 2) != 0, 0.38f);
+		if (!Material)
+		{
+			continue;
+		}
+		FAssetRegistryModule::AssetCreated(Material);
+		Package->MarkPackageDirty();
+		const FString FileName = FPackageName::LongPackageNameToFilename(PackageName, FPackageName::GetAssetPackageExtension());
+		FSavePackageArgs Args;
+		Args.TopLevelFlags = RF_Public | RF_Standalone;
+		const bool bSaved = UPackage::SavePackage(Package, Material, *FileName, Args);
+		UE_LOG(LogSignalUnknown, Log, TEXT("Model material %s %s"), *PackageName, bSaved ? TEXT("saved") : TEXT("could NOT be saved"));
+	}
+#endif
+}
+
+UMaterial* USUModelLibrary::GetBaseMaterial(bool bMasked, bool bTwoSided, float Cutoff)
+{
 	const int32 Key = (bMasked ? 1 : 0) | (bTwoSided ? 2 : 0);
 	if (BaseMaterials.IsValidIndex(Key) && BaseMaterials[Key])
 	{
 		return BaseMaterials[Key];
 	}
-	UTexture* DefaultColor = LoadObject<UTexture>(nullptr, TEXT("/Engine/EngineResources/DefaultTexture.DefaultTexture"));
-	UTexture* DefaultNormal = LoadObject<UTexture>(nullptr, TEXT("/Engine/EngineMaterials/DefaultNormal.DefaultNormal"));
-	if (!DefaultColor || !DefaultNormal)
+	// saved asset (always in a packaged game, in the editor after its first start)
+	const FString AssetName = GetMaterialAssetName(Key);
+	const FString PackageName = FString(TEXT("/Game/SUGenerated/")) + AssetName;
+	UMaterial* Material = nullptr;
+	if (FPackageName::DoesPackageExist(PackageName))
 	{
-		return nullptr;
+		Material = LoadObject<UMaterial>(nullptr, *(PackageName + TEXT(".") + AssetName));
 	}
-	UMaterial* Material = NewObject<UMaterial>(this, NAME_None, RF_Transient);
-	UMaterialEditorOnlyData* Inputs = Material->GetEditorOnlyData();
-	if (!Inputs)
+#if WITH_EDITOR
+	if (!Material)
 	{
-		return nullptr;
+		Material = BuildModelMaterial(this, NAME_None, RF_Transient, bMasked, bTwoSided, Cutoff);
 	}
-	UMaterialExpressionTextureSampleParameter2D* Base = NewObject<UMaterialExpressionTextureSampleParameter2D>(Material);
-	Base->ParameterName = TEXT("BaseColor");
-	Base->Texture = DefaultColor;
-	Base->SamplerType = SAMPLERTYPE_Color;
-	Material->GetExpressionCollection().AddExpression(Base);
-	Inputs->BaseColor.Connect(0, Base);
-
-	UMaterialExpressionTextureSampleParameter2D* Normal = NewObject<UMaterialExpressionTextureSampleParameter2D>(Material);
-	Normal->ParameterName = TEXT("Normal");
-	Normal->Texture = DefaultNormal;
-	Normal->SamplerType = SAMPLERTYPE_Normal;
-	Material->GetExpressionCollection().AddExpression(Normal);
-	Inputs->Normal.Connect(0, Normal);
-
-	UMaterialExpressionScalarParameter* Roughness = NewObject<UMaterialExpressionScalarParameter>(Material);
-	Roughness->ParameterName = TEXT("Roughness");
-	Roughness->DefaultValue = 0.9f;
-	Material->GetExpressionCollection().AddExpression(Roughness);
-	Inputs->Roughness.Connect(0, Roughness);
-
-	UMaterialExpressionScalarParameter* Metallic = NewObject<UMaterialExpressionScalarParameter>(Material);
-	Metallic->ParameterName = TEXT("Metallic");
-	Metallic->DefaultValue = 0.f;
-	Material->GetExpressionCollection().AddExpression(Metallic);
-	Inputs->Metallic.Connect(0, Metallic);
-
-	if (bMasked)
-	{
-		Material->BlendMode = BLEND_Masked;
-		Material->OpacityMaskClipValue = Cutoff;
-		Inputs->OpacityMask.Connect(4, Base);   // alpha channel of the colour texture
-	}
-	Material->TwoSided = bTwoSided;
-	Material->PostEditChange();
-	BaseMaterials[Key] = Material;
-	return Material;
-#else
-	return nullptr;
 #endif
+	if (Material && BaseMaterials.IsValidIndex(Key))
+	{
+		BaseMaterials[Key] = Material;
+	}
+	return Material;
 }
 
 UMaterialInterface* USUModelLibrary::MakeColorMaterial(const FLinearColor& Color)

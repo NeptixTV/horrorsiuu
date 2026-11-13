@@ -71,13 +71,26 @@ Voraussetzungen: Windows 10/11, **Unreal Engine 5** (eingetragen ist 5.8; mit ä
 `-nosteam` ist hier nötig: Zwei Fenster auf einem Rechner teilen sich ein Steam-Konto und können
 sich über Steam nicht gegenseitig beitreten. Weitere Startoptionen: `-SUSolo` (direkt allein spielen).
 
+### Fertige Version zum Weitergeben (exe)
+
+**Ungetestet.** `START.bat` → **[5] Fertige Version zum Weitergeben erstellen**. Das Skript ruft
+`RunUAT BuildCookRun` auf (Windows, Development) und legt das Spiel unter `Paket\Windows\` ab; gestartet
+wird `SignalUnknown.exe`. Diesen Ordner als ZIP packen und weitergeben (z. B. itch.io). Wer es spielt, braucht
+keine Unreal Engine. Schlägt es fehl, steht alles in `PaketLog.txt`.
+
+* Koop funktioniert in der exe wie beschrieben. Für Steam muss Steam laufen; die Test-ID 480 ist für
+  **Tests mit Freunden** gedacht. Für eine öffentlich beworbene Veröffentlichung braucht man eine eigene
+  Steam-App-ID (in `Config/DefaultEngine.ini`, `SteamDevAppId`) – oder man spielt ohne Steam per IP/LAN.
+* Die optionale Grabkammer (`Content/SUModels/Restricted/`) wird mitverpackt, wenn sie vorhanden ist. Ihre
+  Lizenz erlaubt die Nutzung in einem Spiel; vor einer Veröffentlichung bitte die Lizenzbedingungen selbst prüfen
+  oder den Ordner vorher entfernen.
+
 ### Online mit Freunden (Steam)
 
 **Ungetestet** – der Code ist geschrieben, aber noch nie mit der Engine gebaut oder über das Internet probiert.
 
-1. Jeder Mitspieler braucht das Spiel lauffähig auf seinem Rechner (derzeit: Unreal Engine 5.5,
-   Visual Studio und dieses Projekt, Start über `START.bat` → „Spielen“). Eine fertige Version zum
-   Weitergeben gibt es noch nicht.
+1. Jeder Mitspieler braucht das Spiel: entweder die fertige exe (siehe oben) oder das Projekt mit
+   Unreal Engine 5.5 und Visual Studio (Start über `START.bat` → „Spielen“).
 2. Bei allen muss **Steam laufen und angemeldet sein**, bevor das Spiel startet. Im Hauptmenü steht
    dann unten „Online über Steam“. Das Spiel benutzt Valves öffentliche Test-ID 480 („Spacewar“);
    in Steam erscheint man deshalb als „Spielt Spacewar“.
@@ -152,7 +165,8 @@ nativen Tests abgedeckt. **Teilweise** = funktioniert mit Platzhaltern oder Vere
 | Einsatz 3 „Was unter dem Haus liegt“ | Code fertig | Gutshaus Brandt mit Keller, Stollen, Höhlen, großer Halle, optional Grabkammer; Wesen aus der Tiefe mit Wegenetz und Verstecken |
 | Lärm-Anzeige und Tiefe (HUD) | Code fertig | erscheint unter der Erde: geduckt = leise, rennen und Lampe = laut |
 | Sprachaufnahmen, Musik | Nicht umgesetzt | Stimmen sind synthetisches Gebrabbel + Untertitel |
-| Eigene Steam-Seite, EOS, fertige Version zum Weitergeben | Nicht umgesetzt | jeder Mitspieler braucht derzeit Engine + Projekt |
+| Fertige exe zum Weitergeben | Vorbereitet, **ungetestet** | `START.bat` → [5]; Materialien werden dafür als Assets gespeichert |
+| Eigene Steam-Seite, EOS | Nicht umgesetzt | Steam läuft über die Test-ID 480 |
 
 ---
 
@@ -304,9 +318,10 @@ Das Projekt enthält weiterhin **keine binären Unreal-Assets**. Die Modelle lie
 
 * Levelgeometrie und Kreaturen werden als `ProceduralMeshComponent` gezeigt (Kollision = die sichtbaren
   Dreiecke), Bäume als zur Laufzeit gebaute `UStaticMesh` in `HierarchicalInstancedStaticMesh`.
-* Texturen und Materialien entstehen beim Laden. Das benutzt Editor-Funktionen (`WITH_EDITOR`), läuft also
-  beim Start über `START.bat` bzw. aus dem Editor. In einem **gepackten Build** erscheinen die Modelle
-  einfarbig, bis echte Material-Assets angelegt werden.
+* Texturen und Materialien entstehen beim Laden. Die vier Grundmaterialien speichert der Editor beim ersten
+  Öffnen einmalig unter `Content/SUGenerated/` (nicht im Repository), damit auch eine fertige exe sie laden kann.
+  In der fertigen exe haben die Texturen keine Mip-Stufen und Normal Maps fehlen (beides braucht den
+  Textur-Build des Editors) – entfernte Flächen flimmern dort etwas mehr.
 * Unter der Erde kommt kein Tageslicht an: Die prozeduralen Wände schatten das Himmelslicht nicht selbst ab,
   deshalb blendet `ASUSkySystem` Himmel, Sonne und Mond für die lokale Ansicht aus.
 * Neu bauen (nur nötig, wenn die Quellmodelle geändert werden):

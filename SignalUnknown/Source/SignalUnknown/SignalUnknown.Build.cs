@@ -31,7 +31,8 @@ public class SignalUnknown : ModuleRules
 			"SlateCore",
 			"NetCore",
 			"OnlineSubsystem",
-			"OnlineSubsystemUtils"
+			"OnlineSubsystemUtils",
+			"AssetRegistry"
 		});
 
 		// Steam is loaded at runtime when its client is running (see Config/DefaultEngine.ini)
