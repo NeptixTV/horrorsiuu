@@ -98,6 +98,7 @@ keine Unreal Engine. Schlägt es fehl, steht alles in `PaketLog.txt`.
 4. Mitspieler: „Koop beitreten“ → das Spiel des Hosts in der Liste wählen, oder die Steam-Einladung annehmen.
 5. Es muss kein Port freigegeben werden; die Verbindung läuft über Steams Vermittlung.
 
+In der fertigen Version liegt dafür `Start ohne Steam (IP-Verbindung).bat` neben der exe.
 Ohne Steam (oder mit `-nosteam`) gilt das alte Verfahren: Spiele im selben Netzwerk erscheinen in der
 Liste, über das Internet verbindet man sich per IP-Adresse und der Host muss **UDP-Port 7777** weiterleiten.
 Ein Host, der über Steam spielt, ist per IP-Adresse nicht erreichbar.

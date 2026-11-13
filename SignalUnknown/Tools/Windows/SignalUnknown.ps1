@@ -255,8 +255,15 @@ switch ($Mode)
 			Fail 'Abgebrochen.'
 		}
 		Say ''
+		# second starter for direct IP connections: with Steam running the game would use Steam's network instead
+		$NoSteamBat = Join-Path $PackDir 'Windows\Start ohne Steam (IP-Verbindung).bat'
+		if (Test-Path (Join-Path $PackDir 'Windows'))
+		{
+			[IO.File]::WriteAllText($NoSteamBat, "@echo off`r`nstart `"`" `"%~dp0SignalUnknown.exe`" -nosteam`r`n", (New-Object System.Text.ASCIIEncoding))
+		}
 		Say "Fertig. Das Spiel liegt in: $PackDir\Windows" 'Green'
 		Say 'Zum Weitergeben den ganzen Ordner "Windows" als ZIP packen (z. B. für itch.io). Gestartet wird SignalUnknown.exe.' 'Green'
+		Say 'Für Koop per IP-Adresse (ohne Steam) startet man "Start ohne Steam (IP-Verbindung).bat" im selben Ordner.' 'Green'
 		Start-Process explorer.exe "`"$PackDir`""
 		Start-Sleep -Seconds 3
 		exit 0
