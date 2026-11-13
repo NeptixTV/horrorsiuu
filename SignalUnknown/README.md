@@ -62,14 +62,32 @@ Voraussetzungen: Windows 10/11, **Unreal Engine 5** (eingetragen ist 5.8; mit ä
 
 ```bat
 :: Host (überspringt das Menü und startet eine Koop-Sitzung)
-"C:\Program Files\Epic Games\UE_5.8\Engine\Binaries\Win64\UnrealEditor.exe" "D:\Pfad\SignalUnknown\SignalUnknown.uproject" -game -SUHost -windowed -ResX=1280 -ResY=720 -log
+"C:\Program Files\Epic Games\UE_5.8\Engine\Binaries\Win64\UnrealEditor.exe" "D:\Pfad\SignalUnknown\SignalUnknown.uproject" -game -SUHost -nosteam -windowed -ResX=1280 -ResY=720 -log
 
 :: Client (verbindet direkt zum Host)
-"C:\Program Files\Epic Games\UE_5.8\Engine\Binaries\Win64\UnrealEditor.exe" "D:\Pfad\SignalUnknown\SignalUnknown.uproject" 127.0.0.1 -game -windowed -ResX=1280 -ResY=720 -log
+"C:\Program Files\Epic Games\UE_5.8\Engine\Binaries\Win64\UnrealEditor.exe" "D:\Pfad\SignalUnknown\SignalUnknown.uproject" 127.0.0.1 -game -nosteam -windowed -ResX=1280 -ResY=720 -log
 ```
 
-Alternativ im Hauptmenü „Koop hosten“ bzw. „Koop beitreten“ (IP eingeben). Über das Netzwerk muss
-beim Host **UDP-Port 7777** erreichbar sein. Weitere Startoptionen: `-SUSolo` (direkt allein spielen).
+`-nosteam` ist hier nötig: Zwei Fenster auf einem Rechner teilen sich ein Steam-Konto und können
+sich über Steam nicht gegenseitig beitreten. Weitere Startoptionen: `-SUSolo` (direkt allein spielen).
+
+### Online mit Freunden (Steam)
+
+**Ungetestet** – der Code ist geschrieben, aber noch nie mit der Engine gebaut oder über das Internet probiert.
+
+1. Jeder Mitspieler braucht das Spiel lauffähig auf seinem Rechner (derzeit: Unreal Engine 5.5,
+   Visual Studio und dieses Projekt, Start über `START.bat` → „Spielen“). Eine fertige Version zum
+   Weitergeben gibt es noch nicht.
+2. Bei allen muss **Steam laufen und angemeldet sein**, bevor das Spiel startet. Im Hauptmenü steht
+   dann unten „Online über Steam“. Das Spiel benutzt Valves öffentliche Test-ID 480 („Spacewar“);
+   in Steam erscheint man deshalb als „Spielt Spacewar“.
+3. Host: „Koop hosten“. Danach im Pausenmenü „Freunde einladen (Steam)“ oder die anderen suchen lassen.
+4. Mitspieler: „Koop beitreten“ → das Spiel des Hosts in der Liste wählen, oder die Steam-Einladung annehmen.
+5. Es muss kein Port freigegeben werden; die Verbindung läuft über Steams Vermittlung.
+
+Ohne Steam (oder mit `-nosteam`) gilt das alte Verfahren: Spiele im selben Netzwerk erscheinen in der
+Liste, über das Internet verbindet man sich per IP-Adresse und der Host muss **UDP-Port 7777** weiterleiten.
+Ein Host, der über Steam spielt, ist per IP-Adresse nicht erreichbar.
 
 ### Was man prüfen sollte (Checkliste)
 
@@ -118,7 +136,8 @@ nativen Tests abgedeckt. **Teilweise** = funktioniert mit Platzhaltern oder Vere
 | Speichern/Laden | Code fertig | versioniert (v1), Backup-Slot, Migration, nur Host |
 | HUD + Menüs | Code fertig | Canvas-UI ohne Assets: Hauptmenü, Pause, Einstellungen, Beitreten, Inventar, Terminal, Karte, Shop, Dokument, Galerie, Hilfe, Kofferraum |
 | Einstellungen | Code fertig | Grafik-Preset, Auflösung, Fenstermodus, Auflösungsskalierung, FPS-Limit, VSync, FOV, Bewegungsunschärfe, Filmkorn, Audio, Untertitel, Horror-Intensität |
-| Koop 1–4 Spieler | Code fertig | Listen-Server per IP; Replikation aller Spielsysteme |
+| Koop 1–4 Spieler | Code fertig | Listen-Server; Replikation aller Spielsysteme |
+| Online über Steam (Spielliste, Einladungen) | Code fertig, **ungetestet** | Steam-Lobby mit Test-ID 480, Verbindung über Steams Vermittlung; ohne Steam LAN-Suche und IP |
 | Sprachchat (Nähe) | Teilweise | Engine-VoIP (OnlineSubsystem/VOIPTalker) mit räumlicher Abschwächung, Push-to-Talk [T]; **ungetestet**, hängt von der Online-Subsystem-Konfiguration ab |
 | Wetter, Tag/Nacht, Gewitter | Code fertig | Sonne, Mond, Wolken, Nebel, Regen, Blitze, Donner |
 | Prozedurales Audio | Code fertig, Logik getestet | Wind, Regen, Vögel, Grillen, Motor, Schritte, Türen, Kreaturen – alles synthetisiert |
@@ -133,7 +152,7 @@ nativen Tests abgedeckt. **Teilweise** = funktioniert mit Platzhaltern oder Vere
 | Einsatz 3 „Was unter dem Haus liegt“ | Code fertig | Gutshaus Brandt mit Keller, Stollen, Höhlen, großer Halle, optional Grabkammer; Wesen aus der Tiefe mit Wegenetz und Verstecken |
 | Lärm-Anzeige und Tiefe (HUD) | Code fertig | erscheint unter der Erde: geduckt = leise, rennen und Lampe = laut |
 | Sprachaufnahmen, Musik | Nicht umgesetzt | Stimmen sind synthetisches Gebrabbel + Untertitel |
-| Online-Dienste (Steam/EOS, Lobby-Suche) | Nicht umgesetzt | nur direkte IP-Verbindung |
+| Eigene Steam-Seite, EOS, fertige Version zum Weitergeben | Nicht umgesetzt | jeder Mitspieler braucht derzeit Engine + Projekt |
 
 ---
 

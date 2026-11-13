@@ -261,8 +261,12 @@ void ASUHUD::OnScreenChanged(ESUScreen OldScreen, ESUScreen NewScreen)
 	ResetScreenState();
 	if (NewScreen == ESUScreen::Join)
 	{
-		const USUGameInstance* GI = GetPC() ? GetPC()->GetGameInstance<USUGameInstance>() : nullptr;
+		USUGameInstance* GI = GetPC() ? GetPC()->GetGameInstance<USUGameInstance>() : nullptr;
 		JoinAddress = GI ? GI->GetLastJoinAddress() : FString(TEXT("127.0.0.1"));
+		if (GI)
+		{
+			GI->FindGames();   // the list of hosted games fills in while the screen is open
+		}
 	}
 	if (NewScreen == ESUScreen::Terminal)
 	{

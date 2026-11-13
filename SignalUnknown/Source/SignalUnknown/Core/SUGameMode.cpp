@@ -65,6 +65,11 @@ void ASUGameMode::HandleWorldReady()
 	{
 		if (GI->GetStartMode() == ESUStartMode::Host || GI->GetStartMode() == ESUStartMode::Solo || GetNetMode() == NM_DedicatedServer)
 		{
+			// started with -SUHost: the map was not opened with "?listen", so start listening now
+			if (GI->GetStartMode() == ESUStartMode::Host && GetNetMode() == NM_Standalone)
+			{
+				GI->EnableListenServer(true);
+			}
 			BeginSession(GI->ShouldLoadSaveOnStart());
 		}
 	}

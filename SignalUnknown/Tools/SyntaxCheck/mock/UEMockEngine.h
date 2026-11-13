@@ -2338,6 +2338,7 @@ public:
 class UGameInstance : public UObject
 {
 public:
+	virtual bool EnableListenServer(bool bEnable, int32 PortOverride = 0);
 	typedef UObject Super;
 	static UClass* StaticClass();
 	virtual void Init();
@@ -2747,4 +2748,104 @@ public:
 #define DOREPLIFETIME_WITH_PARAMS_FAST(c, v, params) DOREPLIFETIME_WITH_PARAMS(c, v, params)
 #define DOREPLIFETIME_CONDITION_NOTIFY(c, v, cond, rncond) DOREPLIFETIME_CONDITION(c, v, cond)
 enum ELifetimeRepNotifyCondition { REPNOTIFY_OnChanged, REPNOTIFY_Always };
+
+// ---- online subsystem (modules OnlineSubsystem / OnlineSubsystemUtils), only what the project uses
+inline const FName NAME_GameSession = FName(TEXT("GameSession"));
+namespace EOnJoinSessionCompleteResult { enum Type { Success, SessionIsFull, SessionDoesNotExist, CouldNotRetrieveAddress, AlreadyInSession, UnknownError }; }
+namespace EOnlineDataAdvertisementType { enum Type { DontAdvertise, ViaPingOnly, ViaOnlineService, ViaOnlineServiceAndPing }; }
+namespace EOnlineComparisonOp { enum Type { Equals, NotEquals, GreaterThan, GreaterThanEquals, LessThan, LessThanEquals, Near, In, NotIn }; }
+class FUniqueNetId;
+using FUniqueNetIdPtr = TSharedPtr<const FUniqueNetId>;
+struct FOnlineSessionSettings
+{
+	int32 NumPublicConnections = 0;
+	int32 NumPrivateConnections = 0;
+	bool bShouldAdvertise = false;
+	bool bAllowJoinInProgress = false;
+	bool bIsLANMatch = false;
+	bool bIsDedicated = false;
+	bool bUsesStats = false;
+	bool bAllowInvites = false;
+	bool bUsesPresence = false;
+	bool bAllowJoinViaPresence = false;
+	bool bAllowJoinViaPresenceFriendsOnly = false;
+	bool bAntiCheatProtected = false;
+	bool bUseLobbiesIfAvailable = false;
+	template <typename T> void Set(FName Key, const T& Value, EOnlineDataAdvertisementType::Type InType);
+	template <typename T> bool Get(FName Key, T& Value) const;
+};
+struct FOnlineSession
+{
+	FString OwningUserName;
+	FOnlineSessionSettings SessionSettings;
+	int32 NumOpenPrivateConnections = 0;
+	int32 NumOpenPublicConnections = 0;
+};
+struct FNamedOnlineSession : FOnlineSession { FName SessionName; };
+struct FOnlineSessionSearchResult
+{
+	FOnlineSession Session;
+	int32 PingInMs = 0;
+	bool IsValid() const;
+};
+struct FOnlineSearchSettings
+{
+	template <typename T> void Set(FName Key, const T& Value, EOnlineComparisonOp::Type InType);
+};
+class FOnlineSessionSearch
+{
+public:
+	TArray<FOnlineSessionSearchResult> SearchResults;
+	FOnlineSearchSettings QuerySettings;
+	bool bIsLanQuery = false;
+	int32 MaxSearchResults = 0;
+	virtual ~FOnlineSessionSearch() = default;
+};
+using FOnCreateSessionCompleteDelegate = TDelegate<void(FName, bool)>;
+using FOnDestroySessionCompleteDelegate = TDelegate<void(FName, bool)>;
+using FOnFindSessionsCompleteDelegate = TDelegate<void(bool)>;
+using FOnJoinSessionCompleteDelegate = TDelegate<void(FName, EOnJoinSessionCompleteResult::Type)>;
+using FOnSessionUserInviteAcceptedDelegate = TDelegate<void(const bool, const int32, FUniqueNetIdPtr, const FOnlineSessionSearchResult&)>;
+class IOnlineSession
+{
+public:
+	virtual ~IOnlineSession() = default;
+	FNamedOnlineSession* GetNamedSession(FName SessionName);
+	bool CreateSession(int32 HostingPlayerNum, FName SessionName, const FOnlineSessionSettings& NewSessionSettings);
+	bool DestroySession(FName SessionName);
+	bool FindSessions(int32 SearchingPlayerNum, const TSharedRef<FOnlineSessionSearch>& SearchSettings);
+	bool JoinSession(int32 LocalUserNum, FName SessionName, const FOnlineSessionSearchResult& DesiredSession);
+	bool GetResolvedConnectString(FName SessionName, FString& ConnectInfo, FName PortType = NAME_None);
+	FDelegateHandle AddOnCreateSessionCompleteDelegate_Handle(const FOnCreateSessionCompleteDelegate& Delegate);
+	void ClearOnCreateSessionCompleteDelegate_Handle(FDelegateHandle& Handle);
+	FDelegateHandle AddOnDestroySessionCompleteDelegate_Handle(const FOnDestroySessionCompleteDelegate& Delegate);
+	void ClearOnDestroySessionCompleteDelegate_Handle(FDelegateHandle& Handle);
+	FDelegateHandle AddOnFindSessionsCompleteDelegate_Handle(const FOnFindSessionsCompleteDelegate& Delegate);
+	void ClearOnFindSessionsCompleteDelegate_Handle(FDelegateHandle& Handle);
+	FDelegateHandle AddOnJoinSessionCompleteDelegate_Handle(const FOnJoinSessionCompleteDelegate& Delegate);
+	void ClearOnJoinSessionCompleteDelegate_Handle(FDelegateHandle& Handle);
+	FDelegateHandle AddOnSessionUserInviteAcceptedDelegate_Handle(const FOnSessionUserInviteAcceptedDelegate& Delegate);
+	void ClearOnSessionUserInviteAcceptedDelegate_Handle(FDelegateHandle& Handle);
+};
+using IOnlineSessionPtr = TSharedPtr<IOnlineSession>;
+class IOnlineExternalUI
+{
+public:
+	virtual ~IOnlineExternalUI() = default;
+	bool ShowInviteUI(int32 LocalUserNum, FName SessionName = NAME_GameSession);
+};
+using IOnlineExternalUIPtr = TSharedPtr<IOnlineExternalUI>;
+class IOnlineSubsystem
+{
+public:
+	virtual ~IOnlineSubsystem() = default;
+	IOnlineSessionPtr GetSessionInterface() const;
+	IOnlineExternalUIPtr GetExternalUIInterface() const;
+	FName GetSubsystemName() const;
+	static IOnlineSubsystem* Get(const FName& SubsystemName = NAME_None);
+};
+namespace Online
+{
+	IOnlineSubsystem* GetSubsystem(const UWorld* World, const FName& SubsystemName = NAME_None);
+}
 #define GET_MEMBER_NAME_CHECKED(ClassName, MemberName) ((void)sizeof(&ClassName::MemberName), FName(TEXT(#MemberName)))

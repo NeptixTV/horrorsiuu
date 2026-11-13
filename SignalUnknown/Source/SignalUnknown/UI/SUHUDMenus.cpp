@@ -87,7 +87,14 @@ void ASUHUD::DrawMainMenu()
 	{
 		Text(TEXT("Die Welt wird erzeugt …"), X, H() - S(80.f), 15.f, SUHUDStyle::Accent);
 	}
-	Text(TEXT("Koop: 1–4 Spieler · Host: Port 7777 freigeben · Stimme über die Engine-VoIP (Push-to-Talk [T])"), X, H() - S(50.f), 12.f, SUHUDStyle::Dim);
+	{
+		const USUGameInstance* GI = PC->GetGameInstance<USUGameInstance>();
+		const FString Service = GI ? GI->GetOnlineServiceName() : FString();
+		const FString Line = Service == TEXT("Steam")
+			? FString(TEXT("Koop: 1–4 Spieler · Online über Steam: hosten, dann finden dich Freunde unter „Koop beitreten“ oder per Steam-Einladung"))
+			: FString(TEXT("Koop: 1–4 Spieler · Steam läuft nicht: nur gleiches Netzwerk oder IP-Adresse (Host: UDP-Port 7777 freigeben)"));
+		Text(Line, X, H() - S(50.f), 12.f, SUHUDStyle::Dim);
+	}
 	Text(TEXT("Prototyp – Platzhaltergrafik"), W() - S(30.f), H() - S(40.f), 12.f, SUHUDStyle::Dim, 2);
 }
 
@@ -127,6 +134,14 @@ void ASUHUD::DrawPause()
 	Y += BH + Gap;
 	Button(TEXT("Steuerung"), X, Y, BW, BH, [PC]() { PC->OpenScreen(ESUScreen::Help); });
 	Y += BH + Gap;
+	if (USUGameInstance* GI = PC->GetGameInstance<USUGameInstance>())
+	{
+		if (bHost && GI->IsSteamActive() && GI->HasOnlineSession())
+		{
+			Button(TEXT("Freunde einladen (Steam)"), X, Y, BW, BH, [GI]() { GI->ShowInviteDialog(); });
+			Y += BH + Gap;
+		}
+	}
 	Button(TEXT("Zum Hauptmenü"), X, Y, BW, BH, [this]() { bConfirmQuit = true; FocusIndex = 0; });
 	Y += BH + Gap;
 	Button(TEXT("Spiel beenden"), X, Y, BW, BH, [PC]() { PC->MenuQuit(); });
@@ -303,7 +318,7 @@ void ASUHUD::DrawJoin()
 		return;
 	}
 	Rect(0.f, 0.f, W(), H(), FLinearColor(0.f, 0.f, 0.f, 0.7f));
-	DrawScreenTitle(TEXT("Koop beitreten"), TEXT("Adresse des Hosts eingeben (IPv4, optional :Port) · [Esc] zurück"));
+	DrawScreenTitle(TEXT("Koop beitreten"), TEXT("Spiel aus der Liste wählen oder die Adresse des Hosts eingeben · [Esc] zurück"));
 	const float X = S(70.f);
 	float Y = S(130.f);
 	Panel(X, Y, S(460.f), S(60.f));
@@ -334,8 +349,40 @@ void ASUHUD::DrawJoin()
 			PC->MenuJoin(JoinAddress);
 		}
 	}, !JoinAddress.IsEmpty());
-	Text(TEXT("Der Host wählt im Hauptmenü „Koop hosten“. Im selben Netzwerk die lokale IP des Hosts verwenden,"), X, Y + 4 * (K + S(10.f)) + S(20.f), 14.f, SUHUDStyle::Dim);
-	Text(TEXT("über das Internet muss beim Host UDP-Port 7777 weitergeleitet sein."), X, Y + 4 * (K + S(10.f)) + S(42.f), 14.f, SUHUDStyle::Dim);
+	Text(TEXT("Per IP: im selben Netzwerk die lokale IP des Hosts verwenden, über das Internet muss beim Host"), X, Y + 4 * (K + S(10.f)) + S(20.f), 14.f, SUHUDStyle::Dim);
+	Text(TEXT("UDP-Port 7777 weitergeleitet sein. Wenn der Host über Steam spielt, geht es nur über die Liste."), X, Y + 4 * (K + S(10.f)) + S(42.f), 14.f, SUHUDStyle::Dim);
+
+	// ---- hosted games (Steam lobbies, or LAN sessions when Steam is not running)
+	USUGameInstance* GI = PC->GetGameInstance<USUGameInstance>();
+	if (!GI)
+	{
+		return;
+	}
+	const float LX = SX + S(200.f) + S(70.f);
+	const float LW = FMath::Max(S(420.f), W() - LX - S(70.f));
+	float LY = S(130.f);
+	const FString Service = GI->GetOnlineServiceName();
+	Text(Service.IsEmpty() ? FString(TEXT("Gefundene Spiele")) : FString::Printf(TEXT("Gefundene Spiele (%s)"), *Service), LX, LY, 20.f, SUHUDStyle::Accent, 0, true);
+	LY += S(36.f);
+	Button(GI->IsSearchingGames() ? TEXT("Suche läuft …") : TEXT("Erneut suchen"), LX, LY, S(240.f), S(44.f), [GI]() { GI->FindGames(); }, !GI->IsSearchingGames());
+	LY += S(58.f);
+	Text(GI->GetOnlineStatus(), LX, LY, 14.f, SUHUDStyle::Dim);
+	LY += S(30.f);
+	const TArray<FSUFoundGame>& Games = GI->GetFoundGames();
+	for (int32 I = 0; I < Games.Num() && I < 8; ++I)
+	{
+		const FSUFoundGame& Game = Games[I];
+		Panel(LX, LY, LW, S(52.f));
+		Text(Game.HostName, LX + S(14.f), LY + S(8.f), 17.f, SUHUDStyle::Text);
+		Text(FString::Printf(TEXT("%d/%d Spieler · %d ms"), Game.Players, Game.MaxPlayers, Game.Ping), LX + S(14.f), LY + S(30.f), 12.f, SUHUDStyle::Dim);
+		const bool bFull = Game.Players >= Game.MaxPlayers;
+		Button(bFull ? TEXT("Voll") : TEXT("Beitreten"), LX + LW - S(150.f), LY + S(6.f), S(140.f), S(40.f), [GI, I]() { GI->JoinFoundGame(I); }, !bFull);
+		LY += S(60.f);
+	}
+	if (Service != TEXT("Steam"))
+	{
+		Text(TEXT("Für Spiele über das Internet: Steam starten und anmelden, dann das Spiel neu starten."), LX, H() - S(90.f), 13.f, SUHUDStyle::Dim);
+	}
 }
 
 // ====================================================================================== help

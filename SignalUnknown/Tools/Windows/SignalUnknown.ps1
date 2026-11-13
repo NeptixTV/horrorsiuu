@@ -256,11 +256,11 @@ switch ($Mode)
 	{
 		if ($firstStart) { Say 'Tipp: Vorher einmal [1] Spielen oder [2] Editor ausführen, damit die Shader fertig sind.' 'Yellow' }
 		Say 'Starte Fenster 1 (Host) ...' 'Green'
-		Start-Process -FilePath $EditorExe -ArgumentList "`"$Uproject`" -game -SUHost -windowed -ResX=1280 -ResY=720 -WinX=20 -WinY=40"
+		Start-Process -FilePath $EditorExe -ArgumentList "`"$Uproject`" -game -SUHost -nosteam -windowed -ResX=1280 -ResY=720 -WinX=20 -WinY=40"
 		Say 'Warte 40 Sekunden, bis der Host bereit ist ...'
 		Start-Sleep -Seconds 40
 		Say 'Starte Fenster 2 (Client, verbindet zu 127.0.0.1) ...' 'Green'
-		Start-Process -FilePath $EditorExe -ArgumentList "`"$Uproject`" 127.0.0.1 -game -windowed -ResX=1280 -ResY=720 -WinX=660 -WinY=80"
+		Start-Process -FilePath $EditorExe -ArgumentList "`"$Uproject`" 127.0.0.1 -game -nosteam -windowed -ResX=1280 -ResY=720 -WinX=660 -WinY=80"
 		Say 'Verbindet Fenster 2 nicht: dort im Hauptmenü "Koop beitreten" -> "localhost" -> "Verbinden".'
 	}
 }

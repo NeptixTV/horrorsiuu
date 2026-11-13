@@ -29,7 +29,12 @@ public class SignalUnknown : ModuleRules
 			"RHI",
 			"Slate",
 			"SlateCore",
-			"NetCore"
+			"NetCore",
+			"OnlineSubsystem",
+			"OnlineSubsystemUtils"
 		});
+
+		// Steam is loaded at runtime when its client is running (see Config/DefaultEngine.ini)
+		DynamicallyLoadedModuleNames.Add("OnlineSubsystemSteam");
 	}
 }
