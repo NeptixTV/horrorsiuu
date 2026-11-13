@@ -413,12 +413,19 @@ void ASUWorldBuilder::BuildTerrainChunk(int32 ChunkX, int32 ChunkY, float Origin
 	{
 		auto AddSkirt = [&](int32 A, int32 B)
 		{
-			const int32 SA = Vertices.Add(Vertices[A] - FVector(0.f, 0.f, 800.f));
-			Normals.Add(Normals[A]);
-			UVs.Add(UVs[A]);
-			const int32 SB = Vertices.Add(Vertices[B] - FVector(0.f, 0.f, 800.f));
-			Normals.Add(Normals[B]);
-			UVs.Add(UVs[B]);
+			// copies first: TArray::Add must not be given a reference to one of its own elements
+			const FVector PosA = Vertices[A];
+			const FVector PosB = Vertices[B];
+			const FVector NormalA = Normals[A];
+			const FVector NormalB = Normals[B];
+			const FVector2D UVA = UVs[A];
+			const FVector2D UVB = UVs[B];
+			const int32 SA = Vertices.Add(PosA - FVector(0.f, 0.f, 800.f));
+			Normals.Add(NormalA);
+			UVs.Add(UVA);
+			const int32 SB = Vertices.Add(PosB - FVector(0.f, 0.f, 800.f));
+			Normals.Add(NormalB);
+			UVs.Add(UVB);
 			Tris[0].Append({A, SA, B});
 			Tris[0].Append({B, SA, SB});
 			Tris[0].Append({A, B, SA});

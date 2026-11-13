@@ -207,6 +207,18 @@ for p, text in contents.items():
         if re.search(pattern, code) and header not in engine:
             errors.append('%s: uses an API from <%s> but the header is not included (directly or through project headers)' % (os.path.relpath(p, SRC), header))
 
+# ---- TArray::Add(Array[i]): Unreal asserts at runtime ("container element which already comes from the container being
+# modified") because growing the array would invalidate the reference. First seen in the terrain skirts.
+SELF_ADD = re.compile(r'([A-Za-z_][A-Za-z0-9_]*(?:(?:\.|->)[A-Za-z_][A-Za-z0-9_]*)*)\s*(?:\.|->)\s*'
+                      r'(Add|Emplace|Push|AddUnique|Insert|Add_GetRef|Emplace_GetRef|Append)\s*\(([^;]*)\)\s*;')
+for p, text in contents.items():
+    for lineno, line in enumerate(strip_comments(text).splitlines(), 1):
+        for m in SELF_ADD.finditer(line):
+            arr, arg = m.group(1), m.group(3).strip()
+            if re.match(re.escape(arr) + r'\s*(\[[^\]]*\]|\.Last\(\s*\)|\.Top\(\s*\)|\[[^\]]*\]\.[A-Za-z_]\w*)\s*(,.*)?$', arg):
+                errors.append('%s:%d: %s.%s() is given an element of the same array (runtime assertion in Unreal: copy it to a local first)'
+                              % (os.path.relpath(p, SRC), lineno, arr, m.group(2)))
+
 for w in warnings:
     print('LINT WARNING: ' + w)
 for e in errors:
