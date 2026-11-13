@@ -161,15 +161,15 @@ def build_ground_floor(pts):
     a.doorway('x', 5.85, 6.05, -9.6, -8.6, y0, dh, 'wood', 'floor')
     # C1 study, C2 stair hall (floor opening for the cellar stairs)
     room((-5.85, -17.85), (-1.2, -10.3), openings={'z+': [(-4.0, -3.0, y0, dh)]})
-    room((-1.0, -17.85), (5.85, -10.3), 'plaster', openings={'z+': [(1.5, 2.7, y0, dh)], 'y-': [(1.8, 4.8, -17.85, -16.75)]})
+    room((-1.0, -17.85), (5.85, -10.3), 'plaster', openings={'z+': [(1.5, 2.7, y0, dh)], 'y-': [(1.2, 4.8, -17.85, -16.75)]})
     a.doorway('z', -10.3, -10.1, -4.0, -3.0, y0, dh, 'wood', 'floor')
     a.doorway('z', -10.3, -10.1, 1.5, 2.7, y0, dh, 'wood', 'floor')
 
     # ---- railing around the stair opening, collapsed upper stairs
-    for x in np.arange(1.8, 4.21, 0.6):
+    for x in np.arange(1.2, 4.21, 0.6):
         a.box('wood', (x - 0.03, y0, -16.75), (x + 0.03, y0 + 0.95, -16.69))
-    a.box('wood', (1.77, y0 + 0.9, -16.76), (4.25, y0 + 0.98, -16.68))
-    a.box('wood', (1.74, y0, -17.85), (1.8, y0 + 0.95, -16.69))
+    a.box('wood', (1.17, y0 + 0.9, -16.76), (4.25, y0 + 0.98, -16.68))
+    a.box('wood', (1.14, y0, -17.85), (1.2, y0 + 0.95, -16.69))
     for k in range(7):                                # broken staircase to the upper floor: debris pile
         a.obox('wood', (-0.2 + 0.25 * k, y0 + 0.12 + 0.19 * k, -11.2), (0.14, 0.02, 0.55), 0, 0)
     a.beam('timber', (-0.6, y0, -12.4), (2.2, y1 - 0.05, -10.9), 0.22)
@@ -236,7 +236,7 @@ def build_cellar(pts):
     a.wall('brick', 'z', -1, z1, land0, 4.8, y0, F0, [(land0 + 0.2, land0 + 1.2, y0, dh)])
     a.wall('brick', 'x', 1, land0, z0, z1, y0, F0)
     a.wall('brick', 'x', -1, 4.8, z0, z1, y0, F0)
-    a.wall('plaster', 'y', -1, F0 - 0.2, land0, 1.8, z0, z1)   # underside of the ground floor
+    a.wall('plaster', 'y', -1, F0 - 0.2, land0, 1.2, z0, z1)   # underside of the ground floor
     a.wall('flag', 'y', 1, y0, land0, sx1, z0, z1)
     a.stairs('flag', (sx0, F0 + 0.012, (z0 + z1) / 2), 'x-', steps, rise, run, z1 - z0, solid_to=y0, tread='wood')
     # ---- rooms
@@ -330,8 +330,8 @@ def build_underground(pts, with_tomb_chamber=True):
         f.tunnel(p, q, 2.2, height=3.6)
     f.tunnel((24.0, CAVERN_FLOOR, -24.0), EXIT[0], 2.6, height=3.8)
     for p, q in HIDES:                                          # crawl spaces: too small for the big creature
-        f.tunnel(p, q, 0.62, height=1.05)
-        f.cavern((q[0], q[1] + 0.6, q[2]), (1.3, 0.8, 1.3), floor_y=q[1])
+        f.tunnel(p, q, 0.82, height=1.4)
+        f.cavern((q[0], q[1] + 0.7, q[2]), (1.5, 0.95, 1.5), floor_y=q[1])
     if with_tomb_chamber:
         f.box(DIG_LO, DIG_HI)
         f.tunnel(EXIT[-1], (20.0, -25.6, -50.0), 2.2, height=3.4)

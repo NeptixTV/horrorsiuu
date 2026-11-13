@@ -147,8 +147,64 @@ namespace
 		};
 		M.BasePayCents = 26000;
 		M.CompletionBonusCents = 7000;
+		M.NextMissionId = TEXT("M03_BelowTheHouse");
 		M.StoryStageOnAccept = 3;
 		M.StoryStageOnComplete = 4;
+		return M;
+	}
+
+	FSUMissionDef BuildM03()
+	{
+		FSUMissionDef M;
+		M.Id = TEXT("M03_BelowTheHouse");
+		M.Title = SUText(TEXT("Was unter dem Haus liegt"));
+		M.Summary = SUText(TEXT("Aus dem verlassenen Gutshaus Brandt kommt ein Funksignal, das es nicht geben dürfte. Das Haus selbst ist leer. Was sendet, liegt tiefer."));
+		M.TargetSite = TEXT("Manor");
+		M.Briefing = {
+			Line(TEXT("Zentrale"), TEXT("Zentrale an Beobachtungsposten 07.")),
+			Line(TEXT("Zentrale"), TEXT("Wir empfangen seit gestern Nacht ein Signal auf einer stillgelegten Frequenz. Die Peilung zeigt auf das alte Gutshaus Brandt.")),
+			Line(TEXT("Zentrale"), TEXT("Das Haus steht seit über dreißig Jahren leer. Dort gibt es keinen Strom und keinen Sender.")),
+			Line(TEXT("Zentrale"), TEXT("Fahren Sie hin, finden Sie die Quelle und fotografieren Sie alles. Bestätigen Sie, 07.")),
+		};
+		M.AcceptLines = {
+			Line(TEXT("Zentrale"), TEXT("Verstanden. Die Zufahrt zweigt von der Nordstraße nach Süden ab.")),
+			Line(TEXT("Zentrale"), TEXT("Nehmen Sie Ersatzbatterien mit, 07. Unter dem Haus soll es alte Stollen geben. Ende.")),
+		};
+		M.CompletionLines = {
+			Line(TEXT("Zentrale"), TEXT("Zentrale an 07. Wir haben Ihre Bilder gesehen.")),
+			Line(TEXT("Zentrale"), TEXT("Das Signal ist verstummt, seit Sie wieder oben sind. Wir sperren die Zufahrt.")),
+			Line(TEXT("Zentrale"), TEXT("Sprechen Sie mit niemandem darüber. Zentrale Ende.")),
+		};
+		M.Objectives = {
+			Obj(TEXT("Map"), 0, TEXT("Einsatzort auf der Karte ansehen"), SUEvent::MapViewed, NAME_None, 1, false, TEXT("Manor")),
+			Obj(TEXT("Drive"), 1, TEXT("Zum Gutshaus Brandt fahren (Abzweig von der Nordstraße)"), SUEvent::AreaEntered, SUArea::ManorGrounds, 1, false, TEXT("Manor")),
+			Obj(TEXT("Enter"), 2, TEXT("Das Gutshaus betreten"), SUEvent::AreaEntered, SUArea::ManorInterior, 1, false, TEXT("Manor")),
+			Obj(TEXT("Diary"), 3, TEXT("Im Arbeitszimmer nach Hinweisen suchen"), SUEvent::ItemInspected, TEXT("Doc_ManorDiary")),
+			Obj(TEXT("PhotoHouse"), 3, TEXT("Spuren im Haus fotografieren"), SUEvent::PhotoCategory, TEXT("Traces"), 1),
+			Obj(TEXT("Cellar"), 4, TEXT("Den Keller finden (Treppe im hinteren Flur)"), SUEvent::AreaEntered, SUArea::ManorCellar),
+			Obj(TEXT("Breach"), 5, TEXT("Den Durchbruch in der Kellerwand fotografieren"), SUEvent::PhotoEvidence, TEXT("EV_M03_Breach")),
+			Obj(TEXT("Mine"), 6, TEXT("Dem Stollen folgen"), SUEvent::AreaEntered, SUArea::ManorMine),
+			Obj(TEXT("Note"), 6, TEXT("Optional: die Lagerkammer untersuchen"), SUEvent::ItemInspected, TEXT("Doc_MinerNote"), 1, true),
+			Obj(TEXT("Cavern"), 7, TEXT("Tiefer hinabsteigen. Leise. [Strg] schleichen"), SUEvent::AreaEntered, SUArea::ManorCavern),
+			Obj(TEXT("Deep"), 8, TEXT("Die Quelle des Signals finden"), SUEvent::AreaEntered, SUArea::ManorDeep),
+			Obj(TEXT("Source"), 9, TEXT("Die Quelle fotografieren"), SUEvent::PhotoEvidence, TEXT("EV_M03_Source")),
+			Obj(TEXT("Escape"), 10, TEXT("Zurück an die Oberfläche!"), SUEvent::AreaExited, SUArea::ManorInterior),
+			Obj(TEXT("Return"), 11, TEXT("Zurück zum Aussichtsturm fahren"), SUEvent::AreaEntered, SUArea::TowerParking, 1, false, SUArea::TowerParking),
+			Obj(TEXT("Review"), 12, TEXT("Fotos am Einsatzcomputer auswerten"), SUEvent::TerminalOpened, NAME_None, 1, false, TEXT("Tower")),
+			Obj(TEXT("Report"), 13, TEXT("Einsatzbericht abschicken"), SUEvent::ReportSubmitted, TEXT("M03_BelowTheHouse")),
+		};
+		M.Evidence = {
+			Ev(TEXT("EV_M03_Source"), TEXT("Quelle des Signals"), TEXT("Clue"), 9000, true),
+			Ev(TEXT("EV_M03_Breach"), TEXT("Durchbruch in der Kellerwand"), TEXT("Traces"), 5000, true),
+			Ev(TEXT("EV_M03_Scratches"), TEXT("Kratzspuren an der Kellertreppe"), TEXT("Traces"), 4000, false),
+			Ev(TEXT("EV_M03_Nest"), TEXT("Knochennest in der Höhle"), TEXT("Traces"), 6000, false),
+			Ev(TEXT("EV_M03_Diary"), TEXT("Tagebuch von E. Brandt"), TEXT("Clue"), 2500, false),
+			Ev(TEXT("EV_Dweller"), TEXT("Wesen aus der Tiefe"), TEXT("Creature"), 0, false, true, 25000),
+		};
+		M.BasePayCents = 42000;
+		M.CompletionBonusCents = 12000;
+		M.StoryStageOnAccept = 5;
+		M.StoryStageOnComplete = 6;
 		return M;
 	}
 
@@ -176,6 +232,7 @@ namespace
 		{
 			Missions.Add(BuildM01());
 			Missions.Add(BuildM02());
+			Missions.Add(BuildM03());
 		}
 		return Missions;
 	}

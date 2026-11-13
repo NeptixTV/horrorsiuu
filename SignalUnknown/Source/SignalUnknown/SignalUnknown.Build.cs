@@ -23,6 +23,8 @@ public class SignalUnknown : ModuleRules
 			"NavigationSystem",
 			"AudioMixer",
 			"ImageWrapper",
+			"MeshDescription",
+			"StaticMeshDescription",
 			"RenderCore",
 			"RHI",
 			"Slate",

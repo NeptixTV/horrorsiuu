@@ -1,4 +1,4 @@
-// SIGNAL UNKNOWN – model files (.sumodel), skeleton animation and CPU skinning.
+﻿// SIGNAL UNKNOWN – model files (.sumodel), skeleton animation and CPU skinning.
 //
 // Engine independent (std only) so it is covered by the native tests, which load the real model
 // files of the project. The files are written by Tools/AssetPipeline/pack.py; all data is already

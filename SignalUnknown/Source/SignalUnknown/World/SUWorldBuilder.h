@@ -90,6 +90,11 @@ private:
 	UPROPERTY(Transient)
 	TArray<TObjectPtr<UProceduralMeshComponent>> TerrainChunks;
 
+	/** Hole in the terrain (world space, cm) for the cellar stairs of the manor. */
+	FBox2D TerrainHole = FBox2D(FVector2D::ZeroVector, FVector2D::ZeroVector);
+	float TerrainHoleZ = 0.f;
+	bool bHasTerrainHole = false;
+
 	UPROPERTY(Transient)
 	TArray<TObjectPtr<UProceduralMeshComponent>> RoadMeshes;
 

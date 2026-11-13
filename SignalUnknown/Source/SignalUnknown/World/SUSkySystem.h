@@ -32,6 +32,11 @@ public:
 	/** Briefly dims all daylight (horror "something passed the sun"). Not used yet by events. */
 	float GetCurrentDarkness() const { return CurrentDarkness; }
 
+	/** World space box in which no daylight arrives (cellars, tunnels). Evaluated for the local view. */
+	void AddDarkZone(const FBox& Zone) { DarkZones.Add(Zone); }
+	/** 0 = outside, 1 = the local player is deep inside a dark zone. */
+	float GetUndergroundAmount() const { return Underground; }
+
 private:
 	UPROPERTY(VisibleAnywhere, Category = "Sky") TObjectPtr<USceneComponent> SceneRoot;
 	UPROPERTY(VisibleAnywhere, Category = "Sky") TObjectPtr<UDirectionalLightComponent> Sun;
@@ -52,6 +57,9 @@ private:
 	float RainScroll = 0.f;
 	float CurrentDarkness = 0.f;
 	bool bLocalIndoors = false;
+	TArray<FBox> DarkZones;
+	float Underground = 0.f;
+	float BaseSkyIntensity = 1.f;
 	float IndoorCheckTimer = 0.f;
 
 	void BuildRain();

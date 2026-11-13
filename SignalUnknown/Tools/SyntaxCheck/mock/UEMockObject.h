@@ -74,6 +74,7 @@ public:
 	virtual void FinishDestroy();
 	virtual void Serialize(FArchive& Ar);
 	virtual void PostEditChangeProperty(FPropertyChangedEvent& E);
+	virtual void PostEditChange();
 	virtual bool IsSupportedForNetworking() const;
 	void SaveConfig(uint64 Flags = 0, const TCHAR* Filename = nullptr);
 	void LoadConfig(UClass* ConfigClass = nullptr, const TCHAR* Filename = nullptr);

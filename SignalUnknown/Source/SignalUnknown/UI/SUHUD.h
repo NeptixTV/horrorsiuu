@@ -134,6 +134,9 @@ private:
 	void DrawSubtitles(const ASUCharacter* Char, const ASUMissionManager* MM, float DeltaSeconds);
 	void DrawNotifications(float DeltaSeconds);
 	void DrawVitals(const ASUCharacter* Char, const ASUGameState* GS);
+	/** Noise meter and depth read-out: shown below ground, where something listens. */
+	void DrawStealth(const ASUCharacter* Char);
+	float ShownNoise = 0.f;
 	void DrawVehicleHUD(const ASUCharacter* Char);
 	void DrawViewfinder(const ASUCharacter* Char);
 	void DrawEffects(const ASUCharacter* Char, float DeltaSeconds);

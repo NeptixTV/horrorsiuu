@@ -429,6 +429,11 @@ public:
 };
 uint32 GetTypeHash(const FString& S);
 
+struct FCStringAnsi
+{
+	static int32 Strcmp(const char* A, const char* B);
+	static int32 Strlen(const char* S);
+};
 struct FCString
 {
 	static int32 Atoi(const TCHAR* S);
@@ -1146,6 +1151,7 @@ public:
 	int64 FileSize(const TCHAR* Filename);
 	void FindFiles(TArray<FString>& FileNames, const TCHAR* Filename, bool Files, bool Directories);
 	void FindFiles(TArray<FString>& FoundFiles, const TCHAR* Directory, const TCHAR* FileExtension = nullptr);
+	void FindFilesRecursive(TArray<FString>& FileNames, const TCHAR* StartDirectory, const TCHAR* Filename, bool Files, bool Directories, bool bClearFileNames = true);
 	bool Move(const TCHAR* Dest, const TCHAR* Src, bool Replace = true, bool EvenIfReadOnly = false, bool Attributes = false, bool bDoNotRetryOrError = false);
 	uint32 Copy(const TCHAR* Dest, const TCHAR* Src, bool Replace = true, bool EvenIfReadOnly = false, bool Attributes = false);
 };

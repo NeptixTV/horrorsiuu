@@ -183,6 +183,12 @@ namespace SUArea
 	inline const FName M02Site = TEXT("M02Site");
 	inline const FName Settlement = TEXT("Settlement");
 	inline const FName Shed = TEXT("Shed");
+	inline const FName ManorGrounds = TEXT("ManorGrounds");
+	inline const FName ManorInterior = TEXT("ManorInterior");
+	inline const FName ManorCellar = TEXT("ManorCellar");
+	inline const FName ManorMine = TEXT("ManorMine");
+	inline const FName ManorCavern = TEXT("ManorCavern");
+	inline const FName ManorDeep = TEXT("ManorDeep");
 }
 
 /** Component tags that mark the surface type of a collision mesh. */

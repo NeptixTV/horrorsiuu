@@ -76,7 +76,17 @@ enum ELifetimeCondition { COND_None, COND_InitialOnly, COND_OwnerOnly, COND_Skip
 enum EPixelFormat { PF_Unknown, PF_B8G8R8A8, PF_R8G8B8A8, PF_FloatRGBA, PF_G8 };
 enum ETextureRenderTargetFormat { RTF_R8, RTF_RG8, RTF_RGBA8, RTF_RGBA8_SRGB, RTF_R16f, RTF_RG16f, RTF_RGBA16f, RTF_R32f, RTF_RG32f, RTF_RGBA32f, RTF_RGB10A2 };
 enum TextureFilter { TF_Nearest, TF_Bilinear, TF_Trilinear, TF_Default };
-enum TextureCompressionSettings { TC_Default, TC_VectorDisplacementmap, TC_HDR, TC_EditorIcon };
+enum TextureCompressionSettings { TC_Default, TC_Normalmap, TC_Masks, TC_VectorDisplacementmap, TC_HDR, TC_EditorIcon };
+enum TextureMipGenSettings { TMGS_FromTextureGroup, TMGS_SimpleAverage, TMGS_NoMipmaps };
+enum TextureGroup { TEXTUREGROUP_World, TEXTUREGROUP_WorldNormalMap, TEXTUREGROUP_UI };
+enum ETextureSourceFormat { TSF_Invalid, TSF_G8, TSF_BGRA8, TSF_RGBA16 };
+enum EMaterialSamplerType { SAMPLERTYPE_Color, SAMPLERTYPE_Grayscale, SAMPLERTYPE_Alpha, SAMPLERTYPE_Normal, SAMPLERTYPE_Masks, SAMPLERTYPE_LinearColor };
+#define WITH_EDITOR 1
+#define WITH_EDITORONLY_DATA 1
+struct FTextureSource
+{
+	void Init(int32 NewSizeX, int32 NewSizeY, int32 NewNumSlices, int32 NewNumMips, ETextureSourceFormat NewFormat, const uint8* NewData = nullptr);
+};
 enum TextureAddress { TA_Wrap, TA_Clamp, TA_Mirror };
 enum EHorizTextAligment { EHTA_Left, EHTA_Center, EHTA_Right };
 enum EVerticalTextAligment { EVRTA_TextTop, EVRTA_TextCenter, EVRTA_TextBottom, EVRTA_QuadTop };
@@ -548,6 +558,7 @@ public:
 	typedef USceneComponent Super;
 	UPrimitiveComponent();
 	UPrimitiveComponent(const FObjectInitializer& ObjectInitializer);
+	float GetLastRenderTime() const;
 	static UClass* StaticClass();
 	FBodyInstance BodyInstance;
 	FComponentHitSignature OnComponentHit;
@@ -751,6 +762,10 @@ class UProceduralMeshComponent : public UMeshComponent
 public:
 	typedef UMeshComponent Super;
 	static UClass* StaticClass();
+	UProceduralMeshComponent();
+	UProceduralMeshComponent(const FObjectInitializer& ObjectInitializer);
+	void UpdateMeshSection_LinearColor(int32 SectionIndex, const TArray<FVector>& Vertices, const TArray<FVector>& Normals, const TArray<FVector2D>& UV0, const TArray<FLinearColor>& VertexColors, const TArray<FProcMeshTangent>& Tangents, bool bSRGBConversion = true);
+	void UpdateMeshSection_LinearColor(int32 SectionIndex, const TArray<FVector>& Vertices, const TArray<FVector>& Normals, const TArray<FVector2D>& UV0, const TArray<FVector2D>& UV1, const TArray<FVector2D>& UV2, const TArray<FVector2D>& UV3, const TArray<FLinearColor>& VertexColors, const TArray<FProcMeshTangent>& Tangents, bool bSRGBConversion = true);
 	uint8 bUseComplexAsSimpleCollision : 1;
 	uint8 bUseAsyncCooking : 1;
 	void CreateMeshSection_LinearColor(int32 SectionIndex, const TArray<FVector>& Vertices, const TArray<int32>& Triangles, const TArray<FVector>& Normals, const TArray<FVector2D>& UV0, const TArray<FLinearColor>& VertexColors, const TArray<FProcMeshTangent>& Tangents, bool bCreateCollision, bool bSRGBConversion = false);
@@ -1387,22 +1402,115 @@ public:
 };
 
 // ================================================================== assets
+struct FStaticMaterial
+{
+	FStaticMaterial();
+	FStaticMaterial(UMaterialInterface* InMaterialInterface, FName InMaterialSlotName = NAME_None);
+};
+// ---- mesh description (modules MeshDescription / StaticMeshDescription)
+struct FVertexID { int32 Value = 0; };
+struct FVertexInstanceID { int32 Value = 0; };
+struct FPolygonGroupID { int32 Value = 0; };
+struct FTriangleID { int32 Value = 0; };
+template <typename T> struct TVertexAttributesRef { T& operator[](FVertexID Id); };
+template <typename T> struct TVertexInstanceAttributesRef { T& operator[](FVertexInstanceID Id); void Set(FVertexInstanceID Id, int32 Channel, const T& Value); };
+template <typename T> struct TPolygonGroupAttributesRef { T& operator[](FPolygonGroupID Id); };
+struct FMeshDescription
+{
+	FVertexID CreateVertex();
+	FVertexInstanceID CreateVertexInstance(FVertexID Vertex);
+	FPolygonGroupID CreatePolygonGroup();
+	FTriangleID CreateTriangle(FPolygonGroupID Group, const TArray<FVertexInstanceID>& VertexInstances);  // real: TArrayView<const FVertexInstanceID>
+};
+class FStaticMeshAttributes
+{
+public:
+	explicit FStaticMeshAttributes(FMeshDescription& InMeshDescription);
+	void Register(bool bKeepExistingAttribute = false);
+	TVertexAttributesRef<FVector3f> GetVertexPositions();
+	TVertexInstanceAttributesRef<FVector3f> GetVertexInstanceNormals();
+	TVertexInstanceAttributesRef<FVector3f> GetVertexInstanceTangents();
+	TVertexInstanceAttributesRef<float> GetVertexInstanceBinormalSigns();
+	TVertexInstanceAttributesRef<FVector2f> GetVertexInstanceUVs();
+	TPolygonGroupAttributesRef<FName> GetPolygonGroupMaterialSlotNames();
+};
 class UStaticMesh : public UObject
 {
 public:
 	static UClass* StaticClass();
 	FBox GetBoundingBox() const;
+	TArray<FStaticMaterial>& GetStaticMaterials();
+	struct FBuildMeshDescriptionsParams
+	{
+		bool bMarkPackageDirty = true;
+		bool bUseHashAsGuid = false;
+		bool bBuildSimpleCollision = false;
+		bool bCommitMeshDescription = true;
+		bool bFastBuild = false;
+		bool bAllowCpuAccess = false;
+	};
+	bool BuildFromMeshDescriptions(const TArray<const FMeshDescription*>& MeshDescriptions, const FBuildMeshDescriptionsParams& Params);
 };
 class UMaterialInterface : public UObject
 {
 public:
 	static UClass* StaticClass();
 };
+class UMaterialExpression : public UObject
+{
+public:
+	static UClass* StaticClass();
+};
+struct FExpressionInput
+{
+	UMaterialExpression* Expression = nullptr;
+	int32 OutputIndex = 0;
+	void Connect(int32 InOutputIndex, UMaterialExpression* InExpression);
+};
+struct FColorMaterialInput : FExpressionInput {};
+struct FScalarMaterialInput : FExpressionInput {};
+struct FVectorMaterialInput : FExpressionInput {};
+class UMaterialExpressionTextureSampleParameter2D : public UMaterialExpression
+{
+public:
+	static UClass* StaticClass();
+	FName ParameterName;
+	TObjectPtr<UTexture> Texture;
+	TEnumAsByte<EMaterialSamplerType> SamplerType;
+};
+class UMaterialExpressionScalarParameter : public UMaterialExpression
+{
+public:
+	static UClass* StaticClass();
+	FName ParameterName;
+	float DefaultValue = 0.f;
+};
+class UMaterialEditorOnlyData : public UObject
+{
+public:
+	FColorMaterialInput BaseColor;
+	FScalarMaterialInput Metallic;
+	FScalarMaterialInput Specular;
+	FScalarMaterialInput Roughness;
+	FVectorMaterialInput Normal;
+	FColorMaterialInput EmissiveColor;
+	FScalarMaterialInput Opacity;
+	FScalarMaterialInput OpacityMask;
+};
+struct FMaterialExpressionCollection
+{
+	void AddExpression(UMaterialExpression* Expression);
+};
 class UMaterial : public UMaterialInterface
 {
 public:
 	static UClass* StaticClass();
 	static UMaterial* GetDefaultMaterial(int32 Domain);
+	TEnumAsByte<EBlendMode> BlendMode;
+	float OpacityMaskClipValue = 0.3333f;
+	uint8 TwoSided : 1;
+	UMaterialEditorOnlyData* GetEditorOnlyData();
+	FMaterialExpressionCollection& GetExpressionCollection();
 };
 class UMaterialInstance : public UMaterialInterface {};
 class UMaterialInstanceDynamic : public UMaterialInstance
@@ -1447,7 +1555,9 @@ public:
 	TEnumAsByte<TextureCompressionSettings> CompressionSettings;
 	uint8 SRGB : 1;
 	uint8 NeverStream : 1;
-	int32 LODGroup = 0;
+	TEnumAsByte<TextureGroup> LODGroup;
+	TEnumAsByte<TextureMipGenSettings> MipGenSettings;
+	FTextureSource Source;
 	FTextureResource* GetResource();
 	const FTextureResource* GetResource() const;
 	virtual void UpdateResource();

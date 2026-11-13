@@ -9,11 +9,19 @@
 // Server-side state machine. Movement is direct steering with sweep-based obstacle avoidance
 // (the procedural map has no navmesh bounds). Creatures only despawn while no player sees them.
 //
+//   Dweller   the giant below the manor. Lurks in its cavern until it hears or sees a player, then
+//             hunts along the tunnels (waypoint graph). Cannot reach into crawl spaces and returns
+//             to its lair when it loses its prey. Never despawns.
+//
+// The bodies are animated models (see USUSkinnedModelComponent); if the model files are missing
+// the old placeholder shapes are used.
+//
 // NOT IMPLEMENTED (yet): Mimic (voice imitation) and infected humans – see README.
 #pragma once
 
 #include "CoreMinimal.h"
 #include "GameFramework/Character.h"
+#include "Logic/SUModelData.h"
 #include "SUCreature.generated.h"
 
 class UStaticMeshComponent;
@@ -21,12 +29,14 @@ class USUEvidenceComponent;
 class USUProceduralAudioComponent;
 class ASUCharacter;
 class ASUVehicle;
+class USUSkinnedModelComponent;
 
 UENUM()
 enum class ESUCreatureType : uint8
 {
 	Observer,
-	Hunter
+	Hunter,
+	Dweller
 };
 
 UENUM()
@@ -79,6 +89,9 @@ public:
 
 	static int32 CountActive(const UWorld* World);
 
+	/** Dweller: waypoint graph (world space), the node it lives at and the crawl spaces it cannot enter. */
+	void SetNavGraph(TSharedPtr<const SUModel::NavGraph> InGraph, int32 InHomeNode, const TArray<FVector>& InHideEntries, const TArray<FVector>& InHideInsides);
+
 	UFUNCTION(NetMulticast, Unreliable)
 	void MulticastVoice(int32 TriggerKind, float Strength);
 
@@ -90,6 +103,7 @@ private:
 
 	UPROPERTY(Transient) TArray<TObjectPtr<UStaticMeshComponent>> Limbs;
 	UPROPERTY(Transient) TObjectPtr<UStaticMeshComponent> Head;
+	UPROPERTY(Transient) TObjectPtr<USUSkinnedModelComponent> Model;
 	UPROPERTY(Transient) TObjectPtr<USUProceduralAudioComponent> VoiceAudio;
 	UPROPERTY(Transient) TObjectPtr<USUProceduralAudioComponent> StepAudio;
 	UPROPERTY(VisibleAnywhere, Category = "Creature") TObjectPtr<USUEvidenceComponent> Evidence;
@@ -116,7 +130,23 @@ private:
 	bool bAttackHit = false;
 	FVector RetreatGoal = FVector::ZeroVector;
 
+	TSharedPtr<const SUModel::NavGraph> NavGraph;
+	int32 HomeNode = -1;
+	TArray<FVector> HideEntries;
+	TArray<FVector> HideInsides;
+	std::vector<int> NavPath;
+	float RepathTimer = 0.f;
+	float LostTimer = 0.f;
+	float ModelWalkSpeed = 125.f;
+	float ModelRunSpeed = 560.f;
+	float ModelScale = 1.f;
+
 	void BuildBody();
+	void UpdateDweller(float DeltaSeconds);
+	void AnimateModel(float DeltaSeconds);
+	/** Next point to walk to on the way to Goal (follows the waypoint graph if there is one). */
+	FVector NextPathPoint(const FVector& Goal);
+	int32 FindHideSpot(const FVector& Location) const;
 	void UpdateObserver(float DeltaSeconds);
 	void UpdateHunter(float DeltaSeconds);
 	void UpdateRetreat(float DeltaSeconds);

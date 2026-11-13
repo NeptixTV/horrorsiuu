@@ -75,7 +75,9 @@ beim Host **UDP-Port 7777** erreichbar sein. Weitere Startoptionen: `-SUSolo` (d
 
 | Prüfen | Erwartung |
 |---|---|
-| Welt | Turm mit Treppen, Kabine, Parkplatz, Wald, Straßen, See, Tankstelle, Forsthaus, Siedlung |
+| Welt | Turm mit Treppen, Kabine, Parkplatz, Wald aus echten Bäumen, Straßen, See, Tankstelle, Forsthaus, Siedlung, Gutshaus Brandt (Abzweig von der Nordstraße nach Süden) |
+| Modelle | Log-Zeile `Model library: 4 files …` (5 mit Grabkammer); Bäume und Haus sind texturiert |
+| Untergrund | Gutshaus → hinterer Flur → Kellertreppe → Durchbruch im Gewölbe → Stollen → Halle; dort lauert das Wesen (Konsole `su.HorrorDebug 1` hilft nicht – es gehört zum Ort) |
 | Funkgerät | Rauschen, Piepen, [E] annehmen, Untertitel nur in Hörweite des Funkgeräts oder im Auto |
 | Kamera | [C], [RMT], [LMT]: Foto erscheint in der Galerie [P], Beweise mit Qualität |
 | Auto | Einsteigen [E] an einer Tür, [F] Motor, fahren, Licht [L], Radio [N], Tank sinkt |
@@ -126,7 +128,11 @@ nativen Tests abgedeckt. **Teilweise** = funktioniert mit Platzhaltern oder Vere
 | Funkgeräte (Walkie-Talkies) | Nicht umgesetzt | bewusst weggelassen statt ohne Funktion |
 | Spieler-Entführung (Phase 9) | Nicht umgesetzt | |
 | Mimic (Stimmen-Imitator), Infizierte | Nicht umgesetzt | |
-| Echte 3D-Modelle, Animationen, Sprachaufnahmen | Nicht umgesetzt | alle Inhalte sind Platzhalter |
+| Echte 3D-Modelle (Bäume, Gutshaus, Kreaturen) | Code fertig, Lader getestet | Modelle werden beim Start aus `Content/SUModels/*.sumodel` geladen (siehe „Modelle“); texturierte Materialien nur im Editor-Build |
+| Animierte Kreaturen (Wendigo, Zyklop) | Code fertig, Logik getestet | je 5 Animationen (Ruhe, Gehen, Rennen, Angriff, Schrei) mit Überblendung; Verformung auf der CPU |
+| Einsatz 3 „Was unter dem Haus liegt“ | Code fertig | Gutshaus Brandt mit Keller, Stollen, Höhlen, großer Halle, optional Grabkammer; Wesen aus der Tiefe mit Wegenetz und Verstecken |
+| Lärm-Anzeige und Tiefe (HUD) | Code fertig | erscheint unter der Erde: geduckt = leise, rennen und Lampe = laut |
+| Sprachaufnahmen, Musik | Nicht umgesetzt | Stimmen sind synthetisches Gebrabbel + Untertitel |
 | Online-Dienste (Steam/EOS, Lobby-Suche) | Nicht umgesetzt | nur direkte IP-Verbindung |
 
 ---
@@ -182,7 +188,8 @@ Beide Prüfungen laufen ohne Unreal Engine (Linux/macOS/WSL, `clang++` bzw. `g++
 
 ```bash
 # engine-unabhängige Logik: Welt-Layout, Beweisbewertung, Wirtschaft, Fahrzeugmodell,
-# Horror-Director, Aufgaben, Audio-DSP  (aktuell 8861 Prüfungen, 0 Fehler)
+# Horror-Director, Aufgaben, Audio-DSP  (aktuell über 400 000 Prüfungen, 0 Fehler; lädt auch die echten
+# Modelldateien und rechnet die Animationen gegen Referenzwerte aus der Asset-Pipeline nach)
 bash SignalUnknown/Tests/Native/run_tests.sh
 bash SignalUnknown/Tests/Native/run_tests.sh --preview   # schreibt eine Kartenvorschau (PPM)
 
@@ -246,13 +253,46 @@ Grundprinzipien:
 
 ## Platzhalter, Assets und Lizenzen
 
-* Es werden **keine fremden Assets** verwendet. Geometrie besteht aus `/Engine/BasicShapes`
-  (Würfel, Kugel, Zylinder …) mit einfarbigen Materialien, Klänge werden zur Laufzeit synthetisiert.
+* **Modelle** (siehe `CREDITS.md`): Bäume, Gutshaus und die beiden Kreaturen stammen aus frei
+  lizenzierten Sketchfab-Modellen (CC-BY-4.0) und wurden mit `Tools/AssetPipeline` umgebaut
+  (Maßstab, eigene Skelette und Animationen, Innenräume, Keller, Stollen und Höhlen sind selbst erzeugt).
+* Die **Grabkammer** („Egypt chamber“ von arloopa) steht unter der *Sketchfab Standard License*: Sie darf
+  im Spiel benutzt, aber nicht weitergegeben werden. Sie liegt deshalb **nicht im Repository**, sondern nur
+  in der privat verschickten ZIP unter `Content/SUModels/Restricted/`. Fehlt sie, endet der Gang hinter der
+  Grabungskammer in einem Einsturz und die Signalquelle liegt im Knochennest – der Einsatz bleibt abschließbar.
+* Alles Übrige ist Platzhalter: Geometrie aus `/Engine/BasicShapes` (Würfel, Kugel, Zylinder …) mit
+  einfarbigen Materialien, Klänge werden zur Laufzeit synthetisiert.
 * Das mitgeschickte Adobe-Stock-Bild (Wasserzeichen) diente **nur als Stimmungsreferenz** und ist
   nicht im Repository.
 * Austausch gegen echte Inhalte: *Projekteinstellungen → Signal Unknown Art* (Baum-/Fels-/Busch-Meshes,
   Materialien). Häuser, Fahrzeug, Figuren und Kreaturen sind im Code markiert (`PLACEHOLDER`) und
   sollen später durch Static/Skeletal Meshes ersetzt werden.
+
+---
+
+## Modelle
+
+Das Projekt enthält weiterhin **keine binären Unreal-Assets**. Die Modelle liegen als `.sumodel`-Dateien in
+`Content/SUModels/` und werden beim Spielstart gelesen (`USUModelLibrary`):
+
+| Datei | Inhalt |
+|---|---|
+| `Vegetation.sumodel` | 9 Pflanzen in echten Größen (Gras 0,6 m bis Nadelbaum 26 m) |
+| `Wendigo.sumodel` | Beobachter: 2,55 m bis zur Schädeldecke, 24 Gelenke, 5 Animationen |
+| `Cyclops.sumodel` | Jäger (kleiner) und das Wesen aus der Tiefe: aufgerichtet 4 m, kriechend 1,9 m, 74 Gelenke, 5 Animationen |
+| `Manor.sumodel` | Gutshaus 24 × 30 m, Erdgeschoss mit 8 Räumen, Keller, 60 m Stollen, Höhlen, Halle 26 × 24 m |
+| `Restricted/Tomb.sumodel` | optionale Grabkammer (nicht im Repository) |
+
+* Levelgeometrie und Kreaturen werden als `ProceduralMeshComponent` gezeigt (Kollision = die sichtbaren
+  Dreiecke), Bäume als zur Laufzeit gebaute `UStaticMesh` in `HierarchicalInstancedStaticMesh`.
+* Texturen und Materialien entstehen beim Laden. Das benutzt Editor-Funktionen (`WITH_EDITOR`), läuft also
+  beim Start über `START.bat` bzw. aus dem Editor. In einem **gepackten Build** erscheinen die Modelle
+  einfarbig, bis echte Material-Assets angelegt werden.
+* Unter der Erde kommt kein Tageslicht an: Die prozeduralen Wände schatten das Himmelslicht nicht selbst ab,
+  deshalb blendet `ASUSkySystem` Himmel, Sonne und Mond für die lokale Ansicht aus.
+* Neu bauen (nur nötig, wenn die Quellmodelle geändert werden):
+  `python3 Tools/AssetPipeline/build_assets.py <Ordner mit den entpackten Downloads> <Arbeitsordner>`
+  (benötigt `numpy` und `Pillow`). Das Skript schreibt auch `Source/SignalUnknown/Logic/SUManorData.h`.
 
 ---
 

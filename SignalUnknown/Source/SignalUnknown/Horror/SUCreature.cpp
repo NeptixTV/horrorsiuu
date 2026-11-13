@@ -1,4 +1,5 @@
 ﻿#include "Horror/SUCreature.h"
+#include "World/SUSkinnedModelComponent.h"
 #include "SignalUnknown.h"
 #include "Player/SUCharacter.h"
 #include "Vehicle/SUVehicle.h"
@@ -104,12 +105,20 @@ void ASUCreature::BeginPlay()
 {
 	Super::BeginPlay();
 	const bool bObserver = Type == ESUCreatureType::Observer;
-	GetCapsuleComponent()->SetCapsuleSize(bObserver ? 30.f : 42.f, bObserver ? 130.f : 70.f);
-	Evidence->EvidenceId = bObserver ? FName(TEXT("EV_Observer")) : FName(TEXT("EV_Hunter"));
-	Evidence->DisplayName = bObserver ? SUText(TEXT("Unbekannte Gestalt")) : SUText(TEXT("Unbekanntes Raubtier"));
-	Evidence->BoxExtent = bObserver ? FVector(22.f, 30.f, 125.f) : FVector(80.f, 35.f, 55.f);
+	const bool bDweller = Type == ESUCreatureType::Dweller;
+	GetCapsuleComponent()->SetCapsuleSize(bObserver ? 30.f : (bDweller ? 60.f : 42.f), bObserver ? 130.f : (bDweller ? 95.f : 70.f));
+	Evidence->EvidenceId = bObserver ? FName(TEXT("EV_Observer")) : (bDweller ? FName(TEXT("EV_Dweller")) : FName(TEXT("EV_Hunter")));
+	Evidence->DisplayName = bObserver ? SUText(TEXT("Unbekannte Gestalt")) : (bDweller ? SUText(TEXT("Wesen aus der Tiefe")) : SUText(TEXT("Unbekanntes Raubtier")));
+	Evidence->BoxExtent = bObserver ? FVector(22.f, 30.f, 125.f) : (bDweller ? FVector(90.f, 70.f, 95.f) : FVector(80.f, 35.f, 55.f));
 	Evidence->SetRelativeLocation(FVector::ZeroVector);
-	if (!bObserver)
+	if (bDweller)
+	{
+		GetCharacterMovement()->MaxAcceleration = 2600.f;
+		GetCharacterMovement()->BrakingDecelerationWalking = 2400.f;
+		GetCharacterMovement()->MaxStepHeight = 70.f;
+		Lifetime = 1.0e9f;
+	}
+	else if (!bObserver)
 	{
 		GetCharacterMovement()->MaxAcceleration = 4200.f;
 		GetCharacterMovement()->BrakingDecelerationWalking = 2500.f;
@@ -140,6 +149,25 @@ void ASUCreature::BeginPlay()
 
 void ASUCreature::BuildBody()
 {
+	// animated model: Wendigo for the observer, the cyclops for the hunter (smaller) and the dweller
+	if (GetNetMode() != NM_DedicatedServer)
+	{
+		const bool bObserver = Type == ESUCreatureType::Observer;
+		ModelScale = Type == ESUCreatureType::Hunter ? 0.72f : 1.f;
+		USUSkinnedModelComponent* Skinned = NewObject<USUSkinnedModelComponent>(this);
+		Skinned->SetupAttachment(GetCapsuleComponent());
+		Skinned->SetRelativeLocation(FVector(0.f, 0.f, -GetCapsuleComponent()->GetUnscaledCapsuleHalfHeight()));
+		Skinned->SetRelativeScale3D(FVector(ModelScale));
+		Skinned->RegisterComponent();
+		if (Skinned->SetModel(bObserver ? FName(TEXT("SK_Wendigo")) : FName(TEXT("SK_Cyclops"))))
+		{
+			Model = Skinned;
+			ModelWalkSpeed = Skinned->GetModelValue("WalkSpeed", 125.f) * ModelScale;
+			ModelRunSpeed = Skinned->GetModelValue("RunSpeed", 560.f) * ModelScale;
+			return;
+		}
+		Skinned->DestroyComponent();
+	}
 	USUAssetLibrary* Lib = USUAssetLibrary::Get(this);
 	if (!Lib)
 	{
@@ -359,10 +387,21 @@ void ASUCreature::Tick(float DeltaSeconds)
 			UpdateScripted(DeltaSeconds);
 			break;
 		case ESUCreatureState::Retreat:
-			UpdateRetreat(DeltaSeconds);
+			if (Type == ESUCreatureType::Dweller)
+			{
+				UpdateDweller(DeltaSeconds);
+			}
+			else
+			{
+				UpdateRetreat(DeltaSeconds);
+			}
 			break;
 		default:
-			if (Type == ESUCreatureType::Observer)
+			if (Type == ESUCreatureType::Dweller)
+			{
+				UpdateDweller(DeltaSeconds);
+			}
+			else if (Type == ESUCreatureType::Observer)
 			{
 				UpdateObserver(DeltaSeconds);
 			}
@@ -374,8 +413,9 @@ void ASUCreature::Tick(float DeltaSeconds)
 		}
 
 		// despawn only while nobody is looking
-		const bool bOld = Age > Lifetime + 40.f;
-		const bool bRetreatDone = State == ESUCreatureState::Retreat && StateTime > 1.5f && UnseenTime > 0.8f;
+		const bool bPersistent = Type == ESUCreatureType::Dweller;
+		const bool bOld = !bPersistent && Age > Lifetime + 40.f;
+		const bool bRetreatDone = !bPersistent && State == ESUCreatureState::Retreat && StateTime > 1.5f && UnseenTime > 0.8f;
 		if ((bDespawnRequested && UnseenTime > 0.3f) || bRetreatDone || (bOld && UnseenTime > 0.5f) || GetActorLocation().Z < -50000.f)
 		{
 			Destroy();
@@ -643,10 +683,44 @@ float ASUCreature::GetMaxSpeed() const
 
 // ------------------------------------------------------------------------------------ animation
 
+void ASUCreature::AnimateModel(float DeltaSeconds)
+{
+	const float Speed = GetVelocity().Size2D();
+	if (State == ESUCreatureState::Attack)
+	{
+		Model->SetPlayRate(Type == ESUCreatureType::Dweller ? 1.f : 1.6f);
+		Model->PlayClip(TEXT("Attack"), 0.1f);
+	}
+	else if (Type == ESUCreatureType::Dweller && State == ESUCreatureState::Watch)
+	{
+		Model->SetPlayRate(1.f);
+		Model->PlayClip(TEXT("Scream"), 0.25f);
+	}
+	else if (Speed > FMath::Max(ModelWalkSpeed * 1.9f, 230.f * ModelScale))
+	{
+		Model->SetPlayRate(FMath::Clamp(Speed / FMath::Max(ModelRunSpeed, 1.f), 0.55f, 1.6f));
+		Model->PlayClip(TEXT("Run"), 0.2f);
+	}
+	else if (Speed > 12.f)
+	{
+		Model->SetPlayRate(FMath::Clamp(Speed / FMath::Max(ModelWalkSpeed, 1.f), 0.5f, 2.2f));
+		Model->PlayClip(TEXT("Walk"), 0.3f);
+	}
+	else
+	{
+		Model->SetPlayRate(1.f);
+		Model->PlayClip(TEXT("Idle"), 0.4f);
+	}
+}
+
 void ASUCreature::Animate(float DeltaSeconds)
 {
 	const float Speed = GetVelocity().Size2D();
 	const bool bObserver = Type == ESUCreatureType::Observer;
+	if (Model)
+	{
+		AnimateModel(DeltaSeconds);
+	}
 	AnimPhase += DeltaSeconds * (bObserver ? Speed / 30.f : Speed / 55.f + 0.5f);
 	const float Amount = FMath::Clamp(Speed / (bObserver ? 300.f : 900.f), 0.f, 1.f);
 	if (Limbs.Num() == 4)
@@ -700,5 +774,210 @@ void ASUCreature::Animate(float DeltaSeconds)
 			StepTimer = bObserver ? 0.75f : FMath::Clamp(18000.f / FMath::Max(Speed, 1.f) * 0.02f, 0.12f, 0.4f);
 			StepAudio->TriggerSound(0, bObserver ? 0.6f : 1.1f);
 		}
+	}
+}
+
+// ------------------------------------------------------------------------------------ dweller
+
+void ASUCreature::SetNavGraph(TSharedPtr<const SUModel::NavGraph> InGraph, int32 InHomeNode, const TArray<FVector>& InHideEntries, const TArray<FVector>& InHideInsides)
+{
+	NavGraph = InGraph;
+	HomeNode = InHomeNode;
+	HideEntries = InHideEntries;
+	HideInsides = InHideInsides;
+}
+
+int32 ASUCreature::FindHideSpot(const FVector& Location) const
+{
+	for (int32 I = 0; I < HideInsides.Num(); ++I)
+	{
+		// inside the pocket or in the crawl way leading to it
+		const FVector Closest = FMath::ClosestPointOnSegment(Location, HideEntries.IsValidIndex(I) ? HideEntries[I] : HideInsides[I], HideInsides[I]);
+		const float AlongEntry = HideEntries.IsValidIndex(I) ? FVector::Dist(Closest, HideEntries[I]) : 1000.f;
+		if (FVector::DistSquared(Location, Closest) < 190.f * 190.f && AlongEntry > 170.f)
+		{
+			return I;
+		}
+	}
+	return INDEX_NONE;
+}
+
+FVector ASUCreature::NextPathPoint(const FVector& Goal)
+{
+	if (!NavGraph.IsValid() || NavGraph->Nodes.empty())
+	{
+		return Goal;
+	}
+	const FVector Here = GetActorLocation() - FVector(0.f, 0.f, GetCapsuleComponent()->GetScaledCapsuleHalfHeight());
+	const int From = NavGraph->Nearest(static_cast<float>(Here.X), static_cast<float>(Here.Y), static_cast<float>(Here.Z));
+	const int To = NavGraph->Nearest(static_cast<float>(Goal.X), static_cast<float>(Goal.Y), static_cast<float>(Goal.Z));
+	if (From < 0 || To < 0 || From == To || !NavGraph->FindPath(From, To, NavPath) || NavPath.size() < 2)
+	{
+		return Goal;
+	}
+	// walk to the first node of the path that is still ahead
+	const SUModel::NavGraph::Node& First = NavGraph->Nodes[static_cast<size_t>(NavPath[0])];
+	const SUModel::NavGraph::Node& Second = NavGraph->Nodes[static_cast<size_t>(NavPath[1])];
+	const FVector P0(First.X, First.Y, First.Z);
+	const FVector P1(Second.X, Second.Y, Second.Z);
+	const float Along = FVector::DotProduct(Here - P0, (P1 - P0).GetSafeNormal());
+	if (Along < -80.f && FVector::Dist2D(Here, P0) > 150.f)
+	{
+		return P0;
+	}
+	if (NavPath.size() == 2 && FVector::Dist2D(Here, P1) < 260.f)
+	{
+		return Goal;
+	}
+	return P1;
+}
+
+void ASUCreature::UpdateDweller(float DeltaSeconds)
+{
+	const FVector Here = GetActorLocation();
+	float Dist = 0.f;
+	ASUCharacter* Nearest = FindNearestPlayer(Dist);
+	const bool bSameLevel = Nearest && FMath::Abs(Nearest->GetActorLocation().Z - Here.Z) < 1100.f;
+	// hearing: running is loud, crouching is almost silent, a lamp gives the player away
+	float SenseRange = 0.f;
+	if (Nearest && bSameLevel && Nearest->GetHealth() > 0.f)
+	{
+		const float PlayerSpeed = Nearest->GetVelocity().Size2D();
+		SenseRange = Nearest->bIsCrouched ? 420.f : (PlayerSpeed > 250.f ? 2600.f : (PlayerSpeed > 40.f ? 1500.f : 650.f));
+		if (Nearest->IsFlashlightOn())
+		{
+			SenseRange = FMath::Max(SenseRange, 1250.f);
+		}
+		if (LitTime > 0.6f)
+		{
+			SenseRange = 3000.f;
+		}
+	}
+	const bool bSensed = Nearest && Dist < SenseRange;
+	AActor* T = Target.Get();
+	ASUCharacter* Prey = Cast<ASUCharacter>(T);
+	Aggression = FMath::FInterpTo(Aggression, (State == ESUCreatureState::Chase || State == ESUCreatureState::Attack) ? 1.f : 0.15f, DeltaSeconds, 2.f);
+
+	switch (State)
+	{
+	case ESUCreatureState::Idle:
+	case ESUCreatureState::Stalk:
+		if (bSensed)
+		{
+			Target = Nearest;
+			SetState(ESUCreatureState::Watch);
+			MulticastVoice(1, 1.4f);
+		}
+		break;
+	case ESUCreatureState::Watch:
+		if (Prey)
+		{
+			FaceTowards(Prey->GetActorLocation(), DeltaSeconds, 5.f);
+		}
+		if (StateTime > 2.5f)
+		{
+			LostTimer = 0.f;
+			SetState(Prey ? ESUCreatureState::Chase : ESUCreatureState::Retreat);
+		}
+		break;
+	case ESUCreatureState::Chase:
+	{
+		if (!Prey || Prey->GetHealth() <= 0.f)
+		{
+			SetState(ESUCreatureState::Retreat);
+			break;
+		}
+		const FVector PreyLoc = Prey->GetActorLocation();
+		const float PreyDist = FVector::Dist(PreyLoc, Here);
+		const int32 Hide = FindHideSpot(PreyLoc);
+		const bool bGone = PreyDist > 5200.f || FMath::Abs(PreyLoc.Z - Here.Z) > 1500.f;
+		if (bGone)
+		{
+			LostTimer += DeltaSeconds * 3.f;
+		}
+		else if (Hide != INDEX_NONE)
+		{
+			// wait in front of the crawl space, then give up
+			const FVector Entry = HideEntries[Hide];
+			if (FVector::Dist2D(Here, Entry) > 230.f)
+			{
+				SteerTowards(NextPathPoint(Entry), 300.f, DeltaSeconds);
+			}
+			else
+			{
+				FaceTowards(PreyLoc, DeltaSeconds, 3.f);
+			}
+			LostTimer += DeltaSeconds;
+		}
+		else
+		{
+			LostTimer = FMath::Max(0.f, LostTimer - DeltaSeconds * 2.f);
+			// a little slower than a sprinting player: running away works, walking does not
+			SteerTowards(NextPathPoint(PreyLoc), 365.f, DeltaSeconds);
+			if (PreyDist < 290.f && AttackCooldown <= 0.f)
+			{
+				bAttackHit = false;
+				SetState(ESUCreatureState::Attack);
+			}
+		}
+		if (LostTimer > 8.f)
+		{
+			Target = nullptr;
+			SetState(ESUCreatureState::Retreat);
+		}
+		break;
+	}
+	case ESUCreatureState::Attack:
+		if (Prey)
+		{
+			FaceTowards(Prey->GetActorLocation(), DeltaSeconds, 8.f);
+			if (!bAttackHit && StateTime > 0.6f)
+			{
+				bAttackHit = true;
+				AttackCooldown = 2.4f;
+				if (FVector::Dist(Prey->GetActorLocation(), Here) < 330.f && FindHideSpot(Prey->GetActorLocation()) == INDEX_NONE)
+				{
+					MulticastVoice(1, 1.3f);
+					Prey->ApplyDamageSU(38.f, this);
+				}
+			}
+		}
+		if (StateTime > 1.25f)
+		{
+			SetState(ESUCreatureState::Chase);
+		}
+		break;
+	case ESUCreatureState::Retreat:
+	{
+		// walk home; a careless player on the way is hunted again
+		if (bSensed && StateTime > 2.f)
+		{
+			Target = Nearest;
+			LostTimer = 0.f;
+			SetState(ESUCreatureState::Chase);
+			break;
+		}
+		if (NavGraph.IsValid() && HomeNode >= 0 && HomeNode < static_cast<int32>(NavGraph->Nodes.size()))
+		{
+			const SUModel::NavGraph::Node& Home = NavGraph->Nodes[static_cast<size_t>(HomeNode)];
+			const FVector HomeLoc(Home.X, Home.Y, Home.Z);
+			if (FVector::Dist2D(Here, HomeLoc) < 260.f)
+			{
+				SetState(ESUCreatureState::Idle);
+			}
+			else
+			{
+				SteerTowards(NextPathPoint(HomeLoc), 150.f, DeltaSeconds);
+			}
+		}
+		else
+		{
+			SetState(ESUCreatureState::Idle);
+		}
+		break;
+	}
+	default:
+		SetState(ESUCreatureState::Idle);
+		break;
 	}
 }

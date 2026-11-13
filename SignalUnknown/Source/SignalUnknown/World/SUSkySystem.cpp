@@ -92,6 +92,7 @@ ASUSkySystem::ASUSkySystem()
 void ASUSkySystem::BeginPlay()
 {
 	Super::BeginPlay();
+	BaseSkyIntensity = SkyLight->Intensity;
 
 	Fog->SetFogDensity(0.015f);
 	Fog->SetFogHeightFalloff(0.08f);
@@ -201,23 +202,43 @@ void ASUSkySystem::Tick(float DeltaSeconds)
 	const float FogAmount = GS ? GS->GetFog() : 0.3f;
 	CurrentDarkness = GS ? GS->GetDarkness() : 0.f;
 
+	// ---- below ground no daylight arrives. The level geometry there is procedural and does not
+	// shadow the sky on its own, so the sky is faded out for the local view instead.
+	FVector ViewLocation;
+	const bool bHasView = GetViewLocation(ViewLocation);
+	bool bInDarkZone = false;
+	if (bHasView)
+	{
+		for (const FBox& Zone : DarkZones)
+		{
+			if (Zone.IsInsideOrOn(ViewLocation))
+			{
+				bInDarkZone = true;
+				break;
+			}
+		}
+	}
+	Underground = FMath::FInterpConstantTo(Underground, bInDarkZone ? 1.f : 0.f, DeltaSeconds, 0.8f);
+	const float Daylight = 1.f - Underground;
+	SkyLight->SetIntensity(BaseSkyIntensity * Daylight);
+
 	// ---- sun: rises in the east (90°), south at noon, sets in the west (270°)
 	const float Elevation = ASUGameState::SunElevationForHours(Hours);
 	const float DayT = (Hours - 5.83f) / 14.83f;
 	const float Azimuth = 90.f + 180.f * DayT;
 	Sun->SetWorldRotation(FRotator(-Elevation, Azimuth + 180.f, 0.f));
 	const float SunVisible = FMath::SmoothStep(-4.f, 2.f, Elevation);
-	Sun->SetIntensity(90000.f * SunVisible * (1.f - 0.75f * Cloud) * (1.f - 0.5f * Rain));
-	Sun->SetCastShadows(SunVisible > 0.01f);
+	Sun->SetIntensity(90000.f * SunVisible * (1.f - 0.75f * Cloud) * (1.f - 0.5f * Rain) * Daylight);
+	Sun->SetCastShadows(SunVisible > 0.01f && Daylight > 0.01f);
 
 	// ---- moon: opposite the sun, fixed elevation at night
 	const float MoonVisible = 1.f - FMath::SmoothStep(-6.f, 4.f, Elevation);
 	Moon->SetWorldRotation(FRotator(-35.f, Azimuth, 0.f));
-	Moon->SetIntensity(0.35f * MoonVisible * (1.f - 0.8f * Cloud));
-	Moon->SetCastShadows(MoonVisible > 0.05f);
+	Moon->SetIntensity(0.35f * MoonVisible * (1.f - 0.8f * Cloud) * Daylight);
+	Moon->SetCastShadows(MoonVisible > 0.05f && Daylight > 0.01f);
 
 	// ---- fog & weather
-	Fog->SetFogDensity(0.008f + 0.035f * FogAmount + 0.02f * Rain);
+	Fog->SetFogDensity((0.008f + 0.035f * FogAmount + 0.02f * Rain) * FMath::Lerp(1.f, 0.25f, Underground));
 	Fog->SetFogHeightFalloff(FMath::Lerp(0.12f, 0.03f, FogAmount));
 
 	// ---- lightning
@@ -225,7 +246,7 @@ void ASUSkySystem::Tick(float DeltaSeconds)
 	{
 		FlashTime += DeltaSeconds;
 		const bool bOn = (FlashTime < 0.07f) || (FlashTime > 0.13f && FlashTime < 0.19f);
-		Flash->SetIntensity(bOn ? 4.f * FlashStrength : 0.f);
+		Flash->SetIntensity(bOn ? 4.f * FlashStrength * Daylight : 0.f);
 		Flash->SetWorldRotation(FRotator(-60.f, 30.f, 0.f));
 		if (FlashTime > 0.3f)
 		{
@@ -250,9 +271,8 @@ void ASUSkySystem::Tick(float DeltaSeconds)
 		PP.MotionBlurAmount = Settings->bMotionBlur ? 0.35f : 0.f;
 	}
 
-	FVector ViewLocation;
-	if (GetViewLocation(ViewLocation))
+	if (bHasView)
 	{
-		UpdateRain(DeltaSeconds, Rain, ViewLocation);
+		UpdateRain(DeltaSeconds, Rain * Daylight, ViewLocation);
 	}
 }

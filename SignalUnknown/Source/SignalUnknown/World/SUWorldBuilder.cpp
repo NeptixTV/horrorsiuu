@@ -10,6 +10,9 @@
 #include "World/Sites/SUSiteSettlement.h"
 #include "World/Sites/SUSiteForsthaus.h"
 #include "World/Sites/SUSiteM02.h"
+#include "World/Sites/SUSiteManor.h"
+#include "World/SUModelLibrary.h"
+#include "Logic/SUManorData.h"
 #include "World/Sites/SUSiteTown.h"
 #include "ProceduralMeshComponent.h"
 #include "Components/HierarchicalInstancedStaticMeshComponent.h"
@@ -244,6 +247,23 @@ void ASUWorldBuilder::BuildTerrain()
 	const int32 CoreChunks = 12;
 	const int32 CoreCells = 35;
 	const float CoreSpacing = (CoreHalf * 2.f) / (CoreChunks * CoreCells);
+
+	// The cellar stairs of the manor pass through the ground: cut a hole exactly over the stair shaft.
+	// (Only when the model exists - otherwise a placeholder house stands there.)
+	bHasTerrainHole = false;
+	USUModelLibrary* Models = USUModelLibrary::Get(this);
+	const SitePad* ManorPad = Layout->FindPad("Manor");
+	if (ManorPad && Models && Models->HasMesh(TEXT("SM_Manor_Shell")))
+	{
+		const FRotator Yaw(0.f, static_cast<float>(ManorPad->FacingYawDeg), 0.f);
+		const FVector Centre(ManorPad->Center.X * M, ManorPad->Center.Y * M, 0.0);
+		const FVector A = Centre + Yaw.RotateVector(FVector(SUManor::ShaftMinX - SUManor::PadCentre.X, SUManor::ShaftMinY - SUManor::PadCentre.Y, 0.f));
+		const FVector B = Centre + Yaw.RotateVector(FVector(SUManor::ShaftMaxX - SUManor::PadCentre.X, SUManor::ShaftMaxY - SUManor::PadCentre.Y, 0.f));
+		const float Grow = 12.f;
+		TerrainHole = FBox2D(FVector2D(FMath::Min(A.X, B.X) - Grow, FMath::Min(A.Y, B.Y) - Grow), FVector2D(FMath::Max(A.X, B.X) + Grow, FMath::Max(A.Y, B.Y) + Grow));
+		TerrainHoleZ = static_cast<float>(ManorPad->Z * M);
+		bHasTerrainHole = true;
+	}
 	for (int32 CY = 0; CY < CoreChunks; ++CY)
 	{
 		for (int32 CX = 0; CX < CoreChunks; ++CX)
@@ -345,6 +365,41 @@ void ASUWorldBuilder::BuildTerrainChunk(int32 ChunkX, int32 ChunkY, float Origin
 			const int32 V10 = V00 + 1;
 			const int32 V01 = V00 + N;
 			const int32 V11 = V01 + 1;
+			if (bCore && bHasTerrainHole)
+			{
+				const FVector Lo = Vertices[V00];
+				const FVector Hi = Vertices[V11];
+				if (Lo.X < TerrainHole.Max.X && Hi.X > TerrainHole.Min.X && Lo.Y < TerrainHole.Max.Y && Hi.Y > TerrainHole.Min.Y)
+				{
+					// this cell touches the hole: replace it by up to four level rectangles around the hole
+					auto Patch = [&](float PX0, float PY0, float PX1, float PY1)
+					{
+						if (PX1 - PX0 < 1.f || PY1 - PY0 < 1.f)
+						{
+							return;
+						}
+						const int32 P = Vertices.Num();
+						const FVector Corners[4] = {FVector(PX0, PY0, TerrainHoleZ), FVector(PX1, PY0, TerrainHoleZ), FVector(PX0, PY1, TerrainHoleZ), FVector(PX1, PY1, TerrainHoleZ)};
+						for (const FVector& C : Corners)
+						{
+							Vertices.Add(C);
+							Normals.Add(FVector::UpVector);
+							UVs.Add(FVector2D(C.X / 400.f, C.Y / 400.f));
+						}
+						Tris[4].Append({P, P + 3, P + 1});
+						Tris[4].Append({P, P + 2, P + 3});
+					};
+					const float HX0 = FMath::Clamp(static_cast<float>(TerrainHole.Min.X), static_cast<float>(Lo.X), static_cast<float>(Hi.X));
+					const float HX1 = FMath::Clamp(static_cast<float>(TerrainHole.Max.X), static_cast<float>(Lo.X), static_cast<float>(Hi.X));
+					const float HY0 = FMath::Clamp(static_cast<float>(TerrainHole.Min.Y), static_cast<float>(Lo.Y), static_cast<float>(Hi.Y));
+					const float HY1 = FMath::Clamp(static_cast<float>(TerrainHole.Max.Y), static_cast<float>(Lo.Y), static_cast<float>(Hi.Y));
+					Patch(static_cast<float>(Lo.X), static_cast<float>(Lo.Y), HX0, static_cast<float>(Hi.Y));
+					Patch(HX1, static_cast<float>(Lo.Y), static_cast<float>(Hi.X), static_cast<float>(Hi.Y));
+					Patch(HX0, static_cast<float>(Lo.Y), HX1, HY0);
+					Patch(HX0, HY1, HX1, static_cast<float>(Hi.Y));
+					continue;
+				}
+			}
 			// winding: counter-clockwise seen from above in Unreal's left-handed space
 			const int32 S1 = Classify(Vertices[V00], Vertices[V11], Vertices[V10]);
 			Tris[S1].Append({V00, V11, V10});
@@ -604,6 +659,22 @@ void ASUWorldBuilder::BuildForest()
 
 	TArray<FTransform> Trunks, BirchTrunks, Crown1, Crown2, PineCrowns, BirchCrowns, Rocks, Bushes, Logs, FarCrowns, Ferns;
 	TArray<TArray<FTransform>> OverrideTrees;
+
+	// real tree models (Vegetation.sumodel). The old shapes remain as fallback and for the far forest.
+	static const TCHAR* TreeModelNames[5] = {TEXT("SM_Veg_ConiferTall"), TEXT("SM_Veg_PineTall"), TEXT("SM_Veg_ConiferMid"), TEXT("SM_Veg_SpruceBushy"), TEXT("SM_Veg_ConiferLight")};
+	static const float TreeModelHeights[5] = {2600.f, 2100.f, 1500.f, 1000.f, 850.f};
+	USUModelLibrary* Models = USUModelLibrary::Get(this);
+	UStaticMesh* TreeModels[5] = {nullptr, nullptr, nullptr, nullptr, nullptr};
+	bool bModelTrees = Models != nullptr;
+	for (int32 T = 0; T < 5 && bModelTrees; ++T)
+	{
+		TreeModels[T] = Models->GetStaticMesh(TreeModelNames[T]);
+		bModelTrees = TreeModels[T] != nullptr;
+	}
+	UStaticMesh* BushModel = bModelTrees ? Models->GetStaticMesh(TEXT("SM_Veg_Bush")) : nullptr;
+	UStaticMesh* GrassModel = bModelTrees ? Models->GetStaticMesh(TEXT("SM_Veg_GrassGreen")) : nullptr;
+	TArray<FTransform> ModelTrees[5];
+	TArray<FTransform> HiddenTrunks, ModelBushes, ModelGrass;
 	const TArray<TObjectPtr<UStaticMesh>>& TreeOverrides = Lib->GetTreeOverrides();
 	OverrideTrees.SetNum(TreeOverrides.Num());
 	const float TreeMeshHeight = 1500.f;
@@ -639,6 +710,20 @@ void ASUWorldBuilder::BuildForest()
 					continue;
 				}
 				const float TrunkD = H * 0.022f;
+				if (bModelTrees)
+				{
+					int32 Variant = 3;
+					if (Kind < 0.08 && Layout->ForestFactor(X, Y) < 0.5) { Variant = 4; }
+					else if (Kind < 0.2) { Variant = 1; }
+					else if (H > 2300.f) { Variant = 0; }
+					else if (H > 1750.f) { Variant = Kind < 0.6 ? 0 : 2; }
+					else { Variant = Kind < 0.55 ? 2 : 3; }
+					const float S = FMath::Clamp(H / TreeModelHeights[Variant], 0.72f, 1.4f);
+					ModelTrees[Variant].Add(FTransform(FRotator(0.f, Yaw, 0.f), Base, FVector(S)));
+					// invisible cylinder: the trunk blocks players, creatures and the car
+					HiddenTrunks.Add(FTransform(FRotator(0.f, Yaw, 0.f), Base + FVector(0, 0, 250.f), FVector(TrunkD * 1.25f / 100.f, TrunkD * 1.25f / 100.f, 5.f)));
+					continue;
+				}
 				if (Kind < 0.08 && Layout->ForestFactor(X, Y) < 0.5)
 				{
 					// birch
@@ -665,6 +750,15 @@ void ASUWorldBuilder::BuildForest()
 			{
 				const double Z = Layout->Height(X, Y) * M;
 				const float S = static_cast<float>(0.6 + Hash2D01(I, J, Seed + 22u) * 1.2);
+				if (BushModel)
+				{
+					ModelBushes.Add(FTransform(FRotator(0.f, static_cast<float>(Bush * 2000.0), 0.f), FVector(X * M, Y * M, Z - 5.0), FVector(0.7f * S)));
+					if (Bush < 0.09 && GrassModel)
+					{
+						ModelGrass.Add(FTransform(FRotator(0.f, static_cast<float>(Bush * 5000.0), 0.f), FVector(X * M + 150.0, Y * M + 60.0, Z - 3.0), FVector(1.5f * S)));
+					}
+					continue;
+				}
 				Bushes.Add(FTransform(FRotator(0.f, static_cast<float>(Bush * 2000.0), 0.f), FVector(X * M, Y * M, Z + 20.f * S), FVector(1.4f * S, 1.2f * S, 0.8f * S)));
 				if (Bush < 0.05)
 				{
@@ -739,6 +833,37 @@ void ASUWorldBuilder::BuildForest()
 	Add(TEXT("Bushes"), Sphere, ESUMat::FoliageLight, false, 20000, Bushes);
 	Add(TEXT("Ferns"), Cone, ESUMat::Foliage, false, 12000, Ferns);
 	Add(TEXT("FarForest"), Cone, ESUMat::FoliageDark, false, 0, FarCrowns);
+	if (bModelTrees)
+	{
+		int32 Total = 0;
+		for (int32 T = 0; T < 5; ++T)
+		{
+			if (ModelTrees[T].Num() > 0)
+			{
+				UHierarchicalInstancedStaticMeshComponent* H = MakeFoliageComponent(*FString::Printf(TEXT("Trees_Model_%d"), T), TreeModels[T], nullptr, false, 380000);
+				H->AddInstances(ModelTrees[T], false);
+				Total += ModelTrees[T].Num();
+			}
+		}
+		if (HiddenTrunks.Num() > 0)
+		{
+			UHierarchicalInstancedStaticMeshComponent* H = MakeFoliageComponent(TEXT("Trees_TrunkCollision"), Cyl, Lib->GetMaterial(ESUMat::Bark), true, 0);
+			H->SetHiddenInGame(true);
+			H->SetCastShadow(false);
+			H->AddInstances(HiddenTrunks, false);
+		}
+		if (BushModel && ModelBushes.Num() > 0)
+		{
+			UHierarchicalInstancedStaticMeshComponent* H = MakeFoliageComponent(TEXT("Bushes_Model"), BushModel, nullptr, false, 26000);
+			H->AddInstances(ModelBushes, false);
+		}
+		if (GrassModel && ModelGrass.Num() > 0)
+		{
+			UHierarchicalInstancedStaticMeshComponent* H = MakeFoliageComponent(TEXT("Grass_Model"), GrassModel, nullptr, false, 9000);
+			H->AddInstances(ModelGrass, false);
+		}
+		UE_LOG(LogSignalUnknown, Log, TEXT("  forest: %d model trees"), Total);
+	}
 	for (int32 V = 0; V < OverrideTrees.Num(); ++V)
 	{
 		if (OverrideTrees[V].Num() > 0)
@@ -809,6 +934,7 @@ void ASUWorldBuilder::BuildSites()
 	SpawnSite<ASUSiteGasStation>(TEXT("GasStation"));
 	SpawnSite<ASUSiteForsthaus>(TEXT("Forsthaus"));
 	SpawnSite<ASUSiteM02>(TEXT("M02Car"));
+	SpawnSite<ASUSiteManor>(TEXT("Manor"));
 	SpawnSite<ASUSiteTown>(TEXT("Town"));
 	for (int32 I = 1; I <= 6; ++I)
 	{

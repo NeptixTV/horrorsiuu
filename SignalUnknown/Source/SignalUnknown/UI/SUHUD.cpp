@@ -15,6 +15,7 @@
 #include "Mission/SUMissionDatabase.h"
 #include "Base/SUBaseDevices.h"
 #include "World/SUWorldBuilder.h"
+#include "World/SUSkySystem.h"
 #include "Camera/CameraComponent.h"
 #include "Engine/Canvas.h"
 #include "Engine/Texture.h"
@@ -540,6 +541,7 @@ void ASUHUD::DrawGameHUD(float DeltaSeconds)
 	if (Screen == ESUScreen::None)
 	{
 		DrawVitals(Char, GS);
+		DrawStealth(Char);
 	}
 	DrawSubtitles(Char, MM, DeltaSeconds);
 
@@ -863,13 +865,26 @@ void ASUHUD::DrawVitals(const ASUCharacter* Char, const ASUGameState* GS)
 		return;
 	}
 	const float X = S(36.f);
-	float Y = H() - S(110.f);
-	// health bar
+	float Y = H() - S(124.f);
+	// backing panel so the read-outs stay legible over bright ground
+	Rect(X - S(14.f), Y - S(14.f), S(330.f), S(112.f), FLinearColor(0.f, 0.f, 0.f, 0.28f));
+	Rect(X - S(14.f), Y - S(14.f), S(3.f), S(112.f), SUHUDStyle::Accent);
+	// health bar: ten segments and a number
 	const float BarW = S(180.f);
-	Rect(X, Y, BarW, S(6.f), FLinearColor(0.f, 0.f, 0.f, 0.5f));
 	const float Hp = FMath::Clamp(Char->GetHealth() / 100.f, 0.f, 1.f);
-	Rect(X, Y, BarW * Hp, S(6.f), Hp < 0.35f ? SUHUDStyle::Bad : FLinearColor(0.85f, 0.85f, 0.8f, 0.8f));
-	Y += S(14.f);
+	const FLinearColor HpColor = Hp < 0.35f ? SUHUDStyle::Bad : FLinearColor(0.85f, 0.85f, 0.8f, 0.85f);
+	for (int32 Seg = 0; Seg < 10; ++Seg)
+	{
+		const float SegW = BarW / 10.f;
+		const float Fill = FMath::Clamp(Hp * 10.f - Seg, 0.f, 1.f);
+		Rect(X + Seg * SegW, Y, SegW - S(2.f), S(7.f), FLinearColor(0.f, 0.f, 0.f, 0.55f));
+		if (Fill > 0.f)
+		{
+			Rect(X + Seg * SegW, Y, (SegW - S(2.f)) * Fill, S(7.f), HpColor);
+		}
+	}
+	Text(FString::Printf(TEXT("%d"), FMath::RoundToInt(Hp * 100.f)), X + BarW + S(10.f), Y - S(5.f), 13.f, HpColor);
+	Y += S(16.f);
 	if (const USUInventoryComponent* Inv = Char->GetInventory())
 	{
 		if (Inv->HasItem(SUItem::Flashlight))
@@ -898,6 +913,40 @@ void ASUHUD::DrawVitals(const ASUCharacter* Char, const ASUGameState* GS)
 			Text(Settings->bPushToTalk ? TEXT("Sprechfunk: [T] halten") : TEXT("Sprechfunk: offen"), W() - S(36.f), H() - S(40.f), 12.f, SUHUDStyle::Dim, 2);
 		}
 	}
+}
+
+void ASUHUD::DrawStealth(const ASUCharacter* Char)
+{
+	const ASUWorldBuilder* Builder = ASUWorldBuilder::Get(this);
+	const ASUSkySystem* Sky = Builder ? Builder->GetSkySystem() : nullptr;
+	if (!Char || !Sky || Sky->GetUndergroundAmount() < 0.05f)
+	{
+		ShownNoise = 0.f;
+		return;
+	}
+	const float Alpha = FMath::Clamp(Sky->GetUndergroundAmount() * 1.5f, 0.f, 1.f);
+	// same rule the dweller uses for hearing: crouching is quiet, running is loud, a lamp gives you away
+	const float Speed = Char->GetVelocity().Size2D();
+	float Noise = Char->bIsCrouched ? 0.12f : (Speed > 250.f ? 1.f : (Speed > 40.f ? 0.58f : 0.25f));
+	if (Char->IsFlashlightOn())
+	{
+		Noise = FMath::Max(Noise, 0.48f);
+	}
+	ShownNoise = FMath::FInterpTo(ShownNoise, Noise, FMath::Min(GetWorld() ? GetWorld()->GetDeltaSeconds() : 0.016f, 0.1f), 6.f);
+	const float X = S(36.f);
+	const float Y = H() - S(176.f);
+	const float BarW = S(180.f);
+	Rect(X - S(14.f), Y - S(12.f), S(330.f), S(40.f), FLinearColor(0.f, 0.f, 0.f, 0.28f * Alpha));
+	Text(TEXT("LÄRM"), X, Y - S(6.f), 11.f, FLinearColor(0.75f, 0.75f, 0.7f, 0.8f * Alpha));
+	const FLinearColor Color = ShownNoise > 0.8f ? SUHUDStyle::Bad : (ShownNoise > 0.4f ? SUHUDStyle::Accent : SUHUDStyle::Good);
+	Rect(X + S(48.f), Y, BarW - S(48.f), S(6.f), FLinearColor(0.f, 0.f, 0.f, 0.55f * Alpha));
+	Rect(X + S(48.f), Y, (BarW - S(48.f)) * ShownNoise, S(6.f), FLinearColor(Color.R, Color.G, Color.B, 0.9f * Alpha));
+	const float Depth = (Builder->GetGroundHeight(Char->GetActorLocation().X, Char->GetActorLocation().Y) - Char->GetActorLocation().Z) / 100.f;
+	if (Depth > 1.f)
+	{
+		Text(FString::Printf(TEXT("Tiefe %d m"), FMath::RoundToInt(Depth)), X + BarW + S(10.f), Y - S(6.f), 12.f, FLinearColor(0.75f, 0.75f, 0.7f, 0.8f * Alpha));
+	}
+	Text(Char->bIsCrouched ? TEXT("geduckt") : TEXT("[Strg] ducken"), X, Y + S(10.f), 11.f, FLinearColor(0.6f, 0.6f, 0.56f, 0.7f * Alpha));
 }
 
 void ASUHUD::DrawVehicleHUD(const ASUCharacter* Char)
